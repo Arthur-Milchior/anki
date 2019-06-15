@@ -11,3 +11,17 @@ pyenv
 .mypy_cache
 __pycache__
 anki.prof
+qt/aqt/forms
+locale
+tools/runanki.system
+/tests/test_sched.py
+aqt/buildhash.py
+/__main__.py
+anki/buildhash.py
+.mypy_cache
+.pytype
+.build
+*autosave
+tests/support/TEST/backups
+/anki
+/aqt
