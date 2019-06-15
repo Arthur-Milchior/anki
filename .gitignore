@@ -7,4 +7,10 @@
 aqt/forms
 locale
 tools/runanki.system
+/anki/ankiweb.certs
+/tests/test_sched.py
+aqt/buildhash.py
+/__main__.py
 anki/buildhash.py
+*autosave
+tests/support/TEST/backups
