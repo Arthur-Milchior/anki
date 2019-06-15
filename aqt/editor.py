@@ -934,7 +934,7 @@ class EditorWebView(AnkiWebView):
         mime = evt.mimeData()
 
         if evt.source() and mime.hasHtml():
-            # don't filter html from other fields
+            # don't filterhtml from other fields
             html, internal = mime.html(), True
         else:
             html, internal = self._processMime(mime)

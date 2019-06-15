@@ -73,6 +73,8 @@ function _showQuestion(q, bodyclass) {
 }
 
 function _showAnswer(a, bodyclass) {
+    /*Change the class name to bodyclass. Move to the first #answer in
+     * the html.*/
     _updateQA(a, aFade, function() {
         if (bodyclass) {
             //  when previewing
