@@ -1,0 +1,8 @@
+Note that some names are distinct in the manual and in the code.
+
+Code          |Manual
+----------------------------
+cramming deck |Dynamic deck
+model         |note type
+template      |card type
+conf/dconf    |deck option
