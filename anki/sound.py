@@ -20,21 +20,28 @@ from anki.utils import isLin, isMac, isWin, tmpdir
 # Shared utils
 ##########################################################################
 
+"""
+Regexp matching [sound:...] in field. It's only match is the file name
+"""
 _soundReg = r"\[sound:(.*?)\]"
 
 def playFromText(text):
+    """Play in order all sound matched in text."""
     for match in allSounds(text):
         # filename is html encoded
         match = html.unescape(match)
         play(match)
 
 def allSounds(text):
+    """The list of match of sounds in text"""
     return re.findall(_soundReg, text)
 
 def stripSounds(text):
+    """The text without its sound field."""
     return re.sub(_soundReg, "", text)
 
 def hasSound(text):
+    """Whether field text contains some [sound:...]."""
     return re.search(_soundReg, text) is not None
 
 # Packaged commands
@@ -187,7 +194,9 @@ if isWin:
 mplayerQueue = []
 mplayerManager = None
 mplayerReader = None
+
 mplayerEvt = threading.Event()
+"""Whether the queue of things to play should be cleared"""
 mplayerClear = False
 
 class MplayerMonitor(threading.Thread):

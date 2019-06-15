@@ -278,7 +278,8 @@ def test_findDupes():
     f4['Back'] = 'nope'
     deck.addNote(f4)
     r = deck.findDupes("Back")
-    assert r[0][0] == "bar"
+    r0 = r[0]
+    assert r0[0] == "bar"
     assert len(r[0][1]) == 3
     # valid search
     r = deck.findDupes("Back", "bar")

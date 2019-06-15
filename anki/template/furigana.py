@@ -3,6 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 # Based off Kieran Clancy's initial implementation.
 
+"""Some templates for Japan language"""
 import re
 
 from anki.hooks import addHook

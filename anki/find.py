@@ -15,6 +15,10 @@ from anki.utils import (fieldChecksum, ids2str, intTime, joinFields,
 ##########################################################################
 
 class Finder:
+    """
+    col: the collection used for opening this Finder.
+    search: a dictionnary such that the query key:value is evaluated by self.search[key]((value,args)), with args a list of tag. This function potentially add tags (in _findTag) and return a sql part to put after the where. It may also return "skip", in which case the code is not added to sql.
+    """
 
     def __init__(self, col):
         self.col = col
@@ -242,6 +246,10 @@ select distinct(note.id) from cards card, notes note where card.nid=note.id and 
     ######################################################################
 
     def _findTag(self, args):
+        """A sql query as in 'tag:val'. Add the tag val to args. Returns a
+        query which, given a tag, search it.
+
+        """
         (val, args) = args
         if val == "none":
             return 'note.tags = ""'
@@ -254,6 +262,7 @@ select distinct(note.id) from cards card, notes note where card.nid=note.id and 
         return "note.tags like ? escape '\\'"
 
     def _findCardState(self, args):
+        """A sql query, as in 'is:foo'"""
         (val, args) = args
         if val in ("review", "new", "learn"):
             if val == "review":
@@ -274,6 +283,10 @@ select distinct(note.id) from cards card, notes note where card.nid=note.id and 
     self.col.sched.today, self.col.sched.dayCutoff)
 
     def _findFlag(self, args):
+        """A sql query restricting cards to the one whose flag is `val`, as in
+        'flag:val'
+
+        """
         (val, args) = args
         if not val or len(val)!=1 or val not in "01234":
             return
@@ -282,6 +295,13 @@ select distinct(note.id) from cards card, notes note where card.nid=note.id and 
         return "(card.flags & %d) == %d" % (mask, val)
 
     def _findRated(self, args):
+        """A sql query restricting cards as in 'rated:val', where val is of
+        the form numberOfDay or rated:numberOfDay:ease.
+
+        I.e. last review is at most `numberOfDay` days ago, and the button
+        pressed was `ease`.
+
+        """
         # days(:optional_ease)
         (vals, args) = args
         vals = vals.split(":")
@@ -301,6 +321,8 @@ select distinct(note.id) from cards card, notes note where card.nid=note.id and 
                 (cutoff, ease))
 
     def _findAdded(self, args):
+        """A sql query as in 'added:val', it restricts cards to ones which
+        were added at most val days ago."""
         (val, args) = args
         try:
             days = int(val)
@@ -347,24 +369,44 @@ select distinct(note.id) from cards card, notes note where card.nid=note.id and 
         return "(note.sfld like ? escape '\\' or note.flds like ? escape '\\')"
 
     def _findNids(self, args):
+        """A sql query restricting to notes whose id is in the list
+        `val`. `val` should contains only numbers and commas. It
+        corresponds to the query `nid:val`.
+
+        """
         (val, args) = args
         if re.search("[^0-9,]", val):
             return
         return "note.id in (%s)" % val
 
     def _findCids(self, args):
+        """A sql query restricting to cards whose id is in the list
+        `val`. `val` should contains only numbers and commas. It
+        corresponds to the query `cid:val`.
+
+        """
         (val, args) = args
         if re.search("[^0-9,]", val):
             return
         return "card.id in (%s)" % val
 
     def _findMid(self, args):
+        """A sql query restricting model (i.e. note type) to whose id is in
+        the list `val`. `val` should contains only numbers and
+        commas. It corresponds to the query `mid:val`.
+
+        """
         (val, args) = args
         if re.search("[^0-9]", val):
             return
         return "note.mid = %s" % val
 
     def _findModel(self, args):
+        """A sql query restricting model (i.e. note type) to whose name is in
+        the list `val`. `val` should contains only numbers and
+        commas. It corresponds to the query `mid:val`.
+
+        """
         (val, args) = args
         ids = []
         val = val.lower()
@@ -429,6 +471,11 @@ select distinct(note.id) from cards card, notes note where card.nid=note.id and 
         return " or ".join(lims)
 
     def _findField(self, field, val):
+        """A sql query restricting the notes to the ones having `val` in the field `field`.
+
+        Same than "field:val". Field is assumed not to be one of the keyword of the browser.
+
+        """
         field = field.lower()
         val = val.replace("*", "%")
         # find models that have that field
@@ -539,6 +586,8 @@ def fieldNames(col, downcase=True):
     return list(fields)
 
 def fieldNamesForNotes(col, nids):
+    """The list of field names of models of notes whose id belongs to
+    nids."""
     fields = set()
     mids = col.db.list("select distinct mid from notes where id in %s" % ids2str(nids))
     for mid in mids:

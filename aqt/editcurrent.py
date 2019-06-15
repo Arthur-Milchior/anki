@@ -35,6 +35,10 @@ class EditCurrent(QDialog):
         self.mw.progress.timer(100, lambda: self.editor.web.setFocus(), False)
 
     def onReset(self):
+        """
+        Reload the note, discarding change.
+        If the note is deleted, close the window.
+        """
         # lazy approach for now: throw away edits
         try:
             note = self.editor.note
@@ -52,7 +56,7 @@ class EditCurrent(QDialog):
     def reopen(self,mw):
         tooltip("Please finish editing the existing card first.")
         self.onReset()
-        
+
     def reject(self):
         self.saveAndClose()
 

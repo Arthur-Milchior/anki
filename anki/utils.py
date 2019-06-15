@@ -141,6 +141,7 @@ reEnts = re.compile(r"&#?\w+;")
 reMedia = re.compile("(?i)<img[^>]+src=[\"']?([^\"'>]+)[\"']?[^>]*>")
 
 def stripHTML(text):
+    """Removes comment, style, script, and all tags. Replace entities by their unicode value"""
     text = reComment.sub("", text)
     text = reStyle.sub("", text)
     text = reScript.sub("", text)
@@ -149,7 +150,8 @@ def stripHTML(text):
     return text
 
 def stripHTMLMedia(text):
-    "Strip HTML but keep media filenames"
+    """Removes comment, style, script, and all tags. Replace images by
+their url. Replace entities by their unicode value"""
     text = reMedia.sub(" \\1 ", text)
     return stripHTML(text)
 
@@ -164,6 +166,7 @@ def minimizeHTML(text):
     return text
 
 def htmlToTextLine(text):
+    """Transform a field into a html value to show in the browser list of cards."""
     text = text.replace("<br>", " ")
     text = text.replace("<br />", " ")
     text = text.replace("<div>", " ")
@@ -175,6 +178,7 @@ def htmlToTextLine(text):
     return text
 
 def entsToTxt(html):
+    """html, where entities are replaced by their unicode character."""
     # entitydefs defines nbsp as \xa0 instead of a standard space, so we
     # replace it first
     html = html.replace("&nbsp;", " ")
@@ -199,6 +203,8 @@ def entsToTxt(html):
     return reEnts.sub(fixup, html)
 
 def bodyClass(col, card):
+    """A string, containing "card", card position, and whether it's
+    nightMode"""
     bodyclass = "card card%d" % (card.ord+1)
     if col.conf.get("nightMode"):
         bodyclass += " nightMode"
@@ -272,6 +278,7 @@ def joinFields(list):
     return "\x1f".join(list)
 
 def splitFields(string):
+    """Transform the fields as in the database in a list of field"""
     return string.split("\x1f")
 
 # Checksums
@@ -330,7 +337,20 @@ def noBundledLibs():
         os.environ["LD_LIBRARY_PATH"] = oldlpath
 
 def call(argv, wait=True, **kwargs):
-    "Execute a command. If WAIT, return exit code."
+    """Execute a command and return its return code.
+
+    If wait is set to False, don't wait and return immediatly 0
+    (i.e. correct exit number)
+    return -1 if executing the command raises OSErrors.
+
+    If the returned value is considered as a Boolean, it returns
+    whether the call returned an error.
+
+    Keyword arguments
+    argv -- the command to execute
+    wait -- whether to wait for the end of the call before returning
+    **kwargs -- arguments given to subprocess.Popen.
+    """
     # ensure we don't open a separate window for forking process on windows
     if isWin:
         si = subprocess.STARTUPINFO()
@@ -383,6 +403,10 @@ def invalidFilename(str, dirsep=True):
         return "."
 
 def platDesc():
+    """{system}:{version}, where system is mac, win, or lin.
+
+    It is theoretically resistant to system call interuption.
+    """
     # we may get an interrupted system call, so try this in a loop
     index = 0
     theos = "unknown"

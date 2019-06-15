@@ -14,6 +14,10 @@ from aqt.utils import askUser, openHelp, showInfo
 
 class Preferences(QDialog):
 
+    """
+    startdate -- datetime where collection was created. Only in schedV1
+    """
+
     def __init__(self, mw):
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw

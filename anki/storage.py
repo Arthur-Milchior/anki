@@ -17,7 +17,11 @@ from anki.utils import intTime, isWin
 
 
 def Collection(path, lock=True, server=False, log=False):
-    "Open a new or existing collection. Path must be unicode."
+    """Open a new or existing collection. Path must be unicode.
+
+    server -- always False in anki without add-on.
+    log -- Boolean stating whether log must be made in the file, with same name than the collection, but ending in .log.
+    """
     assert path.endswith(".anki2")
     path = os.path.abspath(path)
     create = not os.path.exists(path)
@@ -56,6 +60,11 @@ def Collection(path, lock=True, server=False, log=False):
     return col
 
 def _upgradeSchema(db):
+    """
+    Change the database schema from version 1 to 2 and 2 to 3 if required.
+
+    Return the version number when this function starts.
+    """
     ver = db.scalar("select ver from col")
     if ver == SCHEMA_VERSION:
         return ver
@@ -85,6 +94,8 @@ id, guid, mid, mod, usn, tags, flds, sfld, csum, flags, data from notes2""")
     return ver
 
 def _upgrade(col, ver):
+    """Change the collection, assumed to be in version `ver`, to current
+    version. It does not change the schema."""
     if ver < 3:
         # new deck properties
         for deck in col.decks.all():
@@ -186,6 +197,7 @@ update cards set left = left + left*1000 where queue = 1""")
         col.db.execute("update col set ver = 11")
 
 def _upgradeClozeModel(col, model):
+    """Change from version 4 to 5 the model of cloze card"""
     model['type'] = MODEL_CLOZE
     # convert first template
     template = model['tmpls'][0]

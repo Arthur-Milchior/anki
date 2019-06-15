@@ -50,7 +50,89 @@ defaultConf = {
 
 # this is initialized by storage.Collection
 class _Collection:
+    """A collection is, basically, everything that composed an account in
+    Anki.
 
+    This object is usually denoted col
+
+    _lastSave -- time of the last save. Initially time of creation.
+    _undo -- An undo object. See below
+
+    The collection is an object composed of:
+    id -- arbitrary number since there is only one row
+    crt -- timestamp of the creation date. It's correct up to the day. For V1 scheduler, the hour corresponds to starting a newday.
+    mod -- last modified in milliseconds
+    scm -- schema mod time: time when "schema" was modified.
+        --  If server scm is different from the client scm a full-sync is required
+    ver -- version
+    dty -- dirty: unused, set to 0
+    usn -- update sequence number: used for finding diffs when syncing.
+        --   See usn in cards table for more details.
+    ls -- "last sync time"
+    conf -- json object containing configuration options that are synced
+    """
+
+    """
+    In the db, not in col objects: json array of json objects containing the models (aka Note types)
+    decks -- The deck manager
+          -- in the db  it is a json array of json objects containing the deck
+    dconf -- json array of json objects containing the deck options
+    tags -- a cache of tags used in the collection (probably for autocomplete etc)
+    """
+
+    """
+    conf -- ("conf" in the database.)
+    "curDeck": "The id (as int) of the last deck selectionned (review, adding card, changing the deck of a card)",
+    "activeDecks": "The list containing the current deck id and its descendent (as ints)",
+    "newSpread": "In which order to view to review the cards. This can be selected in Preferences>Basic. Possible values are:
+      0 -- NEW_CARDS_DISTRIBUTE (Mix new cards and reviews)
+      1 -- NEW_CARDS_LAST (see new cards after review)
+      2 -- NEW_CARDS_FIRST (See new card before review)",
+    "collapseTime": "'Preferences>Basic>Learn ahead limit'*60.
+    If there are no other card to review, then we can review cards in learning in advance if they are due in less than this number of seconds.",
+    "timeLim": "'Preferences>Basic>Timebox time limit'*60. Each time this number of second elapse, anki tell you how many card you reviewed.",
+    "estTimes": "'Preferences>Basic>Show next review time above answer buttons'. A Boolean."
+    "dueCounts": "'Preferences>Basic>Show remaining card count during review'. A Boolean."
+    "curModel": "Id (as string) of the last note type (a.k.a. model) used (i.e. either when creating a note, or changing the note type of a note).",
+    "nextPos": "This is the highest value of a due value of a new card. It allows to decide the due number to give to the next note created. (This is useful to ensure that cards are seen in order in which they are added.",
+    "sortType": "A string representing how the browser must be sorted. Its value should be one of the possible value of 'aqt.browsers.DataModel.activeCols' (or equivalently of 'activeCols'  but not any of ('question', 'answer', 'template', 'deck', 'note', 'noteTags')",
+    "sortBackwards": "A Boolean stating whether the browser sorting must be in increasing or decreasing order",
+    "addToCur": "A Boolean. True for 'When adding, default to current deck' in Preferences>Basic. False for 'Change deck depending on note type'.",
+    "dayLearnFirst": "A Boolean. It corresponds to the option 'Show learning cards with larger steps before reviews'. But this option does not seems to appear in the preference box",
+    "newBury": "A Boolean. Always set to true and not read anywhere in the code but at the place where it is set to True if it is not already true. Hence probably quite useful.",
+
+    "lastUnburied":"The date of the last time the scheduler was initialized or reset. If it's not today, then buried notes must be unburied. This is not in the json until scheduler is used once.",
+    "activeCols":"the list of name of columns to show in the browser. Possible values are listed in aqt.browser.Browser.setupColumns. They are:
+    'question' -- the browser column'Question',
+    'answer' -- the browser column'Answer',
+    'template' -- the browser column'Card',
+    'deck' -- the browser column'Deck',
+    'noteFld' -- the browser column'Sort Field',
+    'noteCrt' -- the browser column'Created',
+    'noteMod' -- the browser column'Edited',
+    'cardMod' -- the browser column'Changed',
+    'cardDue' -- the browser column'Due',
+    'cardIvl' -- the browser column'Interval',
+    'cardEase' -- the browser column'Ease',
+    'cardReps' -- the browser column'Reviews',
+    'cardLapses' -- the browser column'Lapses',
+    'noteTags' -- the browser column'Tags',
+    'note' -- the browser column'Note',
+    The default columns are: noteFld, template, cardDue and deck
+    This is not in the json at creaton. It's added when the browser is open.
+    "
+    """
+
+    """An undo object is of the form
+    [type, undoName, data]
+    Here, type is 1 for review, 2 for checkpoint.
+    undoName is the name of the action to undo. Used in the edit menu,
+    and in tooltip stating that undo was done.
+
+    server -- Whether to pretend to be the server. Only set to true during anki.sync.Syncer.remove; i.e. while removing what the server says to remove. When set to true:
+    * the usn returned by self.usn is self._usn, otherwise -1.
+    * media manager does not connect nor close database connexion (I've no idea why)
+    """
     def __init__(self, db, server=False, log=False):
         self._debugLog = log
         self.db = db
@@ -93,6 +175,7 @@ class _Collection:
             raise Exception("Unsupported scheduler version")
 
     def _loadScheduler(self):
+        """Set self.sched to the chosen Scheduler"""
         ver = self.schedVer()
         if ver == 1:
             from anki.sched import Scheduler
@@ -162,7 +245,11 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             self._usn, self.ls, json.dumps(self.conf))
 
     def save(self, name=None, mod=None):
-        "Flush, commit DB, and take out another write lock."
+        """
+        Flush, commit DB, and take out another write lock.
+
+        name --
+        """
         # let the managers conditionally flush
         self.models.flush()
         self.decks.flush()
@@ -183,13 +270,15 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             return True
 
     def lock(self):
-        # make sure we don't accidentally bump mod time
-        mod = self.db.mod
+        """TODO. """
+        mod = self.db.mod# make sure we don't accidentally bump mod time
         self.db.execute("update col set mod=mod")
         self.db.mod = mod
 
     def close(self, save=True):
-        "Disconnect from DB."
+        """Save or rollback collection's db according to save.
+        Close collection's db, media's db and log.
+        """
         if self.db:
             if save:
                 self.save()
@@ -218,9 +307,19 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         self.lock()
 
     def modSchema(self, check):
-        "Mark schema modified. Call this first so user can abort if necessary."
+        """Mark schema modified. Call this first so user can abort if necessary.
+
+        Raise AnkiError("abortSchemaMod") if the change is
+        rejected by the filter (e.g. if the user states to abort).
+
+        Once the change is accepted, the filter is not run until a
+        synchronization occurs.
+
+        Change the scm value
+        """
         if not self.schemaChanged():
             if check and not runFilter("modSchema", True):
+                #default hook is added in aqt/main setupHooks. It is function onSchemaMod from class AnkiQt aqt/main
                 raise AnkiError("abortSchemaMod")
         self.scm = intTime(1000)
         self.setMod()
@@ -230,10 +329,25 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         return self.scm > self.ls
 
     def usn(self):
+        """Return the synchronization number to use. Usually, -1, since
+        no actions are synchronized. The exception being actions
+        requested by synchronization itself, when self.server is
+        true. In which case _usn number.
+
+        """
         return self._usn if self.server else -1
 
     def beforeUpload(self):
-        "Called before a full upload."
+        """Called before a full upload.
+
+        * change usn -1 to 0 in notes, card and revlog, and all models, tags, decks, deck options.
+        * empty graves.
+        * Update usn
+        * set modSchema to true (no nead for new upload)
+        * update last sync time to current schema
+        * Save or rollback collection's db according to save.
+        * Close collection's db, media's db and log.
+        """
         tbls = "notes", "cards", "revlog"
         for table in tbls:
             self.db.execute("update %s set usn=0 where usn=-1" % table)
@@ -255,15 +369,20 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     ##########################################################################
 
     def getCard(self, id):
+        """The card object whose id is id."""
         return anki.cards.Card(self, id)
 
     def getNote(self, id):
+        """The note object whose id is id."""
         return anki.notes.Note(self, id=id)
 
     # Utils
     ##########################################################################
 
     def nextID(self, type, inc=True):
+        """Get the id next{Type} in the collection's configuration. Increment this id.
+
+        Use 1 instead if this id does not exists in the collection."""
         type = "next"+type.capitalize()
         id = self.conf.get(type, 1)
         if inc:
@@ -271,7 +390,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         return id
 
     def reset(self):
-        "Rebuild the queue and reload data after DB modified."
+        """See sched's reset documentation"""
         self.sched.reset()
 
     # Deletion logging
@@ -292,7 +411,8 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         return anki.notes.Note(self, self.models.current(forDeck))
 
     def addNote(self, note):
-        "Add a note to the collection. Return number of new cards."
+        """Add a note to the collection unless it generates no card. Return
+        number of new cards."""
         # check we have card models available, then save
         cms = self.findTemplates(note)
         if not cms:
@@ -308,6 +428,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         return ncards
 
     def remNotes(self, ids):
+        """Removes all cards associated to the notes whose id is in ids"""
         self.remCards(self.db.list("select id from cards where nid in "+
                                    ids2str(ids)))
 
@@ -326,12 +447,14 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     ##########################################################################
 
     def findTemplates(self, note):
-        "Return (active), non-empty templates."
+        "Return templates generating contents from this note."
         model = note.model()
         avail = self.models.availOrds(model, joinFields(note.fields))
         return self._tmplsFromOrds(model, avail)
 
     def _tmplsFromOrds(self, model, avail):
+        """Given a list of ordinals, returns a list of templates
+        corresponding to those position/cloze"""
         ok = []
         if model['type'] == MODEL_STD:
             for template in model['tmpls']:
@@ -346,12 +469,15 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         return ok
 
     def genCards(self, nids):
-        "Generate cards for non-empty templates, return ids to remove."
+        """Ids of cards which needs to be removed.
+
+        Generate missing cards of a note with id in nids.
+        """
         # build map of (nid,ord) so we don't create dupes
         snids = ids2str(nids)
-        have = {}
-        dids = {}
-        dues = {}
+        have = {}#Associated to each nid a dictionnary from card's order to card id.
+        dids = {}#Associate to each nid the only deck id containing its cards. Or None if there are multiple decks
+        dues = {}#Associate to each nid the due value of the last card seen.
         for id, nid, ord, did, due, odue, odid, type in self.db.execute(
             "select id, nid, ord, did, due, odue, odid, type from cards where nid in "+snids):
             # existing cards
@@ -377,10 +503,10 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
                 # Add due to new card only if it's the due of a new sibling
                 dues[nid] = due
         # build cards for each note
-        data = []
+        data = []#Tuples for cards to create. Each tuple is newCid, nid, did, ord, now, usn, due
         ts = maxID(self.db)
         now = intTime()
-        rem = []
+        rem = []#cards to remove
         usn = self.usn()
         for nid, mid, flds in self.db.execute(
             "select id, mid, flds from notes where id in "+snids):
@@ -415,10 +541,14 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
                             data)
         return rem
 
-    # type 0 - when previewing in add dialog, only non-empty
-    # type 1 - when previewing edit, only existing
-    # type 2 - when previewing in models dialog, all templates
     def previewCards(self, note, type=0, did=None):
+        """Returns a list of new cards, one by template. Those cards are not flushed, and their due is always 1.
+
+        type 0 - when previewing in add dialog, only non-empty. Seems to be used only in tests.
+        type 1 - when previewing edit, only existing. Seems to be used only in tests.
+        type 2 - when previewing in models dialog (i.e. note type modifier), return the list of cards for every single template of the model.
+        """
+        #cms is the list of templates to consider
         if type == 0:
             cms = self.findTemplates(note)
         elif type == 1:
@@ -433,7 +563,18 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
         return cards
 
     def _newCard(self, note, template, due, flush=True, did=None):
-        "Create a new card."
+        """A new card object belonging to this collection.
+        Its nid according to note,
+        ord according to template
+        did according to template, or to model, or default if otherwise deck is dynamic
+        Cards is flushed or not according to flush parameter
+
+        keyword arguments:
+        note -- the note of this card
+        template -- the template of this card
+        due -- The due time of this card, assuming no random
+        flush -- whether this card should be push in the db
+        """
         card = anki.cards.Card(self)
         card.nid = note.id
         card.ord = template['ord']
@@ -459,6 +600,14 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
         return card
 
     def _dueForDid(self, did, due):
+        """The due date of a card. Itself if not random mode. A random number
+        depending only on the due date otherwise.
+
+        keyword arguments
+        did -- the deck id of the considered card
+        due -- the due time of the considered card
+
+        """
         conf = self.decks.confForDid(did)
         # in order due?
         if conf['new']['order'] == NEW_CARDS_DUE:
@@ -474,13 +623,17 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
     ##########################################################################
 
     def isEmpty(self):
+        """Is there no cards in this collection."""
         return not self.db.scalar("select 1 from cards limit 1")
 
     def cardCount(self):
         return self.db.scalar("select count() from cards")
 
     def remCards(self, ids, notes=True):
-        "Bulk delete cards by ID."
+        """Bulk delete cards by ID.
+
+        keyword arguments:
+        notes -- whether note without cards should be deleted."""
         if not ids:
             return
         sids = ids2str(ids)
@@ -497,6 +650,7 @@ select id from notes where id in %s and id not in (select nid from cards)""" %
         self._remNotes(nids)
 
     def emptyCids(self):
+        """The card id of empty cards of the collection"""
         rem = []
         for model in self.models.all():
             rem += self.genCards(self.models.nids(model))
@@ -519,7 +673,7 @@ where card.nid = note.id and card.id in %s group by nid""" % ids2str(cids)):
             "select id, mid, flds from notes where id in "+snids)
 
     def updateFieldCache(self, nids):
-        "Update field checksums and sort cache, after find&replace, etc."
+        "Update field checksums and sort cache, after find&replace, changing model, etc."
         snids = ids2str(nids)
         notesUpdates = []
         for (nid, mid, flds) in self._fieldData(snids):
@@ -539,6 +693,13 @@ where card.nid = note.id and card.id in %s group by nid""" % ids2str(cids)):
 
     def renderQA(self, ids=None, type="card"):
         # gather metadata
+        """TODO
+
+        The list of renderQA for each cards whose type belongs to ids.
+
+        Types may be card(default), note, model or all (in this case, ids is not used).
+        It seems to be called nowhere
+        """
         if type == "card":
             where = "and card.id in " + ids2str(ids)
         elif type == "note":
@@ -553,53 +714,82 @@ where card.nid = note.id and card.id in %s group by nid""" % ids2str(cids)):
                 for row in self._qaData(where)]
 
     def _renderQA(self, data, qfmt=None, afmt=None):
-        "Returns hash of id, question, answer."
-        # data is [cid, nid, mid, did, ord, tags, flds, cardFlags]
-        # unpack fields and create dict
-        flist = splitFields(data[6])
-        fields = {}
-        model = self.models.get(data[2])
-        for (name, (idx, conf)) in list(self.models.fieldMap(model).items()):
+        """Returns a dictionnary containing hash of id, question, answer.
+
+        Keyword arguments:
+        data -- [cid, nid, mid, did, ord, tags, flds] (see db
+        documentation for more information about those values)
+        This corresponds to the information you can obtain in templates, using {{Tags}}, {{Type}}, etc..
+        qfmt -- question format string (as in template)
+        afmt -- answer format string (as in template)
+
+        unpack fields and create dict
+        TODO comment better
+
+        """
+        cid, nid, mid, did, ord, tags, flds, cardFlags = data
+        flist = splitFields(flds)#the list of fields
+        fields = {} #
+        #name -> ord for each field, tags
+        # Type: the name of the model,
+        # Deck, Subdeck: their name
+        # Card: the template name
+        # cn: 1 for n being the ord+1
+        # FrontSide :
+        model = self.models.get(mid)
+        for (name, (idx, conf)) in list(self.models.fieldMap(model).items()):#conf is not used
             fields[name] = flist[idx]
-        fields['Tags'] = data[5].strip()
+        fields['Tags'] = tags.strip()
         fields['Type'] = model['name']
-        fields['Deck'] = self.decks.name(data[3])
-        fields['Subdeck'] = fields['Deck'].split('::')[-1]
-        fields['CardFlag'] = self._flagNameFromCardFlags(data[7])
-        if model['type'] == MODEL_STD:
-            template = model['tmpls'][data[4]]
-        else:
+        fields['Deck'] = self.decks.name(did)
+        fields['Subdeck'] = self.decks._basename(fields['Deck'])
+        fields['CardFlag'] = self._flagNameFromCardFlags(cardFlags)
+        if model['type'] == MODEL_STD:#model['type'] is distinct from fields['Type']
+            template = model['tmpls'][ord]
+        else:#for cloze deletions
             template = model['tmpls'][0]
         fields['Card'] = template['name']
-        fields['c%d' % (data[4]+1)] = "1"
+        fields['c%d' % (ord+1)] = "1"
         # render q & a
-        d = dict(id=data[0])
+        d = dict(id=cid)
+        # id: card id
         qfmt = qfmt or template['qfmt']
         afmt = afmt or template['afmt']
         for (type, format) in (("q", qfmt), ("a", afmt)):
-            if type == "q":
-                format = re.sub("{{(?!type:)(.*?)cloze:", r"{{\1cq-%d:" % (data[4]+1), format)
+            if type == "q":#if/else is in the loop in order for d['q'] to be defined below
+                format = re.sub("{{(?!type:)(.*?)cloze:", r"{{\1cq-%d:" % (ord+1), format)
+                #Replace {{'foo'cloze: by {{'foo'cq-(ord+1), where 'foo' does not begins with "type:"
                 format = format.replace("<%cloze:", "<%%cq:%d:" % (
-                    data[4]+1))
+                    ord+1))
+                #Replace <%cloze: by <%%cq:(ord+1)
             else:
-                format = re.sub("{{(.*?)cloze:", r"{{\1ca-%d:" % (data[4]+1), format)
+                format = re.sub("{{(.*?)cloze:", r"{{\1ca-%d:" % (ord+1), format)
+                #Replace {{'foo'cloze: by {{'foo'ca-(ord+1)
                 format = format.replace("<%cloze:", "<%%ca:%d:" % (
-                    data[4]+1))
+                    ord+1))
+                #Replace <%cloze: by <%%ca:(ord+1)
                 fields['FrontSide'] = stripSounds(d['q'])
-            fields = runFilter("mungeFields", fields, model, data, self)
-            html = anki.template.render(format, fields)
+                #d['q'] is defined during loop's first iteration
+            fields = runFilter("mungeFields", fields, model, data, self) # TODO check
+            html = anki.template.render(format, fields) #replace everything of the form {{ by its value TODO check
             d[type] = runFilter(
-                "mungeQA", html, type, fields, model, data, self)
+                "mungeQA", html, type, fields, model, data, self) # TODO check
             # empty cloze?
             if type == 'q' and model['type'] == MODEL_CLOZE:
-                if not self.models._availClozeOrds(model, data[6], False):
+                if not self.models._availClozeOrds(model, flds, False):
                     d['q'] += ("<p>" + _(
                 "Please edit this note and add some cloze deletions. (%s)") % (
                 "<a href=%s#cloze>%s</a>" % (HELP_SITE, _("help"))))
+                    #in the case where there is a cloze note type
+                    #without {{cn in fields indicated by
+                    #{{cloze:fieldName; an error message should be
+                    #shown
         return d
 
     def _qaData(self, where=""):
-        "Return [cid, nid, mid, did, ord, tags, flds, cardFlags] db query"
+        """The list of [cid, nid, mid, did, ord, tags, flds, cardFlags] for each pair cards satisfying where.
+
+        Where should start with an and."""
         return self.db.execute("""
 select card.id, note.id, note.mid, card.did, card.ord, note.tags, note.flds, card.flags
 from cards card, notes note
@@ -616,9 +806,11 @@ where card.nid == note.id
     ##########################################################################
 
     def findCards(self, query, order=False):
+        "Return a list of cards satisfying query, sorted by order. See finder.FindCards for more details."
         return anki.find.Finder(self).findCards(query, order)
 
     def findNotes(self, query):
+        "Return a list of notes ids for QUERY. See finder.findNotes for more details"
         return anki.find.Finder(self).findNotes(query)
 
     def findReplace(self, nids, src, dst, regex=None, field=None, fold=True):
@@ -656,19 +848,27 @@ where card.nid == note.id
 
     # Undo
     ##########################################################################
+    # [type, undoName, data]
+    # type 1 = review; type 2 = checkpoint
 
     def clearUndo(self):
-        # [type, undoName, data]
-        # type 1 = review; type 2 = checkpoint
+        """Erase all undo information from the collection."""
         self._undo = None
 
     def undoName(self):
-        "Undo menu item name, or None if undo unavailable."
+        """The name of the action which could potentially be undone.
+
+        None if nothing can be undone. This let test whether something
+        can be undone.
+        """
         if not self._undo:
             return None
         return self._undo[1]
 
     def undo(self):
+        """Undo the last operation.
+
+        Assuming an undo object exists."""
         if self._undo[0] == 1:
             return self._undoReview()
         else:
@@ -680,7 +880,7 @@ where card.nid == note.id
             if self._undo[0] == 1:
                 old = self._undo[2]
             self.clearUndo()
-        wasLeech = card.note().hasTag("leech") or False
+        wasLeech = card.note().hasTag("leech") or False#The or is probably useless.
         self._undo = [1, _("Review"), old + [copy.copy(card)], wasLeech]
 
     def _undoReview(self):
@@ -728,7 +928,16 @@ where card.nid == note.id
     ##########################################################################
 
     def basicCheck(self):
-        "Basic integrity check for syncing. True if ok."
+        """True if basic integrity is meet.
+
+        Used before and after sync, or before a full upload.
+
+        Tests:
+        * whether each card belong to a note
+        * each note has a model
+        * each note has a card
+        * each card's ord is valid according to the note model.
+        """
         # cards without notes
         if self.db.scalar("""
 select 1 from cards where nid not in (select id from notes) limit 1"""):
@@ -757,8 +966,11 @@ select id from notes where mid = ?) limit 1""" %
         curs = self.db.cursor()
         self.save()
         oldSize = os.stat(self.path)[stat.ST_SIZE]
+
+        # whether sqlite find a problem in its database
         if self.db.scalar("pragma integrity_check") != "ok":
             return (_("Collection is corrupt. Please see the manual."), False)
+
         # note types with a missing model
         ids = self.db.list("""
 select id from notes where mid not in """ + ids2str(self.models.ids()))
@@ -768,6 +980,7 @@ select id from notes where mid not in """ + ids2str(self.models.ids()))
                          "Deleted %d notes with missing note type.", len(ids))
                          % len(ids))
             self.remNotes(ids)
+
         # for each model
         for model in self.models.all():
             for template in model['tmpls']:
@@ -882,6 +1095,7 @@ and type = {CARD_NEW}""", [intTime(), self.usn()])
         newSize = os.stat(self.path)[stat.ST_SIZE]
         txt = _("Database rebuilt and optimized.")
         ok = not problems
+        print("Adding in collection.py")
         problems.append(txt)
         # if any problems were found, force a full sync
         if not ok:
@@ -890,6 +1104,7 @@ and type = {CARD_NEW}""", [intTime(), self.usn()])
         return ("\n".join(problems), ok)
 
     def optimize(self):
+        """Tell sqlite to optimize the db"""
         self.db.setAutocommit(True)
         self.db.execute("vacuum")
         self.db.execute("analyze")
@@ -900,6 +1115,15 @@ and type = {CARD_NEW}""", [intTime(), self.usn()])
     ##########################################################################
 
     def log(self, *args, **kwargs):
+        """Generate the string [time] path:fn(): args list
+
+        if args is not string, it is represented using pprint.pformat
+
+        if self._debugLog is True, it is hadded to _logHnd
+        if devMode is True, this string is printed
+
+        TODO look traceback/extract stack and fn
+        """
         if not self._debugLog:
             return
         def customRepr(arg):

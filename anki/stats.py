@@ -894,6 +894,7 @@ $(function () {
         return self.col.sched._deckLimit()
 
     def _revlogLimit(self):
+        """A query ensuring that cards are in an active deck"""
         if self.wholeCollection:
             return ""
         return ("cid in (select id from cards where did in %s)" %

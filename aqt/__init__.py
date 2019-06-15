@@ -42,11 +42,24 @@ except ImportError as e:
 # ensures only one copy of the window is open at once, and provides
 # a way for dialogs to clean up asynchronously when collection closes
 
+# A window object must contain:
+# - windowState():
+# - activateWindow()
+# - raise_()
+# - Either:
+# -- If it can be closed immediatly:
+# --- silentlyClose must exists and be truthy,
+# --- have a function close() defined
+# -- Or, if some actions must be done before closing:
+# --- define a method closeWithCallback(callback)
+# --- This method should ensure a safe closure of the window
+# --- and then call callback
+
+# A window class must contain:
+# - A constructor, which return a window object.
+
 # to integrate a new window:
 # - add it to _dialogs
-# - define close behaviour, by either:
-# -- setting silentlyClose=True to have it close immediately
-# -- define a closeWithCallback() method
 # - have the window opened via aqt.dialogs.open(<name>, self)
 # - have a method reopen(*args), called if the user ask to open the window a second time. Arguments passed are the same than for original opening.
 
@@ -55,7 +68,12 @@ except ImportError as e:
 
 
 class DialogManager:
+    """Associating to a window name a pair (as a list...)
 
+    The element associated to WindowName Is composed of:
+    First element is the class to use to create the window WindowName.
+    Second element is the instance of this window, if it is already open. None otherwise
+    """
     _dialogs = {
         "AddCards": [addcards.AddCards, None],
         "Browser": [browser.Browser, None],
@@ -65,7 +83,17 @@ class DialogManager:
         "Preferences": [preferences.Preferences, None],
     }
 
+
     def open(self, name, *args):
+        """Open a window of kind name.
+
+        Open (and show) the one already opened, if it
+        exists. Otherwise a new one.
+
+        keyword arguments:
+        args -- values passed to the opener.
+        name -- the name of the window to open
+        """
         (creator, instance) = self._dialogs[name]
         if instance:
             if instance.windowState() & Qt.WindowMinimized:
@@ -81,12 +109,26 @@ class DialogManager:
             return instance
 
     def markClosed(self, name):
+        """Window name is now considered as closed. It removes the element from _dialogs."""
         self._dialogs[name] = [self._dialogs[name][0], None]
 
     def allClosed(self):
+        """
+        Whether all windows (except the main window) are marked as
+        closed.
+        """
         return not any(windowInstance for (windowClass, windowInstance) in self._dialogs.values())
 
     def closeAll(self, onsuccess):
+        """Close all windows (except the main one). Call onsuccess when it's done.
+
+        Return True if some window needed closing.
+        None otherwise
+
+        Keyword arguments:
+        onsuccess -- the function to call when the last window is closed.
+        """
+
         # can we close immediately?
         if self.allClosed():
             onsuccess()
@@ -98,6 +140,7 @@ class DialogManager:
                 continue
 
             def callback():
+                """Call onsuccess if all window (except main) are closed."""
                 if self.allClosed():
                     onsuccess()
                 else:
@@ -113,6 +156,7 @@ class DialogManager:
         return True
 
 dialogs = DialogManager()
+
 
 # Language handling
 ##########################################################################
@@ -175,7 +219,7 @@ class AnkiApp(QApplication):
         self._argv = argv
 
     def secondInstance(self):
-        # we accept only one command line argument. if it's missing, send
+        # we accept only one command line argument. If it's missing, send
         # a blank screen to just raise the existing window
         opts, args = parseArgs(self._argv)
         buf = "raise"

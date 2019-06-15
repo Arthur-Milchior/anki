@@ -8,8 +8,18 @@ from aqt.qt import *
 from aqt.utils import shortcut
 
 
-class ModelChooser(QHBoxLayout):
+"""The window allowing to choose a model. Either for a card to add, to
+import notes, or to change the model of a card.
 
+"""
+
+class ModelChooser(QHBoxLayout):
+    """
+    label -- Whether this object corresponds to a button
+    (i.e. note importer/addcards, but not browser.
+    widget -- the button used to open this window. It contains the
+    name of the current model.
+    """
     def __init__(self, mw, widget, label=True):
         QHBoxLayout.__init__(self)
         self.widget = widget
@@ -45,6 +55,8 @@ class ModelChooser(QHBoxLayout):
         remHook('reset', self.onReset)
 
     def onReset(self):
+        """Change the button's text so that it has the name of the current
+        model."""
         self.updateModels()
 
     def show(self):
@@ -58,6 +70,8 @@ class ModelChooser(QHBoxLayout):
         aqt.models.Models(self.mw, self.widget)
 
     def onModelChange(self):
+        """Open Choose Note Type window"""
+        #Method called when we want to change the current model
         from aqt.studydeck import StudyDeck
         current = self.deck.models.current()['name']
         # edit button
@@ -80,4 +94,6 @@ class ModelChooser(QHBoxLayout):
         self.mw.reset()
 
     def updateModels(self):
+        """Change the button's text so that it has the name of the current
+        model."""
         self.models.setText(self.deck.models.current()['name'])

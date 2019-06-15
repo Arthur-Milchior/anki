@@ -33,6 +33,7 @@ if isMac:
     os.environ['PATH'] += ":/usr/texbin:/Library/TeX/texbin"
 
 def stripLatex(text):
+    """The input text without its LaTeX environment."""
     for match in regexps['standard'].finditer(text):
         text = text.replace(match.group(), "")
     for match in regexps['expression'].finditer(text):
@@ -42,7 +43,21 @@ def stripLatex(text):
     return text
 
 def mungeQA(html, type, fields, model, data, col):
-    "Convert TEXT with embedded latex tags to image links."
+    """html, where LaTeX parts are replaced by some HTML.
+
+    see _imgLink docstring regarding the rules for LaTeX media.
+
+    keyword arguments:
+    html -- the text in which to find the LaTeX to be replaced.
+    type -- not used. "q" or "a" for question and answer
+    fields -- not used. A dictionnary containing Tags, Type(model
+    name), Deck, Subdeck(part after last ::), card: template
+    name... TODO (see collection._renderQA for more info)
+    model -- the model in which is compiled the note. It deals with
+    the header/footer, and the image file format
+    data -- not used. [cid, nid, mid, did, ord, tags, flds]
+    col -- the current collection. It deals with media folder
+    """
     for match in regexps['standard'].finditer(html):
         html = html.replace(match.group(), _imgLink(col, match.group(1), model))
     for match in regexps['expression'].finditer(html):
@@ -55,7 +70,29 @@ def mungeQA(html, type, fields, model, data, col):
     return html
 
 def _imgLink(col, latex, model):
-    "Return an img link for LATEX, creating if necesssary."
+    """Some HTML to display instead of the LaTeX code.
+
+    If some image already exists, related to this LaTeX code, an HTML
+    code showing this image is returned.
+    Otherwise, the latex code is compiled, and everything happen as in
+    the previous case.
+
+    In case of compilation error, an error message explaining the
+    error (or asking whether program latex and dvipng/dvisvgm are
+    installed) is returned.
+
+    During the compilation the compiled file is in tmp.tex and its
+    output (err and std) in latex_log.tex, replacing previous files of
+    the same name. Both of those file are in the tmpdir as in
+    utils.py.
+
+    Keyword arguments:
+    col -- the current collection. It is used for the media folder (and
+    as argument for _latexFromHtml, where it seems to be useless)
+    latex -- the latex code to compile
+    model -- the model in which is compiled the note. It deals with
+    the header/footer, and the image file format.
+    """
     txt = _latexFromHtml(col, latex)
 
     if model.get("latexsvg", False):
@@ -80,12 +117,38 @@ def _imgLink(col, latex, model):
         return link
 
 def _latexFromHtml(col, latex):
-    "Convert entities and fix newlines."
+    """Convert entities and fix newlines.
+
+    First argument is not used.
+    """
     latex = re.sub("<br( /)?>|<div>", "\n", latex)
     latex = stripHTML(latex)
     return latex
 
 def _buildImg(col, latex, fname, model):
+    """Generate an image file from latex code
+
+    latex's header and foot is added as in the model. The image is
+    named fname and added to the media folder of this collection.
+
+    The compiled file is in tmp.tex and its output (err and std) in
+    latex_log.tex, replacing previous files of the same name. Both of
+    those file are in the tmpdir as in utils.py
+
+    Compiles to svg if latexsvg is set to true in the model, otherwise
+    to png. The compilation commands are given above.
+
+    In case of error, return an error message to be displayed instead
+    of the LaTeX document. (Note that this image is not displayed in
+    AnkiDroid. It is probably shown only in computer mode)
+
+    Keyword arguments:
+    col -- the current collection. It deals with media folder
+    latex -- the code LaTeX to compile, as given in fields
+    fname -- the name given to the generated png
+    model -- the model in which is compiled the note. It deals with
+    the header/footer, and the image file format
+    """
     # add header/footer
     latex = (model["latexPre"] + "\n" +
              latex + "\n" +
@@ -121,12 +184,12 @@ package in the LaTeX header instead.""") % bad
     oldcwd = os.getcwd()
     png = namedtmp("tmp.%s" % ext)
     try:
-        # generate png
+        # generate an image
         os.chdir(tmpdir())
         for latexCmd in latexCmds:
             if call(latexCmd, stdout=log, stderr=log):
                 return _errMsg(latexCmd[0], texpath)
-        # add to media
+        # add the image to the media folder
         shutil.copyfile(png, os.path.join(mdir, fname))
         return
     finally:
@@ -134,6 +197,15 @@ package in the LaTeX header instead.""") % bad
         log.close()
 
 def _errMsg(type, texpath):
+    """An error message, in html, concerning LaTeX compilation.
+
+    This message contains LaTeX outputs if it exists, or a message
+    asking whether the program latex and dvipng/dvisvgm are installed.
+
+    Keyword arguments
+    type -- the (begin of the) executed command
+    texpath -- the path to the (temporary) file which was compiled
+    """
     msg = (_("Error executing %s.") % type) + "<br>"
     msg += (_("Generated file: %s") % texpath) + "<br>"
     try:
@@ -148,3 +220,5 @@ def _errMsg(type, texpath):
 
 # setup q/a filter
 addHook("mungeQA", mungeQA)
+#This hook is called collection._renderQA. See mungeQA comment to know
+#the parameters

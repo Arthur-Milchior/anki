@@ -55,6 +55,11 @@ class Scheduler:
         self._haveQueues = True
 
     def answerCard(self, card, ease):
+        """Change the number of card to see in the decks and its
+        ancestors. Change the due/interval/ease factor of this card,
+        according to the button ease.
+
+        """
         self.col.log()
         assert 1 <= ease <= 4
         self.col.markReview(card)
@@ -81,7 +86,8 @@ class Scheduler:
             self._updateStats(card, 'new')
         if card.queue in (QUEUE_LRN, QUEUE_DAY_LRN):
             self._answerLrnCard(card, ease)
-            if not wasNewQ:
+            if not wasNewQ:# if wasNewQ holds, updating already
+                # happened above
                 self._updateStats(card, 'lrn')
         elif card.queue == QUEUE_REV:
             self._answerRevCard(card, ease)
@@ -94,6 +100,11 @@ class Scheduler:
         card.flushSched()
 
     def counts(self, card=None):
+        """The three numbers to show in anki deck's list/footer.
+        Number of new cards, learning repetition, review card.
+
+        If cards, then the tuple takes into account the card.
+        """
         counts = [self.newCount, self.lrnCount, self.revCount]
         if card:
             idx = self.countIdx(card)
@@ -122,11 +133,14 @@ order by due""" % (self._deckLimit()),
         return ret
 
     def countIdx(self, card):
+        """In which column the card in the queue should be counted.
+        day_lrn is sent to lrn, otherwise its the identity"""
         if card.queue == QUEUE_DAY_LRN:
             return QUEUE_LRN
         return card.queue
 
     def answerButtons(self, card):
+        """Number of buttons to show for this card"""
         if card.odue:
             # normal review in dyn deck?
             if card.odid and card.queue == QUEUE_REV:
@@ -141,7 +155,7 @@ order by due""" % (self._deckLimit()),
             return 3
 
     def unburyCards(self):
-        "Unbury cards."
+        "Unbury all cards of the collection."
         self.col.conf['lastUnburied'] = self.today
         self.col.log(
             self.col.db.list(f"select id from cards where queue = {QUEUE_SCHED_BURIED}"))
@@ -214,11 +228,16 @@ order by due""" % (self._deckLimit()),
     ##########################################################################
 
     def deckDueList(self):
-        "Returns [deckname, did, rev, lrn, new]"
+        """
+        Similar to nodes, without the recursive counting, with the full deck name
+
+        [deckname (with ::),
+        did, rev, lrn, new (not counting subdeck)]"""
         self._checkDay()
         self.col.decks.checkIntegrity()
         decks = self.col.decks.all()
         decks.sort(key=itemgetter('name'))
+        #lims -- associating to each deck maximum number of new card and of review. Taking custom study into account
         lims = {}
         data = []
         def parent(name):
@@ -230,6 +249,7 @@ order by due""" % (self._deckLimit()),
         for deck in decks:
             parentName = parent(deck['name'])
             # new
+            #nlim -- maximal number of new card, taking parent into account
             nlim = self._deckNewLimitSingle(deck)
             if parentName:
                 nlim = min(nlim, lims[parentName][0])
@@ -237,6 +257,7 @@ order by due""" % (self._deckLimit()),
             # learning
             lrn = self._lrnForDeck(deck['id'])
             # reviews
+            #rlim -- maximal number of review, taking parent into account
             rlim = self._deckRevLimitSingle(deck)
             if parentName:
                 rlim = min(rlim, lims[parentName][1])
@@ -248,7 +269,13 @@ order by due""" % (self._deckLimit()),
         return data
 
     def deckDueTree(self):
-        return self._groupChildren(self.deckDueList())
+        """Generate the node of the main deck. See deckbroser introduction to see what a node is
+        """
+        #something similar to nodes, but without the recursive part
+        nodes_=self.deckDueList()
+        #the actual nodes
+        nodes=self._groupChildren(nodes_)
+        return nodes
 
     def _groupChildren(self, decks):
         # first, split the group names into components
@@ -260,6 +287,13 @@ order by due""" % (self._deckLimit()),
         return self._groupChildrenMain(decks)
 
     def _groupChildrenMain(self, decks):
+        """
+        [subdeck name without parent parts,
+        did, rev, lrn, new (counting subdecks)
+        [recursively the same things for the children]]
+
+        keyword arguments:
+        grps -- [[subdeck], did, rev, lrn, new] sorted according to the list subdeck. Number for the subdeck precisely"""
         tree = []
         # group and recurse
         def key(deck):
@@ -433,13 +467,14 @@ select id from cards where did in %s and queue = {QUEUE_NEW} limit ?)"""
     ##########################################################################
 
     def _resetLrnCount(self):
-        # sub-day
+        """Set lrnCount"""
+        # Number of reps which are due today, last seen today caped by report limit, in the selected decks
         self.lrnCount = self.col.db.scalar(f"""
 select sum(left/1000) from (select left from cards where
 did in %s and queue = {QUEUE_LRN} and due < ? limit %d)""" % (
             self._deckLimit(), self.reportLimit),
             self.dayCutoff) or 0
-        # day
+        # Number of cards in learning which are due today, last seen another day caped by report limit, in the selected decks
         self.lrnCount += self.col.db.scalar(f"""
 select count() from cards where did in %s and queue = {QUEUE_DAY_LRN}
 and due <= ? limit %d""" % (self._deckLimit(),  self.reportLimit),
@@ -581,21 +616,42 @@ did = ? and queue = {QUEUE_DAY_LRN} and due <= ? limit ?""",
         return delay*60
 
     def _lrnConf(self, card):
+        """ lapse configuration if the card was due(i.e. review card
+        ?), otherwise new configuration.  I don't get the point"""
         if card.type == CARD_DUE:
             return self._lapseConf(card)
         else:
             return self._newConf(card)
 
     def _rescheduleAsRev(self, card, conf, early):
+        """Change schedule for graduation.
+
+        We assume that card is currently in learning. So it's easier
+        new and did all its steps, or a lapse.
+
+        If it's filtered without rescheduling, remove the card from
+        filtered and do nothing else.
+
+        If it's lapsed, set the due date to tomorrow. Do not change
+        the interval.
+
+        If it's a new card, change interval according to
+        _rescheduleNew. I.e. conf['ints'][1 if early
+        else 0]", change the due date accordingly. Change the easyness
+        to initial one.
+
+        """
         lapse = card.type == CARD_DUE
         if lapse:
             if self._resched(card):
                 card.due = max(self.today+1, card.odue)
-            else:
+            else: #i.e. a filtered deck not rescheduling.
                 card.due = card.odue
             card.odue = 0
         else:
             self._rescheduleNew(card, conf, early)
+        # Interval is now set. We must deal with queue and moving deck
+        # if dynamic.
         card.queue = QUEUE_REV
         card.type = CARD_DUE
         # if we were dynamic, graduating means moving back to the old deck
@@ -611,6 +667,9 @@ did = ? and queue = {QUEUE_DAY_LRN} and due <= ? limit ?""",
                 card.due = self.col.nextID("pos")
 
     def _startingLeft(self, card):
+        """(number of review to see, number which can be seen today)
+        But instead of a pair (a,b), returns a+1000*b.
+        """
         if card.type == CARD_DUE:
             conf = self._lapseConf(card)
         else:
@@ -633,6 +692,19 @@ did = ? and queue = {QUEUE_DAY_LRN} and due <= ? limit ?""",
         return ok+1
 
     def _graduatingIvl(self, card, conf, early, adj=True):
+        """
+        The interval before the next review.
+        If its lapsed card in a filtered deck, then use _dynIvlBoost.
+        Otherwise, if button was easy or not, use the 'ints' value
+        according to conf parameter.
+        Maybe apply some fuzzyness according to adj
+
+        Card is supposed to be in learning.
+        card -- a card object
+        conf -- the configuration dictionnary for this kind of card
+        early -- whether "easy" was pressed
+        adj -- whether to add fuzziness
+        """
         if card.type == CARD_DUE:
             # lapsed card being relearnt
             if card.odid:
@@ -691,6 +763,7 @@ where queue in ({QUEUE_LRN},{QUEUE_DAY_LRN}) and type = {CARD_DUE}
             f"select id from cards where queue in ({QUEUE_LRN}, {QUEUE_DAY_LRN}) %s" % extra))
 
     def _lrnForDeck(self, did):
+        """Number of review of cards in learing of deck did. """
         cnt = self.col.db.scalar(
             f"""
 select sum(left/1000) from
@@ -716,6 +789,9 @@ and due <= ? limit ?)""" ,
         return max(0, conf['rev']['perDay'] - deck['revToday'][1])
 
     def _revForDeck(self, did, lim):
+        """number of cards to review today for deck did
+
+        Minimum between this number, self report and limit. Not taking subdeck into account """
         lim = min(lim, self.reportLimit)
         return self.col.db.scalar(
             f"""
@@ -725,7 +801,9 @@ and due <= ? limit ?)""",
             did, self.today, lim)
 
     def _resetRevCount(self):
+        """Set revCount"""
         def cntFn(did, lim):
+            """Number of review cards to see today for deck with id did. At most equal to lim."""
             return self.col.db.scalar(f"""
 select count() from (select id from cards where
 did = ? and queue = {QUEUE_REV} and due <= ? limit %d)""" % (lim),
@@ -791,6 +869,18 @@ select id from cards where did in %s and queue = {QUEUE_REV} and due <= ? limit 
     ##########################################################################
 
     def _answerRevCard(self, card, ease):
+        """
+        move the card out of filtered if required
+        change the queue
+
+        if not (filtered without rescheduling):
+        change interval
+        change due
+        change factor
+        change lapse if BUTTON_ONE
+
+        log this review
+        """
         delay = 0
         if ease == BUTTON_ONE:
             delay = self._rescheduleLapse(card)
@@ -799,6 +889,25 @@ select id from cards where did in %s and queue = {QUEUE_REV} and due <= ? limit 
         self._logRev(card, ease, delay)
 
     def _rescheduleLapse(self, card):
+        """
+        The number of second for the delay until the next time the card can
+        be reviewed. 0 if it should not be reviewed (because leech, or
+        because conf['delays'] is empty)
+
+        Called the first time we press "again" on a review card.
+
+
+        Unless filtered without reschedule:
+        lapse incread
+        ivl changed
+        factor decreased by 200
+        due changed.
+
+        if leech, suspend and return 0.
+
+        card -- review card
+        """
+
         conf = self._lapseConf(card)
         card.lastIvl = card.ivl
         if self._resched(card):
@@ -812,15 +921,16 @@ select id from cards where did in %s and queue = {QUEUE_REV} and due <= ? limit 
         # if suspended as a leech, nothing to do
         delay = 0
         if self._checkLeech(card, conf) and card.queue == QUEUE_SUSPENDED:
-            return delay
+            return delay#i.e. return 0
         # if no relearning steps, nothing to do
         if not conf['delays']:
-            return delay
+            return delay#i.e. return 0
         # record rev due date for later
         if not card.odue:
             card.odue = card.due
         delay = self._delayForGrade(conf, 0)
         card.due = int(delay + time.time())
+        #number of rev+1000*number of rev to do today
         card.left = self._startingLeft(card)
         # queue LRN
         if card.due < self.dayCutoff:
@@ -838,6 +948,18 @@ select id from cards where did in %s and queue = {QUEUE_REV} and due <= ? limit 
         return max(conf['minInt'], int(card.ivl*conf['mult']))
 
     def _rescheduleRev(self, card, ease):
+        """Update the card according to review.
+
+        If it's filtered, remove from filtered. If the filtered deck
+        states not to update, nothing else is done.
+
+        Change the interval. Change the due date. Change the factor.
+
+
+        ease -- button pressed. Between 2 and 4
+        card -- assumed to be in review mode
+
+        """
         # update interval
         card.lastIvl = card.ivl
         if self._resched(card):
@@ -845,7 +967,7 @@ select id from cards where did in %s and queue = {QUEUE_REV} and due <= ? limit 
             # then the rest
             card.factor = max(1300, card.factor+[-150, 0, 150][ease-2])
             card.due = self.today + card.ivl
-        else:
+        else:#Filtered without rescheduling
             card.due = card.odue
         if card.odid:
             card.did = card.odid
@@ -853,6 +975,11 @@ select id from cards where did in %s and queue = {QUEUE_REV} and due <= ? limit 
             card.odue = 0
 
     def _logRev(self, card, ease, delay):
+        """Log this review. Retry once if failed.
+        card -- a card object
+        ease -- the button pressed
+        delay -- if the answer is again, then the number of second until the next review
+        """
         def log():
             self.col.db.execute(
                 "insert into revlog values (?,?,?,?,?,?,?,?,?)",
@@ -870,7 +997,10 @@ select id from cards where did in %s and queue = {QUEUE_REV} and due <= ? limit 
     ##########################################################################
 
     def _nextRevIvl(self, card, ease):
-        "Ideal next interval for CARD, given EASE."
+        """Ideal next interval for CARD, given EASE.
+
+        Fuzzyness not applied.
+        Cardds assumed to be a review card succesfully reviewed."""
         delay = self._daysLate(card)
         conf = self._revConf(card)
         fct = card.factor / 1000
@@ -907,7 +1037,9 @@ select id from cards where did in %s and queue = {QUEUE_REV} and due <= ? limit 
         return [ivl-fuzz, ivl+fuzz]
 
     def _constrainedIvl(self, ivl, conf, prev):
-        "Integer interval after interval factor and prev+1 constraints applied."
+        """A new interval. Ivl multiplie by the interval
+        factor of this conf. Greater than prev.
+        """
         new = ivl * conf.get('ivlFct', 1)
         return int(max(new, prev+1))
 
@@ -917,11 +1049,24 @@ select id from cards where did in %s and queue = {QUEUE_REV} and due <= ? limit 
         return max(0, self.today - due)
 
     def _updateRevIvl(self, card, ease):
+        """ Compute the next interval, fuzzy it, ensure ivl increase
+        and is at most maxIvl.
+
+        Card is assumed to be a review card."""
         idealIvl = self._nextRevIvl(card, ease)
-        card.ivl = min(max(self._adjRevIvl(card, idealIvl), card.ivl+1),
-                       self._revConf(card)['maxIvl'])
+        fuzzedIvl = self._adjRevIvl(card, idealIvl)
+        increasedIvl = max(fuzzedIvl, card.ivl+1)
+        card.ivl = min(increasedIvl, self._revConf(card)['maxIvl'])
 
     def _adjRevIvl(self, card, idealIvl):
+        """Return an interval, similar to idealIvl, but randomized.
+        See ../documentation/computing_intervals for the rule to
+        generate this fuzziness.
+
+        if _speadRev is to False (by an Add-on, I guess), it returns
+        the input exactly.
+
+        card is not used."""
         if self._spreadRev:
             idealIvl = self._fuzzedIvl(idealIvl)
         return idealIvl
@@ -960,6 +1105,13 @@ select id from cards where did in %s and queue = {QUEUE_REV} and due <= ? limit 
         return ids
 
     def emptyDyn(self, did, lim=None):
+        """Moves cram cards to their deck
+        Cards in learning mode move to their previous type.
+
+        Keyword arguments:
+        lim -- the query which decides which cards are used
+        did -- assuming lim is not provided/false, the (filtered) deck concerned by this call
+        """
         if not lim:
             lim = "did = %s" % did
         self.col.log(self.col.db.list("select id from cards where %s" % lim))
@@ -1017,9 +1169,20 @@ odue = (case when odue then odue else due end),
 did = ?, queue = %s, due = ?, usn = ? where id = ?""" % queue, data)
 
     def _dynIvlBoost(self, card):
+        """New interval for a review card in a dynamic interval.
+
+        Maximum between old interval and
+        elapsed*((card.factor/1000)+1.2)/2, with elapsed being the
+        time between today and the last review.
+
+        This number is constrained to be between 1 and the parameter
+        ```maxIvl``` of the card's configuration.
+
+        """
         assert card.odid and card.type == CARD_DUE
         assert card.factor
-        elapsed = card.ivl - (card.odue - self.today)
+        lastReview = (card.odue - card.ivl)
+        elapsed = self.today - lastReview
         factor = ((card.factor/1000)+1.2)/2
         ivl = int(max(card.ivl, elapsed * factor, 1))
         conf = self._revConf(card)
@@ -1029,7 +1192,12 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?""" % queue, data)
     ##########################################################################
 
     def _checkLeech(self, card, conf):
-        "Leech handler. True if card was a leech."
+        """Leech handler. True if card was a leech.
+
+        Potentially suspend the card if the deck config says so.  In
+        this case, remove the card from filtered decks
+
+        """
         lf = conf['leechFails']
         if not lf:
             return
@@ -1111,6 +1279,8 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?""" % queue, data)
         return ids2str(self.col.decks.active())
 
     def _resched(self, card):
+        """Whether this review must be taken into account when this
+        card to reschedule the card"""
         conf = self._cardConf(card)
         if not conf['dyn']:
             return True
@@ -1120,6 +1290,13 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?""" % queue, data)
     ##########################################################################
 
     def _updateCutoff(self):
+        """
+        For each deck, set its entry *Today's first element to today's date
+        if it's a new day:
+        - log the new day
+        - unbury new cards
+        - change today and daycutoff
+        """
         oldToday = self.today
         # days since col created
         self.today = int((time.time() - self.col.crt) // 86400)

@@ -16,6 +16,10 @@ from aqt.utils import askUserDialog, showInfo, showText, showWarning, tooltip
 ######################################################################
 
 class SyncManager(QObject):
+    """
+    label -- The current action done by the synchronizez. Or in case f syncMsg, the first argument
+    """
+
 
     def __init__(self, mw, pm):
         QObject.__init__(self, mw)
@@ -40,8 +44,10 @@ class SyncManager(QObject):
         gc.collect()
         # create the thread, setup signals and start running
         self.thread = SyncThread(
-            self.pm.collectionPath(), self.pm.profile['syncKey'],
-            auth=auth, media=self.pm.profile['syncMedia'],
+            self.pm.collectionPath(),
+            self.pm.profile['syncKey'],
+            auth=auth,
+            media=self.pm.profile['syncMedia'],
             hostNum=self.pm.profile.get("hostNum"),
         )
         self.thread.event.connect(self.onEvent)
@@ -151,6 +157,9 @@ sync again to correct the issue."""))
             self._updateLabel()
 
     def _rewriteError(self, err):
+        """Return an message explaining the error err.
+
+        err -- is the traceback of an exception raised sometime during synchronization."""
         if "Errno 61" in err:
             return _("""\
 Couldn't connect to AnkiWeb. Please check your network connection \
@@ -197,6 +206,12 @@ AnkiWeb is too busy at the moment. Please try again in a few minutes.""")
         return err
 
     def _getUserPass(self):
+        """The pair (user login (i.e. email), password).
+
+        It creates a window asking for those informations. Returns
+        None if one of those value is not given.
+
+        """
         dialog = QDialog(self.mw)
         dialog.setWindowTitle("Anki")
         dialog.setWindowModality(Qt.WindowModal)
@@ -237,6 +252,12 @@ enter your details below.""") %
         return (user, pw)
 
     def _confirmFullSync(self):
+        """Stop progess bar, ask user what to do with a message explaining
+        what are the choices and why it must be made. It then set
+        self.thread.fullSyncChoice to a word stating what the choice
+        is Then restart the progess bar.
+
+        """
         self.mw.progress.finish()
         if self.thread.localIsEmpty:
             diag = askUserDialog(
@@ -273,11 +294,15 @@ automatically."""),
         self.mw.progress.start(immediate=True)
 
     def _clockOff(self):
+        """Show a message stating that there is more than 5 minutes of
+        difference between computer and server, thus sync can't be made."""
         showWarning(_("""\
 Syncing requires the clock on your computer to be set correctly. Please \
 fix the clock and try again."""))
 
     def _checkFailed(self):
+        """State to check database before syncing. (Actually, it's totally
+useless if the database is downloaded the current will be deleted.)"""
         showWarning(_("""\
 Your collection is in an inconsistent state. Please run Tools>\
 Check Database, then sync again."""))
@@ -286,7 +311,15 @@ Check Database, then sync again."""))
 ######################################################################
 
 class SyncThread(QThread):
+    """
 
+    path -- the path of the database of the collection
+    syncMsg -- Initially the empty string. At the end of a successful non-full sync, before syncinc media, it becomes the value of the meta[TODO
+    hostNum -- the value of hostNum in the profile (i.e. a number which states the number of the ankiweb server which is used to synchronize)
+    hkey -- the value of SyncKey in the profile (i.e. a random string replacing the password)
+    auth -- the password; asked to the user (not saved)
+    media -- whether medias should be synchronized
+    """
     event = pyqtSignal(str, str)
 
     def __init__(self, path, hkey, auth=None, media=True, hostNum=None):

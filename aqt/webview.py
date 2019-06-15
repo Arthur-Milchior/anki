@@ -49,9 +49,9 @@ class AnkiWebPage(QWebEnginePage):
                             cb(JSON.parse(res));
                         }
                     }
-                
+
                     channel.objects.py.cmd(arg, resultCB);
-                    return false;                   
+                    return false;
                 }
                 pycmd("domDone");
             });
@@ -266,12 +266,12 @@ button:hover{ background-color:#fff }
 button:active, button:active:hover { background-color: %(color_hl)s; color: %(color_hl_txt)s;}
 /* Input field focus outline */
 textarea:focus, input:focus, input[type]:focus, .uneditable-input:focus,
-div[contenteditable="true"]:focus {   
+div[contenteditable="true"]:focus {
     outline: 0 none;
     border-color: %(color_hl)s;
 }""" % {"family": family, "color_btn": color_btn,
         "color_hl": color_hl, "color_hl_txt": color_hl_txt}
-        
+
         csstxt = "\n".join([self.bundledCSS("webview.css")]+
                            [self.bundledCSS(fname) for fname in css])
         jstxt = "\n".join([self.bundledScript("webview.js")]+
@@ -288,7 +288,7 @@ div[contenteditable="true"]:focus {
 body {{ zoom: {}; background: {}; {} }}
 {}
 </style>
-  
+
 {}
 </head>
 
@@ -309,12 +309,25 @@ body {{ zoom: {}; background: {}; {} }}
         return '<link rel="stylesheet" type="text/css" href="%s">' % self.webBundlePath(fname)
 
     def eval(self, js):
+        """Add the script `js` to the list of event to execute. Execute it now
+        if possible.
+
+        """
         self.evalWithCallback(js, None)
 
     def evalWithCallback(self, js, cb):
+        """Add the js script to the list of actions to perform. Perform it if
+        possible. Call cb with the last result evaluated by
+        javascript.
+
+        """
         self._queueAction("eval", js, cb)
 
     def _evalWithCallback(self, js, cb):
+        """Perform the script `js` in the web pag. Call cb on its last result
+        if its truthy.
+
+        """
         if cb:
             def handler(val):
                 if self._shouldIgnoreWebEvent():
@@ -326,10 +339,15 @@ body {{ zoom: {}; background: {}; {} }}
             self.page().runJavaScript(js)
 
     def _queueAction(self, name, *args):
+        """Add action name with arguments args to the list of action to
+        perform. Try running those actions.
+
+        name -- eval or setHtml"""
         self._pendingActions.append((name, args))
         self._maybeRunActions()
 
     def _maybeRunActions(self):
+        """Do the actions of pending actions, while _domDone"""
         while self._pendingActions and self._domDone:
             name, args = self._pendingActions.pop(0)
 

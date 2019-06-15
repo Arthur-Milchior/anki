@@ -419,7 +419,15 @@ anki.main.AnkiQt._reviewCleanup assuming the new state is neither
 Contains anki.latex.mungeQA. A method which generate HTML which show
 an image which contains the compilation result of the LaTeX given in input.
 
-Called from anki.collection._Collection._renderQA
+Called from anki.collection._Collection._renderQA.
+
+Arguments are:
+* the card template, with fields replaced by their values.
+* "q" or "a"
+* map sending fields to their value (and special name)
+* the model object
+* 8-tuple of data
+* the collection
 
 ###### prepareQA
 Called from aqt.reviewer.Reviewer._showQuestion, with the text of the

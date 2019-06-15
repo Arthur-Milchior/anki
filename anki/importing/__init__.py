@@ -10,6 +10,7 @@ from anki.importing.pauker import PaukerImporter
 from anki.importing.supermemo_xml import SupermemoXmlImporter
 from anki.lang import _
 
+"""Used by the file system window, to ensure that it knows which kind of file to search for. And then which importer to use to import the file."""
 Importers = (
     (_("Text separated by tabs or semicolons (*)"), TextImporter),
     (_("Packaged Anki Deck/Collection (*.apkg *.colpkg *.zip)"), AnkiPackageImporter),

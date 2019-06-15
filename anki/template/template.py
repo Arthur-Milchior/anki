@@ -7,6 +7,11 @@ from anki.template import furigana; furigana.install()
 from anki.template import hint; hint.install()
 
 clozeReg = r"(?si)\{\{(c)%s::(.*?)(::(.*?))?\}\}"
+"""clozeReg % n is the regexp recognizing the occurrences of close number n.
+   clozeReg %.+? is the regexp recognizing any cloze occurrence.
+   group 0 is c. Group 1 is the cloze, group 2 is the hint with ::, group 3 is the hint.
+"""
+#(?si) means .dot match all strings, ignore case
 
 modifiers = {}
 def modifier(symbol):
@@ -25,6 +30,7 @@ def modifier(symbol):
 
 
 def get_or_attr(obj, name, default=None):
+    """If its a susbscriptable: obj[name]. Else obj.name. Else default"""
     try:
         return obj[name]
     except KeyError:
@@ -37,10 +43,24 @@ def get_or_attr(obj, name, default=None):
 
 
 class Template:
+    """TODO
+
+    A template object contains:
+    template -- ; see ../models.py
+    context -- a dictionnary containing at least:
+    ** the fields
+    ** the  value for Tags, Type, Deck, Subdeck, Fields, FrontSide (on
+    the  back).
+    ** Containing "cn:1" with n the ord of the field
+    """
     # The regular expression used to find a #section
+    # I.e. {{# or {{^
+    # from {{#foo}}bar{{/foo}} return ({{#foo}}bar{{/foo}},foo,bar)
     section_re = None
 
-    # The regular expression used to find a tag.
+    # The regular expression used to find a tag.  The tag can start by
+    # #, =, &, !, >,{ or the empty string.
+    # from {{sfoo}} return ({{sfoo}},s,foo)
     tag_re = None
 
     # Opening tag delimiter
@@ -67,16 +87,20 @@ class Template:
 
     def compile_regexps(self):
         """Compiles our section and tag regular expressions."""
+        #Opening and closing tag. Currently {{ and }}
         tags = { 'otag': re.escape(self.otag), 'ctag': re.escape(self.ctag) }
 
+        # See the comment for section_re
         section = r"%(otag)s[\#|^]([^\}]*)%(ctag)s(.+?)%(otag)s/\1%(ctag)s"
         self.section_re = re.compile(section % tags, re.M|re.S)
 
+        # See the comment for tag_re
         tag = r"%(otag)s(#|=|&|!|>|\{)?(.+?)\1?%(ctag)s+"
         self.tag_re = re.compile(tag % tags)
 
     def render_sections(self, template, context):
-        """Expands sections."""
+        """replace {{#foo}}bar{{/foo}} and {{^foo}}bar{{/foo}} by
+        their normal value."""
         while 1:
             match = self.section_re.search(template)
             if match is None:
@@ -85,7 +109,8 @@ class Template:
             section, section_name, inner = match.group(0, 1, 2)
             section_name = section_name.strip()
 
-            # check for cloze
+            # val will contain the content of the field considered
+            # right now
             val = None
             match = re.match(r"c[qa]:(\d+):(.+)", section_name)
             if match:
@@ -98,7 +123,9 @@ class Template:
                 val = get_or_attr(context, section_name, None)
 
             replacer = ''
+            # Whether it's {{^
             inverted = section[2] == "^"
+            # Ensuring we don't consider whitespace in val
             if val:
                 val = stripHTMLMedia(val).strip()
             if (val and not inverted) or (not val and inverted):
@@ -109,7 +136,8 @@ class Template:
         return template
 
     def render_tags(self, template, context):
-        """Renders all the tags in a template for a context."""
+        """Renders all the tags in a template for a context. Normally
+        {{# and {{^ are already removed."""
         repCount = 0
         while 1:
             if repCount > 100:
@@ -117,10 +145,12 @@ class Template:
                 break
             repCount += 1
 
+            # search for some {{foo}}
             match = self.tag_re.search(template)
             if match is None:
                 break
 
+            #
             tag, tag_type, tag_name = match.group(0, 1, 2)
             tag_name = tag_name.strip()
             try:
@@ -161,7 +191,7 @@ class Template:
             mods, tag = parts[:-1], parts[-1] #py3k has *mods, tag = parts
 
         txt = get_or_attr(context, tag)
-        
+
         #Since 'text:' and other mods can affect html on which Anki relies to
         #process clozes, we need to make sure clozes are always
         #treated after all the other mods, regardless of how they're specified

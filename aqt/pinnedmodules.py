@@ -18,9 +18,13 @@ import queue
 import typing
 import uuid
 
+# included implicitly in the past, and relied upon by some add-ons
 import PyQt5.QtSvg
 
 from anki.utils import isWin
+
+# included implicitly in the past, and relied upon by some add-ons
+
 
 # external module access in Windows
 if isWin:

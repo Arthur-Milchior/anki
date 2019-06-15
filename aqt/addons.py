@@ -1,6 +1,15 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+"""Module for managing add-ons.
+
+An add-on here is defined as a subfolder in the add-on folder containing a file __init__.py
+A managed add-on is an add-on whose folder's name contains only
+digits.
+
+dir -- the name of the subdirectory of the add-on in the add-on manager
+"""
+
 import io
 import json
 import re
@@ -26,6 +35,10 @@ from aqt.utils import (askUser, getFile, isWin, openFolder, openLink,
 
 
 class AddonManager:
+    """
+    dirty -- whether an add-on is loaded
+    mw -- the main window
+    """
 
     ext = ".ankiaddon"
     _manifest_schema = {
@@ -50,6 +63,14 @@ class AddonManager:
         sys.path.insert(0, self.addonsFolder())
 
     def allAddons(self):
+        """List of installed add-ons' folder name
+
+        In alphabetical order of folder name. I.e. add-on number for downloaded add-ons.
+        Reverse order if the environment variable  ANKIREVADDONS is set.
+
+        A folder is an add-on folder iff it contains __init__.py.
+
+        """
         addonFolders = []
         for addonFolder in os.listdir(self.addonsFolder()):
             path = self.addonsFolder(addonFolder)
@@ -62,10 +83,24 @@ class AddonManager:
         return addonFolders
 
     def managedAddons(self):
+        """List of managed add-ons.
+
+        In alphabetical order of folder name. I.e. add-on number for downloaded add-ons.
+        Reverse order if the environment variable  ANKIREVADDONS is set.
+        """
         return [addonFolderName for addonFolderName in self.allAddons()
                 if re.match(r"^\d+$", addonFolderName)]
 
     def addonsFolder(self, dir=None):
+        """Path to a folder.
+
+        To the add-on folder by default, guaranteed to exists.
+        If dir is set, then the path to the add-on dir, not guaranteed
+        to exists
+
+        dir -- TODO
+        """
+
         root = self.mw.pm.addonFolder()
         if not dir:
             return root
@@ -95,6 +130,7 @@ When loading '%(name)s':
     ######################################################################
 
     def _addonMetaPath(self, dir):
+        """Path of the configuration of the addon dir"""
         return os.path.join(self.addonsFolder(dir), "meta.json")
 
     def addonMeta(self, dir):
@@ -130,6 +166,11 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
         self.writeAddonMeta(dir, meta)
 
     def addonName(self, dir):
+        """The name of the addon.
+
+        It is found either in "name" parameter of the configuration in
+        directory dir of the add-on directory.
+        Otherwise dir is used."""
         return self.addonMeta(dir).get("name", dir)
 
     def annotatedName(self, dir):
@@ -165,7 +206,7 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
 
         for package in found:
             self.toggleEnabled(package, enable=False)
-        
+
         return found
 
     # Installing and deleting add-ons
@@ -192,7 +233,7 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
             zfile = ZipFile(file)
         except zipfile.BadZipfile:
             return False, "zip"
-        
+
         with zfile:
             file_manifest = self.readManifestFile(zfile)
             if manifest:
@@ -206,7 +247,6 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
                                                        conflicts)
             meta = self.addonMeta(package)
             self._install(package, zfile)
-        
         schema = self._manifest_schema["properties"]
         manifest_meta = {k: value for k, value in manifest.items()
                          if k in schema and schema[k]["meta"]}
@@ -220,7 +260,7 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
         base = self.addonsFolder(dir)
         if os.path.exists(base):
             self.backupUserFiles(dir)
-            if not self.deleteAddon(dir):
+            if not self.deleteAddon(dir): # To install, previous version should be deleted. If it can't be deleted for an unkwown reason, we try to put everything back in previous state.
                 self.restoreUserFiles(dir)
                 return
 
@@ -239,8 +279,8 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
                 continue
             zfile.extract(name, base)
 
-    # true on success
     def deleteAddon(self, dir):
+        """Delete the add-on folder of add-on dir. Returns True on success"""
         try:
             send2trash(self.addonsFolder(dir))
             return True
@@ -251,7 +291,7 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
 
     # Processing local add-on files
     ######################################################################
-    
+
     def processPackages(self, paths):
         log = []
         errs = []
@@ -316,6 +356,7 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
     ######################################################################
 
     def checkForUpdates(self):
+        """The list of add-ons not up to date. Compared to the server's information."""
         client = AnkiRequestsClient()
 
         # get mod times
@@ -338,6 +379,10 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
             self.mw.progress.finish()
 
     def _getModTimes(self, client, chunk):
+        """The list of (id,mod time) for add-ons whose id is in chunk.
+
+        client -- an ankiRequestsclient
+        chunck -- a list of add-on number"""
         resp = client.get(
             aqt.appShared + "updates/" + ",".join(chunk))
         if resp.status_code == 200:
@@ -346,6 +391,8 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
             raise Exception("Unexpected response code from AnkiWeb: {}".format(resp.status_code))
 
     def _updatedIds(self, mods):
+        """Given a list of (id,last mod on server), returns the sublist of
+        add-ons not up to date."""
         updated = []
         for dir, ts in mods:
             sid = str(dir)
@@ -356,10 +403,19 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
     # Add-on Config
     ######################################################################
 
+    """Dictionnary from modules to function to apply when add-on
+    manager is called on this config."""
     _configButtonActions = {}
+    """Dictionnary from modules to function to apply when add-on
+    manager ends an update. Those functions takes the configuration,
+    parsed as json, in argument."""
     _configUpdatedActions = {}
 
     def addonConfigDefaults(self, dir):
+        """The (default) configuration of the addon whose
+        name/directory is dir.
+
+        This file should be called config.json"""
         path = os.path.join(self.addonsFolder(dir), "config.json")
         try:
             with open(path, encoding="utf8") as file:
@@ -368,6 +424,7 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
             return None
 
     def addonConfigHelp(self, dir):
+        """The configuration of this addon, obtained as configuration"""
         path = os.path.join(self.addonsFolder(dir), "config.md")
         if os.path.exists(path):
             with open(path, encoding="utf-8") as file:
@@ -376,18 +433,38 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
             return ""
 
     def addonFromModule(self, module):
+        """Returns the string of module before the first dot"""
         return module.split(".")[0]
 
     def configAction(self, addon):
+        """The function to call for addon when add-on manager ask for
+        edition of its configuration."""
         return self._configButtonActions.get(addon)
 
     def configUpdatedAction(self, addon):
+        """The function to call for addon when add-on edition has been done
+        using add-on manager.
+
+        """
         return self._configUpdatedActions.get(addon)
 
     # Add-on Config API
     ######################################################################
 
     def getConfig(self, module):
+        """The current configuration.
+
+        More precisely:
+        -None if the module has no file config.json
+        -otherwise the union of:
+        --default config from config.json
+        --the last version of the config, as saved in meta
+
+        Note that if you edited the dictionary obtained from the
+        configuration file without calling self.writeConfig(module,
+        config), then getConfig will not return current config
+
+        """
         addon = self.addonFromModule(module)
         # get default config
         config = self.addonConfigDefaults(addon)
@@ -400,14 +477,35 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
         return config
 
     def setConfigAction(self, module, fn):
+        """Change the action of add-on manager for the edition of the
+        current add-ons config.
+
+        Each time the user click in the add-on manager on the button
+        "config" button, fn is called. Unless fn is falsy, in which
+        case the standard procedure is used
+
+        Keyword arguments:
+        module -- the module/addon considered
+        fn -- a function taking no argument, or a falsy value
+        """
         addon = self.addonFromModule(module)
         self._configButtonActions[addon] = fn
 
     def setConfigUpdatedAction(self, module, fn):
+        """Allow a function to add on new configurations.
+
+        Each time the configuration of module is modified in the
+        add-on manager, fn is called on the new configuration.
+
+        Keyword arguments:
+        module -- __name__ from module's code
+        fn -- A function taking the configuration, parsed as json, in
+        """
         addon = self.addonFromModule(module)
         self._configUpdatedActions[addon] = fn
 
     def writeConfig(self, module, conf):
+        """The config for the module whose name is module  is now conf"""
         addon = self.addonFromModule(module)
         meta = self.addonMeta(addon)
         meta['config'] = conf
@@ -417,17 +515,22 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
     ######################################################################
 
     def _userFilesPath(self, sid):
+        """The path of the user file's folder."""
         return os.path.join(self.addonsFolder(sid), "user_files")
 
     def _userFilesBackupPath(self):
+        """A path to use for back-up. It's independent of the add-on number."""
         return os.path.join(self.addonsFolder(), "files_backup")
 
     def backupUserFiles(self, sid):
+        """Move user file's folder to a folder called files_backup in the add-on folder"""
         userFilePath = self._userFilesPath(sid)
         if os.path.exists(userFilePath):
             os.rename(userFilePath, self._userFilesBackupPath())
 
     def restoreUserFiles(self, sid):
+        """Move the back up of user file's folder to its normal location in
+        the folder of the addon sid"""
         userFilePath = self._userFilesPath(sid)
         bp = self._userFilesBackupPath()
         # did we back up userFiles?
@@ -443,7 +546,7 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
     def setWebExports(self, module, pattern):
         addon = self.addonFromModule(module)
         self._webExports[addon] = pattern
-    
+
     def getWebExports(self, addon):
         return self._webExports.get(addon)
 
@@ -589,7 +692,7 @@ class AddonsDialog(QDialog):
                             key="addons", multi=True)
             if not paths:
                 return False
-        
+
         log, errs = self.mgr.processPackages(paths)
 
         if log:
@@ -631,6 +734,12 @@ class AddonsDialog(QDialog):
                 self.redrawAddons()
 
     def onConfig(self):
+        """Assuming a single addon is selected, either:
+        -if this add-on as a special config, set using setConfigAction, with a
+        truthy value, call this config.
+        -otherwise, call the config editor on the current config of
+        this add-on"""
+
         addon = self.onlyOneSelected()
         if not addon:
             return
@@ -745,6 +854,16 @@ class ConfigEditor(QDialog):
         super().reject()
 
     def accept(self):
+        """
+        Transform the new config into json, and either:
+        -pass it to the special config function, set using
+        setConfigUpdatedAction if it exists,
+        -or save it as configuration otherwise.
+
+        If the config is not proper json, show an error message and do
+        nothing.
+        -if the special config is falsy, just save the value
+        """
         txt = self.form.editor.toPlainText()
         try:
             new_conf = json.loads(txt)
@@ -762,6 +881,6 @@ class ConfigEditor(QDialog):
             act = self.mgr.configUpdatedAction(self.addon)
             if act:
                 act(new_conf)
-        
+
         self.onClose()
         super().accept()

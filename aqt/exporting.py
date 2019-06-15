@@ -1,6 +1,18 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+"""
+mw -- the main window
+col -- the collection
+frm -- the formula GUIn
+exporters -- A list of pairs (description of an exporter class, the class)
+exporter -- An instance of the class choosen in the GUI
+decks -- The list of decks option used in the GUI. All Decks and decks' name
+isApkg -- Whether exporter's suffix is apkg
+isVerbatim -- Whether exporter has an attribute "verbatim" set to True. Occurs only in Collection package exporter.
+isTextNote -- Whether exporter has an attribute "includeTags" set to True. Occurs only in textNoteExporter.
+"""
+
 import os
 import re
 import time
@@ -27,6 +39,11 @@ class ExportDialog(QDialog):
         self.exec_()
 
     def setup(self, did):
+        """
+
+        keyword arguments:
+        did -- if None, then export whole anki. If did, export this deck (at least as default).
+        """
         self.exporters = exporters()
         # if a deck specified, start with .apkg type selected
         idx = 0

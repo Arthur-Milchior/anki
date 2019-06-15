@@ -54,6 +54,7 @@ SYNC_VER = 9
 
 HELP_SITE="http://ankisrs.net/docs/manual.html"
 
+### NEW CONSTANTS
 # Queue types
 QUEUE_USER_BURIED = -3
 QUEUE_SCHED_BURIED = -2
@@ -89,6 +90,7 @@ BUTTON_ONE = 1
 BUTTON_TWO = 2
 BUTTON_THREE = 3
 BUTTON_FOUR = 4
+### Ends of NEW CONSTANTS
 
 # Labels
 ##########################################################################

@@ -4,6 +4,7 @@
 
 import re
 import time
+import traceback
 
 import aqt
 from anki.hooks import addHook, remHook
@@ -11,9 +12,15 @@ from anki.lang import _
 from anki.sync import AnkiRequestsClient
 from aqt.qt import *
 
+"""Everything required to download an add-on, when we already have the number."""
+
+
 
 def download(mw, code):
-    "Download addon from AnkiWeb. Caller must start & stop progress diag."
+    """add-on file and add-on name whose number is code. Downloaded
+    from  ankiweb. Or a pair with "error" and the error code.
+
+    Caller must start & stop progress diag."""
     # create downloading thread
     thread = Downloader(code)
     done = False
@@ -37,10 +44,13 @@ def download(mw, code):
         return "error", thread.error
 
 class Downloader(QThread):
+    """Class used to download add-on. Initialized with add-on number.
+    Once .run is executed, .data contains the data and .fname the name"""
 
     recv = pyqtSignal()
 
     def __init__(self, code):
+        """code: the add-on number"""
         QThread.__init__(self)
         self.code = code
         self.error = None

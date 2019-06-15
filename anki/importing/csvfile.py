@@ -55,21 +55,31 @@ class TextImporter(NoteImporter):
         return notes
 
     def open(self):
-        "Parse the top line and determine the pattern and number of fields."
+        "Same as cacheFile"
         # load & look for the right pattern
         self.cacheFile()
 
     def cacheFile(self):
-        "Read file into self.lines if not already there."
+        """Read file into self.lines if not already there.
+        set openFile for the remaining.
+        """
         if not self.fileobj:
             self.openFile()
 
     def openFile(self):
+        """Put:
+        in data: all lines not starting with #, and not tags
+        in tags: the tags, separated by space, assuming first line which is not a comment start with "tags:".
+        Set CSV reader, or delimiter if csv can't be guessed.
+        set numFields to the number of fields of the first non empty line
+        set mapping to initial mapping.
+        """
         self.dialect = None
         self.fileobj = open(self.file, "r", encoding='utf-8-sig')
         self.data = self.fileobj.read()
         def sub(s):
             return re.sub(r"^\#.*$", "__comment", s)
+        #set of lines not starting with #
         self.data = [sub(x)+"\n" for x in self.data.split("\n") if sub(x) != "__comment"]
         if self.data:
             if self.data[0].startswith("tags:"):
@@ -81,6 +91,11 @@ class TextImporter(NoteImporter):
             raise Exception("unknownFormat")
 
     def updateDelimiter(self):
+        """If possible, set CSV dialect, as guessed by CSV library.
+        Otherwise, set delimiter to "\t", ";", "," if they are in the first line. To " " otherwise
+        set numFields to the number of fields of the first non empty line
+        set mapping to initial mapping.
+        """
         def err():
             raise Exception("unknownFormat")
         self.dialect = None

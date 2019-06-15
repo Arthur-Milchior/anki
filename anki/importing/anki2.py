@@ -17,6 +17,19 @@ MOD = 3
 
 class Anki2Importer(Importer):
 
+    """
+    _modelMap -- associating model id from source to id of model in current collection
+    src -- the Collection imported
+    dst -- the collection in which we import. Normally the collection loaded in the main window.
+    _notes -- guid -> (id,mod,mid) acording to destination
+    _changedGuids -- seems to be always empty
+    _ignoredGuids -- sends to True the GUID which won't be imported.
+    allowUpdate -- whether an update is
+    dupes -- Number of cards which have been ignored: note with same guid is already in src or dst collection, and update allowed but imported mod time of the model of the imported note is older or equal to the mod time of the other note with same guid.
+    add -- the number of cards added
+    updated -- the number of card updated
+    """
+
     needMapper = False
     deckPrefix = None
     allowUpdate = True
@@ -208,7 +221,17 @@ class Anki2Importer(Importer):
         self._modelMap = {}
 
     def _mid(self, srcMid):
-        "Return local id for remote MID."
+        """Return local id for remote MID.
+
+        Two models are assumed to be compatible if they have the same
+        names of fields and of card type. If imported model is
+        compatible with local model of the same id, then both models
+        are "merged". I.e. the lastly changed model is used.
+
+        Otherwise the model of imported note is imported in the
+        collection.
+
+        """
         # already processed this mid?
         if srcMid in self._modelMap:
             return self._modelMap[srcMid]
