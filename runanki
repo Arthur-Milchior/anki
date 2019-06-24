@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
 
+import os
+os.system("./tools/build_ui.sh")
+# Must be run before importing aqt. Otherwise, we'll import previous version of files
+
 import aqt
 aqt.run()
