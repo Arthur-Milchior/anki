@@ -23,6 +23,7 @@ from jsonschema.exceptions import ValidationError
 from send2trash import send2trash
 
 from anki.consts import appShared
+from anki.incorporatedAddons import incorporatedAddonsDict
 from anki.lang import _
 from anki.sync import AnkiRequestsClient
 from anki.utils import intTime
@@ -102,12 +103,17 @@ class AddonManager:
             meta = self.addonMeta(dir)
             if meta.get("disabled"):
                 continue
+            if self.isIncorporated(dir):
+                continue
             self.dirty = True
             try:
                 __import__(dir)
             except:
                 errors.append((traceback.format_exc(), meta))
         return errors
+
+    def isIncorporated(self, dir):
+        return dir in incorporatedAddonsDict or (re.match(r"^\d+$", dir) and int(dir) in incorporatedAddonsDict)
 
     # Metadata
     ######################################################################
@@ -161,6 +167,8 @@ class AddonManager:
         buf = self.addonName(dir)
         if not self.isEnabled(dir):
             buf += _(" (disabled)")
+        if self.isIncorporated(dir):
+            buf += _(" (incorporated)")
         return buf
 
     # Installing and deleting add-ons
