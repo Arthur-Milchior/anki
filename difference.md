@@ -14,3 +14,7 @@ instead of deleting the note» chage the behavior of anki when he finds
 a note which has no more card. This allow to lose the content of the
 note, and let you correct the note instead to generate cards.
 
+## Remove "Map to" in item import window for CSV (46741504)
+Because of this text, the keyboard can't be used to search a field. I
+thus remove it.
+
