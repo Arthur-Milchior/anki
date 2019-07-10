@@ -7,6 +7,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import aqt
+from anki.consts import *
 from anki.lang import _
 from aqt import gui_hooks
 from aqt.sound import av_player
