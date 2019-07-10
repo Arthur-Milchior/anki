@@ -11,6 +11,7 @@ import json
 
 from anki.lang import _, ngettext
 from aqt.qt import *
+from anki.consts import *
 from anki.utils import stripHTML, bodyClass
 from anki.hooks import addHook, runHook, runFilter
 from anki.sound import playFromText, clearAudioQueue, play
@@ -522,9 +523,9 @@ time = %(time)d;
         idx = self.mw.col.sched.countIdx(self.card)
         counts[idx] = "<u>%s</u>" % (counts[idx])
         space = " + "
-        ctxt = '<font color="#000099">%s</font>' % counts[0]
-        ctxt += space + '<font color="#C35617">%s</font>' % counts[1]
-        ctxt += space + '<font color="#007700">%s</font>' % counts[2]
+        ctxt = f'<font color="{colNew}">%s</font>' % counts[0]
+        ctxt += space + f'<font color="{colLearn}">%s</font>' % counts[1]
+        ctxt += space + f'<font color="{colRev}">%s</font>' % counts[2]
         return ctxt
 
     def _defaultEase(self):
@@ -608,7 +609,7 @@ time = %(time)d;
             [_("Replay Own Voice"), "V", self.onReplayRecorded],
         ]
         return opts
-    
+
     def showContextMenu(self):
         opts = self._contextMenu()
         m = QMenu(self.mw)

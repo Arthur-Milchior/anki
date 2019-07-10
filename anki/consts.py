@@ -121,3 +121,19 @@ def dynOrderLabels():
         7: _("Latest added first"),
         8: _("Relative overdueness"),
         }
+
+# colors
+colYoung = "#7c7"
+colMature = "#070"
+colCum = "rgba(0,0,0,0.9)"
+colLearn = "#C35617"
+colRelearn = "#c00"
+colCram = "#ff0"
+colIvl = "#077"
+colHour = "#ccc"
+colTime = "#770"
+colUnseen = "#000"
+colSusp = "#ff0"
+colNew = "#000099"
+colRev = "#007700"
+colDue = "#007700"

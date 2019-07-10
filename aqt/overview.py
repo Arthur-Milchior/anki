@@ -6,6 +6,7 @@ from aqt.utils import openLink, shortcut, tooltip, askUserDialog
 import aqt
 from anki.sound import clearAudioQueue
 from anki.lang import _
+from anki.consts import *
 
 class Overview:
     "Deck overview."
@@ -171,13 +172,13 @@ to their original deck.""")
             return '<div style="white-space: pre-wrap;">%s</div>' % (
                 self.mw.col.sched.finishedMsg())
         else:
-            return '''
+            return f'''
 <table width=400 cellpadding=5>
 <tr><td align=center valign=top>
 <table cellspacing=5>
-<tr><td>%s:</td><td><b><font color=#00a>%s</font></b></td></tr>
-<tr><td>%s:</td><td><b><font color=#C35617>%s</font></b></td></tr>
-<tr><td>%s:</td><td><b><font color=#0a0>%s</font></b></td></tr>
+<tr><td>%s:</td><td><b><font color={colNew}>%s</font></b></td></tr>
+<tr><td>%s:</td><td><b><font color={colLearn}>%s</font></b></td></tr>
+<tr><td>%s:</td><td><b><font color={colRev}>%s</font></b></td></tr>
 </table>
 </td><td align=center>
 %s</td></tr></table>''' % (

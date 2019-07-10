@@ -9,6 +9,7 @@ import json
 from anki.consts import *
 from anki.utils import fmtTimeSpan, ids2str
 from anki.lang import _, ngettext
+from anki.consts import *
 
 
 # Card stats
@@ -86,18 +87,6 @@ class CardStats:
 
 # Collection stats
 ##########################################################################
-
-colYoung = "#7c7"
-colMature = "#070"
-colCum = "rgba(0,0,0,0.9)"
-colLearn = "#00F"
-colRelearn = "#c00"
-colCram = "#ff0"
-colIvl = "#077"
-colHour = "#ccc"
-colTime = "#770"
-colUnseen = "#000"
-colSusp = "#ff0"
 
 class CollectionStats:
 

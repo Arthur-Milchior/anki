@@ -6,6 +6,7 @@ from aqt.qt import *
 from aqt.utils import askUser, getOnlyText, openLink, showWarning, shortcut, \
     openHelp
 from anki.utils import ids2str, fmtTimeSpan
+from anki.consts import *
 from anki.errors import DeckRenameError
 import aqt
 from anki.sound import clearAudioQueue
@@ -190,8 +191,8 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
                 cnt = "1000+"
             return "<font color='%s'>%s</font>" % (colour, cnt)
         buf += "<td align=right>%s</td><td align=right>%s</td>" % (
-            nonzeroColour(due, "#007700"),
-            nonzeroColour(new, "#000099"))
+            nonzeroColour(due, colDue),
+            nonzeroColour(new, colNew))
         # options
         buf += ("<td align=center class=opts><a onclick='return pycmd(\"opts:%d\");'>"
         "<img src='/_anki/imgs/gears.svg' class=gears></a></td></tr>" % did)
