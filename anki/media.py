@@ -113,7 +113,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             try:
                 self.db.execute("""
     insert into media
-     select media.fname, csum, mod, ifnull((select 1 from log l2 where l2.fname=oldMedia.fname), 0) as dirty
+     select media.fname, csum, mod, ifnull((select 1 from log l2 where l2.fname=oldMedia.fname limit 1), 0) as dirty
      from old.media oldMedia
      left outer join old.log l using (fname)
      union
