@@ -115,7 +115,8 @@ class Scheduler(BothScheduler):
         Similar to nodes, without the recursive counting, with the full deck name
 
         [deckname (with ::),
-        did, rev, lrn, new (not counting subdeck)]"""
+        did, rev, lrn, new (not counting subdeck)]
+        Alphabetically sorted by name."""
         self._checkDay()
         self.col.decks.checkIntegrity()
         decks = self.col.decks.all(sort=True)

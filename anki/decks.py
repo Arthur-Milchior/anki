@@ -831,6 +831,13 @@ same id."""
 
         return parents
 
+    def parentByName(self, name):
+        """Direct parent, or None"""
+        parts = name.rsplit("::",1)
+        if len(parts) < 2:
+            return None
+        return parts[1]
+
     def nameMap(self):
         """
         Dictionnary from deck name to deck object.
