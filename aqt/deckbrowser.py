@@ -2,6 +2,14 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+# Indentation level is:
+# center 0
+#   table 2
+#     tr 4
+#       td 6
+#         th, td 8
+#           content 10
+# newline before the text, not after
 
 # A node is composed of
 #                  (name of the deck,
@@ -81,9 +89,9 @@ class DeckBrowser:
 
     _body = """
 <center>
-<table cellspacing=0 cellpading=3>
+  <table cellspacing=0 cellpading=3>
 %(tree)s
-</table>
+  </table>
 
 <br>
 %(stats)s
@@ -115,6 +123,7 @@ class DeckBrowser:
         self.web.eval("$(function() { window.scrollTo(0, %d, 'instant'); });" % offset)
 
     def _renderStats(self):
+        """The message "Studied c cards in t time today". """
         cards, thetime = self.mw.col.db.first("""
 select count(), sum(time)/1000 from revlog
 where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
@@ -129,37 +138,54 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         if (self.mw.col.decks.count() < 25 or
                 self.mw.pm.profile.get("hideDeckLotsMsg")):
             return ""
-        return "<br><div style='width:50%;border: 1px solid #000;padding:5px;'>"+(
-            _("You have a lot of decks. Please see %(a)s. %(b)s") % dict(
-                a=("<a href=# onclick=\"return pycmd('lots')\">%s</a>" % _(
-                    "this page")),
-                b=("<br><small><a href=# onclick='return pycmd(\"hidelots\")'>("
-                   "%s)</a></small>" % (_("hide"))+
-                    "</div>")))
+        link = f"""<a href=# onclick=\"return pycmd('lots')\">{_("this page")}</a>"""
+        hide = f"""
+  <br>
+  <small>
+    <a href=# onclick='return pycmd(\"hidelots\")'>({_("hide")})</a>
+  </small>"""
+        message = _("You have a lot of decks. Please see %(a)s. %(b)s") % dict(
+                    a=link,
+                    b=hide)
+        return (f"""
+<br>
+<div style='width:50%;border: 1px solid #000;padding:5px;'>{message}
+</div>""")
 
-    def _renderDeckTree(self, nodes, depth=0):
-        """Html used to show the deck tree.
+    def _header(self):
+        return f"""
+    <tr>
+      <th colspan=5 align=left>
+        {_("Deck")}
+      </th>
+      <th class=count>
+        {_("Due")}
+      </th>
+      <th class=count>
+        {_("New")}
+      </th>
+      <th class=optscol>
+      </th>
+    </tr>"""
+
+    def _renderDeckTree(self, nodes, depth=0, nameMap=None):
+        """Html used to show the deck browser. This part consider a list of siblings nodes, at some specified depth
 
         keyword arguments
         depth -- the number of ancestors, excluding itself
-        nodes -- A list of nodes, to render, with the same parent. See top of this file for detail"""
+        nodes -- A list of nodes, to render, with the same parent. See top of this file for detail
+        nameMap -- dictionnary, associating to a deck id its node(to avoid recomputing it)"""
+        nameMap = nameMap or self.mw.col.decks.nameMap()#only compute the map on top level
         if not nodes:
             return ""
+        rows = "".join(self._deckRow(node, depth, len(nodes), nameMap) for node in nodes)
         if depth == 0:
-            #Toplevel
-            buf = """
-<tr><th colspan=5 align=left>%s</th><th class=count>%s</th>
-<th class=count>%s</th><th class=optscol></th></tr>""" % (
-            _("Deck"), _("Due"), _("New"))
-            buf += self._topLevelDragRow()
+            return (self._header()
+                    +self._topLevelDragRow()
+                    +rows
+                    +self._topLevelDragRow())
         else:
-            buf = ""
-        nameMap = self.mw.col.decks.nameMap()
-        for node in nodes:
-            buf += self._deckRow(node, depth, len(nodes), nameMap)
-        if depth == 0:
-            buf += self._topLevelDragRow()
-        return buf
+            return rows
 
     def _deckRow(self, node, depth, cnt, nameMap):
         """The HTML for a single deck (and its descendant)
@@ -171,65 +197,102 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         nameMap -- dictionnary, associating to a deck id its node
         """
         name, did, rev, lrn, new, children = node
-        deck = self.mw.col.decks.get(did)
-        if did == 1 and cnt > 1 and not children:
-            # if the default deck is empty, hide it
-            if not self.mw.col.db.scalar("select 1 from cards where did = 1 limit 1"):
+        # if the default deck is empty, not alone, and without child, hide it
+        if (did == 1
+            and cnt > 1
+            and not children
+            and not self.mw.col.db.scalar("select 1 from cards where did = 1 limit 1")):
                 return ""
-        # parent toggled for collapsing
-        for parent in self.mw.col.decks.parents(did, nameMap):
-            if parent['collapsed']:
-                buff = ""
-                return buff
-        prefix = "-"
-        if self.mw.col.decks.get(did)['collapsed']:
-            prefix = "+"
+        deck = self.mw.col.decks.get(did)
+
+        buf = self._singleDeckRow(depth, deck, did, name, rev, new, collapsed, bool(children))
         due = rev + lrn
-        def indent():
-            return "&nbsp;"*6*depth
-        if did == self.mw.col.conf['curDeck']:
-            klass = 'deck current'
-        else:
-            klass = 'deck'
-        buf = "<tr class='%s' id='%d'>" % (klass, did)
-        # deck link
+        # children
+        if not collapsed:
+            buf += self._renderDeckTree(children, depth+1, nameMap=nameMap)
+            # Equivalent to "".join(self._deckRow(node, depth+1, len(nodes), nameMap) for node in nodes)
+            # but add-ons may want to modifiy _renderDeckTree, so we keep it
+        return buf
+
+    def _collapseLink(self, did, children, collapsed):
+        """Html used to show + or - to collapse deck if required."""
+        prefix = "+" if collapsed else "-"
         if children:
-            collapse = "<a class=collapse href=# onclick='return pycmd(\"collapse:%d\")'>%s</a>" % (did, prefix)
+            return f"""
+        <a class=collapse href=# onclick='return pycmd("collapse:{did}")'>
+          {prefix}
+        </a>"""
         else:
-            collapse = "<span class=collapse></span>"
+            return """
+        <span class=collapse></span>"""
+
+    def _deckName(self, depth, deck, did, name, collapsed, hasChildren):
+        """Html for the deck name's cell"""
+        collapse = self._collapseLink(did, hasChildren, collapsed)
         if deck['dyn']:
             extraclass = "filtered"
         else:
             extraclass = ""
-        buf += """
+        indent = "&nbsp;"*(6*depth)
+        return f"""
+      <td class=decktd colspan=5>
+        {indent}{collapse}
+        <a class="deck {extraclass}" href=# onclick="return pycmd('open:{did}')">
+          {name}
+        </a>
+      </td>"""
 
-        <td class=decktd colspan=5>%s%s<a class="deck %s"
-        href=# onclick="return pycmd('open:%d')">%s</a></td>"""% (
-            indent(), collapse, extraclass, did, name)
-        # due counts
-        def nonzeroColour(cnt, colour):
-            if not cnt:
-                colour = "#e0e0e0"
-            if cnt >= 1000:
-                cnt = "1000+"
-            return "<font color='%s'>%s</font>" % (colour, cnt)
-        buf += "<td align=right>%s</td><td align=right>%s</td>" % (
-            nonzeroColour(due, self.mw.col.conf.get("colors", defaultColors)["due"]),
-            nonzeroColour(new, self.mw.col.conf.get("colors", defaultColors)["new"]))
-        # options
-        buf += ("<td align=center class=opts><a onclick='return pycmd(\"opts:%d\");'>"
-        "<img src='/_anki/imgs/gears.svg' class=gears></a></td></tr>" % did)
-        # children
-        buf += self._renderDeckTree(children, depth+1)
-        return buf
+    def nonzeroColour(self, cnt, colour):
+        """Html cell used to show the number:
+            "1000+" if greater than 1000
+            in grey if it is 0
+            in colour otherwise
+            """
+        if not cnt:
+            colour = "#e0e0e0"
+        if cnt >= 1000:
+            cnt = "1000+"
+        return f"""
+      <td align=right>
+        <font color='{colour}'>{cnt}</font>
+      </td>"""
+
+    def _option(self, did):
+        """html cell, to show gear opening options"""
+        return f"""
+      <td align=center class=opts>
+        <a onclick='return pycmd("opts:{did}");'>
+          <img src='/_anki/imgs/gears.svg' class=gears>
+        </a>
+      </td>"""
+
+    def _singleDeckRow(self, depth, deck, did, name, due, new, collapsed, hasChildren):
+        klass = 'deck'
+        if did == self.mw.col.conf['curDeck']:
+            klass += ' current'
+        return (f"""
+    <tr class='{klass}' id='{did}'>"""
+                +self._deckName(depth, deck, did, name, collapsed, hasChildren)
+                +self.nonzeroColour(due, self.mw.col.conf.get("colors", defaultColors)["due"])
+                +self.nonzeroColour(new, self.mw.col.conf.get("colors", defaultColors)["new"])
+                +self._option(did)
+                +"""
+    </tr>""")
 
     def _topLevelDragRow(self):
-        return "<tr class='top-level-drag-row'><td colspan='6'>&nbsp;</td></tr>"
+        """An empty line. You can drag on it to put some deck at top level"""
+        return """
+    <tr class='top-level-drag-row'>
+      <td colspan='6'>&nbsp;</td>
+    </tr>"""
 
     # Options
     ##########################################################################
 
     def _showOptions(self, did):
+        """Open a menu where mouse clicked (in QtPy, not in HTML) on the gear on a deck line
+
+        did -- the deck' id from the deck line where it was clicked"""
         m = QMenu(self.mw)
         a = m.addAction(_("Rename"))
         a.triggered.connect(lambda b, did=did: self._rename(did))
@@ -243,9 +306,16 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         m.exec_(QCursor.pos())
 
     def _export(self, did):
+        """State to export the deck did.
+
+        Called from the gear on a deck line """
         self.mw.onExport(did=did)
 
     def _rename(self, did):
+        """
+        Open a window to rename deck whose id is did
+
+        Called from the gear on a deck line"""
         self.mw.checkpoint(_("Rename Deck"))
         deck = self.mw.col.decks.get(did)
         oldName = deck['name']
@@ -260,16 +330,30 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         self.show()
 
     def _options(self, did):
+        """
+        Open the deck configuration window for deck  whose id is did
+
+        Called from the gear on a deck line"""
         # select the deck first, because the dyn deck conf assumes the deck
         # we're editing is the current one
         self.mw.col.decks.select(did)
         self.mw.onDeckConf()
 
     def _collapse(self, did):
+        """
+        State to hide/show the subdeck of deck whose id is did.
+
+        Called from the +/- sign on a deck line"""
         self.mw.col.decks.collapse(did)
         self._renderPage(reuse=True)
 
     def _dragDeckOnto(self, draggedDeckDid, ontoDeckDid):
+        """Ensure that draggedDeckDid becomes a subdeck of ontoDeckDid.
+
+        If it is impossible, (because ontoDeckDid is a filtered deck),
+        then show a warning. Update the window accordingly.
+
+        """
         try:
             self.mw.col.decks.renameForDragAndDrop(draggedDeckDid, ontoDeckDid)
         except DeckRenameError as e:
@@ -278,6 +362,14 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         self.show()
 
     def _delete(self, did):
+        """Delete the deck whose id is did (ask for confirmation first unless
+        it is empty and not filtered)
+
+        Called from the gear on a deck line
+        Show a warning instead if did is default deck.
+
+        """
+
         if str(did) == '1':
             return showWarning(_("The default deck can't be deleted."))
         self.mw.checkpoint(_("Delete Deck"))
@@ -299,9 +391,11 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             self.mw.progress.finish()
             self.show()
 
-    # Top buttons
+    # Footer buttons
     ######################################################################
 
+    """List of tuple (Shortcut, pycmd function, text to show) for the
+    footer buttons."""
     drawLinks = [
             ["", "shared", _("Get Shared")],
             ["", "create", _("Create Deck")],
@@ -309,6 +403,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
     ]
 
     def _drawButtons(self):
+        """Change the footer HTML to show those buttons"""
         buf = ""
         drawLinks = deepcopy(self.drawLinks)
         for b in drawLinks:
