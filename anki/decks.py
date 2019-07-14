@@ -291,7 +291,7 @@ class DeckManager:
             # child of an existing deck then it needs to be renamed
             deck = self.get(did)
             if '::' in deck['name']:
-                base = deck['name'].split("::")[-1]
+                base = self._basename(deck['name'])
                 suffix = ""
                 while True:
                     # find an unused name
@@ -474,13 +474,20 @@ class DeckManager:
         ancestorPath = self._path(ancestorDeckName)
         return ancestorPath == self._path(descendantDeckName)[0:len(ancestorPath)]
 
-    def _path(self, name):
-        """Given a name, split according to ::"""
+    @staticmethod
+    def _path(name):
+        """The list of decks and subdecks of name"""
         return name.split("::")
 
-    def _basename(self, name):
-        """The part of name after the last ::"""
-        return self._path(name)[-1]
+    @staticmethod
+    def _basename(name):
+        """The name of the last subdeck, without its ancestors"""
+        return DeckManager._path(name)[-1]
+
+    @staticmethod
+    def parentName(name):
+        """The name of the parent of this deck, or None if there is none"""
+        return "::".join(DeckManager._path(name)[:-1])
 
     def _ensureParents(self, name):
         """Ensure parents exist, and return name with case matching parents.
@@ -688,12 +695,11 @@ same id."""
                 self.save(deck)
 
             # immediate parent must exist
-            if "::" in deck['name']:
-                immediateParent = "::".join(deck['name'].split("::")[:-1])
-                if self.normalizeName(immediateParent) not in names:
-                    self.col.log("fix deck with missing parent", deck['name'])
-                    self._ensureParents(deck['name'])
-                    names.add(self.normalizeName(immediateParent))
+            immediateParent = self.parentName(deck['name'])
+            if immediateParent and immediateParent not in names:
+                self.col.log("fix deck with missing parent", deck['name'])
+                self._ensureParents(deck['name'])
+                names.add(self.normalizeName(immediateParent))
 
             names.add(self.normalizeName(deck['name']))
 
@@ -766,15 +772,13 @@ same id."""
 
         # go through all decks, sorted by name
         for deck in sorted(self.all(), key=operator.itemgetter("name")):
-            node = {}
-            childMap[deck['id']] = node
+            childMap[deck['id']] = {}
 
             # add note to immediate parent
-            parts = deck['name'].split("::")
-            if len(parts) > 1:
-                immediateParent = "::".join(parts[:-1])
+            immediateParent = self.parentName(deck['name'])
+            if immediateParent:
                 pid = nameMap[immediateParent]['id']
-                childMap[pid][deck['id']] = node
+                childMap[pid][deck['id']] = childMap[deck['id']]
 
         return childMap
 

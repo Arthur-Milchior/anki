@@ -118,15 +118,9 @@ class Scheduler(BothScheduler):
         decks.sort(key=itemgetter('name'))
         lims = {}
         data = []
-        def parent(name):
-            parts = name.split("::")
-            if len(parts) < 2:
-                return None
-            parts = parts[:-1]
-            return "::".join(parts)
         childMap = self.col.decks.childMap()
         for deck in decks:
-            parentName = parent(deck['name'])
+            parentName = self.col.decks.parentName(deck['name'])
             # new
             nlim = self._deckNewLimitSingle(deck)
             if parentName:

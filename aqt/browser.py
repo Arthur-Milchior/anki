@@ -13,6 +13,7 @@ from operator import itemgetter
 import anki
 import aqt.forms
 from anki.consts import *
+from anki.decks import DeckManager
 from anki.hooks import addHook, remHook, runFilter, runHook
 from anki.lang import _, ngettext
 from anki.sound import allSounds, clearAudioQueue, play
@@ -1149,7 +1150,7 @@ by clicking on one on the left."""))
         def addDecks(parent, decks):
             for head, did, rev, lrn, new, children in decks:
                 name = self.mw.col.decks.get(did)['name']
-                shortname = name.split("::")[-1]
+                shortname = DeckManager._basename(name)
                 if children:
                     subm = parent.addMenu(shortname)
                     subm.addItem(_("Filter"), self._filterFunc("deck", name))
