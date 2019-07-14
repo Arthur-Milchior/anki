@@ -424,7 +424,7 @@
         </layout>
        </item>
        <item>
-        <widget class="QCheckBox" name="checkBox">
+        <widget class="QCheckBox" name="longTermBackUp">
          <property name="text">
           <string>Also keep some long term back-ups</string>
          </property>
@@ -495,16 +495,6 @@
            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Extra&lt;/span&gt;&lt;br/&gt;Those options are not documented in anki's manual. They allow to configure the different add-ons incorporated in this special version of anki.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="wordWrap">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="checkBox_2">
-          <property name="text">
-           <string>Do some long term backups (days, month, years)</string>
-          </property>
-          <property name="checked">
            <bool>true</bool>
           </property>
          </widget>
