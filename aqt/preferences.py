@@ -273,7 +273,6 @@ Not currently enabled; click the sync button in the main window to enable."""))
 
     extraOptions = [
         ("allowEmptyFirstField", ),
-        ("multipleNoteWithSameFirstFieldInImport", ),
     ]
 
     def setupExtra(self):
