@@ -107,8 +107,7 @@ order by due""" % (self._deckLimit()),
     def extendLimits(self, new, rev):
         cur = self.col.decks.current()
         ancestors = self.col.decks.parents(cur['id'])
-        children = [self.col.decks.get(did) for (name, did) in
-                    self.col.decks.children(cur['id'])]
+        children = self.col.decks.childrenDecks(cur['id'])
         for deck in [cur] + ancestors + children:
             # add
             deck['newToday'][1] -= new

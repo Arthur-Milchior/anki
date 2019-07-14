@@ -220,8 +220,7 @@ class AnkiExporter(Exporter):
         if not self.did:
             dids = []
         else:
-            dids = [self.did] + [
-                descendant[1] for descendant in self.src.decks.children(self.did)]
+            dids = self.src.decks.childDids(self.did, includeSelf=True)
         dconfs = {}
         for deck in self.src.decks.all():
             if str(deck['id']) == "1":

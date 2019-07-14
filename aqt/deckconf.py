@@ -16,8 +16,7 @@ class DeckConf(QDialog):
         QDialog.__init__(self, mw)
         self.mw = mw
         self.deck = deck
-        self.childDids = [
-            deck[1] for deck in self.mw.col.decks.children(self.deck['id'])]
+        self.childDids = self.mw.col.decks.childDids(self.deck['id'])
         self._origNewOrder = None
         self.form = aqt.forms.dconf.Ui_Dialog()
         self.form.setupUi(self)

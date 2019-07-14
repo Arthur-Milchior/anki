@@ -313,13 +313,13 @@ class DeckManager:
             # rather than deleting the cards
             self.col.sched.emptyDyn(did)
             if childrenToo:
-                for name, id in self.children(did):
+                for id in self.childDids(did):
                     self.rem(id, cardsToo)
         else:
             # delete children first
             if childrenToo:
                 # we don't want to delete children when syncing
-                for name, id in self.children(did):
+                for id in self.childDids(did):
                     self.rem(id, cardsToo)
             # delete cards too?
             if cardsToo:
@@ -334,19 +334,32 @@ class DeckManager:
             self.select(int(list(self.decks.keys())[0]))
         self.save()
 
-    def allNames(self, dyn=True):
-        "An unsorted list of all deck names."
-        if dyn:
-            return [deck['name'] for deck in list(self.decks.values())]
-        else:
-            return [deck['name'] for deck in list(self.decks.values()) if not deck['dyn']]
+    def allNames(self, dyn=True, sort=False):
+        """A list of all deck names.
 
-    def all(self):
-        "A list of all decks."
-        return list(self.decks.values())
+        Keyword arguments:
+        sort -- whether to sort
+        """
+        decksNames = self.all(sort=sort)
+        if not dyn:
+            decksNames = [deck['name'] for deck in decks if not deck['dyn']]
+        return decksNames
 
-    def allIds(self):
-        return list(self.decks.keys())
+    def all(self, sort=False):
+        """A list of all deck objects.
+
+        sort -- whether to sort
+        """
+        decks = list(self.decks.values())
+        if sort:
+            decks.sort(key = operator.itemgetter("name"))
+        return decks
+
+    def allIds(self, sort=False):
+        """A list of all deck's id.
+
+        sort -- whether to sort by name"""
+        return map(operator.itemgetter("id"), self.all(sort=sort))
 
     def collapse(self, did):
         """Change the collapsed state of deck whose id is did. Then
@@ -398,6 +411,8 @@ class DeckManager:
 
         If newName already exists or if it a descendant of a filtered
         deck, the operation is aborted."""
+        # ensure we have parents
+        newName = self._ensureParents(newName)
         # make sure target node doesn't already exist
         if self.byName(newName):
             raise DeckRenameError(_("That deck already exists."))
@@ -405,19 +420,13 @@ class DeckManager:
         for ancestor in self.parentsByName(newName):
             if ancestor['dyn']:
                 raise DeckRenameError(_("A filtered deck cannot have subdecks."))
-        # ensure we have parents
-        newName = self._ensureParents(newName)
         # rename children
-        for child in self.all():
-            if child['name'].startswith(deck['name'] + "::"):
-                child['name'] = child['name'].replace(deck['name']+ "::",
-                                                  newName + "::", 1)
-                self.save(child)
-        # adjust name
-        deck['name'] = newName
+        oldName = deck['name']
+        for child in self.childrenDecks(deck['id'], includeSelf=True):
+            child['name'] = child['name'].replace(oldName, newName, 1)
+            self.save(child)
         # ensure we have parents again, as we may have renamed parent->child
         newName = self._ensureParents(newName)
-        self.save(deck)
         # renaming may have altered active did order
         self.maybeAddToActive()
 
@@ -661,9 +670,7 @@ same id."""
         of the descendant."""
         if not children:
             return self.col.db.list("select id from cards where did=?", did)
-        dids = [did]
-        for name, id in self.children(did):
-            dids.append(id)
+        dids = self.childDids(did, includeSelf=True)
         return self.col.db.list("select id from cards where did in "+
                                 ids2str(dids))
 
@@ -732,24 +739,24 @@ same id."""
         # current deck
         self.col.conf['curDeck'] = did
         # and active decks (current + all children)
-        actv = self.children(did)
-        actv.sort()
-        self.col.conf['activeDecks'] = [did] + [a[1] for a in actv]
+        self.col.conf['activeDecks'] = self.childDids(did, sort=True, includeSelf=True)
         self.changed = True
 
-    def children(self, did):
-        "All children of did, as (name, id)."
+    def children(self, did, includeSelf=False, sort=False):
+        "All descendant of did, as (name, id)."
+        return [(deck['name'], deck['id']) for deck in self.childrenDecks(includeSelf=includeSelf, sort=sort)]
+
+    def childrenDecks(self, did, includeSelf=False, sort=False):
+        "All decks descendant of did."
         name = self.get(did)['name']
         actv = []
-        for deck in self.all():
-            if deck['name'].startswith(name + "::"):
-                actv.append((deck['name'], deck['id']))
-        return actv
+        return [deck for deck in self.all(sort=sort) if deck['name'].startswith(name+"::") or (includeSelf and deck['name'] == name)]
+    #todo, maybe sort only this smaller list, at least until all() memoize
 
-    def childDids(self, did, childMap):
+    def childDids(self, did, childMap=None, includeSelf=False, sort=False):
         #childmap is useless. Keep for consistency with anki.
         #sort was True by default, but never used.
-        """The list of all ancestors of did, as deck objects.
+        """The list of all descendant of did, as deck ids, ordered alphabetically
 
         The list starts with the toplevel ancestors of did and its
         i-th element is the ancestor with i times ::.
@@ -757,21 +764,22 @@ same id."""
         Keyword arguments:
         did -- the id of the deck we consider
         childMap -- dictionnary, associating to a deck id its node as returned by .childMap()"""
-        def gather(node, arr):
-            for did, child in node.items():
-                arr.append(did)
-                gather(child, arr)
-
-        arr = []
-        gather(childMap[did], arr)
-        return arr
+        # get ancestors names
+        return [deck['id'] for deck in self.childrenDecks(did, includeSelf=includeSelf, sort=sort)]
 
     def childMap(self):
+        """A tree, containing for each pair parent/child, an entry of the form:
+        *  childMap[parent id][child id] = node of child.
+
+        Elements are entered in alphabetical order in each node. Thus
+        iterating over a node give children in alphabetical order.
+
+        """
         nameMap = self.nameMap()
         childMap = {}
 
         # go through all decks, sorted by name
-        for deck in sorted(self.all(), key=operator.itemgetter("name")):
+        for deck in self.all(sort=True):
             childMap[deck['id']] = {}
 
             # add note to immediate parent
