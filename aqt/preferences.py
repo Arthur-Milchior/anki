@@ -283,7 +283,6 @@ Not currently enabled; click the sync button in the main window to enable."""))
         ("limitAllCards", True),
         ("longTermBackUp", True, True, False),
         ("noteWithoutCard", True),
-        ("multipleNoteWithSameFirstFieldInImport", ),
         ("newLineInBatchEdit",),
         ("preserveCreation", True),
         ("preserveName", True),
