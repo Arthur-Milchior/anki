@@ -26,6 +26,7 @@ browserCollapsed -- true when deck collapsed in browser,
 id -- deck ID (automatically generated long),
 mod -- last modification time,
 mid -- the model of the deck
+tmp -- some values which should not be saved in json
 """
 
 
@@ -114,6 +115,7 @@ defaultDeck = {
     # added in beta11
     'extendNew': 10,
     'extendRev': 50,
+    'tmp': {}
 }
 
 defaultDynamicDeck = {
@@ -131,6 +133,7 @@ defaultDynamicDeck = {
     'terms': [["", 100, 0]],
     'resched': True,
     'return': True, # currently unused
+    'tmp': {},
 
     # v2 scheduler
     "previewDelay": 10,
@@ -173,6 +176,7 @@ defaultConf = {
     'replayq': True,
     'mod': 0,
     'usn': 0,
+    'tmp': {},
 }
 
 class DeckManager:
@@ -199,7 +203,11 @@ class DeckManager:
         dconf -- json dic associating to each id (as string) its configuration(option)
         """
         self.decks = json.loads(decks)
+        for did, deck in self.decks.items():
+            deck["tmp"] = dict()
         self.dconf = json.loads(dconf)
+        for dcid, dconf in self.decks.items():
+            dconf["tmp"] = dict()
         # set limits to within bounds
         found = False
         for c in list(self.dconf.values()):
@@ -229,8 +237,15 @@ class DeckManager:
         changes happenned.
         """
         if self.changed:
+            decks = {did: copy.copy(self.decks[did])}
+            for did, deck in decks.items():
+                del deck["tmp"]
+            dconfs = {dcid: copy.copy(self.dconfs[dcid])}
+            for did, dconf in dconfs.items():
+                del dconf["tmp"]
+
             self.col.db.execute("update col set decks=?, dconf=?",
-                                 json.dumps(self.decks),
+                                 json.dumps(decks),
                                  json.dumps(self.dconf))
             self.changed = False
 
