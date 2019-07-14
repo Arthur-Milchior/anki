@@ -99,8 +99,7 @@ order by due""" % (self._deckLimit()),
 
     def _updateStats(self, card, type, cnt=1):
         key = type+"Today"
-        for ancestor in ([self.col.decks.get(card.did)] +
-                  self.col.decks.parents(card.did)):
+        for ancestor in self.col.decks.parents(card.did, includeSelf=True):
             # add
             ancestor[key][1] += cnt
             self.col.decks.save(ancestor)
@@ -235,10 +234,9 @@ did = ? and queue = {QUEUE_NEW} limit ?)""", did, lim)
     def _deckNewLimit(self, did, fn=None):
         if not fn:
             fn = self._deckNewLimitSingle
-        sel = self.col.decks.get(did)
         lim = -1
         # for the deck and each of its parents
-        for ancestor in [sel] + self.col.decks.parents(did):
+        for ancestor in self.col.decks.parents(did, includeSelf=True):
             rem = fn(ancestor)
             if lim == -1:
                 lim = rem
