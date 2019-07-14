@@ -8,10 +8,20 @@ This is a version of anki in which multiple add-ons are already incorporated. I 
 
 I believe this fork is a crucial addition to Anki, because it allows you to have plenty of new and convinient features without having to wade through the list of all add-ons. Furthermore, it deals with the issue of incompatibility between add-ons, which can be difficult to manage. Finally, it also allows for graphical configuration instead of a json-edit based one.
 
-### Add-on compatibility
+## How to run this program
+Right now, the alpha version of the fork is only distributed through
+it's source code. The [README.development](development's readme) file
+explain how to run it. Note in particular that all dependencies are
+not listed in [requirements](requirements.txt); in particular PyQt5
+and mpv, which you may already have on your computer, and Lame needs
+to be installed on your computer to play audio files; and can't be
+installed through pip.
+
+
+## Add-on compatibility
 This fork is theoritically equivalent to anki and should therefore be fully compatible with any add-ons. Any already installed add-ons that is being installed again will simply be ignored
 
-### Alpha specificity
+## Alpha specificity
 This fork is still in alpha and in a very early stage. This mean it is not as ready-to-use as I would like - you need to download the github code and execute runanki on it instead of having an archive ready, as of now.
 If you want to be an alpha-tester, please do notify me, I am still in need for some.
 
