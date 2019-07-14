@@ -90,10 +90,9 @@ class ModelChooser(QHBoxLayout):
         cdeck = self.deck.decks.current()
         cdeck['mid'] = m['id']
         self.deck.decks.save(cdeck)
+        runHook("currentModelChanged")
+        self.mw.reset()
         if self.addCardWindow:
-            runHook("currentModelChanged")
-            self.mw.reset()
-        else:
             self.addCardWindow.onModelChange() #this is onModelChange from card, and note from ModelChange
             self.updateModels()
 
