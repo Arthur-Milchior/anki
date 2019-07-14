@@ -680,7 +680,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QCheckBox" name="OtherMultipleTime">
+           <widget class="QCheckBox" name="OtherWindowsMultipleTime">
             <property name="text">
              <string>Other</string>
             </property>
