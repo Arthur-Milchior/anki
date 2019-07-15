@@ -88,7 +88,7 @@ class Preferences(QDialog):
         f.showEstimates.setChecked(qc['estTimes'])
         f.showProgress.setChecked(qc['dueCounts'])
         f.nightMode.setChecked(qc.get("nightMode", False))
-        f.newSpread.addItems(list(c.newCardSchedulingLabels().values()))
+        f.newSpread.addItems(list(newCardSchedulingLabels().values()))
         f.newSpread.setCurrentIndex(qc['newSpread'])
         f.useCurrent.setCurrentIndex(int(not qc.get("addToCur", True)))
         f.dayLearnFirst.setChecked(qc.get("dayLearnFirst", False))
@@ -284,3 +284,39 @@ Not currently enabled; click the sync button in the main window to enable."""))
         """Check the preferences related to add-ons forked."""
         for args in self.extraOptions:
             self.updateOneOption(*args)
+
+    # Basic & Advanced Options
+    ######################################################################
+
+    def setupColor(self):
+        if colors not in self.mw.col.conf:
+        self.mw.col.conf["colors"] = defaultColors
+        for colorName in defaultColors:
+            color = self.mw.col.conf["colors"].get(colorName, defaultColors[colorName])#useful if another color is added by an add-on.
+            button = getattr(self.form, f"{colorName}Button")
+            button.clicked.connect(lambda: self.onColor(colorName))
+            button.setStyleSheet(f"background-color: {color}")
+
+    def onColor(self, name):
+        new = QColorDialog.getColor(QColor(self.mw.col.conf["colors"][name]), self, f"Choose the color for {name}")
+        if new.isValid():
+            newColor = new.name()
+            colors[name] = newColor
+            button.setStyleSheet(f"background-color: {newColor}")
+
+
+defaultColors = dict(
+    young = "#7c7",
+    mature = "#070",
+    cum = "rgba(0,0,0,0.9)",
+    learn = "#C35617",
+    relearn = "#c00",
+    cram = "#ff0",
+    ivl = "#077",
+    hour = "#ccc",
+    unseen = "#000",
+    susp = "#ff0",
+    new = "#000099",
+    rev = "#007700",
+    due = "#007700",
+)
