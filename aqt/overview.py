@@ -179,7 +179,7 @@ to their original deck.""")
             ]
             from aqt import mw
             if mw and mw.pm.profile.get("limitAllCards", False):
-                l.append(("""{_("New")} + {_("To Review")}""", counts[3], colToday))
+                l.append((f"""{_("New")} + {_("To Review")}""", counts[3], colToday))
             return ('''
             <table width=400 cellpadding=5>
             <tr><td align=center valign=top>
