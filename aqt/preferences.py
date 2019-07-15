@@ -8,6 +8,7 @@ import anki.lang
 from aqt.utils import openFolder, openHelp, showInfo, askUser
 import aqt
 from anki.lang import _
+from anki.consts import *
 
 class Preferences(QDialog):
 
@@ -31,6 +32,7 @@ class Preferences(QDialog):
         self.setupBackup()
         self.setupOptions()
         self.setupExtra()
+        self.setupColor()
         self.show()
 
     def accept(self):
@@ -289,34 +291,22 @@ Not currently enabled; click the sync button in the main window to enable."""))
     ######################################################################
 
     def setupColor(self):
-        if colors not in self.mw.col.conf:
-        self.mw.col.conf["colors"] = defaultColors
+        if "colors" not in self.mw.col.conf:
+            self.mw.col.conf["colors"] = defaultColors
         for colorName in defaultColors:
-            color = self.mw.col.conf["colors"].get(colorName, defaultColors[colorName])#useful if another color is added by an add-on.
+            defaultColor = defaultColors.get(colorName, "black")
+            colors = self.mw.col.conf["colors"]
+            color = colors.get(colorName, defaultColor) # useful if another color is added by an add-on.
             button = getattr(self.form, f"{colorName}Button")
             button.clicked.connect(lambda: self.onColor(colorName))
             button.setStyleSheet(f"background-color: {color}")
 
+
     def onColor(self, name):
+        print(f"on color {name}")
         new = QColorDialog.getColor(QColor(self.mw.col.conf["colors"][name]), self, f"Choose the color for {name}")
         if new.isValid():
+            colors = self.mw.col.conf["colors"]
             newColor = new.name()
             colors[name] = newColor
             button.setStyleSheet(f"background-color: {newColor}")
-
-
-defaultColors = dict(
-    young = "#7c7",
-    mature = "#070",
-    cum = "rgba(0,0,0,0.9)",
-    learn = "#C35617",
-    relearn = "#c00",
-    cram = "#ff0",
-    ivl = "#077",
-    hour = "#ccc",
-    unseen = "#000",
-    susp = "#ff0",
-    new = "#000099",
-    rev = "#007700",
-    due = "#007700",
-)

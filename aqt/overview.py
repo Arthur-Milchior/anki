@@ -176,9 +176,9 @@ to their original deck.""")
 <table width=400 cellpadding=5>
 <tr><td align=center valign=top>
 <table cellspacing=5>
-<tr><td>%s:</td><td><b><font color={colNew}>%s</font></b></td></tr>
-<tr><td>%s:</td><td><b><font color={colLearn}>%s</font></b></td></tr>
-<tr><td>%s:</td><td><b><font color={colRev}>%s</font></b></td></tr>
+<tr><td>%s:</td><td><b><font color={self.mw.col.conf.get("colors", defaultColors)["new"]}>%s</font></b></td></tr>
+<tr><td>%s:</td><td><b><font color={self.mw.col.conf.get("colors", defaultColors)["learn"]}>%s</font></b></td></tr>
+<tr><td>%s:</td><td><b><font color={self.mw.col.conf.get("colors", defaultColors)["rev"]}>%s</font></b></td></tr>
 </table>
 </td><td align=center>
 %s</td></tr></table>''' % (

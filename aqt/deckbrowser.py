@@ -214,8 +214,8 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
                 cnt = "1000+"
             return "<font color='%s'>%s</font>" % (colour, cnt)
         buf += "<td align=right>%s</td><td align=right>%s</td>" % (
-            nonzeroColour(due, colDue),
-            nonzeroColour(new, colNew))
+            nonzeroColour(due, self.mw.col.conf.get("colors", defaultColors)["due"]),
+            nonzeroColour(new, self.mw.col.conf.get("colors", defaultColors)["new"]))
         # options
         buf += ("<td align=center class=opts><a onclick='return pycmd(\"opts:%d\");'>"
         "<img src='/_anki/imgs/gears.svg' class=gears></a></td></tr>" % did)

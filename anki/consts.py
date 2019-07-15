@@ -139,3 +139,23 @@ colIvl = "#077"
 colHour = "#ccc"
 colUnseen = "#000"
 colSusp = "#ff0"
+
+defaultColors = dict(
+    young = colYoung,
+    grad = colDue,
+    mature = colMature,
+    cum = colCum,
+    learn = colLearn,
+    relearn = colRelearn,
+    cram = colCram,
+    ivl = colIvl,
+    hour = colHour,
+    unseen = colUnseen,
+    susp = colSusp,
+    new = colNew,
+    rev = colRev,
+    due = colDue,
+    userBuried = colSusp,
+    schedBuried = colSusp,
+
+)

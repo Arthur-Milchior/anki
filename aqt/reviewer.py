@@ -527,9 +527,9 @@ time = %(time)d;
         idx = self.mw.col.sched.countIdx(self.card)
         counts[idx] = "<u>%s</u>" % (counts[idx])
         space = " + "
-        ctxt = f'<font color="{colNew}">%s</font>' % counts[0]
-        ctxt += space + f'<font color="{colLearn}">%s</font>' % counts[1]
-        ctxt += space + f'<font color="{colRev}">%s</font>' % counts[2]
+        ctxt = f'<font color="{self.mw.col.conf.get("colors", defaultColors)["new"]}">%s</font>' % counts[0]
+        ctxt += space + f'<font color="{self.mw.col.conf.get("colors", defaultColors)["learn"]}">%s</font>' % counts[1]
+        ctxt += space + f'<font color="{self.mw.col.conf.get("colors", defaultColors)["rev"]}">%s</font>' % counts[2]
         return ctxt
 
     def _defaultEase(self):
