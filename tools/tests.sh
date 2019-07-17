@@ -5,6 +5,7 @@
 # tools/tests.sh decks # test only test_decks.py
 # coverage=1 tools/tests.sh # run with coverage test
 
+
 BIN="$(cd "`dirname "$0"`"; pwd)"
 export PYTHONPATH=${BIN}/..:${PYTHONPATH}
 
@@ -13,6 +14,7 @@ nose=nosetests
 if which nosetests3 >/dev/null 2>&1; then
     nose=nosetests3
 fi
+./tools/build_ui.sh
 
 dir=.
 
