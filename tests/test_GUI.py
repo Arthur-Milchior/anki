@@ -1,4 +1,3 @@
-import aqt
 import shutil
 import os
 
@@ -10,6 +9,6 @@ def test_gui():
     except:
         pass
     shutil.copytree(orig, copy)
-    os.system(f"./runanki --base {copy} -p TEST")
+    assert os.system(f"./runanki --base {copy} -p TEST") == 0 #i.e. run was ok
     #aqt.run(["Anki","--base", copy, "-p", "TEST"])
     shutil.rmtree(copy)
