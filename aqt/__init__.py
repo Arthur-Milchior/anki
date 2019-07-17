@@ -340,6 +340,7 @@ def parseArgs(argv):
     parser.usage = "%(prog)s [OPTIONS] [file to import]"
     parser.add_argument("-b", "--base", help="path to base folder", default="")
     parser.add_argument("-p", "--profile", help="profile name to load", default="")
+    parser.add_argument("-c", "--collectiof", help="collection file to load", default="")
     parser.add_argument("-l", "--lang", help="interface language (en, de, etc)")
     return parser.parse_known_args(argv[1:])
 
@@ -371,9 +372,9 @@ def setupGL(pm):
     else:
         os.environ["QT_OPENGL"] = mode
 
-def run():
+def run(argv=None):
     try:
-        _run()
+        _run(argv=argv)
     except Exception as e:
         traceback.print_exc()
         QMessageBox.critical(None, "Startup Error",
@@ -394,7 +395,6 @@ def _run(argv=None, exec=True):
 
     if argv is None:
         argv = sys.argv
-
     # parse args
     opts, args = parseArgs(argv)
 

@@ -116,9 +116,6 @@ class Scheduler(BothScheduler):
             f"update cards set mod=?,usn=?,queue=type where queue = {QUEUE_USER_BURIED} and did in %s"
             % (sids), intTime(), self.col.usn())
 
-    # Rev/lrn/time daily stats
-    ##########################################################################
-
     # Deck list
     ##########################################################################
 
@@ -130,19 +127,12 @@ class Scheduler(BothScheduler):
         did, rev, lrn, new (not counting subdeck)]"""
         self._checkDay()
         self.col.decks.checkIntegrity()
-        decks = self.col.decks.all()
-        decks.sort(key=itemgetter('name'))
+        decks = self.col.decks.all(sort=True)
         #lims -- associating to each deck maximum number of new card and of review. Taking custom study into account
         lims = {}
         data = []
-        def parent(name):
-            parts = name.split("::")
-            if len(parts) < 2:
-                return None
-            parts = parts[:-1]
-            return "::".join(parts)
         for deck in decks:
-            p = parent(deck['name'])
+            p = self.col.decks.parentName(deck['name'])
             # new
             #nlim -- maximal number of new card, taking parent into account
             nlim = self._deckNewLimitSingle(deck)
@@ -496,26 +486,6 @@ and due <= ? limit ?)""" ,
         sync -- whether it's called from sync, and the return must satisfies sync sanity check
         """
         return self._deckNewLimit(did, lambda deck: self._deckRevLimitSingle(deck, sync=sync))
-
-    def _deckRevLimitSingle(self, deck, sync=False):
-        """Maximum number of card to review today in deck deck.
-
-        self.reportLimit for dynamic deck. Otherwise the number of review according to deck option, plus the number of review added in custom study today.
-        keyword arguments:
-        deck -- a deck object
-        sync -- whether it's called from sync, and the return must satisfies sync sanity check
-        """
-        if deck['dyn']:
-            return self.reportLimit
-        c = self.col.decks.confForDid(deck['id'])
-        nbRevToSee = c['rev']['perDay'] - deck['revToday'][1]
-        from aqt import mw
-        if (not sync) and mw and mw.pm.profile.get("limitAllCards", False):
-            nbCardToSee = c.get('perDay', 1000) - deck['revToday'][1] - deck['newToday'][1]
-            limit = min(nbRevToSee, nbCardToSee)
-        else:
-            limit = nbRevToSee
-        return max(0, limit)
 
     def _revForDeck(self, did, lim):
         """number of cards to review today for deck did
@@ -1024,9 +994,3 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?""" % queue, data)
                 (f"update cards set queue={QUEUE_USER_BURIED},mod=?,usn=? where id in ")+ids2str(toBury),
                 intTime(), self.col.usn())
             self.col.log(toBury)
-
-    # Resetting
-    ##########################################################################
-
-    # Repositioning new cards
-    ##########################################################################

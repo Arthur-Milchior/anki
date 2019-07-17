@@ -430,7 +430,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         def dids(did):
             if not did:
                 return None
-            return [did] + [a[1] for a in self.col.decks.children(did)]
+            return self.col.decks.childDids(did, includeSelf=True)
         # current deck?
         ids = None
         if val.lower() == "current":

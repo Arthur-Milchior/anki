@@ -95,9 +95,6 @@ class Scheduler(BothScheduler):
             return 2
         return 4
 
-    # Rev/lrn/time daily stats
-    ##########################################################################
-
     # Deck list
     ##########################################################################
 
@@ -105,19 +102,12 @@ class Scheduler(BothScheduler):
         "Returns [deckname, did, rev, lrn, new]"
         self._checkDay()
         self.col.decks.checkIntegrity()
-        decks = self.col.decks.all()
-        decks.sort(key=itemgetter('name'))
+        decks = self.col.decks.all(sort=True)
         lims = {}
         data = []
-        def parent(name):
-            parts = name.split("::")
-            if len(parts) < 2:
-                return None
-            parts = parts[:-1]
-            return "::".join(parts)
         childMap = self.col.decks.childMap()
         for deck in decks:
-            p = parent(deck['name'])
+            p = self.col.decks.parentName(deck['name'])
             # new
             nlim = self._deckNewLimitSingle(deck)
             if p:
@@ -462,19 +452,6 @@ and due <= ? limit ?)""",
         sync -- whether it's called from sync, and the return must satisfies sync sanity check
         """
         # invalid deck selected?
-        if not deck:
-            return 0
-
-        if deck['dyn']:
-            return self.dynReportLimit
-
-        c = self.col.decks.confForDid(deck['id'])
-        lim = max(0, c['rev']['perDay'] - deck['revToday'][1])
-        from aqt import mw
-        if (not sync) and mw and mw.pm.profile.get("limitAllCards", False):
-            nbCardToSee = c.get('perDay', 1000) - deck['revToday'][1] - deck['newToday'][1]
-            lim = min(lim, nbCardToSee)
-
         if parentLimit is not None:
             return min(parentLimit, lim)
         elif '::' not in deck['name']:
@@ -485,8 +462,8 @@ and due <= ? limit ?)""",
                 lim = min(lim, self._deckRevLimitSingle(parent, parentLimit=lim))
             return lim
 
-    def _revForDeck(self, did, lim, childMap):
-        dids = [did] + self.col.decks.childDids(did, childMap)
+    def _revForDeck(self, did, lim, sort=True, childMap=None):
+        dids = self.col.decks.childDids(did, childMap=childMap, includeSelf=True)
         lim = min(lim, self.reportLimit)
         return self.col.db.scalar(
             f"""

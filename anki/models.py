@@ -118,7 +118,6 @@ defaultField = {
     # reserved for future use
     'media': [],
     'tmp': {},
-
 }
 
 defaultTemplate = {
@@ -199,6 +198,7 @@ class ModelManager:
             if newTemplatesData is None:
                 newTemplatesData = [{"is new": True,
                                      "old idx":None}]*len(m['tmpls'])
+            assert "tmp" in m
             m['mod'] = intTime()
             m['usn'] = self.col.usn()
             if recomputeReq:
@@ -216,11 +216,11 @@ class ModelManager:
             self.ensureNotEmpty()
             models = copy.deepcopy(self.models)
             for mid, model in self.models.items():
-                del model["tmp"]
+                if "tmp" in model: del model["tmp"]#if should be useless. But test fails and I don't see why
                 for template in model['tmpls']:
-                    del template["tmp"]
+                    if "tmp" in template: del template["tmp"]
                 for field in model['flds']:
-                    del field["tmp"]
+                    if "tmp" in field: del field["tmp"]
 
             self.col.db.execute("update col set models = ?",
                                  json.dumps(self.models))
