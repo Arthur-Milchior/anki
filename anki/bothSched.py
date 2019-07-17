@@ -109,8 +109,7 @@ order by due""" % (self._deckLimit()),
         to this decks and all of its ancestors.
         """
         key = type+"Today"
-        for deck in ([self.col.decks.get(card.did)] +
-                  self.col.decks.parents(card.did)):
+        for deck in self.col.decks.parents(card.did, includeSelf=True):
             # add
             deck[key][1] += cnt
             self.col.decks.save(deck)
@@ -123,9 +122,8 @@ order by due""" % (self._deckLimit()),
         """
         cur = self.col.decks.current()
         parents = self.col.decks.parents(cur['id'])
-        children = [self.col.decks.get(did) for (name, did) in
-                    self.col.decks.children(cur['id'])]
-        for deck in [cur] + parents + children:
+        children = self.col.decks.childrenDecks(cur['id'])
+        for dick in [cur] + parents + children:
             # add
             deck['newToday'][1] -= new
             deck['revToday'][1] -= rev
@@ -271,10 +269,9 @@ did = ? and queue = {QUEUE_NEW_CRAM} limit ?)""", did, lim)
     def _deckNewLimit(self, did, fn=None):
         if not fn:
             fn = self._deckNewLimitSingle
-        sel = self.col.decks.get(did)
         lim = -1
         # for the deck and each of its parents
-        for deck in [sel] + self.col.decks.parents(did):
+        for deck in self.col.decks.parents(did, includeSelf=True):
             rem = fn(deck)
             if lim == -1:
                 lim = rem
@@ -427,6 +424,28 @@ did = ? and queue = {QUEUE_DAY_LRN} and due <= ? limit ?""",
     # Reviews
     ##########################################################################
 
+    def _deckRevLimitSingle(self, deck, sync=False):
+        """Maximum number of card to review today in deck deck.
+
+        self.reportLimit for dynamic deck. Otherwise the number of review according to deck option, plus the number of review added in custom study today.
+        keyword arguments:
+        deck -- a deck object"""
+        # invalid deck selected?
+        if not deck:
+            return 0
+
+        if deck['dyn']:
+            return self.reportLimit
+        c = self.col.decks.confForDid(deck['id'])
+        nbRevToSee = c['rev']['perDay'] - deck['revToday'][1]
+        from aqt import mw
+        if (not sync) and mw and mw.pm.profile.get("limitAllCards", False):
+            nbCardToSee = c.get('perDay', 1000) - deck['revToday'][1] - deck['newToday'][1]
+            limit = min(nbRevToSee, nbCardToSee)
+        else:
+            limit = nbRevToSee
+        return max(0, limit)
+
     def _resetRev(self, sync=False):
         """
         Set revCount, empty _revQueue, _revDids
@@ -446,9 +465,6 @@ did = ? and queue = {QUEUE_DAY_LRN} and due <= ? limit ?""",
 select count() from cards where id in (
 select id from cards where did in %s and queue = {QUEUE_REV} and due <= ? limit ?)"""
             % ids2str(self.col.decks.active()), self.today, self.reportLimit)
-
-    # Answering a review card
-    ##########################################################################
 
     # Interval management
     ##########################################################################
