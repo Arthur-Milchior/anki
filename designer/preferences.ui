@@ -490,9 +490,6 @@
          </widget>
         </item>
         <item>
-         <spacer name="verticalSpacer">
-        </item>
-        <item>
          <widget class="Line" name="line">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
