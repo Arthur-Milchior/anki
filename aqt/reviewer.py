@@ -289,7 +289,7 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
         elif url.startswith("ease"):
             self._answerCard(int(url[4:]))
         elif url == "edit":
-            self.mw.onEditCurrent()
+            return self.mw.onEditCurrent()
         elif url == "more":
             self.showContextMenu()
         else:

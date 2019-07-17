@@ -61,7 +61,13 @@ profileConf = dict(
 )
 
 class ProfileManager:
+    """The window which allow to select a profile.
 
+    base -- the repertory containing one directory by profile, and the profile database
+    db -- the database containing the list of profiles
+    profile -- a dict, similar to profileConf, which contains values as the last time the profile was used
+    meta -- some configuration, related to all profiles
+    """
     def __init__(self, base=None):
         self.name = None
         self.db = None
@@ -74,8 +80,10 @@ class ProfileManager:
         # load metadata
         self.firstRun = self._loadMeta()
 
-    # profile load on startup
     def openProfile(self, profile):
+        """If startup is done with option -p profileName, then this method is called.
+        It directly loads profile profileName instead of showing the selection window.
+        """
         if profile:
             if profile not in self.profiles():
                 QMessageBox.critical(None, "Error", "Requested profile does not exist.")
@@ -127,6 +135,9 @@ a flash drive.""" % self.base)
     ######################################################################
 
     def profiles(self):
+        """Ensures at least one profile exists in self.base; return the list of profile.
+
+        A profile being an element of the table profiles from self.db."""
         def names():
             return self.db.list("select name from profiles where name != '_global'")
 
@@ -160,9 +171,12 @@ a flash drive.""" % self.base)
         return up.load()
 
     def _pickle(self, obj):
+        """A pickled version of obj, with protocol 0."""
         return pickle.dumps(obj, protocol=0)
 
     def load(self, name):
+        """Called when the profile manager's selected line is name. Change
+        self.name, self.profile, and deal with broken profile data"""
         assert name != "_global"
         data = self.db.scalar("select cast(data as blob) from profiles where name = ?", name)
         self.name = name
@@ -180,18 +194,22 @@ details have been forgotten."""))
         return True
 
     def save(self):
+        """Change the database to put the last version of profile and meta"""
         sql = "update profiles set data = ? where name = ?"
         self.db.execute(sql, self._pickle(self.profile), self.name)
         self.db.execute(sql, self._pickle(self.meta), "_global")
         self.db.commit()
 
     def create(self, name):
+        """Create a new profile, with name name, and default configuration"""
         prof = profileConf.copy()
         self.db.execute("insert or ignore into profiles values (?, ?)",
                         name, self._pickle(prof))
         self.db.commit()
 
     def remove(self, name):
+        """Delete the profile name folder by putting it in trash, and remove
+        it from the database"""
         profileFolder = self.profileFolder()
         if os.path.exists(profileFolder):
             send2trash(profileFolder)
@@ -199,11 +217,20 @@ details have been forgotten."""))
         self.db.commit()
 
     def trashCollection(self):
+        """Move to trash the current collection database, but not the folder.
+
+        It's called when the collection is replaced by a backup.
+        """
         collectionPath = self.collectionPath()
         if os.path.exists(collectionPath):
             send2trash(collectionPath)
 
     def rename(self, name):
+        """Rename the profile self.name to name.  It rename the profile
+        folder, and change the line in the database. Warn an error
+        message if renaming is not possible.
+
+        """
         oldName = self.name
         oldFolder = self.profileFolder()
         self.name = name
@@ -299,7 +326,7 @@ and no other programs are accessing your profile folders, then try again."""))
         self.ensureBaseExists()
 
     def _defaultBase(self):
-        """The folder containing every file related to anki's configuration. """
+        """The default folder containing every file related to anki's configuration. """
         if isWin:
             from aqt.winpaths import get_appdata
             return os.path.join(get_appdata(), "Anki2")

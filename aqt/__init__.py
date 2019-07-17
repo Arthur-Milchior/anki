@@ -312,9 +312,9 @@ def setupGL(pm):
     else:
         os.environ["QT_OPENGL"] = mode
 
-def run():
+def run(argv=None):
     try:
-        _run()
+        _run(argv=argv)
     except Exception as e:
         traceback.print_exc()
         QMessageBox.critical(None, "Startup Error",

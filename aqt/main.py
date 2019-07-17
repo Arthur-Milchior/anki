@@ -905,15 +905,15 @@ QTreeWidget {
 
     def onAddCard(self):
         """Open the addCards window."""
-        aqt.dialogs.open("AddCards", self)
+        return aqt.dialogs.open("AddCards", self)
 
     def onBrowse(self):
         """Open the browser window."""
-        aqt.dialogs.open("Browser", self)
+        return aqt.dialogs.open("Browser", self)
 
     def onEditCurrent(self):
         """Open the editing window."""
-        aqt.dialogs.open("EditCurrent", self)
+        return aqt.dialogs.open("EditCurrent", self)
 
     def onDeckConf(self, deck=None):
         """Open the deck editor.
@@ -925,10 +925,10 @@ QTreeWidget {
             deck = self.col.decks.current()
         if deck['dyn']:
             import aqt.dyndeckconf
-            aqt.dyndeckconf.DeckConf(self, deck=deck)
+            return aqt.dyndeckconf.DeckConf(self, deck=deck)
         else:
             import aqt.deckconf
-            aqt.deckconf.DeckConf(self, deck)
+            return aqt.deckconf.DeckConf(self, deck)
 
     def onOverview(self):
         self.col.reset()
@@ -941,23 +941,23 @@ QTreeWidget {
         deck = self._selectedDeck()
         if not deck:
             return
-        aqt.dialogs.open("DeckStats", self)
+        return aqt.dialogs.open("DeckStats", self)
 
     def onPrefs(self):
         """Open preference window"""
-        aqt.dialogs.open("Preferences", self)
+        return aqt.dialogs.open("Preferences", self)
 
     def onNoteTypes(self):
         import aqt.models
-        aqt.models.Models(self, self, fromMain=True)
+        return aqt.models.Models(self, self, fromMain=True)
 
     def onAbout(self):
         """Open the about window"""
-        aqt.dialogs.open("About", self)
+        return aqt.dialogs.open("About", self)
 
     def onDonate(self):
         """Ask the OS to open the donate web page"""
-        openLink(aqt.appDonate)
+        return openLink(aqt.appDonate)
 
     def onDocumentation(self):
         """Ask the OS to open the documentation web page"""
