@@ -89,9 +89,6 @@ class Scheduler(BothScheduler):
             return 2
         return 4
 
-    # Rev/lrn/time daily stats
-    ##########################################################################
-
     # Deck list
     ##########################################################################
 
@@ -99,19 +96,12 @@ class Scheduler(BothScheduler):
         "Returns [deckname, did, rev, lrn, new]"
         self._checkDay()
         self.col.decks.checkIntegrity()
-        decks = self.col.decks.all()
-        decks.sort(key=itemgetter('name'))
+        decks = self.col.decks.all(sort=True)
         lims = {}
         data = []
-        def parent(name):
-            parts = name.split("::")
-            if len(parts) < 2:
-                return None
-            parts = parts[:-1]
-            return "::".join(parts)
         childMap = self.col.decks.childMap()
         for deck in decks:
-            p = parent(deck['name'])
+            p = self.col.decks.parentName(deck['name'])
             # new
             nlim = self._deckNewLimitSingle(deck)
             if p:
@@ -210,16 +200,6 @@ class Scheduler(BothScheduler):
 
         # collapse or finish
         return self._getLrnCard(collapse=True)
-
-    # New cards
-    ##########################################################################
-
-    def _deckNewLimitSingle(self, g):
-        "Limit for deck without parent limits."
-        if g['dyn']:
-            return self.dynReportLimit
-        c = self.col.decks.confForDid(g['id'])
-        return max(0, c['new']['perDay'] - g['newToday'][1])
 
     # Learning queues
     ##########################################################################
@@ -440,16 +420,7 @@ and due <= ? limit ?)""",
         return self._deckRevLimitSingle(d)
 
     def _deckRevLimitSingle(self, d, parentLimit=None):
-        # invalid deck selected?
-        if not d:
-            return 0
-
-        if d['dyn']:
-            return self.dynReportLimit
-
-        c = self.col.decks.confForDid(d['id'])
-        lim = max(0, c['rev']['perDay'] - d['revToday'][1])
-
+        lim = super()._deckRevLimitSingle(d)
         if parentLimit is not None:
             return min(parentLimit, lim)
         elif '::' not in d['name']:
@@ -460,8 +431,8 @@ and due <= ? limit ?)""",
                 lim = min(lim, self._deckRevLimitSingle(parent, parentLimit=lim))
             return lim
 
-    def _revForDeck(self, did, lim, childMap):
-        dids = [did] + self.col.decks.childDids(did, childMap)
+    def _revForDeck(self, did, lim, sort=True, childMap=None):
+        dids = self.col.decks.childDids(did, childMap=childMap, includeSelf=True)
         lim = min(lim, self.reportLimit)
         return self.col.db.scalar(
             f"""

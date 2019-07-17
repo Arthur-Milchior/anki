@@ -183,7 +183,7 @@ class Preferences(QDialog):
     def setupNetwork(self):
         self.form.syncOnProgramOpen.setChecked(
             self.prof['autoSync'])
-        self.setupOneOptions('syncMedia')
+        self.setupOneOption('syncMedia')
         if not self.prof['syncKey']:
             self._hideAuth()
         else:
@@ -204,7 +204,7 @@ Not currently enabled; click the sync button in the main window to enable."""))
 
     def updateNetwork(self):
         self.prof['autoSync'] = self.form.syncOnProgramOpen.isChecked()
-        self.updateOneOptions('syncMedia')
+        self.updateOneOption('syncMedia')
         if self.form.fullSync.isChecked():
             self.mw.col.modSchema(check=False)
             self.mw.col.setMod()
@@ -213,20 +213,20 @@ Not currently enabled; click the sync button in the main window to enable."""))
     ######################################################################
 
     def setupBackup(self):
-        self.setupOneOptions("numBackups", 50, False)
+        self.setupOneOption("numBackups", 50, False)
         self.form.openBackupFolder.linkActivated.connect(self.onOpenBackup)
 
     def onOpenBackup(self):
         openFolder(self.mw.pm.backupFolder())
 
     def updateBackup(self):
-        self.updateOneOptions("numBackups", 50, False)
+        self.updateOneOption("numBackups", 50, False)
 
     # Basic & Advanced Options
     ######################################################################
 
     def setupOptions(self):
-        self.setupOneOptions("pastePNG")
+        self.setupOneOption("pastePNG")
 
     def updateOptions(self):
         self.updateOneOption("pastePNG")
@@ -278,10 +278,10 @@ Not currently enabled; click the sync button in the main window to enable."""))
     def setupExtra(self):
         """Set in the GUI the preferences related to add-ons
         forked."""
-        for args in extraOptions:
+        for args in self.extraOptions:
             self.setupOneOption(*args)
 
     def updateExtra(self):
         """Check the preferences related to add-ons forked."""
-        for args in extraOptions:
+        for args in self.extraOptions:
             self.updateOneOption(*args)
