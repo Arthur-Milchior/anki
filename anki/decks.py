@@ -26,6 +26,7 @@ browserCollapsed -- true when deck collapsed in browser,
 id -- deck ID (automatically generated long),
 mod -- last modification time,
 mid -- the model of the deck
+tmp -- some values which should not be saved in json
 """
 
 
@@ -114,6 +115,7 @@ defaultDeck = {
     # added in beta11
     'extendNew': 10,
     'extendRev': 50,
+    'tmp': {}
 }
 
 defaultDynamicDeck = {
@@ -131,6 +133,7 @@ defaultDynamicDeck = {
     'terms': [["", 100, 0]],
     'resched': True,
     'return': True, # currently unused
+    'tmp': {},
 
     # v2 scheduler
     "previewDelay": 10,
@@ -173,6 +176,7 @@ defaultConf = {
     'replayq': True,
     'mod': 0,
     'usn': 0,
+    'tmp': {},
 }
 
 class DeckManager:
@@ -199,7 +203,11 @@ class DeckManager:
         dconf -- json dic associating to each id (as string) its configuration(option)
         """
         self.decks = json.loads(decks)
+        for did, deck in self.decks.items():
+            deck["tmp"] = dict()
         self.dconf = json.loads(dconf)
+        for dcid, dconf in self.decks.items():
+            dconf["tmp"] = dict()
         # set limits to within bounds
         found = False
         for c in list(self.dconf.values()):
@@ -229,9 +237,16 @@ class DeckManager:
         changes happenned.
         """
         if self.changed:
+            decks = {did: copy.copy(deck) for did, deck in self.decks.items()}
+            for did, deck in decks.items():
+                if "tmp" in deck: del deck["tmp"]
+            dconfs = {dcid: copy.copy(dconf) for dcid, dconf in self.dconf.items()}
+            for did, dconf in dconfs.items():
+                if "tmp" in dconf: del dconf["tmp"]
+
             self.col.db.execute("update col set decks=?, dconf=?",
-                                 json.dumps(self.decks),
-                                 json.dumps(self.dconf))
+                                 json.dumps(decks),
+                                 json.dumps(dconfs))
             self.changed = False
 
     # Deck save/load
@@ -310,13 +325,13 @@ class DeckManager:
             # rather than deleting the cards
             self.col.sched.emptyDyn(did)
             if childrenToo:
-                for name, id in self.children(did):
+                for id in self.childDids(did):
                     self.rem(id, cardsToo)
         else:
             # delete children first
             if childrenToo:
                 # we don't want to delete children when syncing
-                for name, id in self.children(did):
+                for id in self.childDids(did):
                     self.rem(id, cardsToo)
             # delete cards too?
             if cardsToo:
@@ -331,24 +346,36 @@ class DeckManager:
             self.select(int(list(self.decks.keys())[0]))
         self.save()
 
-    def allNames(self, dyn=True):
-        """An unsorted list of all deck names.
+    def allNames(self, dyn=True, sort=False):
+        """A list of all deck names.
 
         Keyword arguments:
         dyn -- if set to false, do not list the dynamic decks.
+        sort -- whether to sort
         """
         if dyn:
-            return [x['name'] for x in list(self.decks.values())]
+            l = [x['name'] for x in list(self.decks.values())]
         else:
-            return [x['name'] for x in list(self.decks.values()) if not x['dyn']]
+            l = [x['name'] for x in list(self.decks.values()) if not x['dyn']]
+        if sort:
+            l.sort()
+        return l
 
-    def all(self):
+    def all(self, sort=False):
         """A list of all deck objects."""
-        return list(self.decks.values())
+        l = list(self.decks.values())
+        if sort:
+            l.sort(key = lambda deck: deck["name"])
+        return l
 
-    def allIds(self):
-        """A list of all deck's id."""
-        return list(self.decks.keys())
+    def allIds(self, sort=False):
+        """A list of all deck's id.
+
+        sort -- whether to sort by name"""
+        if sort:
+            return [deck["id"] for deck in self.all(sort=True)]
+        else:
+            return list(self.decks.keys())
 
     def collapse(self, did):
         """Change the collapsed state of deck whose id is did. Then
@@ -412,13 +439,10 @@ class DeckManager:
         # ensure we have parents
         newName = self._ensureParents(newName)
         # rename children
-        for grp in self.all():
-            if grp['name'].startswith(g['name'] + "::"):
-                grp['name'] = grp['name'].replace(g['name']+ "::",
-                                                  newName + "::", 1)
-                self.save(grp)
-        # adjust name
-        g['name'] = newName
+        oldName = g['name']
+        for grp in self.childrenDecks(g['id'], includeSelf=True):
+            grp['name'] = grp['name'].replace(f"{oldName}", f"{newName}", 1)
+            self.save(grp)
         # ensure we have parents again, as we may have renamed parent->child
         newName = self._ensureParents(newName)
         self.save(g)
@@ -651,9 +675,7 @@ same id."""
         of the descendant."""
         if not children:
             return self.col.db.list("select id from cards where did=?", did)
-        dids = [did]
-        for name, id in self.children(did):
-            dids.append(id)
+        dids = self.childDids(did, includeSelf=True)
         return self.col.db.list("select id from cards where did in "+
                                 ids2str(dids))
 
@@ -685,12 +707,11 @@ same id."""
                 self.save(deck)
 
             # immediate parent must exist
-            if "::" in deck['name']:
-                immediateParent = "::".join(deck['name'].split("::")[:-1])
-                if immediateParent not in names:
-                    self.col.log("fix deck with missing parent", deck['name'])
-                    self._ensureParents(deck['name'])
-                    names.add(immediateParent)
+            immediateParent = self.parentName(deck['name'])
+            if immediateParent is not None and immediateParent not in names:
+                self.col.log("fix deck with missing parent", deck['name'])
+                self._ensureParents(deck['name'])
+                names.add(immediateParent)
 
             names.add(deck['name'])
 
@@ -723,58 +744,56 @@ same id."""
         # current deck
         self.col.conf['curDeck'] = did
         # and active decks (current + all children)
-        actv = self.children(did)
-        actv.sort()
-        self.col.conf['activeDecks'] = [did] + [a[1] for a in actv]
+        self.col.conf['activeDecks'] = self.childDids(did, sort=True, includeSelf=True)
         self.changed = True
 
-    def children(self, did):
+    def children(self, did, includeSelf=False, sort=False):
         "All descendant of did, as (name, id)."
+        return [(g['name'], g['id']) for g in self.childrenDecks(includeSelf=includeSelf, sort=sort)]
+
+    def childrenDecks(self, did, includeSelf=False, sort=False):
+        "All decks descendant of did."
         name = self.get(did)['name']
         actv = []
-        for g in self.all():
-            if g['name'].startswith(name + "::"):
-                actv.append((g['name'], g['id']))
-        return actv
+        start = name if includeSelf else name+"::"
+        return [g for g in self.all(sort=sort) if g['name'].startswith(start)]
+    #todo, maybe sort only this smaller list, at least until all() memoize
 
-    def childDids(self, did, childMap):
-        """The list of all ancestors of did, as deck objects.
-
-        The list starts with the toplevel ancestors of did and its
-        i-th element is the ancestor with i times ::.
+    def childDids(self, did, childMap=None, includeSelf=False, sort=False):
+        #childmap is useless. Keep for consistency with anki.
+        #sort was True by default, but never used.
+        """The list of all descendant of did, as deck ids, ordered alphabetically
 
         Keyword arguments:
         did -- the id of the deck we consider
-        childMap -- dictionnary, associating to a deck id its node"""
+        childMap -- dictionnary, associating to a deck id its node as returned by .childMap()"""
         # get ancestors names
-        def gather(node, arr):
-            for did, child in node.items():
-                arr.append(did)
-                gather(child, arr)
-
-        arr = []
-        gather(childMap[did], arr)
-        return arr
+        return [g['id'] for g in self.childrenDecks(did, includeSelf=includeSelf, sort=sort)]
 
     def childMap(self):
+        """A tree, containing for each pair parent/child, an entry of the form:
+        *  childMap[parent id][child id] = node of child.
+
+        Elements are entered in alphabetical order in each node. Thus
+        iterating over a node give children in alphabetical order.
+
+        """
         nameMap = self.nameMap()
         childMap = {}
 
         # go through all decks, sorted by name
-        for deck in sorted(self.all(), key=operator.itemgetter("name")):
-            node = {}
-            childMap[deck['id']] = node
+        for deck in self.all(sort=True):
+            childMap[deck['id']] = {}
 
             # add note to immediate parent
-            parts = deck['name'].split("::")
-            if len(parts) > 1:
-                immediateParent = "::".join(parts[:-1])
+            immediateParent = self.parentName(deck['name'])
+            if immediateParent is not None:
                 pid = nameMap[immediateParent]['id']
-                childMap[pid][deck['id']] = node
+                childMap[pid][deck['id']] = childMap[deck['id']]
 
         return childMap
 
-    def parents(self, did, nameMap=None):
+    def parents(self, did, nameMap=None, includeSelf=False):
         """The list of all ancestors of did, as deck objects.
 
         The list starts with the toplevel ancestors of did and its
@@ -785,11 +804,14 @@ same id."""
         nameMap -- dictionnary: deck id-> Node
         """
         parents = []
-        for part in self.get(did)['name'].split("::")[:-1]:
-            if not parents:
-                parents.append(part)
-            else:
-                parents.append(parents[-1] + "::" + part)
+        last = ""
+        parts = self.get(did)['name'].split("::")
+        if not includeSelf:
+            parts = parts[:-1]
+        for part in parts:
+            current = last + part
+            parents.append(current)
+            last = current+"::"
         # convert to objects
         for c, p in enumerate(parents):
             if nameMap:
@@ -842,3 +864,13 @@ same id."""
 
     def isDyn(self, did):
         return self.get(did)['dyn']
+
+    # Deck utils
+    ##########################################################################
+    def parentName(self, name):
+        """The name of the parent name, or None if there is none"""
+        parts = name.rsplit("::", 1)
+        if len(parts)==2:
+            return parts[0]
+        else:
+            return None
