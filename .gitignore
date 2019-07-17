@@ -13,3 +13,4 @@ aqt/buildhash.py
 /__main__.py
 anki/buildhash.py
 *autosave
+tests/support/TEST/backups
