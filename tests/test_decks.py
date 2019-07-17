@@ -74,7 +74,8 @@ def test_rename():
     # parents as necessary
     d.decks.rename(d.decks.get(id), "foo::bar")
     assert "foo" in d.decks.allNames()
-    assert "foo::bar" in d.decks.allNames()
+    an = d.decks.allNames()
+    assert "foo::bar" in an
     assert "hello::world" not in d.decks.allNames()
     # create another deck
     id = d.decks.id("tmp")
