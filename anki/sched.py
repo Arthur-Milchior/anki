@@ -107,9 +107,6 @@ class Scheduler(BothScheduler):
             f"update cards set mod=?,usn=?,queue=type where queue = {QUEUE_USER_BURIED} and did in %s"
             % (sids), intTime(), self.col.usn())
 
-    # Rev/lrn/time daily stats
-    ##########################################################################
-
     # Deck list
     ##########################################################################
 
@@ -121,19 +118,12 @@ class Scheduler(BothScheduler):
         did, rev, lrn, new (not counting subdeck)]"""
         self._checkDay()
         self.col.decks.checkIntegrity()
-        decks = self.col.decks.all()
-        decks.sort(key=itemgetter('name'))
+        decks = self.col.decks.all(sort=True)
         #lims -- associating to each deck maximum number of new card and of review. Taking custom study into account
         lims = {}
         data = []
-        def parent(name):
-            parts = name.split("::")
-            if len(parts) < 2:
-                return None
-            parts = parts[:-1]
-            return "::".join(parts)
         for deck in decks:
-            p = parent(deck['name'])
+            p = self.col.decks.parentName(deck['name'])
             # new
             #nlim -- maximal number of new card, taking parent into account
             nlim = self._deckNewLimitSingle(deck)
@@ -236,24 +226,6 @@ class Scheduler(BothScheduler):
             return c
         # collapse or finish
         return self._getLrnCard(collapse=True)
-
-    # New cards
-    ##########################################################################
-
-    def _deckNewLimitSingle(self, g):
-        """Maximum number of new card to see today for deck g, not considering parent limit.
-
-        If g is a dynamic deck, then reportLimit.
-        Otherwise the number of card to see in this deck option, plus the number of card exceptionnaly added to this deck today.
-
-        keyword arguments:
-        g -- a deck dictionnary
-        """
-        if g['dyn']:
-            return self.reportLimit
-        c = self.col.decks.confForDid(g['id'])
-        ret = max(0, c['new']['perDay'] - g['newToday'][1])
-        return ret
 
     # Learning queues
     ##########################################################################
@@ -477,17 +449,6 @@ and due <= ? limit ?)""" ,
 
     def _deckRevLimit(self, did):
         return self._deckNewLimit(did, self._deckRevLimitSingle)
-
-    def _deckRevLimitSingle(self, d):
-        """Maximum number of card to review today in deck d.
-
-        self.reportLimit for dynamic deck. Otherwise the number of review according to deck option, plus the number of review added in custom study today.
-        keyword arguments:
-        d -- a deck object"""
-        if d['dyn']:
-            return self.reportLimit
-        c = self.col.decks.confForDid(d['id'])
-        return max(0, c['rev']['perDay'] - d['revToday'][1])
 
     def _revForDeck(self, did, lim):
         """number of cards to review today for deck did
@@ -990,9 +951,3 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?""" % queue, data)
                 (f"update cards set queue={QUEUE_USER_BURIED},mod=?,usn=? where id in ")+ids2str(toBury),
                 intTime(), self.col.usn())
             self.col.log(toBury)
-
-    # Resetting
-    ##########################################################################
-
-    # Repositioning new cards
-    ##########################################################################
