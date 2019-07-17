@@ -58,9 +58,9 @@ derivative) increases quicker when easyness is great. Those numbers,
 -200, -150, 0 and 150, would be the four possible jounces, i.e., the
 fourth derivatives.
 
-### interval factor
-Each deck option have an interval factor. By default it's 1. You can
-edit it in anki.
+### Interval modifier
+Each deck option have an interval modifier. By default it's 1. You can
+edit it in anki. (In code, it's `ivlFct`)
 
 ### Due date
 The date at which you were supposed to see the review card.
@@ -126,7 +126,7 @@ is at most maximal interval set in the deck's option.
 In this case, the new interval is equal to the product of:
 * the sum of the interval, and a fourth of the delay
 * 1.2
-* the interval factor divided by 100
+* the interval modifier divided by 100
 
 If this number is at most the
 last interval, then the new interval is equal to the last interval,
@@ -139,7 +139,7 @@ The result is rounded to the lowest integer.
 In this case, the new interval is equal to the product of:
 * the sum of the interval, and the half of the delay
 * The easyness factor
-* the interval factor divided by 100
+* the interval modifier divided by 100
 
 If this number is at most the one of the button hard, then the  new
 interval is equal to the hard interval plus one. (This could be the
@@ -151,7 +151,7 @@ In this case, the new interval is equal to the product of:
 * The easyness factor
 * The easyness factor of the deck. It can be found in the deck's
   option, review tag, "easy bonus"
-* the interval factor divided by 100
+* the interval modifier divided by 100
 
 If this number is at most the one of the button good, then the  new
 interval is equal to the good interval plus one. (This could be the
