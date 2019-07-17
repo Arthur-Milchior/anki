@@ -38,6 +38,9 @@ class Exporter:
         file.close()
 
     def processText(self, text):
+        """remove HTML if not includeHTML, add quote if required, replace tab
+        by eight spaces, newline by a line, and escape quote."""
+
         if self.includeHTML is False:
             text = self.stripHTML(text)
 
@@ -213,8 +216,7 @@ class AnkiExporter(Exporter):
         if not self.did:
             dids = []
         else:
-            dids = [self.did] + [
-                x[1] for x in self.src.decks.children(self.did)]
+            dids = self.src.decks.childDids(self.did, includeSelf=True)
         dconfs = {}
         for d in self.src.decks.all():
             if str(d['id']) == "1":
