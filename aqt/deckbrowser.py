@@ -174,7 +174,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         deck = self.mw.col.decks.get(did)
         if did == 1 and cnt > 1 and not children:
             # if the default deck is empty, hide it
-            if not self.mw.col.db.scalar("select 1 from cards where did = 1"):
+            if not self.mw.col.db.scalar("select 1 from cards where did = 1 limit 1"):
                 return ""
         # parent toggled for collapsing
         for parent in self.mw.col.decks.parents(did, nameMap):
@@ -283,7 +283,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         self.mw.checkpoint(_("Delete Deck"))
         deck = self.mw.col.decks.get(did)
         if not deck['dyn']:
-            dids = [did] + [r[1] for r in self.mw.col.decks.children(did)]
+            dids = self.mw.col.decks.childDids(did, includeSelf=True)
             cnt = self.mw.col.db.scalar(
                 "select count() from cards where did in {0} or "
                 "odid in {0}".format(ids2str(dids)))
