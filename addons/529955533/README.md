@@ -7,6 +7,9 @@ two monthes old. Of course, this can be solved with a [differential backup](http
 This add-on ensures that we keep at least one back-up by day for the last month, one back-up by month for the past year, and one back-up by year.
 
 ## Warning
+### Uninstalling the add-on
+If you uninstall the add-on, or if you disable it, the current back-up will stay. If you are not interested in them, you'll have to delete them yourself.
+
 ### It can't restore lost backups.
 If you install this add-on today, you can be kind of sure that you'll have back-ups of your collection as it is this month/year for the future. However, it should be noted that this add-on can not help you to access your collection as it was before you installed the add-on. Indeed, this add-on can not create data which were already deleted. It only ensures that some data are kept.
 
@@ -35,6 +38,6 @@ Key         |Value
 Copyright   | Arthur Milchior <arthur@milchior.fr>
 Based on    | Anki code by Damien Elmes <anki@ichi2.net>
 License     | GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-Source in   | https://github.com/Arthur-Milchior/anki-old-backup
-Addon number| [529955533](https://ankiweb.net/shared/info/529955533)
+Source in   | https://github.com/Arthur-Milchior/anki-
+Addon number| [???????](https://ankiweb.net/shared/info/???????)
 Support me on| [![Ko-fi](https://ko-fi.com/img/Kofi_Logo_Blue.svg)](Ko-fi.com/arthurmilchior) or [![Patreon](http://www.milchior.fr/patreon.png)](https://www.patreon.com/bePatron?u=146206)
