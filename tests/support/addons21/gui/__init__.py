@@ -34,9 +34,10 @@ def test():
     stats = mw.onStats()
     prefs = mw.onPrefs()
     # can't test options, because it blocks the script
-    time.sleep(1)
+    time.sleep(3)
     # debug= mw.onDebug()
     # debug.close()
+    prefs.accept()
     mw.close()
     # print("end")
 
