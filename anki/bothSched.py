@@ -107,8 +107,7 @@ order by due""" % (self._deckLimit()),
         to this decks and all of its ancestors.
         """
         key = type+"Today"
-        for g in ([self.col.decks.get(card.did)] +
-                  self.col.decks.parents(card.did)):
+        for g in self.col.decks.parents(card.did, includeSelf=True):
             # add
             g[key][1] += cnt
             self.col.decks.save(g)
@@ -121,8 +120,7 @@ order by due""" % (self._deckLimit()),
         """
         cur = self.col.decks.current()
         parents = self.col.decks.parents(cur['id'])
-        children = [self.col.decks.get(did) for (name, did) in
-                    self.col.decks.children(cur['id'])]
+        children = self.col.decks.childrenDecks(cur['id'])
         for g in [cur] + parents + children:
             # add
             g['newToday'][1] -= new
@@ -263,10 +261,9 @@ did = ? and queue = {QUEUE_NEW_CRAM} limit ?)""", did, lim)
     def _deckNewLimit(self, did, fn=None):
         if not fn:
             fn = self._deckNewLimitSingle
-        sel = self.col.decks.get(did)
         lim = -1
         # for the deck and each of its parents
-        for g in [sel] + self.col.decks.parents(did):
+        for g in self.col.decks.parents(did, includeSelf=True):
             rem = fn(g)
             if lim == -1:
                 lim = rem
@@ -293,6 +290,23 @@ select count() from
 select count() from cards where id in (
 select id from cards where did in %s and queue = {QUEUE_NEW_CRAM} limit ?)"""
             % ids2str(self.col.decks.active(), self.reportLimit))
+
+    # New cards
+    ##########################################################################
+
+    def _deckNewLimitSingle(self, g):
+        """Maximum number of new card to see today for deck g, not considering parent limit.
+
+        If g is a dynamic deck, then reportLimit.
+        Otherwise the number of card to see in this deck option, plus the number of card exceptionnaly added to this deck today.
+
+        keyword arguments:
+        g -- a deck dictionnary
+        """
+        if g['dyn']:
+            return self.reportLimit
+        c = self.col.decks.confForDid(g['id'])
+        return max(0, c['new']['perDay'] - g['newToday'][1])
 
     # Learning queues
     ##########################################################################
@@ -419,6 +433,21 @@ did = ? and queue = {QUEUE_DAY_LRN} and due <= ? limit ?""",
     # Reviews
     ##########################################################################
 
+    def _deckRevLimitSingle(self, d):
+        """Maximum number of card to review today in deck d.
+
+        self.reportLimit for dynamic deck. Otherwise the number of review according to deck option, plus the number of review added in custom study today.
+        keyword arguments:
+        d -- a deck object"""
+        # invalid deck selected?
+        if not d:
+            return 0
+
+        if d['dyn']:
+            return self.reportLimit
+        c = self.col.decks.confForDid(d['id'])
+        return max(0, c['rev']['perDay'] - d['revToday'][1])
+
     def _resetRev(self):
         """Set revCount, empty _revQueue, _revDids"""
         self._resetRevCount()
@@ -435,9 +464,6 @@ did = ? and queue = {QUEUE_DAY_LRN} and due <= ? limit ?""",
 select count() from cards where id in (
 select id from cards where did in %s and queue = {QUEUE_REV} and due <= ? limit ?)"""
             % ids2str(self.col.decks.active()), self.today, self.reportLimit)
-
-    # Answering a review card
-    ##########################################################################
 
     # Interval management
     ##########################################################################
