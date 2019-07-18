@@ -20,7 +20,7 @@
 #                  its list of children)
 from aqt.qt import *
 from aqt.utils import askUser, getOnlyText, openLink, showWarning, shortcut, \
-    openHelp
+    openHelp, conditionString
 from anki.utils import ids2str, fmtTimeSpan
 from anki.consts import *
 from anki.errors import DeckRenameError
@@ -29,6 +29,8 @@ from anki.sound import clearAudioQueue
 from anki.hooks import runHook
 from copy import deepcopy
 from anki.lang import _, ngettext
+
+
 
 class DeckBrowser:
 
@@ -108,7 +110,7 @@ class DeckBrowser:
         self.web.evalWithCallback("window.pageYOffset", self.__renderPage)
 
     def __renderPage(self, offset):
-        tree = self._renderDeckTree(self._dueTree)
+        tree = self._renderDeckTree(self._dueTree, )
         stats = self._renderStats()
         self.web.stdHtml(self._body%dict(
             tree=tree, stats=stats, countwarn=self._countWarn()),
@@ -152,21 +154,18 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
 <div style='width:50%;border: 1px solid #000;padding:5px;'>{message}
 </div>""")
 
+    def _getColumns(self):
+        return self.mw.col.conf.get("columns", defaultColumns)
+
     def _header(self):
-        return f"""
-    <tr>
-      <th colspan=5 align=left>
-        {_("Deck")}
-      </th>
-      <th class=count>
-        {_("Due")}
-      </th>
-      <th class=count>
-        {_("New")}
-      </th>
-      <th class=optscol>
-      </th>
-    </tr>"""
+        return "".join(["""
+    <tr>"""
+                        ,*[f"""
+      <th {column.get("header class","")}>
+        {_(column.get("header",column.get("name","")))}
+      </th>""" for column in self._getColumns()]
+                        ,"""
+    </tr>"""])
 
     def _renderDeckTree(self, nodes, depth=0, nameMap=None):
         """Html used to show the deck browser. This part consider a list of siblings nodes, at some specified depth
@@ -197,6 +196,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         nameMap -- dictionnary, associating to a deck id its node
         """
         name, did, rev, lrn, new, children = node
+        collapsed = self.mw.col.decks.get(did)['collapsed']
         # if the default deck is empty, not alone, and without child, hide it
         if (did == 1
             and cnt > 1
@@ -257,27 +257,29 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         <font color='{colour}'>{cnt}</font>
       </td>"""
 
-    def _option(self, did):
-        """html cell, to show gear opening options"""
-        return f"""
-      <td align=center class=opts>
-        <a onclick='return pycmd("opts:{did}");'>
-          <img src='/_anki/imgs/gears.svg' class=gears>
-        </a>
-      </td>"""
-
-    def _singleDeckRow(self, depth, deck, did, name, due, new, collapsed, hasChildren):
+    def _singleDeckRow(self, depth, deck, did, name, rev, new, collapsed, hasChildren):
         klass = 'deck'
         if did == self.mw.col.conf['curDeck']:
             klass += ' current'
-        return (f"""
+        return "".join([f"""
     <tr class='{klass}' id='{did}'>"""
-                +self._deckName(depth, deck, did, name, collapsed, hasChildren)
-                +self.nonzeroColour(due, self.mw.col.conf.get("colors", defaultColors)["due"])
-                +self.nonzeroColour(new, self.mw.col.conf.get("colors", defaultColors)["new"])
-                +self._option(did)
-                +"""
-    </tr>""")
+                         ,*[self._cell(depth, deck, did, name, collapsed, hasChildren, column) for column in self._getColumns()]
+                         ,"""
+    </tr>"""])
+
+    def _cell(self, depth, deck, did, name, collapsed, hasChildren, column):
+            if column["name"]=="name":
+                return self._deckName(depth, deck, did, name, collapsed, hasChildren)
+            elif column["name"]=="gear":
+                return self._option(did)
+            elif column["name"]=="option name":
+                return self._optionName(deck)
+            else:
+                colorSet = self.mw.col.conf.get("colors", defaultColors)
+                colorInSet = colorSet.get(column["name"], "black")
+                color = column.get("color", colorInSet)
+                value = deck["tmp"]["valuesWithSubdeck"][column["name"]]
+                return self.nonzeroColour(value, color)
 
     def _topLevelDragRow(self):
         """An empty line. You can drag on it to put some deck at top level"""
@@ -346,6 +348,25 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         Called from the +/- sign on a deck line"""
         self.mw.col.decks.collapse(did)
         self._renderPage(reuse=True)
+
+    def _option(self, did):
+        """html cell, to show gear opening options"""
+        return f"""
+      <td align=center class=opts>
+        <a onclick='return pycmd("opts:{did}");'>
+          <img src='/_anki/imgs/gears.svg' class=gears>
+        </a>
+      </td>"""
+
+    def _optionName(self, deck):
+        if "conf" in deck:#a classical deck
+            confId = str(deck["conf"])
+            conf = self.mw.col.decks.dconf[confId]
+            name = conf['name']
+        else:
+            name = "Filtered"
+        return f"""
+      <td>{name}</td>"""
 
     def _dragDeckOnto(self, draggedDeckDid, ontoDeckDid):
         """Ensure that draggedDeckDid becomes a subdeck of ontoDeckDid.

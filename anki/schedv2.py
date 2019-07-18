@@ -101,14 +101,19 @@ class Scheduler(BothScheduler):
         data = []
         childMap = self.col.decks.childMap()
         for deck in decks:
+            if "tmp" not in deck:
+                deck["tmp"] = dict()
+            deck["tmp"]["valuesWithoutSubdeck"] = dict()
             p = self.col.decks.parentName(deck['name'])
             # new
             nlim = self._deckNewLimitSingle(deck)
             if p:
                 nlim = min(nlim, lims[p][0])
             new = self._newForDeck(deck['id'], nlim)
+            deck["tmp"]["valuesWithoutSubdeck"]["new"] = new
             # learning
             lrn = self._lrnForDeck(deck['id'])
+            deck["tmp"]["valuesWithoutSubdeck"]["lrn"] = lrn
             # reviews
             if p:
                 plim = lims[p][1]
@@ -116,14 +121,13 @@ class Scheduler(BothScheduler):
                 plim = None
             rlim = self._deckRevLimitSingle(deck, parentLimit=plim)
             rev = self._revForDeck(deck['id'], rlim, childMap)
+            deck["tmp"]["valuesWithoutSubdeck"]["rev"] = rev
             # save to list
             data.append([deck['name'], deck['id'], rev, lrn, new])
             # add deck as a parent
             lims[deck['name']] = [nlim, rlim]
+        self.computeValuesWithoutSubdecks()
         return data
-
-    def deckDueTree(self):
-        return self._groupChildren(self.deckDueList())
 
     def _groupChildrenMain(self, grps):
         tree = []
@@ -132,32 +136,33 @@ class Scheduler(BothScheduler):
             return grp[0][0]
         for (head, tail) in itertools.groupby(grps, key=key):
             tail = list(tail)
-            did = None
-            rev = 0
-            new = 0
-            lrn = 0
-            children = []
-            for c in tail:
-                if len(c[0]) == 1:
-                    # current node
-                    did = c[1]
-                    rev += c[2]
-                    lrn += c[3]
-                    new += c[4]
-                else:
-                    # set new string to tail
-                    c[0] = c[0][1:]
-                    children.append(c)
+            parentNode = tail[0]
+            did = parentNode[1]
+            deck = self.col.decks.get(did)
+            rev = parentNode[2]
+            lrn = parentNode[3]
+            new = parentNode[4]
+            deck["tmp"]["valuesWithSubdeck"] = dict()
+            for required in self._required():
+                deck["tmp"]["valuesWithSubdeck"][required] = deck["tmp"]["valuesWithoutSubdeck"][required].copy()
+            children = [[c[0][1:], *c[1:]] for c in tail[1:]]
             children = self._groupChildrenMain(children)
             # tally up children counts
             for ch in children:
+                childDid = ch[1]
+                childDeck = self.col.decks.get(childDid)
                 lrn += ch[3]
                 new += ch[4]
+                for required in self._required():
+                    deck["tmp"]["valuesWithSubdeck"][required] += deck["tmp"]["valuesWithoutSubdeck"][required]
             # limit the counts to the deck's limits
             conf = self.col.decks.confForDid(did)
-            deck = self.col.decks.get(did)
             if not conf['dyn']:
                 new = max(0, min(new, conf['new']['perDay']-deck['newToday'][1]))
+            deck["tmp"]["valuesWithSubdeck"]["new"] = new
+            deck["tmp"]["valuesWithSubdeck"]["lrn"] = lrn
+            deck["tmp"]["valuesWithSubdeck"]["rev"] = rev
+            deck["tmp"]["valuesWithSubdeck"]["due"] = lrn+rev
             tree.append((head, did, rev, lrn, new, children))
         return tuple(tree)
 
