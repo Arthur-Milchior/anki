@@ -29,8 +29,8 @@ from anki.sound import clearAudioQueue
 from anki.hooks import runHook
 from copy import deepcopy
 from anki.lang import _, ngettext
-
-
+from aqt.deckbrowsercolumnoption import DeckBrowserColumnOption
+from aqt.deckcolumns import *
 
 class DeckBrowser:
 
@@ -81,6 +81,8 @@ class DeckBrowser:
         elif cmd == "dragColumn":
             draggedPos, ontoPos = arg.split(',')
             self._dragColumnOnto(int(draggedPos), int(ontoPos))
+        elif cmd == "columnOptions":
+            self._columnOptions(int(arg))
         elif cmd == "collapse":
             self._collapse(arg)
         return False
@@ -160,12 +162,17 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
     def _getColumns(self):
         return self.mw.col.conf.get("columns", defaultColumns)
 
+    def _allPossibleColumns(self):
+        """List of possible column, in alphabetical order"""
+        l = [name for name, column in columns.items() if self.mw.col.conf.get("advancedDeckColumns", False) or not column.get("advanced") ]
+        return sorted(l)
+
     def _header(self):
         return "".join(["""
     <tr>"""
                         ,*[f"""
-      <th colid={idx} {column.get("header class","")}>
-        {_(column.get("header",column.get("name","")))}
+      <th onclick='return pycmd("columnOptions:{idx}")' colid={idx} {column.get("header class","")}>
+        {_(self.getHeader(column))}
       </th>""" for idx, column in enumerate(self._getColumns())]
                         ,"""
     </tr>"""])
@@ -270,6 +277,19 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
                          ,"""
     </tr>"""])
 
+    def getHeader(self, column):
+        if 'header' in column and column['header']:
+            return column['header']
+        return column['name']
+
+    def getColor(self, column):
+        colorSet = self.mw.col.conf.get("colors", defaultColors)
+        colorInSet = colorSet.get(column["name"], "black")
+        if column.get("defaultColor", True):
+            return colorInSet
+        else:
+            return column.get("color", colorInSet)
+
     def _cell(self, depth, deck, did, name, collapsed, hasChildren, column):
             if column["name"]=="name":
                 return self._deckName(depth, deck, did, name, collapsed, hasChildren)
@@ -278,9 +298,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             elif column["name"]=="option name":
                 return self._optionName(deck)
             else:
-                colorSet = self.mw.col.conf.get("colors", defaultColors)
-                colorInSet = colorSet.get(column["name"], "black")
-                color = column.get("color", colorInSet)
+                color = self.getColor(column)
                 value = deck["tmp"]["valuesWithSubdeck"][column["name"]]
                 return self.nonzeroColour(value, color)
 
@@ -383,6 +401,44 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         except DeckRenameError as e:
             return showWarning(e.description)
 
+        self.show()
+
+    def _columnOptions(self, colpos):
+        m = QMenu(self.mw)
+        a = m.addAction(_("Delete"))
+        a.triggered.connect(lambda: self._deleteColumn(colpos))
+        a = m.addAction(_("Add a column"))
+        a.triggered.connect(lambda: self._addColumn(colpos))
+        a = m.addAction(_("Edit this column"))
+        a.triggered.connect(lambda: self._editColumn(colpos))
+        m.exec_(QCursor.pos())
+
+    def _addColumn(self, idx):
+        columns = self._getColumns()
+        column = self._newUnusedColumn()
+        DeckBrowserColumnOption(self, column)
+        columns.insert(idx, column)
+        self.show()
+
+    def _editColumn(self, idx):
+        columns = self._getColumns()
+        column = columns[idx]
+        DeckBrowserColumnOption(self, column)
+        self.show()
+
+    def _newUnusedColumn(self):#
+        columns = self._getColumns()
+        columns = {column.get("name", "") for column in columns}
+        for columnName in self._allPossibleColumns():
+            if columnName not in columns:
+                break
+        return {"name":columnName}
+
+    def _deleteColumn(self, idx):
+        columns = self._getColumns()
+        column = columns[idx]
+        if askUser(f"Delete column {idx+1}: {column['name']}", title="Column deletion"):
+            columns.pop(idx)
         self.show()
 
     def _dragColumnOnto(self, draggedPos, ontoPos):

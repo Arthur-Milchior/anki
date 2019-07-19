@@ -14,6 +14,7 @@ from anki.utils import ids2str, intTime, fmtTimeSpan
 from anki.lang import _
 from anki.consts import *
 from anki.hooks import runHook
+from aqt.deckcolumns import *
 
 # it uses the following elements from anki.consts
 # card types: 0=new, 1=lrn, 2=rev, 3=relrn
@@ -904,65 +905,6 @@ and due >= ? and queue = {QUEUE_NEW_CRAM}""" % scids, now, self.col.usn(), shift
 
     # Deck browser information
     ##########################################################################
-    """Associate to a name the following tuple:
-    * a sql query to select card/notes interesting
-    * whether we consider count (Falsy) or sum (Truthy)
-    * the table in which the request is done (by default, card)
-    """
-    def sqlForCard(self):
-        #it's a function because it depends on the current day
-        cutoff = intTime() + self.col.conf['collapseTime']
-        today = self.col.sched.today
-        tomorrow = today+1
-        yesterdayLimit = (self.col.sched.dayCutoff-86400)*1000
-        return({
-        "due tomorrow": (f"queue in ({QUEUE_REV},{QUEUE_DAY_LRN}) and due = {tomorrow}" ,"",""),
-        "learning now from today": (f"queue = {QUEUE_LRN} and due <= {cutoff}" ,"",""),
-        "learning today from past": (f"queue = {QUEUE_DAY_LRN} and due <= {today}" ,"",""),
-        "learning later today": (f"queue = {QUEUE_LRN} and due > {cutoff}" ,"",""),
-        "learning future": (f"queue = {QUEUE_DAY_LRN} and due > {today}" ,"",""),
-        "learning today repetition from today": (f"queue = {QUEUE_LRN}", f"left/1000",""),
-        "learning today repetition from past":(f"queue = {QUEUE_DAY_LRN}" , f"left/1000",""),
-        "learning repetition from today": (f"queue = {QUEUE_LRN}", f"mod%1000",""),
-        "learning repetition from past":(f"queue = {QUEUE_DAY_LRN}", f"mod%1000",""),
-        "review due": (f"queue = {QUEUE_REV} and due <= {today}" ,"",""),
-        "reviewed today": (f"queue = {QUEUE_REV} and due>0 and due-ivl = {today}" ,"",""),
-        "repeated today": (f"revlog.id>{yesterdayLimit}" ,"","revlog inner join cards on revlog.cid = cards.id"),
-        "repeated": ("" ,"",f"revlog inner join cards on revlog.cid = cards.id"),
-        "unseen": (f"queue = {QUEUE_NEW_CRAM}","",""),
-        "buried": (f"queue = {QUEUE_USER_BURIED}  or queue = {QUEUE_SCHED_BURIED}","",""),
-        "suspended": (f"queue = {QUEUE_SUSPENDED}","",""),
-        "cards": ("","",""),
-        "undue": (f"queue = {QUEUE_REV} and due >  {today}","",""),
-        "mature": (f"queue = {QUEUE_REV} and ivl >= 21" ,"",""),
-        "young": (f"queue = {QUEUE_REV} and 0<ivl and ivl <21","",""),
-            **{f"flag {i}": (f"(flags & 7) == {i}" ,"","") for i in range(5)}
-    })
-
-
-    """Associate to each name N the list of dependencies ds. I.e. to
-    compute the value N, the values ds must also be computed. Also, the way to compute it (default is sum)"""
-    howToCompute = {
-        "learning now":(("learning now from today","learning today from past"),""),
-        "learning later":(("learning later today","learning future"),""),
-        "learning card":(("learning now","learning later"),""),
-        "learning today":(("learning later today","learning now"),""),
-        "learning today repetition":(("learning today repetition from today","learning today repetition from past"),""),
-        "learning repetition":(("learning repetition from today","learning repetition from past"),""),
-        "learning future repetition":(("learning repetition","learning today repetition", "minus"),""),
-        "review later":(("review due","rev"),"minus"),
-        "unseen later":(( "unseen","new"),"minus"),
-        "repetition seen today":(( "repetition of today learning", "rev"),""),
-        "repetition today":(( "repetition seen today", "new"),""),
-        "cards seen today":(( "learning today", "rev"),""),
-        "today":(( "cards seen today", "new"),""),
-#        "learning all":( ("learning now", "learning later today"),"special"),
-#        "learning now or delay":(("learning now from today","learning today from past"),"special"),
-        # "review":( ("rev", "review later"), "nowLater"),
-        # "unseen new":( ("new", "unseen later"), "nowLater"),
-        # "learning today":( ("learning now", "learning later today"),"nowLater"),
-    }
-
     notRequired = {"name", "lrn", "rev", "gear", "option name", "due", "new"} #values which are not computed by the add-on.
     def _required(self):
         """The values that we want to compute to show in deck browser"""
@@ -975,31 +917,36 @@ and due >= ? and queue = {QUEUE_NEW_CRAM}""" % scids, now, self.col.usn(), shift
 
         """
         self.computed = set()
-        sqls = self.sqlForCard()
         for name in self._required():
-            self.computeValueWithoutSubdecks(name, sqls)
+            self.computeValueWithoutSubdecks(name)
 
-    def computeValueWithoutSubdecks(self, name, sqls):
+    def computeValueWithoutSubdecks(self, name):
         """Ensure that each deck objects has the value "name", without
         subdeck. Assume that name's can be computed by a query in sqlForCard or in howToCompute
 
         """
         if name in self.computed:
             return
-        elif name in self.howToCompute:
-            self.computeIndirectValue(name, sqls)
-        elif name in sqls:
-            self.computeDirectValue(name, sqls)
-        elif name not in self.notRequired:
-            raise Exception(f"Requiring to compute {name}, which is not a value known directly nor indirectly")
+        if name not in columns:
+            raise Exception(f"Requiring to compute {name}, which is not a known column")
+        column = columns[name]
+        if "sql" in column:
+            self.computeDirectValue(name, column)
+        elif "sum" in column:
+            self.computeIndirectValue(name, column)
+        elif "always" not in column:
+            raise Exception(f"Requiring to compute {name}, which is a column with neither sql, always nor sum")
         self.computed.add(name)
 
-    def computeDirectValue(self, name, sqls):
+    def computeDirectValue(self, name, column):
         """Ensure that each deck objects has a value without subdeck, for each
         required value. Assume that name's can be computed by a query in sqlForCard
 
         """
-        condition, addend, table = sqls[name]
+        type = column["type"]
+        table = column.get("table", type)
+        addend = column.get("sqlSum")
+        condition = column.get("sql")
         if addend:
             element = f" sum({addend})"
         else:
@@ -1008,35 +955,25 @@ and due >= ? and queue = {QUEUE_NEW_CRAM}""" % scids, now, self.col.usn(), shift
             condition = f" where {condition}"
         if not table:
             table = "cards"
-        d = {did: value for did, value in self.col.db.all(f"select did, {element} from {table} {condition} group by did")}
+        d = {did: value for did, value in self.col.db.all(f"select did, {element} from {table} {condition} group by did", **sqlDict(self.col))}
         for deck in self.col.decks.all():
             deck["tmp"]["valuesWithoutSubdeck"][name] = d.get(deck['id'], 0)
             #In theory, I could assume that missing values are 0. It
             #would be too risky, and can cause bug, because of values
             #not computed at all.
 
-    def computeIndirectValue(self, name, sqls):
+    def computeIndirectValue(self, name, column):
         """Ensure that each deck objects has a value without subdeck, for each
         required value. Assume that name's rule are in howToCompute.
 
         """
-        ((left, right), howto) = self.howToCompute[name]
-        self.computeValueWithoutSubdecks(left, sqls)
-        self.computeValueWithoutSubdecks(right, sqls)
+        sum = column["sum"]
+        substract = column.get("substract", set())
+        for columnName in sum | substract:
+            self.computeValueWithoutSubdecks(columnName)
         for deck in self.col.decks.all():
-            if howto == "":
-                deck["tmp"]["valuesWithoutSubdeck"][name] = deck["tmp"]["valuesWithoutSubdeck"][left] + deck["tmp"]["valuesWithoutSubdeck"][right]
-            elif howto == "-":
-                deck["tmp"]["valuesWithoutSubdeck"][name] = deck["tmp"]["valuesWithoutSubdeck"][left] - deck["tmp"]["valuesWithoutSubdeck"][right]
-            else:
-                raise Exception(f"howto {howto} is not a valid way to compute values")
-        # elif howto == "nowLater":
-        #     self.nowLater(left, right)
-
-
-    # def nowLater(self, first, second = None):
-    #     """A representation for the pair, meaning that there are first
-    #     elements now, and second elements later."""
-    #     first = self.conditionString(first)
-    #     second = self.conditionString(second, parenthesis = True)
-    #     return first+second
+            deck["tmp"]["valuesWithoutSubdeck"][name] = 0
+            for columnName in sum:
+                deck["tmp"]["valuesWithoutSubdeck"][name] += deck["tmp"]["valuesWithoutSubdeck"][columnName]
+            for columnName in substract:
+                deck["tmp"]["valuesWithoutSubdeck"][name] -= deck["tmp"]["valuesWithoutSubdeck"][columnName]

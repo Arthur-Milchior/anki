@@ -274,6 +274,7 @@ Not currently enabled; click the sync button in the main window to enable."""))
         storeValue[name] = value
 
     extraOptions = [
+        ("advancedDeckColumns", ),
     ]
 
     def setupExtra(self):

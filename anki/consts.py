@@ -168,8 +168,6 @@ defaultColors = dict(
     new = colNew,
     rev = colRev,
     due = colDue,
-    userBuried = colSusp,
-    schedBuried = colSusp,
     marked = colMarked,
     flag1 = flagColours[1],
     flag2 = flagColours[2],
@@ -185,5 +183,5 @@ defaultColumns = [{"name":"name", "header": "Deck", "header class": "colspan=5 a
                   {"name":"suspended",},
                   {"name":"lrn",},
                   {"name":"today",},
-                  {"name":"flag 2",},
+                  {"name":"flag2",},
                   ]
