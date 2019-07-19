@@ -816,6 +816,26 @@
           </property>
          </widget>
         </item>
+        <item row="16" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="toolTip">
+           <string>Notes on which you pressed «mark».</string>
+          </property>
+          <property name="locale">
+           <locale language="English" country="UnitedStates"/>
+          </property>
+          <property name="text">
+           <string>Marked cards</string>
+          </property>
+         </widget>
+        </item>
+        <item row="16" column="1">
+         <widget class="QPushButton" name="markedButton">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
         <item row="15" column="0">
          <widget class="QLabel" name="label_6">
           <property name="toolTip">
@@ -833,6 +853,79 @@
           </property>
          </widget>
         </item>
+
+        <item row="17" column="0">
+         <widget class="QLabel" name="label_6">
+          <property name="toolTip">
+           <string>Flag 1.</string>
+          </property>
+          <property name="text">
+           <string>Flag 1</string>
+          </property>
+         </widget>
+        </item>
+        <item row="17" column="1">
+         <widget class="QPushButton" name="flag1Button">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+
+        <item row="17" column="0">
+         <widget class="QLabel" name="label_6">
+          <property name="toolTip">
+           <string>Flag 2.</string>
+          </property>
+          <property name="text">
+           <string>Flag 2</string>
+          </property>
+         </widget>
+        </item>
+        <item row="17" column="1">
+         <widget class="QPushButton" name="flag2Button">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+
+        <item row="18" column="0">
+         <widget class="QLabel" name="label_6">
+          <property name="toolTip">
+           <string>Flag 3.</string>
+          </property>
+          <property name="text">
+           <string>Flag 3</string>
+          </property>
+         </widget>
+        </item>
+        <item row="18" column="1">
+         <widget class="QPushButton" name="flag3Button">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+
+        <item row="19" column="0">
+         <widget class="QLabel" name="label_6">
+          <property name="toolTip">
+           <string>Flag 4.</string>
+          </property>
+          <property name="text">
+           <string>Flag 4</string>
+          </property>
+         </widget>
+        </item>
+        <item row="19" column="1">
+         <widget class="QPushButton" name="flag4Button">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+
        </layout>
       </widget>
      </widget>

@@ -138,7 +138,17 @@ colCram = "#ff0"
 colIvl = "#077"
 colHour = "#ccc"
 colUnseen = "#000"
-colSusp = "#ff0"
+colSusp = "#FFFFB2"
+colMarked = "#ccc"
+#kept for compatibility
+COLOUR_SUSPENDED = colSusp
+COLOUR_MARKED = colMarked
+flagColours = {
+    1: "#ffaaaa",
+    2: "#ffb347",
+    3: "#82E0AA",
+    4: "#85C1E9",
+}
 
 defaultColors = dict(
     young = colYoung,
@@ -157,5 +167,9 @@ defaultColors = dict(
     due = colDue,
     userBuried = colSusp,
     schedBuried = colSusp,
-
+    marked = colMarked,
+    flag1 = flagColours[1],
+    flag2 = flagColours[2],
+    flag3 = flagColours[3],
+    flag4 = flagColours[4],
 )
