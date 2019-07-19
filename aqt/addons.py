@@ -947,7 +947,7 @@ incorporatedAddonsSet = {
     Addon("Improving change note type", 513858554, 1560753393, "4ece9f1da85358bce05a75d3bbeffa91d8c17ad4", "https://github.com/Arthur-Milchior/anki-change-note-type-clozes"),
     Addon("Improve speed of change of note type", 115825506, 1551823299, "8b125aa55a490b276019d1a2e7f6f8c0767d65b3", "https://github.com/Arthur-Milchior/anki-better-card-generation"),
     Addon("Keep model of add cards", 424778276, 1553438887, "64bdf3c7d8e252d6f69f0a423d2db3c23ce6bc04", "https://github.com/Arthur-Milchior/anki-keep-model-in-add-cards"),
-    Addon("Limit number of cards by day both new and review", 602339056, 1562849512, "72f2ea268fa8b116f9aecde968dc0aa324b33636", "https://github.com/Arthur-Milchior/anki-limit-to-both-new-and-revs"),
+    Addon("Limit number of cards by day both new and review", 602339056, 1563554921, "b69b7c62e95746e0942b3c63147d9fe204775edb", "https://github.com/Arthur-Milchior/anki-limit-to-both-new-and-revs"),
     Addon("Long term backups", 529955533, 1562981271, "92fd0e93ee586912ae7736b03ab9a549db55a807", "https://github.com/Arthur-Milchior/anki-old-backup"),
     Addon("More consistent cards generation", 1713990897, 1562981270, "211e013581240d2f4a6b45e811d59adf17fc1862", "https://github.com/Arthur-Milchior/anki-correct-card-generation"),
     Addon("Multi-column note editor", 3491767031, 1560844854, "ad7a4014f184a1ec5d5d5c43a3fc4bab8bb8f6df", "https://github.com/hssm/anki-addons/tree/master/multi_column_editor"),

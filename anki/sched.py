@@ -71,7 +71,7 @@ class Scheduler(BothScheduler):
         conf = self.col.decks.confForDid(cur['id'])
         from aqt import mw
         if (not sync) and self.col.conf.get("limitAllCards", False):
-            today = conf['perDay'] - cur['revToday'][1] - cur['newToday'][1]
+            today = conf.get('perDay',1000) - cur['revToday'][1] - cur['newToday'][1]
             counts.append(today)
             # counts[0] = max(counts[0], today)
             # counts[2] = max(counts[2], today)
