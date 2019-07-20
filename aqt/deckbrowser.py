@@ -160,6 +160,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
 </div>""")
 
     def _getColumns(self):
+        """The set of columns to display currently"""
         return self.mw.col.conf.get("columns", defaultColumns)
 
     def _allPossibleColumns(self):
@@ -252,7 +253,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         </a>
       </td>"""
 
-    def nonzeroColour(self, cnt, colour):
+    def nonzeroColour(self, cnt, colour, txt=None):
         """Html cell used to show the number:
             "1000+" if greater than 1000
             in grey if it is 0
@@ -262,9 +263,11 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             colour = "#e0e0e0"
         if cnt >= 1000:
             cnt = "1000+"
+        if txt is None:
+            txt = cnt
         return f"""
       <td align=right>
-        <font color='{colour}'>{cnt}</font>
+        <font color='{colour}'>{txt}</font>
       </td>"""
 
     def _singleDeckRow(self, depth, deck, did, name, rev, new, collapsed, hasChildren):
@@ -290,17 +293,31 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         else:
             return column.get("color", colorInSet)
 
-    def _cell(self, depth, deck, did, name, collapsed, hasChildren, column):
-            if column["name"]=="name":
-                return self._deckName(depth, deck, did, name, collapsed, hasChildren)
-            elif column["name"]=="gear":
-                return self._option(did)
-            elif column["name"]=="option name":
-                return self._optionName(deck)
+    def _cell(self, depth, deck, did, deckName, collapsed, hasChildren, column):
+        name = column["name"]
+        if name=="name":
+            return self._deckName(depth, deck, did, deckName, collapsed, hasChildren)
+        elif name=="gear":
+            return self._option(did)
+        elif name=="option name":
+            return self._optionName(deck)
+        else:
+            color = self.getColor(column)
+            value = deck["tmp"]["valuesWithSubdeck"][name]
+            if column.get("percent", False):
+                if "type" in columns[name]:
+                    baseName = columns[name]["type"]
+                    totalNumber = deck["tmp"]["valuesWithSubdeck"][baseName]
+                    if totalNumber:
+                        percent = (value*100) // totalNumber
+                        txt = f"{percent}%"
+                    else:
+                        txt = ""
+                else:
+                    raise Exception(f"""You want to show percent for column {name} which has no type""")
             else:
-                color = self.getColor(column)
-                value = deck["tmp"]["valuesWithSubdeck"][column["name"]]
-                return self.nonzeroColour(value, color)
+                    txt = value
+            return self.nonzeroColour(value, color, txt)
 
     def _topLevelDragRow(self):
         """An empty line. You can drag on it to put some deck at top level"""

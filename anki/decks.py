@@ -749,7 +749,9 @@ same id."""
 
     def children(self, did, includeSelf=False, sort=False):
         "All descendant of did, as (name, id)."
-        return [(g['name'], g['id']) for g in self.childrenDecks(includeSelf=includeSelf, sort=sort)]
+        return [
+            (g['name'], g['id'])
+            for g in self.childrenDecks(did, includeSelf=includeSelf, sort=sort)]
 
     def childrenDecks(self, did, includeSelf=False, sort=False):
         "All decks descendant of did."

@@ -908,8 +908,11 @@ and due >= ? and queue = {QUEUE_NEW_CRAM}""" % scids, now, self.col.usn(), shift
     notRequired = {"name", "lrn", "rev", "gear", "option name", "due", "new"} #values which are not computed by the add-on.
     def _required(self):
         """The values that we want to compute to show in deck browser"""
-        columns = self.col.conf.get("columns", defaultColumns)
-        return {column["name"] for column in columns if column["name"] not in self.notRequired}
+        columnsUsed = self.col.conf.get("columns", defaultColumns)
+        requiredNames = {column["name"] for column in columnsUsed if column["name"] not in self.notRequired}
+
+        typeNames = {columns[name]["type"] for name in requiredNames if "type" in columns[name] and columns[name]["type"] != name}
+        return requiredNames | typeNames
 
     def computeValuesWithoutSubdecks(self):
         """Ensure that each deck objects has the value for each element of
@@ -927,6 +930,7 @@ and due >= ? and queue = {QUEUE_NEW_CRAM}""" % scids, now, self.col.usn(), shift
         """
         if name in self.computed:
             return
+        self.computed.add(name)
         if name not in columns:
             raise Exception(f"Requiring to compute {name}, which is not a known column")
         column = columns[name]
@@ -936,7 +940,6 @@ and due >= ? and queue = {QUEUE_NEW_CRAM}""" % scids, now, self.col.usn(), shift
             self.computeIndirectValue(name, column)
         elif "always" not in column:
             raise Exception(f"Requiring to compute {name}, which is a column with neither sql, always nor sum")
-        self.computed.add(name)
 
     def computeDirectValue(self, name, column):
         """Ensure that each deck objects has a value without subdeck, for each

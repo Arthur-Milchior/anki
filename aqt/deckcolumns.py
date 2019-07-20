@@ -261,7 +261,7 @@ columns = {
     },
     "suspended":{
         "description":"number of suspended cards, (cards you will never see unless you unsuspend them in the browser)",
-        "header": None,
+        "header": "Suspended",
         "type": "cards",
         "sql": f"queue = {QUEUE_SUSPENDED}",
     },
@@ -272,13 +272,13 @@ columns = {
     # },
     "cards":{
         "description":"Number of cards in the deck",
-        "header": None,
+        "header": _("Total")+"<br/>"+_("Cards"),
         "type": "cards",
         "sql":"true",
     },
     "notes":{
         "description":"Number of notes in the deck",
-        "header": _("Total")+"<br/>"+_("Note"),
+        "header": _("Total")+"<br/>"+_("Notes"),
         "sql":"true",
         "type": "notes",
     },
