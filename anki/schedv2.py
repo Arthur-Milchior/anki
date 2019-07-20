@@ -457,6 +457,7 @@ and due <= ? limit ?)""",
         sync -- whether it's called from sync, and the return must satisfies sync sanity check
         """
         # invalid deck selected?
+        lim = super()._deckRevLimitSingle(deck)
         if parentLimit is not None:
             return min(parentLimit, lim)
         elif '::' not in deck['name']:
