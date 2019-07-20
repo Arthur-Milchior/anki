@@ -188,7 +188,7 @@ class Scheduler(BothScheduler):
                 lrn += ch[3]
                 new += ch[4]
                 for required in self._required():
-                    deck["tmp"]["valuesWithSubdeck"][required] += deck["tmp"]["valuesWithoutSubdeck"][required]
+                    deck["tmp"]["valuesWithSubdeck"][required] += childDeck["tmp"]["valuesWithSubdeck"][required]
             # limit the counts to the deck's limits
             conf = self.col.decks.confForDid(did)
             if not conf['dyn']:
