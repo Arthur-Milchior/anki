@@ -189,7 +189,6 @@ class ModelManager:
             if newTemplatesData is None:
                 newTemplatesData = [{"is new": True,
                                      "old idx":None}]*len(m['tmpls'])
-            assert "tmp" in m
             m['mod'] = intTime()
             m['usn'] = self.col.usn()
             if recomputeReq:
