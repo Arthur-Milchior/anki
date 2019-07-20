@@ -937,7 +937,7 @@ incorporatedAddonsSet = {
     Addon("Change cards decks prefix", 1262882834, 1550534152, "f9843693dafb4aeb2248de5faf44cf5b5fdc69ec", "https://github.com/Arthur-Milchior/anki-deck-prefix-edit"),
     Addon("Change a notes type without requesting a database upload", 719871418, 1560313030, "8b97cfbea1b7d8bd7124d6ebe6553f36d1914823", "https://github.com/Arthur-Milchior/anki-change-note-type"),
     Addon("«Check database» Explain errors and what is done to fix it", 1135180054, gitHash = "371c360e5611ad3eec5dcef400d969e7b1572141", gitRepo = "https://github.com/Arthur-Milchior/anki-database-check-explained"), #mod unkwon because it's not directly used by the author anymore
-    Addon("Copy notes", 1566928056, 1560116343, "e12e62094211a8bf06d025ee0f325e8aa4489292", "https://github.com/Arthur-Milchior/anki-copy-note"),
+    Addon("Copy notes", 1566928056, 1563556640, "b9ad0a66f36db8a7b74c7da3cf967690623cd50c", "https://github.com/Arthur-Milchior/anki-copy-note"),
     Addon("Correcting a bug in anki which makes new card appearing in wrong order", 127334978, 1561608317, "9ec2f1e5c2f4d95de82b6cc7a43bf68cb39a26f7", "https://github.com/Arthur-Milchior/anki-correct-due"),
     Addon("Empty cards returns more usable informations", 25425599, 1560126141, "299a0a7b3092923f5932da0bf8ec90e16db269af", "https://github.com/Arthur-Milchior/anki-clearer-empty-card"),
     Addon("Explain deletions", 12287769, 1556149013, "aa0d9485974fafd109ccd426f393a0d17aa94306", "https://github.com/Arthur-Milchior/anki-note-deletion"),
