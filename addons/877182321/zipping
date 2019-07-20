@@ -1,0 +1,2 @@
+rm enhancedMainWindow.zip
+zip enhancedMainWindow.zip config.* *py  LICENSE *.md zipping --exclude \*~ *png
