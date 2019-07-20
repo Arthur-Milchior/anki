@@ -26,7 +26,7 @@ browserCollapsed -- true when deck collapsed in browser,
 id -- deck ID (automatically generated long),
 mod -- last modification time,
 mid -- the model of the deck
-tmp -- some values which should not be saved in json
+tmp -- some values which should not be saved in json (not always here)
 """
 
 
@@ -52,6 +52,7 @@ mod -- Last modification time
 usn -- see USN documentation
 dyn -- Whether this deck is dynamic. Not present in the default configurations
 id -- deck ID (automatically generated long). Not present in the default configurations.
+tmp -- some values which should not be saved in json (not always here)
 
 The configuration related to new cards is composed of:
 delays -- The list of successive delay between the learning steps of
@@ -115,7 +116,6 @@ defaultDeck = {
     # added in beta11
     'extendNew': 10,
     'extendRev': 50,
-    'tmp': {}
 }
 
 defaultDynamicDeck = {
@@ -133,7 +133,6 @@ defaultDynamicDeck = {
     'terms': [["", 100, 0]],
     'resched': True,
     'return': True, # currently unused
-    'tmp': {},
 
     # v2 scheduler
     "previewDelay": 10,
@@ -176,7 +175,6 @@ defaultConf = {
     'replayq': True,
     'mod': 0,
     'usn': 0,
-    'tmp': {},
 }
 
 class DeckManager:
@@ -203,11 +201,7 @@ class DeckManager:
         dconf -- json dic associating to each id (as string) its configuration(option)
         """
         self.decks = json.loads(decks)
-        for did, deck in self.decks.items():
-            deck["tmp"] = dict()
         self.dconf = json.loads(dconf)
-        for dcid, dconf in self.decks.items():
-            dconf["tmp"] = dict()
         # set limits to within bounds
         found = False
         for c in list(self.dconf.values()):
