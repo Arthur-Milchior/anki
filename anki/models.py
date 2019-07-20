@@ -29,7 +29,7 @@ db,
 vers -- Legacy version number (unused), use an empty array []
 changed -- Whether the Model has been changed and should be written in
 the database.
-tmp -- some values which should not be saved in json.
+tmp -- some values which should not be saved in json.(not always here)
 """
 
 """A field object (flds) is an array composed of:
@@ -41,7 +41,7 @@ rtl -- "boolean, right-to-left script",
 size -- "font size",
 sticky -- "sticky fields retain the value that was last added
 when adding new notes"
-tmp -- some values which should not be saved in json.
+tmp -- some values which should not be saved in json.(not always here)
 """
 
 """req' fields are:
@@ -61,7 +61,7 @@ did -- "deck override (null by default)",
 name -- "template name",
 ord -- "template number, see flds",
 qfmt -- "question format string"
-tmp -- some values which should not be saved in json.
+tmp -- some values which should not be saved in json.(not always here)
 """
 
 import copy, re, json
@@ -103,7 +103,6 @@ defaultModel = {
  background-color: white;
 }
 """,
-    'tmp': {},
 }
 
 defaultField = {
@@ -117,7 +116,6 @@ defaultField = {
     'size': 20,
     # reserved for future use
     'media': [],
-    'tmp': {},
 }
 
 defaultTemplate = {
@@ -131,7 +129,6 @@ defaultTemplate = {
     # we don't define these so that we pick up system font size until set
     #'bfont': "Arial",
     #'bsize': 12,
-    'tmp': {},
 
 }
 
@@ -149,12 +146,6 @@ class ModelManager:
         "Load registry from JSON."
         self.changed = False
         self.models = json.loads(json_)
-        for mid, model in self.models.items():
-            model["tmp"] = {}
-            for template in model['tmpls']:
-                template["tmp"] = {}
-            for field in model['flds']:
-                field["tmp"] = {}
 
     def getChangedTemplates(self, m, oldModel = None, newTemplatesData=None):
         """A set of index of templates potentially modified.
@@ -198,7 +189,6 @@ class ModelManager:
             if newTemplatesData is None:
                 newTemplatesData = [{"is new": True,
                                      "old idx":None}]*len(m['tmpls'])
-            assert "tmp" in m
             m['mod'] = intTime()
             m['usn'] = self.col.usn()
             if recomputeReq:
