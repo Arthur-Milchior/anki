@@ -983,7 +983,7 @@ def test_deckTree():
     # new should not appear twice in tree
     names = [x[0] for x in d.sched.deckDueTree()]
     names.remove("new")
-    assert "new" not in names
+    assert "new" not in names #i.e. "new" was here only onec
 
 def test_deckFlow():
     d = getEmptyCol()

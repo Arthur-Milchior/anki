@@ -14,6 +14,7 @@ from anki.utils import ids2str, intTime, fmtTimeSpan
 from anki.lang import _
 from anki.consts import *
 from anki.hooks import runHook
+from aqt.deckcolumns import *
 
 # it uses the following elements from anki.consts
 # card types: 0=new, 1=lrn, 2=rev, 3=relrn
@@ -132,8 +133,13 @@ order by due""" % (self._deckLimit()),
     def _walkingCount(self, limFn=None, cntFn=None):
         """The sum of cntFn applied to each active deck.
 
+        It is used to compute the number to display in footer, to tell
+        what you'll have to study today before changing deck.
+
         limFn -- function which associate to each deck object the maximum number of card to consider
-        cntFn -- function which, given a deck id and a limit, return a number of card at most equal to this limit."""
+        cntFn -- function which, given a deck id and a limit, return a number of card at most equal to this limit.
+
+        """
         tot = 0
         pcounts = {}# Associate from each id of a parent deck p, the maximal number of cards of deck p which can be seen, minus the card found for its descendant already considered
         # for each of the active decks
@@ -167,25 +173,39 @@ order by due""" % (self._deckLimit()),
     # Deck list
     ##########################################################################
 
+    def deckDueTree(self):
+        """Generate the node of the main deck. See deckbroser introduction to see what a node is
+        """
+        return self._groupChildren(self.deckDueList())
+
     def _groupChildren(self, grps):
         """[subdeck name without parent parts,
         did, rev, lrn, new (counting subdecks)
         [recursively the same things for the children]]
 
+        This method only does some global part of the preparation, and
+        delegates to the recursive function _groupChildrenMain.
+
         Keyword arguments:
         grps -- [deckname, did, rev, lrn, new]
+
         """
         # first, split the group names into components
         for deck in grps:
             deck[0] = deck[0].split("::")
         # and sort based on those components
-        grps.sort(key=itemgetter(0))
+        grps.sort(key=itemgetter(0))# we should resort, because
+        # "new::" should be sorted before "new2", and
+        # lexicographically, it's not the case
+
         # then run main function
         return self._groupChildrenMain(grps)
 
     # New cards
     ##########################################################################
 
+    # This part deals with current decks
+    ##################
     def _resetNewCount(self, sync=False):
         """
         Set newCount to the counter of new cards for the active decks.
@@ -278,6 +298,9 @@ did = ? and queue = {QUEUE_NEW_CRAM} limit ?)""", did, lim)
             else:
                 lim = min(rem, lim)
         return lim
+
+    # This part deals with tree for deck browser
+    #################
 
     def _newForDeck(self, did, lim):
         """The minimum between the number of new cards in this deck lim and self.reportLimit.
@@ -880,3 +903,78 @@ and due >= ? and queue = {QUEUE_NEW_CRAM}""" % scids, now, self.col.usn(), shift
         # in order due?
         if conf['new']['order'] == NEW_CARDS_RANDOM:
             self.randomizeCards(did)
+
+    # Deck browser information
+    ##########################################################################
+    notRequired = {"name", "lrn", "rev", "gear", "option name", "due", "new"} #values which are not computed by the add-on.
+    def _required(self):
+        """The values that we want to compute to show in deck browser"""
+        columns = self.col.conf.get("columns", defaultColumns)
+        return {column["name"] for column in columns if column["name"] not in self.notRequired}
+
+    def computeValuesWithoutSubdecks(self):
+        """Ensure that each deck objects has the value for each element of
+        requireds, without subdeck.
+
+        """
+        self.computed = set()
+        for name in self._required():
+            self.computeValueWithoutSubdecks(name)
+
+    def computeValueWithoutSubdecks(self, name):
+        """Ensure that each deck objects has the value "name", without
+        subdeck. Assume that name's can be computed by a query in sqlForCard or in howToCompute
+
+        """
+        if name in self.computed:
+            return
+        if name not in columns:
+            raise Exception(f"Requiring to compute {name}, which is not a known column")
+        column = columns[name]
+        if "sql" in column:
+            self.computeDirectValue(name, column)
+        elif "sum" in column:
+            self.computeIndirectValue(name, column)
+        elif "always" not in column:
+            raise Exception(f"Requiring to compute {name}, which is a column with neither sql, always nor sum")
+        self.computed.add(name)
+
+    def computeDirectValue(self, name, column):
+        """Ensure that each deck objects has a value without subdeck, for each
+        required value. Assume that name's can be computed by a query in sqlForCard
+
+        """
+        type = column["type"]
+        table = column.get("table", type)
+        addend = column.get("sqlSum")
+        condition = column.get("sql")
+        if addend:
+            element = f" sum({addend})"
+        else:
+            element = f" count(*)"
+        if condition:
+            condition = f" where {condition}"
+        if not table:
+            table = "cards"
+        d = {did: value for did, value in self.col.db.all(f"select did, {element} from {table} {condition} group by did", **sqlDict(self.col))}
+        for deck in self.col.decks.all():
+            deck["tmp"]["valuesWithoutSubdeck"][name] = d.get(deck['id'], 0)
+            #In theory, I could assume that missing values are 0. It
+            #would be too risky, and can cause bug, because of values
+            #not computed at all.
+
+    def computeIndirectValue(self, name, column):
+        """Ensure that each deck objects has a value without subdeck, for each
+        required value. Assume that name's rule are in howToCompute.
+
+        """
+        sum = column["sum"]
+        substract = column.get("substract", set())
+        for columnName in sum | substract:
+            self.computeValueWithoutSubdecks(columnName)
+        for deck in self.col.decks.all():
+            deck["tmp"]["valuesWithoutSubdeck"][name] = 0
+            for columnName in sum:
+                deck["tmp"]["valuesWithoutSubdeck"][name] += deck["tmp"]["valuesWithoutSubdeck"][columnName]
+            for columnName in substract:
+                deck["tmp"]["valuesWithoutSubdeck"][name] -= deck["tmp"]["valuesWithoutSubdeck"][columnName]

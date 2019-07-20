@@ -124,14 +124,20 @@ class Scheduler(BothScheduler):
         Similar to nodes, without the recursive counting, with the full deck name
 
         [deckname (with ::),
-        did, rev, lrn, new (not counting subdeck)]"""
+        did, rev, lrn, new (not counting subdeck)]
+        Alphabetically sorted by name."""
+        # we use both return, and deck['tmp'], because some add-on
+        # method may expect this return, even if this fork should not
+        # use it anymore
         self._checkDay()
         self.col.decks.checkIntegrity()
-        decks = self.col.decks.all(sort=True)
         #lims -- associating to each deck maximum number of new card and of review. Taking custom study into account
         lims = {}
         data = []
-        for deck in decks:
+        for deck in self.col.decks.all(sort=True):
+            if "tmp" not in deck:
+                deck["tmp"] = dict()
+            deck["tmp"]["valuesWithoutSubdeck"] = dict()
             p = self.col.decks.parentName(deck['name'])
             # new
             #nlim -- maximal number of new card, taking parent into account
@@ -148,19 +154,14 @@ class Scheduler(BothScheduler):
                 rlim = min(rlim, lims[p][1])
             rev = self._revForDeck(deck['id'], rlim)
             # save to list
+            deck["tmp"]["valuesWithoutSubdeck"]["new"] = new
+            deck["tmp"]["valuesWithoutSubdeck"]["lrn"] = lrn
+            deck["tmp"]["valuesWithoutSubdeck"]["rev"] = rev
             data.append([deck['name'], deck['id'], rev, lrn, new])
             # add deck as a parent
             lims[deck['name']] = [nlim, rlim]
+        self.computeValuesWithoutSubdecks()
         return data
-
-    def deckDueTree(self):
-        """Generate the node of the main deck. See deckbroser introduction to see what a node is
-        """
-        #something similar to nodes, but without the recursive part
-        nodes_=self.deckDueList()
-        #the actual nodes
-        nodes=self._groupChildren(nodes_)
-        return nodes
 
     def _groupChildrenMain(self, grps):
         """
@@ -169,41 +170,43 @@ class Scheduler(BothScheduler):
         [recursively the same things for the children]]
 
         keyword arguments:
-        grps -- [[subdeck], did, rev, lrn, new] sorted according to the list subdeck. Number for the subdeck precisely"""
+        implicit -- deckName
+        grps -- For all descendant of deckName (including itself)[[descendant parts], did, rev, lrn, new] sorted in alphabetical order. Number for the subdeck precisely"""
         tree = []
         # group and recurse
         def key(grp):
             return grp[0][0]
         for (head, tail) in itertools.groupby(grps, key=key):
             tail = list(tail)
-            did = None
-            rev = 0
-            new = 0
-            lrn = 0
-            children = []
-            for c in tail:
-                if len(c[0]) == 1:
-                    # current node
-                    did = c[1]
-                    rev += c[2]
-                    lrn += c[3]
-                    new += c[4]
-                else:
-                    # set new string to tail
-                    c[0] = c[0][1:]
-                    children.append(c)
+            parentNode = tail[0]
+            did = parentNode[1]
+            deck = self.col.decks.get(did)
+            rev = parentNode[2]
+            lrn = parentNode[3]
+            new = parentNode[4]
+            deck["tmp"]["valuesWithSubdeck"] = dict()
+            for required in self._required():
+                deck["tmp"]["valuesWithSubdeck"][required] = deck["tmp"]["valuesWithoutSubdeck"][required]
+            children = [[c[0][1:], *c[1:]] for c in tail[1:]]
             children = self._groupChildrenMain(children)
             # tally up children counts
             for ch in children:
+                childDid = ch[1]
+                childDeck = self.col.decks.get(childDid)
                 rev += ch[2]
                 lrn += ch[3]
                 new += ch[4]
+                for required in self._required():
+                    deck["tmp"]["valuesWithSubdeck"][required] += deck["tmp"]["valuesWithoutSubdeck"][required]
             # limit the counts to the deck's limits
             conf = self.col.decks.confForDid(did)
-            deck = self.col.decks.get(did)
             if not conf['dyn']:
                 rev = max(0, min(rev, conf['rev']['perDay']-deck['revToday'][1]))
                 new = max(0, min(new, conf['new']['perDay']-deck['newToday'][1]))
+            deck["tmp"]["valuesWithSubdeck"]["new"] = new
+            deck["tmp"]["valuesWithSubdeck"]["lrn"] = lrn
+            deck["tmp"]["valuesWithSubdeck"]["rev"] = rev
+            deck["tmp"]["valuesWithSubdeck"]["due"] = lrn+rev
             tree.append((head, did, rev, lrn, new, children))
         return tuple(tree)
 

@@ -24,6 +24,10 @@ td {
     white-space: nowrap;
 }
 
+th.drag-hover {
+	border-left: 1px solid #aaa;
+}
+
 tr.drag-hover td {
     border-bottom: 1px solid #aaa;
 }

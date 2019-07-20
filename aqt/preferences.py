@@ -8,6 +8,7 @@ import anki.lang
 from aqt.utils import openFolder, openHelp, showInfo, askUser
 import aqt
 from anki.lang import _
+from anki.consts import *
 
 class Preferences(QDialog):
 
@@ -31,6 +32,7 @@ class Preferences(QDialog):
         self.setupBackup()
         self.setupOptions()
         self.setupExtra()
+        self.setupColor()
         self.show()
 
     def accept(self):
@@ -88,7 +90,7 @@ class Preferences(QDialog):
         f.showEstimates.setChecked(qc['estTimes'])
         f.showProgress.setChecked(qc['dueCounts'])
         f.nightMode.setChecked(qc.get("nightMode", False))
-        f.newSpread.addItems(list(c.newCardSchedulingLabels().values()))
+        f.newSpread.addItems(list(newCardSchedulingLabels().values()))
         f.newSpread.setCurrentIndex(qc['newSpread'])
         f.useCurrent.setCurrentIndex(int(not qc.get("addToCur", True)))
         f.dayLearnFirst.setChecked(qc.get("dayLearnFirst", False))
@@ -273,6 +275,7 @@ Not currently enabled; click the sync button in the main window to enable."""))
 
     extraOptions = ([
         ("allowEmptyFirstField", ),
+        ("advancedDeckColumns", ),
         ("browserOnMissingMedia", True),
         ("changeModelWithoutFullSync", False, True, False),
         ("compileLaTeX", ),
@@ -303,3 +306,27 @@ Not currently enabled; click the sync button in the main window to enable."""))
         """Check the preferences related to add-ons forked."""
         for args in self.extraOptions:
             self.updateOneOption(*args)
+
+    # Basic & Advanced Options
+    ######################################################################
+
+    def setupColor(self):
+        if "colors" not in self.mw.col.conf:
+            self.mw.col.conf["colors"] = defaultColors
+        for colorName in defaultColors:
+            defaultColor = defaultColors.get(colorName, "black")
+            colors = self.mw.col.conf["colors"]
+            color = colors.get(colorName, defaultColor) # useful if another color is added by an add-on.
+            button = getattr(self.form, f"{colorName}Button")
+            button.clicked.connect(lambda: self.onColor(colorName))
+            button.setStyleSheet(f"background-color: {color}")
+
+
+    def onColor(self, name):
+        print(f"on color {name}")
+        new = QColorDialog.getColor(QColor(self.mw.col.conf["colors"][name]), self, f"Choose the color for {name}")
+        if new.isValid():
+            colors = self.mw.col.conf["colors"]
+            newColor = new.name()
+            colors[name] = newColor
+            button.setStyleSheet(f"background-color: {newColor}")

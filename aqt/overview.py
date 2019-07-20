@@ -191,7 +191,6 @@ to their original deck.""")
            </td><td align=center>
            {but("study", _("Study Now"), id="study",extra=" autofocus")}</td></tr></table>''')
 
-
     _body = """
 <center>
 <h3>%(deck)s</h3>

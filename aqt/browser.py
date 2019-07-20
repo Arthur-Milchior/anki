@@ -340,15 +340,6 @@ class DataModel(QAbstractTableModel):
 # Line painter
 ######################################################################
 
-COLOUR_SUSPENDED = "#FFFFB2"
-COLOUR_MARKED = "#ccc"
-
-flagColours = {
-    1: "#ffaaaa",
-    2: "#ffb347",
-    3: "#82E0AA",
-    4: "#85C1E9",
-}
 
 class StatusDelegate(QItemDelegate):
 
@@ -1202,14 +1193,14 @@ border: 1px solid #000; padding: 3px; '>%s</div>""" % rep
             import anki.stats as st
             fmt = "<span style='color:%s'>%s</span>"
             if type == CARD_NEW:
-                tstr = fmt % (st.colLearn, tstr)
+                tstr = fmt % (self.col.conf.get("colors", defaultColors)["learn"], tstr)
             elif type == CARD_LRN:
-                tstr = fmt % (st.colMature, tstr)
+                tstr = fmt % (self.col.conf.get("colors", defaultColors)["mature"], tstr)
             elif type == CARD_DUE:
-                tstr = fmt % (st.colRelearn, tstr)
+                tstr = fmt % (self.col.conf.get("colors", defaultColors)["relearn"], tstr)
             elif type == CARD_FILTERED:
-                tstr = fmt % (st.colCram, tstr)
-            else:
+                tstr = fmt % (self.col.conf.get("colors", defaultColors)["cram"], tstr)
+            else:#this should be impossible
                 tstr = fmt % ("#000", tstr)
             if ease == 1:
                 ease = fmt % (st.colRelearn, ease)

@@ -690,3 +690,17 @@ def opengl_vendor():
 def gfxDriverIsBroken():
     driver = opengl_vendor()
     return driver == "nouveau"
+
+def conditionString(cond, string = None, parenthesis = False):
+    """If the condition cond holds: return the string if it's not None, else the cond.
+    If its not empty, add parenthesis around them
+    """
+    if not cond:
+        return ""
+    if string is not None:
+        ret = str(string)
+    else:
+        ret = str(cond)
+    if parenthesis:
+        ret = f"(+{ret})"
+    return ret

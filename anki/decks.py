@@ -214,6 +214,12 @@ class DeckManager:
         if not found:
             self.changed = False
 
+    def __iter__(self):
+        return iter(self.decks.values())
+
+    def items(self):
+        return self.decks.items()
+
     def save(self, g=None):
         """State that the DeckManager has been changed. Changes the
         mod and usn of the potential argument.
@@ -766,16 +772,17 @@ same id."""
         # get ancestors names
         return [g['id'] for g in self.childrenDecks(did, includeSelf=includeSelf, sort=sort)]
 
-    def childMap(self):
+    def childMap(self, withRoot=False):
         """A tree, containing for each pair parent/child, an entry of the form:
         *  childMap[parent id][child id] = node of child.
 
         Elements are entered in alphabetical order in each node. Thus
         iterating over a node give children in alphabetical order.
 
+        withRoot -- in this case, childMap[None] send the set of decks without parents
         """
         nameMap = self.nameMap()
-        childMap = {}
+        childMap = {None: {}}
 
         # go through all decks, sorted by name
         for deck in self.all(sort=True):
@@ -785,7 +792,9 @@ same id."""
             immediateParent = self.parentName(deck['name'])
             if immediateParent is not None:
                 pid = nameMap[immediateParent]['id']
-                childMap[pid][deck['id']] = childMap[deck['id']]
+            else:
+                pid = None
+            childMap[pid][deck['id']] = childMap[deck['id']]
 
         return childMap
 
@@ -832,6 +841,13 @@ same id."""
                 parents.append(deck)
 
         return parents
+
+    def parentByName(self, name):
+        """Direct parent, or None"""
+        parts = name.rsplit("::",1)
+        if len(parts) < 2:
+            return None
+        return parts[1]
 
     def nameMap(self):
         """
