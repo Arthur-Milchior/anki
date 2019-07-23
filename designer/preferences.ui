@@ -531,6 +531,9 @@
         </item>
         <item>
          <widget class="QCheckBox" name="allowEmptyFirstField">
+          <property name="toolTip">
+           <string>You can add and import cards, even if their first field is not filled.</string>
+          </property>
           <property name="text">
            <string>Allow empty first field</string>
           </property>
@@ -1251,7 +1254,7 @@
          </widget>
         </item>
         <item>
-         <spacer name="verticalSpacer_5">
+         <spacer name="verticalSpacer_6">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
