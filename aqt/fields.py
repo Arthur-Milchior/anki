@@ -6,6 +6,7 @@ from anki.consts import *
 import aqt
 from aqt.utils import showWarning, openHelp, getOnlyText, askUser
 from anki.lang import _, ngettext
+import copy
 
 class FieldDialog(QDialog):
 
