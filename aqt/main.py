@@ -479,7 +479,6 @@ from the profile screen."))
         for fname in filesToCreate:
             newpath = os.path.join(dir, fname)
             if not os.path.exists(newpath):
-                print(f"Making backup to {newpath}")
                 b = self.BackupThread(newpath, data)
                 b.start()
 
@@ -528,11 +527,9 @@ from the profile screen."))
                     daysToKeep.append((self.year, self.month-1, self.day-nbDay+nbDayPreviousMonth))
         filesToKeep = ([f"backup-monthly-{yearToHave:02d}-{monthToHave:02d}.colpkg" for yearToHave, monthToHave in monthsToKeep]+
                        [f"backup-daily-{yearToHave:02d}-{monthToHave:02d}-{dayToHave:02d}.colpkg" for yearToHave, monthToHave, dayToHave in daysToKeep])
-        print(filesToKeep)
         for file in os.listdir(dir):
             if (file.startswith("backup-monthy-") or file.startswith("backup-daily-")) and file not in filesToKeep:
                 oldpath = os.path.join(dir, file)
-                print(f"deleting backup {oldpath}")
                 os.unlink(oldpath)
 
 
