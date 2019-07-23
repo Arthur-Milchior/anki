@@ -176,7 +176,7 @@ class Scheduler(BothScheduler):
             lrn = parentNode[3]
             new = parentNode[4]
             deck["tmp"]["valuesWithSubdeck"] = dict()
-            for required in self._required():
+            for required in self.requiredForRecursive:
                 deck["tmp"]["valuesWithSubdeck"][required] = deck["tmp"]["valuesWithoutSubdeck"][required]
             children = [[c[0][1:], *c[1:]] for c in tail[1:]]
             children = self._groupChildrenMain(children)
@@ -187,7 +187,7 @@ class Scheduler(BothScheduler):
                 rev += ch[2]
                 lrn += ch[3]
                 new += ch[4]
-                for required in self._required():
+                for required in self.required:
                     deck["tmp"]["valuesWithSubdeck"][required] += childDeck["tmp"]["valuesWithSubdeck"][required]
             # limit the counts to the deck's limits
             conf = self.col.decks.confForDid(did)
@@ -197,7 +197,6 @@ class Scheduler(BothScheduler):
             deck["tmp"]["valuesWithSubdeck"]["new"] = new
             deck["tmp"]["valuesWithSubdeck"]["lrn"] = lrn
             deck["tmp"]["valuesWithSubdeck"]["rev"] = rev
-            deck["tmp"]["valuesWithSubdeck"]["due"] = lrn+rev
             tree.append((head, did, rev, lrn, new, children))
         return tuple(tree)
 
@@ -434,7 +433,7 @@ where queue in ({QUEUE_LRN},{QUEUE_DAY_LRN}) and type = {CARD_DUE}
             f"select id from cards where queue in ({QUEUE_LRN}, {QUEUE_DAY_LRN}) %s" % extra))
 
     def _lrnForDeck(self, did):
-        """Number of review of cards in learing of deck did. """
+        """Number of repetition of cards in learing of deck did. """
         cnt = self.col.db.scalar(
             f"""
 select sum(left/1000) from

@@ -6,39 +6,19 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>569</width>
-    <height>333</height>
+    <width>653</width>
+    <height>313</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QLabel" name="count">
-     <property name="styleSheet">
-      <string notr="true">* { color: red }</string>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
     <layout class="QVBoxLayout" name="verticalLayout_7">
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
-       <item>
-        <widget class="QLabel" name="label_31">
-         <property name="text">
-          <string>Column shown:</string>
-         </property>
-        </widget>
-       </item>
-       <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_2"/>
+     </item>
+     <item>
+      <layout class="QFormLayout" name="formLayout">
+       <item row="0" column="1">
         <widget class="QComboBox" name="column">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -48,14 +28,28 @@
          </property>
         </widget>
        </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_31">
+         <property name="text">
+          <string>Column shown:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLabel" name="description">
+         <property name="text">
+          <string>You should see here the description of the content of this column.</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Description</string>
+         </property>
+        </widget>
+       </item>
       </layout>
-     </item>
-     <item>
-      <widget class="QLabel" name="description">
-       <property name="text">
-        <string>You should see here the description of the content of this column.</string>
-       </property>
-      </widget>
      </item>
      <item>
       <widget class="QCheckBox" name="percent">
@@ -90,14 +84,14 @@
        <item row="1" column="1">
         <widget class="QLineEdit" name="header"/>
        </item>
-       <item row="0" column="0">
+       <item row="2" column="0">
         <widget class="QLabel" name="colorLabel">
          <property name="text">
           <string>Color</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="1">
+       <item row="2" column="1">
         <widget class="QPushButton" name="colorButton">
          <property name="text">
           <string/>
@@ -106,20 +100,23 @@
        </item>
       </layout>
      </item>
-     <item>
-      <spacer name="verticalSpacer">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>40</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
     </layout>
+   </item>
+   <item>
+    <widget class="QLabel" name="count">
+     <property name="styleSheet">
+      <string notr="true">* { color: red }</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
@@ -133,9 +130,6 @@
    </item>
   </layout>
  </widget>
- <tabstops>
-  <tabstop>column</tabstop>
- </tabstops>
  <resources>
   <include location="icons.qrc"/>
  </resources>

@@ -20,7 +20,7 @@
       <enum>Qt::StrongFocus</enum>
      </property>
      <property name="currentIndex">
-      <number>4</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="tab_1">
       <attribute name="title">
@@ -490,6 +490,13 @@
          </widget>
         </item>
         <item>
+         <widget class="QCheckBox" name="advancedDeckColumns">
+          <property name="text">
+           <string>Show advanced columns in deck browser</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <spacer name="verticalSpacer">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -515,7 +522,7 @@
          <x>0</x>
          <y>0</y>
          <width>401</width>
-         <height>471</height>
+         <height>576</height>
         </rect>
        </property>
        <layout class="QFormLayout" name="formLayout">
@@ -853,7 +860,6 @@
           </property>
          </widget>
         </item>
-
         <item row="17" column="0">
          <widget class="QLabel" name="label_6">
           <property name="toolTip">
@@ -871,25 +877,6 @@
           </property>
          </widget>
         </item>
-
-        <item row="17" column="0">
-         <widget class="QLabel" name="label_6">
-          <property name="toolTip">
-           <string>Flag 2.</string>
-          </property>
-          <property name="text">
-           <string>Flag 2</string>
-          </property>
-         </widget>
-        </item>
-        <item row="17" column="1">
-         <widget class="QPushButton" name="flag2Button">
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-
         <item row="18" column="0">
          <widget class="QLabel" name="label_6">
           <property name="toolTip">
@@ -907,7 +894,6 @@
           </property>
          </widget>
         </item>
-
         <item row="19" column="0">
          <widget class="QLabel" name="label_6">
           <property name="toolTip">
@@ -925,8 +911,36 @@
           </property>
          </widget>
         </item>
-
        </layout>
+       <widget class="QLabel" name="label_6">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>100</width>
+          <height>30</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Flag 2.</string>
+        </property>
+        <property name="text">
+         <string>Flag 2</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="flag2Button">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>100</width>
+          <height>30</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
       </widget>
      </widget>
     </widget>

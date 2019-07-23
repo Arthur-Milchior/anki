@@ -29,8 +29,7 @@ from anki.sound import clearAudioQueue
 from anki.hooks import runHook
 from copy import deepcopy
 from anki.lang import _, ngettext
-from aqt.deckbrowsercolumnoption import DeckBrowserColumnOption
-from aqt.deckcolumns import *
+from aqt.deckcolumns import possibleColumns, DeckBrowserColumnOption
 
 class DeckBrowser:
 
@@ -109,7 +108,7 @@ class DeckBrowser:
     def _renderPage(self, reuse=False):
         """Write the HTML of the deck browser. Move to the last vertical position."""
         if not reuse:
-            self._dueTree = self.mw.col.sched.deckDueTree()
+            self._dueTree = self.mw.col.sched.deckDueTree(self._required(), self._required(True))
             self.__renderPage(None)
             return
         self.web.evalWithCallback("window.pageYOffset", self.__renderPage)
@@ -161,20 +160,54 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
 
     def _getColumns(self):
         """The set of columns to display currently"""
-        return self.mw.col.conf.get("columns", defaultColumns)
+        columns = self.mw.col.conf.get("columns", defaultColumns)
+        possibleColumns = self._allPossibleColumns()
+        for column in columns:
+            if column['name'] not in possibleColumns:
+                column['disappeared'] = True #In case the column does not exists again, it avoids having error message
+        return columns
+
+    notRequired = {"name", "lrn", "rev", "gear", "option name",  "new"} #values which are not computed by the add-on.
+
+    def _required(self, forRecursive = False):
+        """The values that we want to compute to show in deck browser"""
+        def columnRequired(column):
+            r= (column["name"] not in self.notRequired
+                and (not forRecursive
+                     or "sqlByDids" not in column))
+            return r
+
+        columnsUsed = self._getColumns()
+        requiredNames = {column["name"]
+                         for column in columnsUsed
+                         if columnRequired(column)
+                         and not column.get("disappeared", False)
+        }
+
+        typeNames = {possibleColumns[name]["type"] for name in requiredNames if(
+            possibleColumns[name].get("percentable", True)
+            and "type" in possibleColumns[name]
+            and possibleColumns[name]["type"] != name
+            and columnRequired(possibleColumns[name]))
+        }
+        r = requiredNames | typeNames
+        return r
 
     def _allPossibleColumns(self):
         """List of possible column, in alphabetical order"""
-        l = [name for name, column in columns.items() if self.mw.col.conf.get("advancedDeckColumns", False) or not column.get("advanced") ]
-        return sorted(l)
+        l = [name for name, column in possibleColumns.items() if self.mw.col.conf.get("advancedDeckColumns", False) or not column.get("advanced") ]
+        l.sort()
+        return l
 
     def _header(self):
         return "".join(["""
     <tr>"""
                         ,*[f"""
-      <th onclick='return pycmd("columnOptions:{idx}")' colid={idx} {column.get("header class","")}>
-        {_(self.getHeader(column))}
-      </th>""" for idx, column in enumerate(self._getColumns())]
+      <th colid={idx} {column.get("header class","")}>
+         <a onclick='return pycmd("columnOptions:{idx}")' oncontextmenu='return pycmd("columnOptions:{idx}")'>
+          {_(self.getHeader(column))}
+         </a>
+      </th>""" for idx, column in enumerate(self._getColumns()) if not column.get('disappeared', False)]
                         ,"""
     </tr>"""])
 
@@ -276,7 +309,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             klass += ' current'
         return "".join([f"""
     <tr class='{klass}' id='{did}'>"""
-                         ,*[self._cell(depth, deck, did, name, collapsed, hasChildren, column) for column in self._getColumns()]
+                         ,*[self._cell(depth, deck, did, name, collapsed, hasChildren, column) for column in self._getColumns() if not column.get('disappeared', False)]
                          ,"""
     </tr>"""])
 
@@ -303,11 +336,12 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             return self._optionName(deck)
         else:
             color = self.getColor(column)
-            value = deck["tmp"]["valuesWithSubdeck"][name]
+            kindOfValue = "valuesWithSubdeck" if column.get("withSubdecks", True) else "valuesWithoutSubdeck"
+            value = deck["tmp"][kindOfValue][name]
             if column.get("percent", False):
-                if "type" in columns[name]:
-                    baseName = columns[name]["type"]
-                    totalNumber = deck["tmp"]["valuesWithSubdeck"][baseName]
+                if "type" in possibleColumns[name]:
+                    baseName = possibleColumns[name]["type"]
+                    totalNumber = deck["tmp"][kindOfValue][baseName]
                     if totalNumber:
                         percent = (value*100) // totalNumber
                         txt = f"{percent}%"
