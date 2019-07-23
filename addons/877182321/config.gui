@@ -1,0 +1,24 @@
+Question to user;json value;type
+
+General questions:
+Display option name;option;bool
+Maximal number to show;cap value;int or Null
+Color of empty deck;color empty;html color
+Color of deck with empty descendant;color empty descendant;html color
+Color of ended deck with marked cards;marked backgroupnd color;html color
+Color of deck with marked cards;ended marked backgroupnd color;html color
+Symbol to denote a deck ended;end symbol;string
+Symbol to denote a book deck;book symbol;string
+Symbol to denote a given up deck;given up symbol;string
+Symbol to denote a deck in pause;pause symbol;string
+
+List (which should be reordered):
+Print the description;description;string not mutable
+Show this column;present;Boolean
+Print the name in <h1>;name;string not mutable
+Column's header;header;String or null
+Number's color;color;html color
+Text explaining the number;overlay;String or null
+Show the number of cards/notes;absolute;Boolean
+Show the percent of cards concerned;percent;Boolean
+Also count cards in subdecks;subdeck;Boolean

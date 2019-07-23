@@ -116,10 +116,8 @@ class Scheduler(BothScheduler):
             if p:
                 nlim = min(nlim, lims[p][0])
             new = self._newForDeck(deck['id'], nlim)
-            deck["tmp"]["valuesWithoutSubdeck"]["new"] = new
             # learning
             lrn = self._lrnForDeck(deck['id'])
-            deck["tmp"]["valuesWithoutSubdeck"]["lrn"] = lrn
             # reviews
             if p:
                 plim = lims[p][1]
@@ -127,11 +125,13 @@ class Scheduler(BothScheduler):
                 plim = None
             rlim = self._deckRevLimitSingle(deck, parentLimit=plim)
             rev = self._revForDeck(deck['id'], rlim, childMap)
-            deck["tmp"]["valuesWithoutSubdeck"]["rev"] = rev
             # save to list
             data.append([deck['name'], deck['id'], rev, lrn, new])
             # add deck as a parent
             lims[deck['name']] = [nlim, rlim]
+            deck["tmp"]["valuesWithoutSubdeck"]["new"] = new
+            deck["tmp"]["valuesWithoutSubdeck"]["lrn"] = lrn
+            deck["tmp"]["valuesWithoutSubdeck"]["rev"] = rev
         self.computeValuesWithoutSubdecks()
         return data
 
@@ -149,7 +149,7 @@ class Scheduler(BothScheduler):
             lrn = parentNode[3]
             new = parentNode[4]
             deck["tmp"]["valuesWithSubdeck"] = dict()
-            for required in self._required():
+            for required in self.requiredForRecursive:
                 deck["tmp"]["valuesWithSubdeck"][required] = deck["tmp"]["valuesWithoutSubdeck"][required].copy()
             children = [[c[0][1:], *c[1:]] for c in tail[1:]]
             children = self._groupChildrenMain(children)
@@ -159,7 +159,7 @@ class Scheduler(BothScheduler):
                 childDeck = self.col.decks.get(childDid)
                 lrn += ch[3]
                 new += ch[4]
-                for required in self._required():
+                for required in self.required:
                     deck["tmp"]["valuesWithSubdeck"][required] += deck["tmp"]["valuesWithoutSubdeck"][required]
             # limit the counts to the deck's limits
             conf = self.col.decks.confForDid(did)
@@ -168,7 +168,6 @@ class Scheduler(BothScheduler):
             deck["tmp"]["valuesWithSubdeck"]["new"] = new
             deck["tmp"]["valuesWithSubdeck"]["lrn"] = lrn
             deck["tmp"]["valuesWithSubdeck"]["rev"] = rev
-            deck["tmp"]["valuesWithSubdeck"]["due"] = lrn+rev
             tree.append((head, did, rev, lrn, new, children))
         return tuple(tree)
 

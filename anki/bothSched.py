@@ -14,7 +14,7 @@ from anki.utils import ids2str, intTime, fmtTimeSpan
 from anki.lang import _
 from anki.consts import *
 from anki.hooks import runHook
-from aqt.deckcolumns import *
+from aqt.deckcolumns import possibleColumns, sqlDict
 
 # it uses the following elements from anki.consts
 # card types: 0=new, 1=lrn, 2=rev, 3=relrn
@@ -173,9 +173,11 @@ order by due""" % (self._deckLimit()),
     # Deck list
     ##########################################################################
 
-    def deckDueTree(self):
-        """Generate the node of the main deck. See deckbroser introduction to see what a node is
+    def deckDueTree(self, required, requiredForRecursive):
+        """Generate the node of the main deck. See deckbrowser introduction to see what a node is
         """
+        self.required = required
+        self.requiredForRecursive = requiredForRecursive
         return self._groupChildren(self.deckDueList())
 
     def _groupChildren(self, grps):
@@ -906,19 +908,13 @@ and due >= ? and queue = {QUEUE_NEW_CRAM}""" % scids, now, self.col.usn(), shift
 
     # Deck browser information
     ##########################################################################
-    notRequired = {"name", "lrn", "rev", "gear", "option name", "due", "new"} #values which are not computed by the add-on.
-    def _required(self):
-        """The values that we want to compute to show in deck browser"""
-        columns = self.col.conf.get("columns", defaultColumns)
-        return {column["name"] for column in columns if column["name"] not in self.notRequired}
-
     def computeValuesWithoutSubdecks(self):
         """Ensure that each deck objects has the value for each element of
         requireds, without subdeck.
 
         """
         self.computed = set()
-        for name in self._required():
+        for name in self.required:
             self.computeValueWithoutSubdecks(name)
 
     def computeValueWithoutSubdecks(self, name):
@@ -928,16 +924,27 @@ and due >= ? and queue = {QUEUE_NEW_CRAM}""" % scids, now, self.col.usn(), shift
         """
         if name in self.computed:
             return
-        if name not in columns:
+        self.computed.add(name)
+        if name not in possibleColumns:
             raise Exception(f"Requiring to compute {name}, which is not a known column")
-        column = columns[name]
-        if "sql" in column:
+        column = possibleColumns[name]
+        if "where" in column:
             self.computeDirectValue(name, column)
+        elif "sqlByDids" in column:
+            self.computeValuesByDids(name, column)
         elif "sum" in column:
             self.computeIndirectValue(name, column)
         elif "always" not in column:
-            raise Exception(f"Requiring to compute {name}, which is a column with neither sql, always nor sum")
-        self.computed.add(name)
+            raise Exception(f"Requiring to compute {name}, which is a column with neither where, always nor sum")
+
+    def computeValuesByDids(self, name, columns):
+        for deck in self.col.decks.all():
+            dids = self.col.decks.childDids(deck["id"], includeSelf=True)
+            recCount = self.col.db.scalar(columns['sqlByDids']+ids2str(dids), **sqlDict(self.col))
+            selfCount = self.col.db.scalar(columns['sqlByDids']+f"({deck['id']})", **sqlDict(self.col))
+            deck["tmp"]["valuesWithSubdeck"][name] = recCount
+            deck["tmp"]["valuesWithoutSubdeck"][name] = selfCount
+
 
     def computeDirectValue(self, name, column):
         """Ensure that each deck objects has a value without subdeck, for each
@@ -946,8 +953,8 @@ and due >= ? and queue = {QUEUE_NEW_CRAM}""" % scids, now, self.col.usn(), shift
         """
         type = column["type"]
         table = column.get("table", type)
-        addend = column.get("sqlSum")
-        condition = column.get("sql")
+        addend = column.get("select")
+        condition = column.get("where")
         if addend:
             element = f" sum({addend})"
         else:
