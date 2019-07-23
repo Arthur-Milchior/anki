@@ -318,6 +318,7 @@
     <addaction name="actionManage_Note_Types"/>
     <addaction name="separator"/>
     <addaction name="actionDelete"/>
+    <addaction name="actionCopy"/>
     <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuDecks">
@@ -326,7 +327,6 @@
     </property>
     <addaction name="addPrefix"/>
     <addaction name="removePrefix"/>
-    <addaction name="actionCopy"/>
    </widget>
    <addaction name="menuEdit"/>
    <addaction name="menu_Notes"/>

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>425</width>
-    <height>696</height>
+    <width>512</width>
+    <height>723</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -509,7 +509,7 @@
          <x>0</x>
          <y>0</y>
          <width>445</width>
-         <height>471</height>
+         <height>641</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -520,23 +520,6 @@
           </property>
           <property name="wordWrap">
            <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="noteWithoutCard">
-          <property name="text">
-           <string>Note with no card: create card 1 instead of deleting the note</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="newLineInBatchEdit">
-          <property name="text">
-           <string>Add new line when batch editing fields</string>
           </property>
          </widget>
         </item>
@@ -590,16 +573,6 @@
         <item>
          <widget class="QLabel" name="label_2">
           <property name="text">
-           <string/>
-          </property>
-          <property name="wordWrap">
-           <bool>true</bool>
-          </property>
-         </widget>
-         </item>
-         <item>
-         <widget class="QLabel" name="label_2">
-          <property name="text">
            <string>Adding tag LaTeXError to cards with faulty notes. </string>
           </property>
          </widget>
@@ -622,34 +595,6 @@
          </widget>
         </item>
         <item>
-         <widget class="QCheckBox" name="preserveCreation">
-          <property name="text">
-           <string>Note copy: preserve date of creation</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="preserveReviewInfo">
-          <property name="text">
-           <string>Note copy: preserve easyness, interval, due date, ...</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="keepSeenCard">
-          <property name="text">
-           <string>Delete empty cards only if they are new</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="exportSiblings">
-          <property name="text">
-           <string>Export siblings of exported cards</string>
-          </property>
-         </widget>
-        </item>
-        <item>
          <widget class="QCheckBox" name="keepEmptyNote">
           <property name="toolTip">
            <string>While the note is not deleted, this option alone does not allow you to recover the note, since it has no card.</string>
@@ -667,65 +612,9 @@
          </widget>
         </item>
         <item>
-         <widget class="QCheckBox" name="checkBox_2">
-          <property name="text">
-           <string>Do some long term backups (days, month, years)</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
          <widget class="Line" name="line">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Which window can be opened multiple time&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_3">
-          <item>
-           <widget class="QCheckBox" name="AddCardsMultipleTime">
-            <property name="text">
-             <string>Add Cards</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="BrowserMultipleTime">
-            <property name="text">
-             <string>Browser</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="EditCurrentMultipleTime">
-            <property name="text">
-             <string>Edit Cards</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="OtherWindowsMultipleTime">
-            <property name="text">
-             <string>Other</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="browserOnMissingMedia">
-          <property name="text">
-           <string>In case of missing media, show  the notes in the browser.</string>
           </property>
          </widget>
         </item>
@@ -740,65 +629,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="advancedDeckColumns">
-          <property name="text">
-           <string>Show advanced columns in deck browser</string>
-          </property>
-         </widget>
-        </item>
-        <item>
          <spacer name="verticalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-		 </spacer>
-        </item>
-        <item>
-         <widget class="QLabel" name="label_5">
-          <property name="text">
-           <string>When you post pone cards, how much should anki take into account the fact this postponing to compute the new delays ?</string>
-          </property>
-          <property name="scaledContents">
-           <bool>false</bool>
-          </property>
-          <property name="wordWrap">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </widget>
-     <widget class="QWidget" name="tab_4">
-      <attribute name="title">
-       <string>Edition</string>
-      </attribute>
-      <widget class="QWidget" name="verticalLayoutWidget_2">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>401</width>
-         <height>471</height>
-        </rect>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_5">
-        <item>
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string>Configure the different action you can take to edit cards</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="verticalSpacer_5">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
@@ -879,6 +710,19 @@
            </widget>
           </item>
          </layout>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_8">
+          <property name="text">
+           <string>When you post pone cards, how much should anki take into account the fact this postponing to compute the new delays ?</string>
+          </property>
+          <property name="scaledContents">
+           <bool>false</bool>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
         </item>
         <item>
          <layout class="QFormLayout" name="formLayout">
