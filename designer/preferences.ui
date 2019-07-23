@@ -651,6 +651,9 @@
         </item>
         <item>
          <widget class="QCheckBox" name="keepEmptyNote">
+          <property name="toolTip">
+           <string>While the note is not deleted, this option alone does not allow you to recover the note, since it has no card.</string>
+          </property>
           <property name="text">
            <string>When a note has no more card, warns instead of deleting it.</string>
           </property>
