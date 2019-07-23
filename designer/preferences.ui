@@ -502,7 +502,7 @@
           </property>
          </widget>
         </item>
-		<item>
+        <item>
          <widget class="QCheckBox" name="noteWithoutCard">
           <property name="text">
            <string>Note with no card: create card 1 instead of deleting the note</string>
@@ -1250,6 +1250,16 @@
          <widget class="QLabel" name="label_2">
           <property name="text">
            <string>Configure the different action you can take to edit cards</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="newLineInBatchEdit">
+          <property name="toolTip">
+           <string>Line will be between the previous text and the text inserted.</string>
+          </property>
+          <property name="text">
+           <string>Add new line when batch editing fields</string>
           </property>
          </widget>
         </item>
