@@ -731,18 +731,11 @@
         </item>
         <item>
          <widget class="QCheckBox" name="complexTemplates">
+          <property name="toolTip">
+           <string>This option allow you to create complex card type. Cards risks not to be seen on smartphone, and to be erased by «Empty cards».</string>
+          </property>
           <property name="text">
            <string>Cards are generated if and only if they show a field.</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="label_13">
-          <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This option allow you to create complex card type. Cards risks not to be seen on smartphone, and to be erased by «Empty cards». &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-          <property name="wordWrap">
-           <bool>true</bool>
           </property>
          </widget>
         </item>
