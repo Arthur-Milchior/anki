@@ -166,6 +166,7 @@ defaultColors = dict(
     rev = colRev,
     due = colDue,
     userBuried = colSusp,
+    buried = colSusp,
     schedBuried = colSusp,
     marked = colMarked,
     flag1 = flagColours[1],
