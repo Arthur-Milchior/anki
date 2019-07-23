@@ -173,7 +173,7 @@ order by due""" % (self._deckLimit()),
     # Deck list
     ##########################################################################
 
-    def deckDueTree(self, required, requiredForRecursive):
+    def deckDueTree(self, required=set(), requiredForRecursive=set()):
         """Generate the node of the main deck. See deckbrowser introduction to see what a node is
         """
         self.required = required
