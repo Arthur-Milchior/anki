@@ -724,6 +724,13 @@
           </property>
          </widget>
         </item>
+		<item>
+         <widget class="QCheckBox" name="advancedDeckColumns">
+          <property name="text">
+           <string>Show advanced columns in deck browser</string>
+          </property>
+         </widget>
+        </item>
         <item>
          <layout class="QFormLayout" name="formLayout">
           <property name="rowWrapPolicy">
