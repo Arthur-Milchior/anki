@@ -110,7 +110,7 @@ class AddonManager:
 
     def loadAddons(self):
         for dir in self.allAddons():
-            if self.isIncorporated(dir)
+            if self.isIncorporated(dir):
                 continue
             meta = self.addonMeta(dir)
             if meta.get("disabled"):
@@ -618,7 +618,7 @@ class AddonsDialog(QDialog):
         addonList.clear()
         for name, dir in self.addons:
             item = QListWidgetItem(name, addonList)
-            if not mgr.isEnabled(dir) or self.isIncorporated(dir):
+            if not mgr.isEnabled(dir) or mgr.isIncorporated(dir):
                 item.setForeground(Qt.gray)
             if dir in selected:
                 item.setSelected(True)
