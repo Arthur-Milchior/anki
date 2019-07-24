@@ -110,7 +110,7 @@ class Scheduler(BothScheduler):
     # Deck list
     ##########################################################################
 
-    def deckDueList(self):
+    def deckDueList(self, required=set()):
         """
         Similar to nodes, without the recursive counting, with the full deck name
 
@@ -120,6 +120,7 @@ class Scheduler(BothScheduler):
         # we use both return, and deck['tmp'], because some add-on
         # method may expect this return, even if this fork should not
         # use it anymore
+        self.required = required
         self._checkDay()
         self.col.decks.checkIntegrity()
         #lims -- associating to each deck maximum number of new card and of review. Taking custom study into account

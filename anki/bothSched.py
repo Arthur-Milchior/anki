@@ -174,11 +174,9 @@ order by due""" % (self._deckLimit()),
     def deckDueTree(self, required=set(), requiredForRecursive=set()):
         """Generate the node of the main deck. See deckbrowser introduction to see what a node is
         """
-        self.required = required
-        self.requiredForRecursive = requiredForRecursive
-        return self._groupChildren(self.deckDueList())
+        return self._groupChildren(self.deckDueList(required), requiredForRecursive)
 
-    def _groupChildren(self, grps):
+    def _groupChildren(self, grps, requiredForRecursive=set()):
         """[subdeck name without parent parts,
         did, rev, lrn, new (counting subdecks)
         [recursively the same things for the children]]
@@ -190,6 +188,7 @@ order by due""" % (self._deckLimit()),
         grps -- [deckname, did, rev, lrn, new]
 
         """
+        self.requiredForRecursive = requiredForRecursive
         # first, split the group names into components
         for g in grps:
             g[0] = g[0].split("::")

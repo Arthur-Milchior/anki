@@ -92,10 +92,11 @@ class Scheduler(BothScheduler):
     # Deck list
     ##########################################################################
 
-    def deckDueList(self):
+    def deckDueList(self, required=set()):
         "Returns [deckname, did, rev, lrn, new]"
         self._checkDay()
         self.col.decks.checkIntegrity()
+        self.required = required
         decks = self.col.decks.all(sort=True)
         lims = {}
         data = []
@@ -129,7 +130,7 @@ class Scheduler(BothScheduler):
         self.computeValuesWithoutSubdecks()
         return data
 
-    def _groupChildrenMain(self, grps):
+    def _groupChildrenMain(self, grps, requiredForRecursive=set()):
         tree = []
         # group and recurse
         def key(grp):
