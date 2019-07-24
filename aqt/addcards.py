@@ -191,10 +191,13 @@ class AddCards(QDialog):
         note.model()['did'] = self.deckChooser.selectedId()
         ret = note.dupeOrEmpty()
         if ret == 1:
-            tellCardEmpty = tooltip if self.mw.col.conf.get("allowEmptyFirstField", False) else showWarning
-            tellCardEmpty(_(
-                "The first field is empty."),
-                help="AddItems#AddError")
+            if self.mw.col.conf.get("allowEmptyFirstField", False):
+                tooltip(_(
+                "The first field is empty."))
+            else:
+                showWarning(_(
+                    "The first field is empty."),
+                            help="AddItems#AddError")
             return
         if '{{cloze:' in note.model()['tmpls'][0]['qfmt']:
             if not self.mw.col.models._availClozeOrds(
