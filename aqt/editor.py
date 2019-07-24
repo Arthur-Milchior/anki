@@ -511,7 +511,7 @@ class Editor:
         fieldObject = self.model['flds'][fieldNumber]
         self.mw.col.models.save(self.model, recomputeReq=False)
         fieldObject["Line alone"] = not fieldObject.get("Line alone", False)
-        self.loadNote()
+        self.saveNow(self.loadNote)
 
     def onFroze(self, fieldNumber):
         fieldNumber = int(fieldNumber)
