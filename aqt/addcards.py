@@ -198,7 +198,7 @@ class AddCards(QDialog):
                 showWarning(_(
                     "The first field is empty."),
                             help="AddItems#AddError")
-            return
+                return
         if '{{cloze:' in note.model()['tmpls'][0]['qfmt']:
             if not self.mw.col.models._availClozeOrds(
                     note.model(), note.joinedFields(), False):
