@@ -140,7 +140,7 @@ class AddonsDialog(QDialog):
         addonList.clear()
         for name, dir in self.addons:
             item = QListWidgetItem(name, addonList)
-            if not mgr.isEnabled(dir):
+            if not mgr.isEnabled(dir) or mgr.isIncorporated(dir):
                 item.setForeground(Qt.gray)
             if dir in selected:
                 item.setSelected(True)
