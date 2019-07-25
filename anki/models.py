@@ -28,8 +28,9 @@ usn -- Update sequence number: used in same way as other usn vales in
 db,
 vers -- Legacy version number (unused), use an empty array []
 changed -- Whether the Model has been changed and should be written in
-the database."""
-
+the database.
+tmp -- some values which should not be saved in json.(not always here)
+"""
 
 """A field object (flds) is an array composed of:
 font -- "display font",
@@ -39,7 +40,8 @@ ord -- "ordinal of the field - goes from 0 to num fields -1",
 rtl -- "boolean, right-to-left script",
 size -- "font size",
 sticky -- "sticky fields retain the value that was last added
-when adding new notes" """
+tmp -- some values which should not be saved in json.(not always here)
+"""
 
 """req' fields are:
 "the 'ord' value of the template object from the 'tmpls' array you are setting the required fields of",
@@ -58,6 +60,7 @@ did -- "deck override (null by default)",
 name -- "template name",
 ord -- "template number, see flds",
 qfmt -- "question format string"
+tmp -- some values which should not be saved in json.(not always here)
 """
 
 import copy, re, json
@@ -98,7 +101,7 @@ defaultModel = {
  color: black;
  background-color: white;
 }
-"""
+""",
 }
 
 defaultField = {
@@ -125,6 +128,7 @@ defaultTemplate = {
     # we don't define these so that we pick up system font size until set
     #'bfont': "Arial",
     #'bsize': 12,
+
 }
 
 class ModelManager:
@@ -165,6 +169,14 @@ class ModelManager:
         "Flush the registry if any models were changed."
         if self.changed:
             self.ensureNotEmpty()
+            models = copy.deepcopy(self.models)
+            for mid, model in self.models.items():
+                if "tmp" in model: del model["tmp"]#if should be useless. But test fails and I don't see why
+                for template in model['tmpls']:
+                    if "tmp" in template: del template["tmp"]
+                for field in model['flds']:
+                    if "tmp" in field: del field["tmp"]
+
             self.col.db.execute("update col set models = ?",
                                  json.dumps(self.models))
             self.changed = False

@@ -14,6 +14,7 @@ from aqt.qt import *
 from aqt.utils import askUser, getOnlyText, openLink, showWarning, shortcut, \
     openHelp
 from anki.utils import ids2str, fmtTimeSpan
+from anki.consts import *
 from anki.errors import DeckRenameError
 import aqt
 from anki.sound import clearAudioQueue
@@ -169,11 +170,11 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         cnt --  the number of sibling, counting itself
         nameMap -- dictionnary, associating to a deck id its node
         """
-        name, did, due, lrn, new, children = node
+        name, did, rev, lrn, new, children = node
         deck = self.mw.col.decks.get(did)
         if did == 1 and cnt > 1 and not children:
             # if the default deck is empty, hide it
-            if not self.mw.col.db.scalar("select 1 from cards where did = 1"):
+            if not self.mw.col.db.scalar("select 1 from cards where did = 1 limit 1"):
                 return ""
         # parent toggled for collapsing
         for parent in self.mw.col.decks.parents(did, nameMap):
@@ -183,7 +184,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         prefix = "-"
         if self.mw.col.decks.get(did)['collapsed']:
             prefix = "+"
-        due += lrn
+        due = rev + lrn
         def indent():
             return "&nbsp;"*6*depth
         if did == self.mw.col.conf['curDeck']:
@@ -213,8 +214,8 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
                 cnt = "1000+"
             return "<font color='%s'>%s</font>" % (colour, cnt)
         buf += "<td align=right>%s</td><td align=right>%s</td>" % (
-            nonzeroColour(due, "#007700"),
-            nonzeroColour(new, "#000099"))
+            nonzeroColour(due, colDue),
+            nonzeroColour(new, colNew))
         # options
         buf += ("<td align=center class=opts><a onclick='return pycmd(\"opts:%d\");'>"
         "<img src='/_anki/imgs/gears.svg' class=gears></a></td></tr>" % did)
@@ -282,7 +283,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         self.mw.checkpoint(_("Delete Deck"))
         deck = self.mw.col.decks.get(did)
         if not deck['dyn']:
-            dids = [did] + [r[1] for r in self.mw.col.decks.children(did)]
+            dids = self.mw.col.decks.childDids(did, includeSelf=True)
             cnt = self.mw.col.db.scalar(
                 "select count() from cards where did in {0} or "
                 "odid in {0}".format(ids2str(dids)))

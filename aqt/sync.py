@@ -298,7 +298,7 @@ automatically."""),
 Syncing requires the clock on your computer to be set correctly. Please \
 fix the clock and try again."""))
 
-    def _checkFailed(self, event):
+    def _checkFailed(self, event="unknown event"):
         """State to check database before syncing. (Actually, it's totally
 useless if the database is downloaded the current will be deleted.)"""
         showWarning(_("""\

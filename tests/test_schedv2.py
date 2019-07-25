@@ -678,7 +678,9 @@ def test_filt_reviewing_early_normal():
     # grab it and check estimates
     c = d.sched.getCard()
     assert d.sched.answerButtons(c) == 4
-    assert d.sched.nextIvl(c, 1) == 600
+    ivl = d.sched.nextIvl(c, 1)
+    assert d.sched._lapseConf(c)['delays'][0] == 10
+    assert ivl == 600
     assert d.sched.nextIvl(c, 2) == int(75*1.2)*86400
     assert d.sched.nextIvl(c, 3) == int(75*2.5)*86400
     assert d.sched.nextIvl(c, 4) == int(75*2.5*1.15)*86400
@@ -787,7 +789,9 @@ def test_preview():
 
     # the other card should appear again
     c = d.sched.getCard()
-    assert c.id == orig.id
+    cid = c.id
+    origid = orig.id
+    assert cid == origid
 
     # emptying the filtered deck should restore card
     d.sched.emptyDyn(did)

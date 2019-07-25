@@ -60,7 +60,7 @@ fourth derivatives.
 
 ### interval factor
 Each deck option have an interval factor. By default it's 1. You can
-edit it in anki.
+edit it in anki.(In code, it's `ivlFct`)
 
 ### Due date
 The date at which you were supposed to see the review card.

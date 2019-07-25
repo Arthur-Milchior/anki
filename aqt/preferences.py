@@ -183,8 +183,7 @@ class Preferences(QDialog):
     def setupNetwork(self):
         self.form.syncOnProgramOpen.setChecked(
             self.prof['autoSync'])
-        self.form.syncMedia.setChecked(
-            self.prof['syncMedia'])
+        self.setupOneOption('syncMedia')
         if not self.prof['syncKey']:
             self._hideAuth()
         else:
@@ -205,7 +204,7 @@ Not currently enabled; click the sync button in the main window to enable."""))
 
     def updateNetwork(self):
         self.prof['autoSync'] = self.form.syncOnProgramOpen.isChecked()
-        self.prof['syncMedia'] = self.form.syncMedia.isChecked()
+        self.updateOneOption('syncMedia')
         if self.form.fullSync.isChecked():
             self.mw.col.modSchema(check=False)
             self.mw.col.setMod()
@@ -214,29 +213,74 @@ Not currently enabled; click the sync button in the main window to enable."""))
     ######################################################################
 
     def setupBackup(self):
-        self.form.numBackups.setValue(self.prof['numBackups'])
+        self.setupOneOption("numBackups", 50, False)
         self.form.openBackupFolder.linkActivated.connect(self.onOpenBackup)
 
     def onOpenBackup(self):
         openFolder(self.mw.pm.backupFolder())
 
     def updateBackup(self):
-        self.prof['numBackups'] = self.form.numBackups.value()
+        self.updateOneOption("numBackups", 50, False)
 
     # Basic & Advanced Options
     ######################################################################
 
     def setupOptions(self):
-        self.form.pastePNG.setChecked(self.prof.get("pastePNG", False))
+        self.setupOneOption("pastePNG")
 
     def updateOptions(self):
-        self.prof['pastePNG'] = self.form.pastePNG.isChecked()
+        self.updateOneOption("pastePNG")
+
+    def setupOneOption(self, name, default=False, check=True, sync=True):
+        """Ensure that the preference manager default values for widget
+        `name` is set correctly.
+
+        name -- name of the widget; it's also the name used in the configuration
+        default -- The value to take if the value is not in the profile/configuration
+        check -- whether it's a checkbox (otherwise, default value is 0)
+        sync -- whether the value should be synchronized. In this case
+        it is in configuration of collection. Otherwise it is in
+        profile's preference.
+
+        """
+        storeValue = self.mw.col.conf if sync else self.prof
+        widget = getattr(self.form, name)
+        if not check and default is False:
+            default = 0
+        value = storeValue.get(name, default)
+        function = "setChecked" if check else "setValue"
+        getattr(widget, function)(value)
+
+    def updateOneOption(self, name, default=False, check=True, sync=True):
+        """Save the value from the preference manager' widget
+        `name`.
+
+        name -- name of the widget; it's also the name used in the
+        configuration
+        default -- not used here, only for having same parameters as setupOneOption
+        default -- The value to take if the value is not in the profile/configuration
+        check -- whether it's a checkbox (otherwise, default value is 0)
+        sync -- whether the value should be synchronized. In this case
+        it is in configuration of collection. Otherwise it is in
+        profile's preference.
+
+        """
+        storeValue = self.mw.col.conf if sync else self.prof
+        widget = getattr(self.form, name)
+        function = "isChecked" if check else "value"
+        value = getattr(widget, function)()
+        storeValue[name] = value
+
+    extraOptions = [
+    ]
 
     def setupExtra(self):
-        """Set in the GUI the preferences related to add-ons forked."""
-        self.form.noteWithoutCard.setChecked(
-            self.prof.get("noteWithoutCard", True))
+        """Set in the GUI the preferences related to add-ons
+        forked."""
+        for args in self.extraOptions:
+            self.setupOneOption(*args)
 
     def updateExtra(self):
         """Check the preferences related to add-ons forked."""
-        self.prof["noteWithoutCard"] = self.form.noteWithoutCard.isChecked()
+        for args in self.extraOptions:
+            self.updateOneOption(*args)

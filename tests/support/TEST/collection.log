@@ -1,0 +1,138 @@
+[1563319389] collection.py:__init__(): /home/arthur/anki/source/tests/support/Utilisateur 1/collection.anki2, 2.1.14
+[1563319389] sched.py:_updateCutoff(): 0, 1563328800
+[1563327207] collection.py:__init__(): /home/arthur/anki/source/tests/support/Utilisateur 1/collection.anki2, 2.1.14
+[1563327207] sched.py:_updateCutoff(): 0, 1563328800
+[1563327225] collection.py:__init__(): /home/arthur/anki/source/tests/support/TEST/collection.anki2, 2.1.14
+[1563327225] sched.py:_updateCutoff(): 0, 1563328800
+[1563327233] collection.py:__init__(): /home/arthur/anki/source/tests/support/TEST/collection.anki2, 2.1.14
+[1563327233] sched.py:_updateCutoff(): 0, 1563328800
+[1563327241] collection.py:__init__(): /home/arthur/anki/source/tests/support/TEST/collection.anki2, 2.1.14
+[1563327241] sched.py:_updateCutoff(): 0, 1563328800
+[1563327260] collection.py:__init__(): /home/arthur/anki/source/tests/support/TEST/collection.anki2, 2.1.14
+[1563327260] sched.py:_updateCutoff(): 0, 1563328800
+[1563327276] collection.py:__init__(): /home/arthur/anki/source/tests/support/TEST/collection.anki2, 2.1.14
+[1563327276] sched.py:_updateCutoff(): 0, 1563328800
+[1563327312] collection.py:__init__(): /home/arthur/anki/source/tests/support/TEST/collection.anki2, 2.1.14
+[1563327312] sched.py:_updateCutoff(): 0, 1563328800
+[1563328168] collection.py:__init__(): /home/arthur/anki/source/tests/support/TEST/collection.anki2, 2.1.14
+[1563328168] sched.py:_updateCutoff(): 0, 1563328800
+[2019-07-17 04:17:08.452975] collection.py:__init__(): /home/arthur/anki/source/tests/support/TEST/collection.anki2, 2.1.15
+[2019-07-17 04:17:08.458924] sched.py:_updateCutoff(): 1, 1563415200
+[2019-07-17 04:17:08.459486] sched.py:unburyCards(): []
+[2019-07-17 04:18:49.476326] collection.py:__init__(): /home/arthur/anki/source/tests/support/TEST/collection.anki2, 2.1.15
+[2019-07-17 04:18:49.485206] sched.py:_updateCutoff(): 1, 1563415200
+[2019-07-17 04:21:51.948905] collection.py:__init__(): /home/arthur/anki/source/tests/support/TEST/collection.anki2, 2.1.15
+[2019-07-17 04:21:51.950397] sched.py:_updateCutoff(): 1, 1563415200
+[2019-07-17 04:34:05.960370] collection.py:__init__(): /home/arthur/anki/source/tests/support/TEST/collection.anki2, 2.1.15
+[2019-07-17 04:34:05.962382] sched.py:_updateCutoff(): 1, 1563415200
+[2019-07-17 04:34:21.764310] collection.py:__init__(): /home/arthur/anki/source/tests/support/TEST/collection.anki2, 2.1.15
+[2019-07-17 04:34:21.766212] sched.py:_updateCutoff(): 1, 1563415200
+[2019-07-17 04:42:03.134027] collection.py:__init__(): /home/arthur/anki/source/tests/support/TEST/collection.anki2, 2.1.15
+[2019-07-17 04:42:03.135556] sched.py:_updateCutoff(): 1, 1563415200
+[2019-07-17 05:25:38.825241] collection.py:__init__(): /home/arthur/anki/source/tests/support/TEST/collection.anki2, 2.1.15
+[2019-07-17 05:25:38.826946] sched.py:_updateCutoff(): 1, 1563415200
+[2019-07-17 08:50:53.198861] collection.py:__init__(): /home/arthur/anki/source/tests/support/TEST/collection.anki2, 2.1.15
+[2019-07-17 08:50:53.200338] sched.py:_updateCutoff(): 1, 1563415200
+[2019-07-17 08:51:11.127282] collection.py:__init__(): /home/arthur/anki/source/tests/support/TEST/collection.anki2, 2.1.15
+[2019-07-17 08:51:11.129113] sched.py:_updateCutoff(): 1, 1563415200
+[2019-07-17 08:52:00.979910] collection.py:__init__(): /home/arthur/anki/source/tests/support/TEST/collection.anki2, 2.1.15
+[2019-07-17 08:52:00.981587] sched.py:_updateCutoff(): 1, 1563415200
+[2019-07-17 08:54:18.986230] collection.py:__init__(): /home/arthur/anki/source/tests/support/TEST/collection.anki2, 2.1.15
+[2019-07-17 08:54:18.988123] sched.py:_updateCutoff(): 1, 1563415200
+[2019-07-17 09:01:36.545439] collection.py:__init__(): /home/arthur/anki/source/tests/support/TEST/collection.anki2, 2.1.15
+[2019-07-17 09:01:36.547093] sched.py:_updateCutoff(): 1, 1563415200
+[2019-07-17 09:02:30.029788] collection.py:__init__(): /home/arthur/anki/source/tests/support/TEST/collection.anki2, 2.1.15
+[2019-07-17 09:02:30.031390] sched.py:_updateCutoff(): 1, 1563415200
+[2019-07-17 09:06:18.336635] collection.py:__init__(): /home/arthur/anki/source/tests/support/TEST/collection.anki2, 2.1.15
+[2019-07-17 09:06:18.338029] sched.py:_updateCutoff(): 1, 1563415200
+[2019-07-17 09:06:27.052757] collection.py:__init__(): /home/arthur/anki/source/tests/support/TEST/collection.anki2, 2.1.15
+[2019-07-17 09:06:27.054355] sched.py:_updateCutoff(): 1, 1563415200
+[2019-07-17 09:06:37.579972] collection.py:__init__(): /home/arthur/anki/source/tests/support/TEST/collection.anki2, 2.1.15
+[2019-07-17 09:06:37.581679] sched.py:_updateCutoff(): 1, 1563415200
+[2019-07-17 09:14:24.881865] collection.py:__init__(): /home/arthur/anki/source/tests/support/TEST/collection.anki2, 2.1.15
+[2019-07-17 09:14:24.883513] sched.py:_updateCutoff(): 1, 1563415200
+[2019-07-17 09:14:42.440151] collection.py:__init__(): /home/arthur/anki/source/tests/support/TEST/collection.anki2, 2.1.15
+[2019-07-17 09:14:42.441929] sched.py:_updateCutoff(): 1, 1563415200
+[2019-07-17 09:15:21.794936] collection.py:__init__(): /home/arthur/anki/source/tests/support/TEST/collection.anki2, 2.1.15
+[2019-07-17 09:15:21.796469] sched.py:_updateCutoff(): 1, 1563415200
+[2019-07-17 09:18:17.591593] collection.py:__init__(): /home/arthur/anki/source/tests/support/TEST/collection.anki2, 2.1.15
+[2019-07-17 09:18:17.593490] sched.py:_updateCutoff(): 1, 1563415200
+[2019-07-17 09:19:12.917599] collection.py:__init__(): /home/arthur/anki/source/tests/support/TEST/collection.anki2, 2.1.15
+[2019-07-17 09:19:12.924249] sched.py:_updateCutoff(): 1, 1563415200
+[1563352335] collection.py:__init__(): /home/arthur/anki/source/tests/support/TEST/collection.anki2, 2.1.14
+[1563352335] sched.py:_updateCutoff(): 1, 1563415200
+[1563352345] collection.py:__init__(): /home/arthur/anki/source/tests/support/TEST/collection.anki2, 2.1.14
+[1563352345] sched.py:_updateCutoff(): 1, 1563415200
+[1563352349] cards.py:flush(): {'crt': 1563352349, 'data': '', 'did': 1, 'due': 1, 'factor': 0, 'flags': 0, 'id': 1563352349904, 'ivl': 0, 'lapses': 0, 'left': 0, 'mod': 1563352349, 'nid': 1563352346410, 'odid': 0, 'odue': 0, 'ord': 0, 'queue': 0, 'reps': 0, 'type': 0, 'usn': -1}
+[1563352682] sched.py:getCard(): {'data': '', 'did': 1, 'due': 1, 'factor': 0, 'flags': 0, 'id': 1563352349904, 'ivl': 0, 'lapses': 0, 'left': 0, 'mod': 1563352349, 'nid': 1563352346410, 'odid': 0, 'odue': 0, 'ord': 0, 'queue': 0, 'reps': 0, 'type': 0, 'usn': -1}
+[1563352892] sched.py:getCard(): {'data': '', 'did': 1, 'due': 1, 'factor': 0, 'flags': 0, 'id': 1563352349904, 'ivl': 0, 'lapses': 0, 'left': 0, 'mod': 1563352349, 'nid': 1563352346410, 'odid': 0, 'odue': 0, 'ord': 0, 'queue': 0, 'reps': 0, 'type': 0, 'usn': -1}
+[1563352991] sched.py:getCard(): {'data': '', 'did': 1, 'due': 1, 'factor': 0, 'flags': 0, 'id': 1563352349904, 'ivl': 0, 'lapses': 0, 'left': 0, 'mod': 1563352349, 'nid': 1563352346410, 'odid': 0, 'odue': 0, 'ord': 0, 'queue': 0, 'reps': 0, 'type': 0, 'usn': -1}
+[1563352992] sched.py:getCard(): {'data': '', 'did': 1, 'due': 1, 'factor': 0, 'flags': 0, 'id': 1563352349904, 'ivl': 0, 'lapses': 0, 'left': 0, 'mod': 1563352349, 'nid': 1563352346410, 'odid': 0, 'odue': 0, 'ord': 0, 'queue': 0, 'reps': 0, 'type': 0, 'usn': -1}
+[2019-07-17 10:51:20.455629] collection.py:__init__(): /home/arthur/anki/source/tests/support/TEST/collection.anki2, 2.1.15
+[2019-07-17 10:51:20.459833] sched.py:_updateCutoff(): 1, 1563415200
+[2019-07-17 10:51:21.165585] bothSched.py:getCard(): {'data': '', 'did': 1, 'due': 1, 'factor': 0, 'flags': 0, 'id': 1563352349904, 'ivl': 0, 'lapses': 0, 'left': 0, 'mod': 1563352349, 'nid': 1563352346410, 'odid': 0, 'odue': 0, 'ord': 0, 'queue': 0, 'reps': 0, 'type': 0, 'usn': -1}
+[2019-07-17 10:51:22.171820] bothSched.py:getCard(): {'data': '', 'did': 1, 'due': 1, 'factor': 0, 'flags': 0, 'id': 1563352349904, 'ivl': 0, 'lapses': 0, 'left': 0, 'mod': 1563352349, 'nid': 1563352346410, 'odid': 0, 'odue': 0, 'ord': 0, 'queue': 0, 'reps': 0, 'type': 0, 'usn': -1}
+[2019-07-17 10:51:22.173281] sched.py:buryCards(): [1563352349904]
+[2019-07-17 10:51:22.173382] sched.py:emptyDyn(): []
+[2019-07-17 10:51:22.173579] sched.py:emptyDyn(): []
+[2019-07-17 10:51:22.173736] bothSched.py:forgetCards(): []
+[2019-07-17 10:51:23.188547] bothSched.py:getCard(): {'data': '', 'did': 1, 'due': 1, 'factor': 0, 'flags': 0, 'id': 1563352349904, 'ivl': 0, 'lapses': 0, 'left': 0, 'mod': 1563352349, 'nid': 1563352346410, 'odid': 0, 'odue': 0, 'ord': 0, 'queue': 0, 'reps': 0, 'type': 0, 'usn': -1}
+[2019-07-17 10:51:23.197778] bothSched.py:getCard(): {'data': '', 'did': 1, 'due': 1, 'factor': 0, 'flags': 0, 'id': 1563352349904, 'ivl': 0, 'lapses': 0, 'left': 0, 'mod': 1563352349, 'nid': 1563352346410, 'odid': 0, 'odue': 0, 'ord': 0, 'queue': 0, 'reps': 0, 'type': 0, 'usn': -1}
+[2019-07-17 10:51:23.204547] sched.py:buryCards(): [1563352349904]
+[2019-07-17 10:51:23.204826] sched.py:emptyDyn(): []
+[2019-07-17 10:51:23.205439] sched.py:emptyDyn(): []
+[2019-07-17 10:51:23.205728] bothSched.py:forgetCards(): []
+[2019-07-17 10:51:24.237008] bothSched.py:getCard(): {'data': '', 'did': 1, 'due': 1, 'factor': 0, 'flags': 0, 'id': 1563352349904, 'ivl': 0, 'lapses': 0, 'left': 0, 'mod': 1563352349, 'nid': 1563352346410, 'odid': 0, 'odue': 0, 'ord': 0, 'queue': 0, 'reps': 0, 'type': 0, 'usn': -1}
+[2019-07-17 10:51:24.241470] bothSched.py:getCard(): {'data': '', 'did': 1, 'due': 1, 'factor': 0, 'flags': 0, 'id': 1563352349904, 'ivl': 0, 'lapses': 0, 'left': 0, 'mod': 1563352349, 'nid': 1563352346410, 'odid': 0, 'odue': 0, 'ord': 0, 'queue': 0, 'reps': 0, 'type': 0, 'usn': -1}
+[2019-07-17 10:51:24.244965] sched.py:suspendCards(): [1563352349904]
+[2019-07-17 10:51:24.245085] sched.py:emptyDyn(): []
+[2019-07-17 10:51:24.245305] sched.py:emptyDyn(): []
+[2019-07-17 10:51:24.245412] bothSched.py:forgetCards(): []
+[2019-07-17 10:51:25.263187] bothSched.py:getCard(): {'data': '', 'did': 1, 'due': 1, 'factor': 0, 'flags': 0, 'id': 1563352349904, 'ivl': 0, 'lapses': 0, 'left': 0, 'mod': 1563352349, 'nid': 1563352346410, 'odid': 0, 'odue': 0, 'ord': 0, 'queue': 0, 'reps': 0, 'type': 0, 'usn': -1}
+[2019-07-17 10:51:25.267602] bothSched.py:getCard(): {'data': '', 'did': 1, 'due': 1, 'factor': 0, 'flags': 0, 'id': 1563352349904, 'ivl': 0, 'lapses': 0, 'left': 0, 'mod': 1563352349, 'nid': 1563352346410, 'odid': 0, 'odue': 0, 'ord': 0, 'queue': 0, 'reps': 0, 'type': 0, 'usn': -1}
+[2019-07-17 10:51:25.279514] sched.py:suspendCards(): [1563352349904]
+[2019-07-17 10:51:25.279770] sched.py:emptyDyn(): []
+[2019-07-17 10:51:25.280159] sched.py:emptyDyn(): []
+[2019-07-17 10:51:25.280383] bothSched.py:forgetCards(): []
+[2019-07-17 10:51:26.302369] bothSched.py:getCard(): {'data': '', 'did': 1, 'due': 1, 'factor': 0, 'flags': 0, 'id': 1563352349904, 'ivl': 0, 'lapses': 0, 'left': 0, 'mod': 1563352349, 'nid': 1563352346410, 'odid': 0, 'odue': 0, 'ord': 0, 'queue': 0, 'reps': 0, 'type': 0, 'usn': -1}
+[2019-07-17 10:51:26.306909] bothSched.py:getCard(): {'data': '', 'did': 1, 'due': 1, 'factor': 0, 'flags': 0, 'id': 1563352349904, 'ivl': 0, 'lapses': 0, 'left': 0, 'mod': 1563352349, 'nid': 1563352346410, 'odid': 0, 'odue': 0, 'ord': 0, 'queue': 0, 'reps': 0, 'type': 0, 'usn': -1}
+[2019-07-17 10:51:27.357480] bothSched.py:getCard(): {'data': '', 'did': 1, 'due': 1, 'factor': 0, 'flags': 0, 'id': 1563352349904, 'ivl': 0, 'lapses': 0, 'left': 0, 'mod': 1563352349, 'nid': 1563352346410, 'odid': 0, 'odue': 0, 'ord': 0, 'queue': 0, 'reps': 0, 'type': 0, 'usn': -1}
+[2019-07-17 10:51:27.360831] bothSched.py:getCard(): {'data': '', 'did': 1, 'due': 1, 'factor': 0, 'flags': 0, 'id': 1563352349904, 'ivl': 0, 'lapses': 0, 'left': 0, 'mod': 1563352349, 'nid': 1563352346410, 'odid': 0, 'odue': 0, 'ord': 0, 'queue': 0, 'reps': 0, 'type': 0, 'usn': -1}
+[2019-07-17 10:51:27.362115] cards.py:flush(): {'data': '', 'did': 1, 'due': 1, 'factor': 0, 'flags': 1, 'id': 1563352349904, 'ivl': 0, 'lapses': 0, 'left': 0, 'mod': 1563353487, 'nid': 1563352346410, 'odid': 0, 'odue': 0, 'ord': 0, 'queue': 0, 'reps': 0, 'type': 0, 'usn': -1}
+[2019-07-17 10:51:28.370522] bothSched.py:getCard(): {'data': '', 'did': 1, 'due': 1, 'factor': 0, 'flags': 1, 'id': 1563352349904, 'ivl': 0, 'lapses': 0, 'left': 0, 'mod': 1563353487, 'nid': 1563352346410, 'odid': 0, 'odue': 0, 'ord': 0, 'queue': 0, 'reps': 0, 'type': 0, 'usn': -1}
+[2019-07-17 10:51:31.500022] bothSched.py:getCard(): {'data': '', 'did': 1, 'due': 1, 'factor': 0, 'flags': 1, 'id': 1563352349904, 'ivl': 0, 'lapses': 0, 'left': 0, 'mod': 1563353487, 'nid': 1563352346410, 'odid': 0, 'odue': 0, 'ord': 0, 'queue': 0, 'reps': 0, 'type': 0, 'usn': -1}
+[2019-07-17 10:53:09.463926] collection.py:__init__(): /home/arthur/anki/source/tests/support/TEST/collection.anki2, 2.1.15
+[2019-07-17 10:53:09.467595] sched.py:_updateCutoff(): 1, 1563415200
+[2019-07-17 10:53:09.549700] bothSched.py:getCard(): {'data': '', 'did': 1, 'due': 1, 'factor': 0, 'flags': 1, 'id': 1563352349904, 'ivl': 0, 'lapses': 0, 'left': 0, 'mod': 1563353487, 'nid': 1563352346410, 'odid': 0, 'odue': 0, 'ord': 0, 'queue': 0, 'reps': 0, 'type': 0, 'usn': -1}
+[2019-07-17 10:53:10.556741] bothSched.py:getCard(): {'data': '', 'did': 1, 'due': 1, 'factor': 0, 'flags': 1, 'id': 1563352349904, 'ivl': 0, 'lapses': 0, 'left': 0, 'mod': 1563353487, 'nid': 1563352346410, 'odid': 0, 'odue': 0, 'ord': 0, 'queue': 0, 'reps': 0, 'type': 0, 'usn': -1}
+[2019-07-17 10:53:10.558015] sched.py:buryCards(): [1563352349904]
+[2019-07-17 10:53:10.558107] sched.py:emptyDyn(): []
+[2019-07-17 10:53:10.558308] sched.py:emptyDyn(): []
+[2019-07-17 10:53:10.558445] bothSched.py:forgetCards(): []
+[2019-07-17 10:53:11.571986] bothSched.py:getCard(): {'data': '', 'did': 1, 'due': 1, 'factor': 0, 'flags': 1, 'id': 1563352349904, 'ivl': 0, 'lapses': 0, 'left': 0, 'mod': 1563353487, 'nid': 1563352346410, 'odid': 0, 'odue': 0, 'ord': 0, 'queue': 0, 'reps': 0, 'type': 0, 'usn': -1}
+[2019-07-17 10:53:11.576886] bothSched.py:getCard(): {'data': '', 'did': 1, 'due': 1, 'factor': 0, 'flags': 1, 'id': 1563352349904, 'ivl': 0, 'lapses': 0, 'left': 0, 'mod': 1563353487, 'nid': 1563352346410, 'odid': 0, 'odue': 0, 'ord': 0, 'queue': 0, 'reps': 0, 'type': 0, 'usn': -1}
+[2019-07-17 10:53:11.582533] sched.py:buryCards(): [1563352349904]
+[2019-07-17 10:53:11.582678] sched.py:emptyDyn(): []
+[2019-07-17 10:53:11.582903] sched.py:emptyDyn(): []
+[2019-07-17 10:53:11.583025] bothSched.py:forgetCards(): []
+[2019-07-17 10:53:12.599259] bothSched.py:getCard(): {'data': '', 'did': 1, 'due': 1, 'factor': 0, 'flags': 1, 'id': 1563352349904, 'ivl': 0, 'lapses': 0, 'left': 0, 'mod': 1563353487, 'nid': 1563352346410, 'odid': 0, 'odue': 0, 'ord': 0, 'queue': 0, 'reps': 0, 'type': 0, 'usn': -1}
+[2019-07-17 10:53:12.608303] bothSched.py:getCard(): {'data': '', 'did': 1, 'due': 1, 'factor': 0, 'flags': 1, 'id': 1563352349904, 'ivl': 0, 'lapses': 0, 'left': 0, 'mod': 1563353487, 'nid': 1563352346410, 'odid': 0, 'odue': 0, 'ord': 0, 'queue': 0, 'reps': 0, 'type': 0, 'usn': -1}
+[2019-07-17 10:53:12.615574] sched.py:suspendCards(): [1563352349904]
+[2019-07-17 10:53:12.615957] sched.py:emptyDyn(): []
+[2019-07-17 10:53:12.616518] sched.py:emptyDyn(): []
+[2019-07-17 10:53:12.616856] bothSched.py:forgetCards(): []
+[2019-07-17 10:53:13.644458] bothSched.py:getCard(): {'data': '', 'did': 1, 'due': 1, 'factor': 0, 'flags': 1, 'id': 1563352349904, 'ivl': 0, 'lapses': 0, 'left': 0, 'mod': 1563353487, 'nid': 1563352346410, 'odid': 0, 'odue': 0, 'ord': 0, 'queue': 0, 'reps': 0, 'type': 0, 'usn': -1}
+[2019-07-17 10:53:13.649334] bothSched.py:getCard(): {'data': '', 'did': 1, 'due': 1, 'factor': 0, 'flags': 1, 'id': 1563352349904, 'ivl': 0, 'lapses': 0, 'left': 0, 'mod': 1563353487, 'nid': 1563352346410, 'odid': 0, 'odue': 0, 'ord': 0, 'queue': 0, 'reps': 0, 'type': 0, 'usn': -1}
+[2019-07-17 10:53:13.652921] sched.py:suspendCards(): [1563352349904]
+[2019-07-17 10:53:13.653105] sched.py:emptyDyn(): []
+[2019-07-17 10:53:13.653466] sched.py:emptyDyn(): []
+[2019-07-17 10:53:13.653650] bothSched.py:forgetCards(): []
+[2019-07-17 10:53:14.677667] bothSched.py:getCard(): {'data': '', 'did': 1, 'due': 1, 'factor': 0, 'flags': 1, 'id': 1563352349904, 'ivl': 0, 'lapses': 0, 'left': 0, 'mod': 1563353487, 'nid': 1563352346410, 'odid': 0, 'odue': 0, 'ord': 0, 'queue': 0, 'reps': 0, 'type': 0, 'usn': -1}
+[2019-07-17 10:53:14.682490] bothSched.py:getCard(): {'data': '', 'did': 1, 'due': 1, 'factor': 0, 'flags': 1, 'id': 1563352349904, 'ivl': 0, 'lapses': 0, 'left': 0, 'mod': 1563353487, 'nid': 1563352346410, 'odid': 0, 'odue': 0, 'ord': 0, 'queue': 0, 'reps': 0, 'type': 0, 'usn': -1}
+[2019-07-17 10:53:15.710408] bothSched.py:getCard(): {'data': '', 'did': 1, 'due': 1, 'factor': 0, 'flags': 1, 'id': 1563352349904, 'ivl': 0, 'lapses': 0, 'left': 0, 'mod': 1563353487, 'nid': 1563352346410, 'odid': 0, 'odue': 0, 'ord': 0, 'queue': 0, 'reps': 0, 'type': 0, 'usn': -1}
+[2019-07-17 10:53:15.718396] bothSched.py:getCard(): {'data': '', 'did': 1, 'due': 1, 'factor': 0, 'flags': 1, 'id': 1563352349904, 'ivl': 0, 'lapses': 0, 'left': 0, 'mod': 1563353487, 'nid': 1563352346410, 'odid': 0, 'odue': 0, 'ord': 0, 'queue': 0, 'reps': 0, 'type': 0, 'usn': -1}
+[2019-07-17 10:53:15.720546] cards.py:flush(): {'data': '', 'did': 1, 'due': 1, 'factor': 0, 'flags': 0, 'id': 1563352349904, 'ivl': 0, 'lapses': 0, 'left': 0, 'mod': 1563353595, 'nid': 1563352346410, 'odid': 0, 'odue': 0, 'ord': 0, 'queue': 0, 'reps': 0, 'type': 0, 'usn': -1}
+[2019-07-17 10:53:16.730054] bothSched.py:getCard(): {'data': '', 'did': 1, 'due': 1, 'factor': 0, 'flags': 0, 'id': 1563352349904, 'ivl': 0, 'lapses': 0, 'left': 0, 'mod': 1563353595, 'nid': 1563352346410, 'odid': 0, 'odue': 0, 'ord': 0, 'queue': 0, 'reps': 0, 'type': 0, 'usn': -1}
+[2019-07-17 10:53:18.567383] bothSched.py:getCard(): {'data': '', 'did': 1, 'due': 1, 'factor': 0, 'flags': 0, 'id': 1563352349904, 'ivl': 0, 'lapses': 0, 'left': 0, 'mod': 1563353595, 'nid': 1563352346410, 'odid': 0, 'odue': 0, 'ord': 0, 'queue': 0, 'reps': 0, 'type': 0, 'usn': -1}
+[1563353603] collection.py:__init__(): /home/arthur/anki/source/tests/support/TEST/collection.anki2, 2.1.14
+[1563353603] sched.py:_updateCutoff(): 1, 1563415200

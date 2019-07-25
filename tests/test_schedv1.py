@@ -7,6 +7,7 @@ from anki.consts import STARTING_FACTOR
 from tests.shared import  getEmptyCol
 from anki.utils import  intTime
 from anki.hooks import addHook
+from anki.consts import *
 
 
 def test_clock():
@@ -574,7 +575,12 @@ def test_cram():
     assert d.sched.counts() == (1,0,0)
     # grab it and check estimates
     c = d.sched.getCard()
-    assert d.sched.answerButtons(c) == 2
+    assert c.type == CARD_DUE
+    lrnConf = d.sched._lrnConf(c)
+    assert d.sched.col.decks.confForDid(c.odid)['lapse']['delays'] == [10]
+    assert lrnConf['delays'] == [10]
+    ab = d.sched.answerButtons(c)
+    assert ab == 2
     assert d.sched.nextIvl(c, 1) == 600
     assert d.sched.nextIvl(c, 2) == 138*60*60*24
     cram = d.decks.get(did)

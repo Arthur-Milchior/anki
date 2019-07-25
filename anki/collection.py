@@ -947,7 +947,7 @@ where c.nid == f.id
         * each note has a model
         * each note has a card
         * each card's ord is valid according to the note model.
-ooo
+
         """
         checks = [
             ("select id, nid from cards where nid not in (select id from notes)",
