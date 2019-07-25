@@ -1,1428 +1,1428 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
-  <class>Preferences</class>
-  <widget class="QDialog" name="Preferences">
-	<property name="geometry">
-	  <rect>
-		<x>0</x>
-		<y>0</y>
-		<width>436</width>
-		<height>552</height>
-	  </rect>
-	</property>
-	<property name="windowTitle">
-	  <string>Preferences</string>
-	</property>
-	<layout class="QVBoxLayout" name="verticalLayout_2">
-	  <item>
-		<widget class="QTabWidget" name="tabs">
-		  <property name="focusPolicy">
-			<enum>Qt::StrongFocus</enum>
-		  </property>
-		  <property name="currentIndex">
-			<number>0</number>
-		  </property>
-		  <widget class="QWidget" name="tab_1">
-			<attribute name="title">
-			  <string>Basic</string>
-			</attribute>
-			<layout class="QVBoxLayout" name="verticalLayout">
-			  <property name="spacing">
-				<number>12</number>
-			  </property>
-			  <property name="leftMargin">
-				<number>12</number>
-			  </property>
-			  <property name="topMargin">
-				<number>12</number>
-			  </property>
-			  <property name="rightMargin">
-				<number>12</number>
-			  </property>
-			  <property name="bottomMargin">
-				<number>12</number>
-			  </property>
-			  <item>
-				<layout class="QHBoxLayout" name="horizontalLayout_2">
-				  <item>
-					<widget class="QLabel" name="label">
-					  <property name="text">
-						<string>Interface language:</string>
-					  </property>
-					</widget>
-				  </item>
-				  <item>
-					<widget class="QComboBox" name="lang">
-					  <property name="sizePolicy">
-						<sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-						  <horstretch>0</horstretch>
-						  <verstretch>0</verstretch>
-						</sizepolicy>
-					  </property>
-					  <property name="sizeAdjustPolicy">
-						<enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
-					  </property>
-					</widget>
-				  </item>
-				</layout>
-			  </item>
-			  <item>
-				<widget class="QCheckBox" name="hwAccel">
-				  <property name="text">
-					<string>Hardware acceleration (faster, may cause display issues)</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<widget class="QCheckBox" name="showEstimates">
-				  <property name="text">
-					<string>Show next review time above answer buttons</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<widget class="QCheckBox" name="showProgress">
-				  <property name="text">
-					<string>Show remaining card count during review</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<widget class="QCheckBox" name="pastePNG">
-				  <property name="text">
-					<string>Paste clipboard images as PNG</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<widget class="QCheckBox" name="nightMode">
-				  <property name="text">
-					<string>Show cards as white on black (night mode)</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<widget class="QCheckBox" name="dayLearnFirst">
-				  <property name="text">
-					<string>Show learning cards with larger steps before reviews</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<widget class="QCheckBox" name="newSched">
-				  <property name="text">
-					<string>Experimental V2 scheduler</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<widget class="QComboBox" name="useCurrent">
-				  <item>
-					<property name="text">
-					  <string>When adding, default to current deck</string>
-					</property>
-				  </item>
-				  <item>
-					<property name="text">
-					  <string>Change deck depending on note type</string>
-					</property>
-				  </item>
-				</widget>
-			  </item>
-			  <item>
-				<widget class="QComboBox" name="newSpread"/>
-			  </item>
-			  <item>
-				<layout class="QGridLayout" name="gridLayout_4">
-				  <property name="spacing">
-					<number>12</number>
-				  </property>
-				  <item row="0" column="0">
-					<widget class="QLabel" name="label_23">
-					  <property name="text">
-						<string>Next day starts at</string>
-					  </property>
-					</widget>
-				  </item>
-				  <item row="0" column="1">
-					<widget class="QSpinBox" name="dayOffset">
-					  <property name="maximumSize">
-						<size>
-						  <width>60</width>
-						  <height>16777215</height>
-						</size>
-					  </property>
-					  <property name="maximum">
-						<number>23</number>
-					  </property>
-					</widget>
-				  </item>
-				  <item row="1" column="0">
-					<widget class="QLabel" name="label_24">
-					  <property name="text">
-						<string>Learn ahead limit</string>
-					  </property>
-					</widget>
-				  </item>
-				  <item row="1" column="1">
-					<widget class="QSpinBox" name="lrnCutoff">
-					  <property name="maximumSize">
-						<size>
-						  <width>60</width>
-						  <height>16777215</height>
-						</size>
-					  </property>
-					  <property name="maximum">
-						<number>999</number>
-					  </property>
-					</widget>
-				  </item>
-				  <item row="1" column="2">
-					<widget class="QLabel" name="label_29">
-					  <property name="text">
-						<string>mins</string>
-					  </property>
-					</widget>
-				  </item>
-				  <item row="2" column="0">
-					<widget class="QLabel" name="label_30">
-					  <property name="text">
-						<string>Timebox time limit</string>
-					  </property>
-					</widget>
-				  </item>
-				  <item row="2" column="1">
-					<widget class="QSpinBox" name="timeLimit">
-					  <property name="maximum">
-						<number>9999</number>
-					  </property>
-					</widget>
-				  </item>
-				  <item row="2" column="2">
-					<widget class="QLabel" name="label_39">
-					  <property name="text">
-						<string>mins</string>
-					  </property>
-					</widget>
-				  </item>
-				  <item row="0" column="2">
-					<widget class="QLabel" name="label_40">
-					  <property name="text">
-						<string>hours past midnight</string>
-					  </property>
-					</widget>
-				  </item>
-				</layout>
-			  </item>
-			  <item>
-				<spacer name="verticalSpacer_3">
-				  <property name="orientation">
-					<enum>Qt::Vertical</enum>
-				  </property>
-				  <property name="sizeType">
-					<enum>QSizePolicy::Expanding</enum>
-				  </property>
-				  <property name="sizeHint" stdset="0">
-					<size>
-					  <width>20</width>
-					  <height>20</height>
-					</size>
-				  </property>
-				</spacer>
-			  </item>
-			</layout>
-		  </widget>
-		  <widget class="QWidget" name="tab_2">
-			<attribute name="title">
-			  <string>Network</string>
-			</attribute>
-			<layout class="QVBoxLayout" name="verticalLayout_4">
-			  <property name="spacing">
-				<number>12</number>
-			  </property>
-			  <property name="leftMargin">
-				<number>12</number>
-			  </property>
-			  <property name="topMargin">
-				<number>12</number>
-			  </property>
-			  <property name="rightMargin">
-				<number>12</number>
-			  </property>
-			  <property name="bottomMargin">
-				<number>12</number>
-			  </property>
-			  <item>
-				<layout class="QHBoxLayout">
-				  <property name="spacing">
-					<number>10</number>
-				  </property>
-				  <item>
-					<layout class="QVBoxLayout">
-					  <item>
-						<widget class="QCheckBox" name="changeModelWithoutFullSync">
-						  <property name="text">
-							<string>Change note type without requiring a full sync</string>
-						  </property>
-						</widget>
-					  </item>
-					  <item>
-						<widget class="QLabel" name="syncLabel">
-						  <property name="text">
-							<string>&lt;b&gt;Synchronisation&lt;/b&gt;</string>
-						  </property>
-						  <property name="wordWrap">
-							<bool>true</bool>
-						  </property>
-						  <property name="openExternalLinks">
-							<bool>true</bool>
-						  </property>
-						</widget>
-					  </item>
-					  <item>
-						<widget class="QCheckBox" name="syncMedia">
-						  <property name="text">
-							<string>Synchronize audio and images too</string>
-						  </property>
-						</widget>
-					  </item>
-					  <item>
-						<widget class="QCheckBox" name="syncOnProgramOpen">
-						  <property name="text">
-							<string>Automatically sync on profile open/close</string>
-						  </property>
-						</widget>
-					  </item>
-					  <item>
-						<widget class="QCheckBox" name="fullSync">
-						  <property name="text">
-							<string>On next sync, force changes in one direction</string>
-						  </property>
-						</widget>
-					  </item>
-					  <item>
-						<layout class="QHBoxLayout" name="horizontalLayout">
-						  <item>
-							<widget class="QPushButton" name="syncDeauth">
-							  <property name="text">
-								<string>Deauthorize</string>
-							  </property>
-							  <property name="autoDefault">
-								<bool>false</bool>
-							  </property>
-							</widget>
-						  </item>
-						  <item>
-							<widget class="QLabel" name="syncUser">
-							  <property name="text">
-								<string/>
-							  </property>
-							</widget>
-						  </item>
-						  <item>
-							<spacer name="horizontalSpacer_2">
-							  <property name="orientation">
-								<enum>Qt::Horizontal</enum>
-							  </property>
-							  <property name="sizeHint" stdset="0">
-								<size>
-								  <width>40</width>
-								  <height>1</height>
-								</size>
-							  </property>
-							</spacer>
-						  </item>
-						</layout>
-					  </item>
-					</layout>
-				  </item>
-				</layout>
-			  </item>
-			  <item>
-				<spacer name="verticalSpacer_2">
-				  <property name="orientation">
-					<enum>Qt::Vertical</enum>
-				  </property>
-				  <property name="sizeHint" stdset="0">
-					<size>
-					  <width>20</width>
-					  <height>40</height>
-					</size>
-				  </property>
-				</spacer>
-			  </item>
-			</layout>
-		  </widget>
-		  <widget class="QWidget" name="tab">
-			<attribute name="title">
-			  <string>Backups</string>
-			</attribute>
-			<layout class="QVBoxLayout" name="verticalLayout_3">
-			  <property name="spacing">
-				<number>12</number>
-			  </property>
-			  <property name="leftMargin">
-				<number>12</number>
-			  </property>
-			  <property name="topMargin">
-				<number>12</number>
-			  </property>
-			  <property name="rightMargin">
-				<number>12</number>
-			  </property>
-			  <property name="bottomMargin">
-				<number>12</number>
-			  </property>
-			  <item>
-				<widget class="QLabel" name="label_9">
-				  <property name="text">
-					<string>&lt;b&gt;Backups&lt;/b&gt;&lt;br&gt;Anki will create a backup of your collection each time it is closed or synchronized.</string>
-				  </property>
-				  <property name="wordWrap">
-					<bool>true</bool>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<layout class="QGridLayout" name="gridLayout_2">
-				  <item row="0" column="0">
-					<widget class="QLabel" name="label_10">
-					  <property name="text">
-						<string>Keep</string>
-					  </property>
-					</widget>
-				  </item>
-				  <item row="0" column="1">
-					<widget class="QSpinBox" name="numBackups">
-					  <property name="minimumSize">
-						<size>
-						  <width>60</width>
-						  <height>0</height>
-						</size>
-					  </property>
-					  <property name="maximumSize">
-						<size>
-						  <width>60</width>
-						  <height>16777215</height>
-						</size>
-					  </property>
-					  <property name="maximum">
-						<number>99999</number>
-					  </property>
-					</widget>
-				  </item>
-				  <item row="0" column="2">
-					<widget class="QLabel" name="label_11">
-					  <property name="text">
-						<string>backups</string>
-					  </property>
-					</widget>
-				  </item>
-				  <item row="0" column="3">
-					<spacer name="horizontalSpacer">
-					  <property name="orientation">
-						<enum>Qt::Horizontal</enum>
-					  </property>
-					  <property name="sizeHint" stdset="0">
-						<size>
-						  <width>40</width>
-						  <height>20</height>
-						</size>
-					  </property>
-					</spacer>
-				  </item>
-				</layout>
-			  </item>
-			  <item>
-				<widget class="QCheckBox" name="longTermBackUp">
-				  <property name="text">
-					<string>Also keep some long term back-ups</string>
-				  </property>
-				  <property name="checked">
-					<bool>true</bool>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<widget class="QLabel" name="openBackupFolder">
-				  <property name="text">
-					<string>&lt;a href=&quot;backups&quot;&gt;Open backup folder&lt;/a&gt;</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<widget class="QLabel" name="label_4">
-				  <property name="text">
-					<string>Note: Media is not backed up. Please create a periodic backup of your Anki folder to be safe.</string>
-				  </property>
-				  <property name="wordWrap">
-					<bool>true</bool>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<widget class="Line" name="line">
-				  <property name="orientation">
-					<enum>Qt::Horizontal</enum>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<widget class="QLabel" name="label_5">
-				  <property name="text">
-					<string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;I understand that I should take care of syncing myself, or I might create bugs&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<spacer name="verticalSpacer_4">
-				  <property name="orientation">
-					<enum>Qt::Vertical</enum>
-				  </property>
-				  <property name="sizeHint" stdset="0">
-					<size>
-					  <width>20</width>
-					  <height>59</height>
-					</size>
-				  </property>
-				</spacer>
-			  </item>
-			  <item>
-				<widget class="QLabel" name="label_21">
-				  <property name="text">
-					<string>Some settings will take effect after you restart Anki.</string>
-				  </property>
-				  <property name="alignment">
-					<set>Qt::AlignCenter</set>
-				  </property>
-				</widget>
-			  </item>
-			</layout>
-		  </widget>
-		  <widget class="QWidget" name="tab_3">
-			<attribute name="title">
-			  <string>Processing</string>
-			</attribute>
-			<layout class="QVBoxLayout" name="verticalLayout">
-			  <property name="spacing">
-				<number>12</number>
-			  </property>
-			  <property name="leftMargin">
-				<number>12</number>
-			  </property>
-			  <property name="topMargin">
-				<number>12</number>
-			  </property>
-			  <property name="rightMargin">
-				<number>12</number>
-			  </property>
-			  <property name="bottomMargin">
-				<number>12</number>
-			  </property>
-			  <item>
-				<widget class="QLabel" name="label_12">
-				  <property name="text">
-					<string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Configure how and when anki generate cards&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-				  </property>
-				  <property name="wordWrap">
-					<bool>true</bool>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<widget class="QCheckBox" name="allowEmptyFirstField">
-				  <property name="toolTip">
-					<string>You can add and import cards, even if their first field is not filled.</string>
-				  </property>
-				  <property name="text">
-					<string>Allow empty first field</string>
-				  </property>
-				  <property name="checked">
-					<bool>true</bool>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<widget class="Line" name="line">
-				  <property name="orientation">
-					<enum>Qt::Horizontal</enum>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<widget class="QCheckBox" name="compileLaTeX">
-				  <property name="text">
-					<string>Compile LaTeX as soon as it is written</string>
-				  </property>
-				  <property name="checked">
-					<bool>true</bool>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<widget class="QLabel" name="label_2">
-				  <property name="text">
-					<string>Adding tag LaTeXError to cards with faulty notes. </string>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<widget class="QCheckBox" name="preserveName">
-				  <property name="text">
-					<string>When changing a note's type, preserve name of fields/cards</string>
-				  </property>
-				  <property name="checked">
-					<bool>true</bool>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<widget class="Line" name="line">
-				  <property name="orientation">
-					<enum>Qt::Horizontal</enum>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<widget class="QCheckBox" name="keepEmptyNote">
-				  <property name="toolTip">
-					<string>While the note is not deleted, this option alone does not allow you to recover the note, since it has no card.</string>
-				  </property>
-				  <property name="text">
-					<string>When a note has no more card, warns instead of deleting it.</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<widget class="QCheckBox" name="limitAllCards">
-				  <property name="text">
-					<string>Limit the total number of cards seen by day in a deck</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<widget class="Line" name="line">
-				  <property name="orientation">
-					<enum>Qt::Horizontal</enum>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<widget class="QCheckBox" name="complexTemplates">
-				  <property name="toolTip">
-					<string>This option allow you to create complex card type. Cards risks not to be seen on smartphone, and to be erased by «Empty cards».</string>
-				  </property>
-				  <property name="text">
-					<string>Cards are generated if and only if they show a field.</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<widget class="QLabel" name="label_12">
-				  <property name="text">
-					<string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Configure how and when anki generate cards&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-				  </property>
-				  <property name="wordWrap">
-					<bool>true</bool>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<widget class="QCheckBox" name="noteWithoutCard">
-				  <property name="text">
-					<string>Note with no card: create card 1 instead of deleting the note</string>
-				  </property>
-				  <property name="checked">
-					<bool>true</bool>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<spacer name="verticalSpacer">
-				  <property name="orientation">
-					<enum>Qt::Vertical</enum>
-				  </property>
-				  <property name="sizeHint" stdset="0">
-					<size>
-					  <width>20</width>
-					  <height>40</height>
-					</size>
-				  </property>
-				</spacer>
-			  </item>
-			</layout>
-		  </widget>
-		  <widget class="QWidget" name="tab_5">
-			<attribute name="title">
-			  <string>Interface</string>
-			</attribute>
-			<layout class="QVBoxLayout" name="verticalLayout_7">
-			  <property name="spacing">
-				<number>12</number>
-			  </property>
-			  <property name="leftMargin">
-				<number>12</number>
-			  </property>
-			  <property name="topMargin">
-				<number>12</number>
-			  </property>
-			  <property name="rightMargin">
-				<number>12</number>
-			  </property>
-			  <property name="bottomMargin">
-				<number>12</number>
-			  </property>
-			  <item>
-				<widget class="QLabel" name="label_3">
-				  <property name="text">
-					<string>Configure the graphical user interface.</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<widget class="QCheckBox" name="keepSeenCard">
-				  <property name="toolTip">
-					<string>When you do &quot;Check &gt; Cards...&quot;, you won't delete cards you already reviewed once. This will allow you to correct their template if necessary without loosing your review history.</string>
-				  </property>
-				  <property name="text">
-					<string>Delete empty cards only if they are new</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<widget class="QCheckBox" name="exportSiblings">
-				  <property name="text">
-					<string>Export siblings of exported cards</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<widget class="QCheckBox" name="browserOnMissingMedia">
-				  <property name="text">
-					<string>In case of missing media, show  the notes in the browser.</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<spacer name="verticalSpacer_6">
-				  <property name="orientation">
-					<enum>Qt::Vertical</enum>
-				  </property>
-				  <property name="sizeHint" stdset="0">
-					<size>
-					  <width>20</width>
-					  <height>40</height>
-					</size>
-				  </property>
-				</spacer>
-			  </item>
-			  <item>
-				<widget class="QLabel" name="label_3">
-				  <property name="text">
-					<string>Configure the graphical user interface.</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<widget class="Line" name="line_2">
-				  <property name="orientation">
-					<enum>Qt::Horizontal</enum>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<widget class="QLabel" name="label_5">
-				  <property name="text">
-					<string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Which window can be opened multiple time&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<layout class="QHBoxLayout" name="horizontalLayout_3">
-				  <item>
-					<widget class="QCheckBox" name="AddCardsMultipleTime">
-					  <property name="text">
-						<string>Add Cards</string>
-					  </property>
-					</widget>
-				  </item>
-				  <item>
-					<widget class="QCheckBox" name="BrowserMultipleTime">
-					  <property name="text">
-						<string>Browser</string>
-					  </property>
-					</widget>
-				  </item>
-				  <item>
-					<widget class="QCheckBox" name="EditCurrentMultipleTime">
-					  <property name="text">
-						<string>Edit Cards</string>
-					  </property>
-					</widget>
-				  </item>
-				  <item>
-					<widget class="QCheckBox" name="OtherWindowsMultipleTime">
-					  <property name="text">
-						<string>Other</string>
-					  </property>
-					</widget>
-				  </item>
-				</layout>
-			  </item>
-			  <item>
-				<widget class="QLabel" name="label_8">
-				  <property name="text">
-					<string>When you post pone cards, how much should anki take into account the fact this postponing to compute the new delays ?</string>
-				  </property>
-				  <property name="scaledContents">
-					<bool>false</bool>
-				  </property>
-				  <property name="wordWrap">
-					<bool>true</bool>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<widget class="QCheckBox" name="advancedDeckColumns">
-				  <property name="text">
-					<string>Show advanced columns in deck browser</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<layout class="QFormLayout" name="formLayout">
-				  <property name="rowWrapPolicy">
-					<enum>QFormLayout::WrapLongRows</enum>
-				  </property>
-				  <item row="0" column="1">
-					<widget class="QDoubleSpinBox" name="factorAddDay">
-					  <property name="maximum">
-						<double>1.000000000000000</double>
-					  </property>
-					  <property name="singleStep">
-						<double>0.100000000000000</double>
-					  </property>
-					  <property name="value">
-						<double>0.330000000000000</double>
-					  </property>
-					</widget>
-				  </item>
-				  <item row="0" column="0">
-					<widget class="QLabel" name="label_6">
-					  <property name="text">
-						<string>When adding days</string>
-					  </property>
-					</widget>
-				  </item>
-				  <item row="1" column="1">
-					<widget class="QDoubleSpinBox" name="factorRemoveDay">
-					  <property name="maximum">
-						<double>1.000000000000000</double>
-					  </property>
-					  <property name="singleStep">
-						<double>0.100000000000000</double>
-					  </property>
-					  <property name="value">
-						<double>0.330000000000000</double>
-					  </property>
-					</widget>
-				  </item>
-				  <item row="1" column="0">
-					<widget class="QLabel" name="label_7">
-					  <property name="text">
-						<string>When removing days</string>
-					  </property>
-					</widget>
-				  </item>
-				</layout>
-			  </item>
-			  <item>
-				<spacer name="verticalSpacer_6">
-				  <property name="orientation">
-					<enum>Qt::Vertical</enum>
-				  </property>
-				  <property name="sizeHint" stdset="0">
-					<size>
-					  <width>20</width>
-					  <height>40</height>
-					</size>
-				  </property>
-				</spacer>
-			  </item>
-			</layout>
-		  </widget>
-		  <widget class="QWidget" name="tab_4">
-			<attribute name="title">
-			  <string>Colours</string>
-			</attribute>
-			<layout class="QBoxLayout" name="verticalLayout">
-			  <property name="spacing">
-				<number>12</number>
-			  </property>
-			  <property name="leftMargin">
-				<number>12</number>
-			  </property>
-			  <property name="topMargin">
-				<number>12</number>
-			  </property>
-			  <property name="rightMargin">
-				<number>12</number>
-			  </property>
-			  <property name="bottomMargin">
-				<number>12</number>
-			  </property>
-			  <item row="0" column="1">
-				<widget class="QPushButton" name="newButton">
-				  <property name="text">
-					<string/>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="1" column="0">
-				<widget class="QLabel" name="label_2">
-				  <property name="toolTip">
-					<string>Cards you'll see today, and that you have already
-					seen (sum of review, and learning).</string>
-				  </property>
-				  <property name="locale">
-					<locale language="English" country="UnitedStates"/>
-				  </property>
-				  <property name="text">
-					<string>Due cards</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="1" column="1">
-				<widget class="QPushButton" name="dueButton">
-				  <property name="text">
-					<string/>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="2" column="0">
-				<widget class="QLabel" name="label_2">
-				  <property name="toolTip">
-					<string>Cards that you have recently seen and that you'll
-					see again soon. Either a new card which has not graduated,
-					or a review which you forgot.</string>
-				  </property>
-				  <property name="locale">
-					<locale language="English" country="UnitedStates"/>
-				  </property>
-				  <property name="text">
-					<string>Cards in learning</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="2" column="1">
-				<widget class="QPushButton" name="learnButton">
-				  <property name="text">
-					<string/>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="4" column="0">
-				<widget class="QLabel" name="label_2">
-				  <property name="toolTip">
-					<string>Cards which have already graduated, that you are
-					supposed to see today, and have not already seen.</string>
-				  </property>
-				  <property name="locale">
-					<locale language="English" country="UnitedStates"/>
-				  </property>
-				  <property name="text">
-					<string>Today's revisition</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="4" column="1">
-				<widget class="QPushButton" name="revButton">
-				  <property name="text">
-					<string/>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="5" column="0">
-				<widget class="QLabel" name="label_2">
-				  <property name="toolTip">
-					<string>Cards which are not new, nor in learning.</string>
-				  </property>
-				  <property name="locale">
-					<locale language="English" country="UnitedStates"/>
-				  </property>
-				  <property name="text">
-					<string>Graduated cards</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="5" column="1">
-				<widget class="QPushButton" name="gradButton">
-				  <property name="text">
-					<string/>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="6" column="0">
-				<widget class="QLabel" name="label_2">
-				  <property name="toolTip">
-					<string>Cards whose interval is less than three weeks.</string>
-				  </property>
-				  <property name="locale">
-					<locale language="English" country="UnitedStates"/>
-				  </property>
-				  <property name="text">
-					<string>Young cards</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="6" column="1">
-				<widget class="QPushButton" name="youngButton">
-				  <property name="text">
-					<string/>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="7" column="0">
-				<widget class="QLabel" name="label_2">
-				  <property name="toolTip">
-					<string>Cards whose interval is at least three weeks.</string>
-				  </property>
-				  <property name="locale">
-					<locale language="English" country="UnitedStates"/>
-				  </property>
-				  <property name="text">
-					<string>Mature cards</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="7" column="1">
-				<widget class="QPushButton" name="matureButton">
-				  <property name="text">
-					<string/>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="8" column="0">
-				<widget class="QLabel" name="label_2">
-				  <property name="toolTip">
-					<string>Cards which you never saw (or which you buried
-					before they graduated)</string>
-				  </property>
-				  <property name="locale">
-					<locale language="English" country="UnitedStates"/>
-				  </property>
-				  <property name="text">
-					<string>Unseen cards</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="8" column="1">
-				<widget class="QPushButton" name="unseenButton">
-				  <property name="text">
-					<string/>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="9" column="0">
-				<widget class="QLabel" name="label_2">
-				  <property name="toolTip">
-					<string/>
-				  </property>
-				  <property name="locale">
-					<locale language="English" country="UnitedStates"/>
-				  </property>
-				  <property name="text">
-					<string>Suspended cards</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="9" column="1">
-				<widget class="QPushButton" name="suspButton">
-				  <property name="text">
-					<string/>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="10" column="0">
-				<widget class="QLabel" name="label_2">
-				  <property name="toolTip">
-					<string>Cards such that you pressed «bury» today on them</string>
-				  </property>
-				  <property name="locale">
-					<locale language="English" country="UnitedStates"/>
-				  </property>
-				  <property name="text">
-					<string>Manually buried cards</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="10" column="1">
-				<widget class="QPushButton" name="userBuriedButton">
-				  <property name="text">
-					<string/>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="11" column="0">
-				<widget class="QLabel" name="label_2">
-				  <property name="toolTip">
-					<string>Cards which were buried because you reviewed one of
-					their siblings.</string>
-				  </property>
-				  <property name="locale">
-					<locale language="English" country="UnitedStates"/>
-				  </property>
-				  <property name="text">
-					<string>Automatically buried cards</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="11" column="1">
-				<widget class="QPushButton" name="schedBuriedButton">
-				  <property name="text">
-					<string/>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="13" column="0">
-				<widget class="QLabel" name="label_2">
-				  <property name="toolTip">
-					<string>A card which is currently in a filtered deck.</string>
-				  </property>
-				  <property name="locale">
-					<locale language="English" country="UnitedStates"/>
-				  </property>
-				  <property name="text">
-					<string>Filtered cards</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="13" column="1">
-				<widget class="QPushButton" name="cramButton">
-				  <property name="text">
-					<string/>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="14" column="0">
-				<widget class="QLabel" name="label_2">
-				  <property name="toolTip">
-					<string>Colour used to show a sum over the history of your deck</string>
-				  </property>
-				  <property name="locale">
-					<locale language="English" country="UnitedStates"/>
-				  </property>
-				  <property name="text">
-					<string>Cumulative</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="14" column="1">
-				<widget class="QPushButton" name="cumButton">
-				  <property name="text">
-					<string/>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="3" column="1">
-				<widget class="QPushButton" name="relearnButton">
-				  <property name="text">
-					<string/>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="3" column="0">
-				<widget class="QLabel" name="label_3">
-				  <property name="text">
-					<string>Cards forgotten</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="15" column="0">
-				<widget class="QLabel" name="label_5">
-				  <property name="toolTip">
-					<string>Only used in stats</string>
-				  </property>
-				  <property name="text">
-					<string>Intervals</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="15" column="1">
-				<widget class="QPushButton" name="ivlButton">
-				  <property name="text">
-					<string/>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="21" column="0">
-				<widget class="QLabel" name="label_2">
-				  <property name="toolTip">
-					<string>Notes on which you pressed «mark».</string>
-				  </property>
-				  <property name="locale">
-					<locale language="English" country="UnitedStates"/>
-				  </property>
-				  <property name="text">
-					<string>Marked cards</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="21" column="1">
-				<widget class="QPushButton" name="markedButton">
-				  <property name="text">
-					<string/>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="16" column="0">
-				<widget class="QLabel" name="label_6">
-				  <property name="toolTip">
-					<string>Only used in stats.</string>
-				  </property>
-				  <property name="text">
-					<string>Hour</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="16" column="1">
-				<widget class="QPushButton" name="hourButton">
-				  <property name="text">
-					<string/>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="17" column="0">
-				<widget class="QLabel" name="label_6">
-				  <property name="toolTip">
-					<string>Flag 1.</string>
-				  </property>
-				  <property name="text">
-					<string>Flag 1</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="17" column="1">
-				<widget class="QPushButton" name="flag1Button">
-				  <property name="text">
-					<string/>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="18" column="0">
-				<widget class="QLabel" name="label_6">
-				  <property name="toolTip">
-					<string>Flag 2.</string>
-				  </property>
-				  <property name="text">
-					<string>Flag 2</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="18" column="1">
-				<widget class="QPushButton" name="flag2Button">
-				  <property name="text">
-					<string/>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="19" column="0">
-				<widget class="QLabel" name="label_6">
-				  <property name="toolTip">
-					<string>Flag 3.</string>
-				  </property>
-				  <property name="text">
-					<string>Flag 3</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="19" column="1">
-				<widget class="QPushButton" name="flag3Button">
-				  <property name="text">
-					<string/>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="20" column="0">
-				<widget class="QLabel" name="label_6">
-				  <property name="toolTip">
-					<string>Flag 4.</string>
-				  </property>
-				  <property name="text">
-					<string>Flag 4</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="20" column="1">
-				<widget class="QPushButton" name="flag4Button">
-				  <property name="text">
-					<string/>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="12" column="0">
-				<widget class="QLabel" name="label_7">
-				  <property name="text">
-					<string>Buried cards</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="12" column="1">
-				<widget class="QPushButton" name="buriedButton">
-				  <property name="text">
-					<string/>
-				  </property>
-				</widget>
-			  </item>
-			  <item row="0" column="0">
-				<widget class="QLabel" name="label_2">
-				  <property name="toolTip">
-					<string>Cards that you are supposed to see today</string>
-				  </property>
-				  <property name="locale">
-					<locale language="English" country="UnitedStates"/>
-				  </property>
-				  <property name="text">
-					<string>New cards</string>
-				  </property>
-				</widget>
-			  </item>
-			</layout>
-		  </widget>
-		  <widget class="QWidget" name="tab_4">
-			<attribute name="title">
-			  <string>Edition</string>
-			</attribute>
-			<layout class="QVBoxLayout" name="verticalLayout_5">
-			  <property name="spacing">
-				<number>12</number>
-			  </property>
-			  <property name="leftMargin">
-				<number>12</number>
-			  </property>
-			  <property name="topMargin">
-				<number>12</number>
-			  </property>
-			  <property name="rightMargin">
-				<number>12</number>
-			  </property>
-			  <property name="bottomMargin">
-				<number>12</number>
-			  </property>
-			  <item>
-				<widget class="QLabel" name="label_2">
-				  <property name="text">
-					<string>Configure the different action you can take to edit cards</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<widget class="QCheckBox" name="newLineInBatchEdit">
-				  <property name="toolTip">
-					<string>Line will be between the previous text and the text inserted.</string>
-				  </property>
-				  <property name="text">
-					<string>Add new line when batch editing fields</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<widget class="QCheckBox" name="preserveCreation">
-				  <property name="text">
-					<string>Note copy: preserve date of creation</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<widget class="QCheckBox" name="preserveReviewInfo">
-				  <property name="text">
-					<string>Note copy: preserve easyness, interval, due date, ...</string>
-				  </property>
-				</widget>
-			  </item>
-			  <item>
-				<spacer name="verticalSpacer_6">
-				  <property name="orientation">
-					<enum>Qt::Vertical</enum>
-				  </property>
-				  <property name="sizeHint" stdset="0">
-					<size>
-					  <width>20</width>
-					  <height>40</height>
-					</size>
-				  </property>
-				</spacer>
-			  </item>
-			</layout>
-		  </widget>
-		</widget>
-	  </item>
-	  <item>
-		<widget class="QDialogButtonBox" name="buttonBox">
-		  <property name="orientation">
-			<enum>Qt::Horizontal</enum>
-		  </property>
-		  <property name="standardButtons">
-			<set>QDialogButtonBox::Close|QDialogButtonBox::Help</set>
-		  </property>
-		</widget>
-	  </item>
-	</layout>
-  </widget>
-  <tabstops>
-	<tabstop>lang</tabstop>
-	<tabstop>hwAccel</tabstop>
-	<tabstop>showEstimates</tabstop>
-	<tabstop>showProgress</tabstop>
-	<tabstop>pastePNG</tabstop>
-	<tabstop>nightMode</tabstop>
-	<tabstop>dayLearnFirst</tabstop>
-	<tabstop>newSched</tabstop>
-	<tabstop>useCurrent</tabstop>
-	<tabstop>newSpread</tabstop>
-	<tabstop>dayOffset</tabstop>
-	<tabstop>lrnCutoff</tabstop>
-	<tabstop>timeLimit</tabstop>
-	<tabstop>numBackups</tabstop>
-	<tabstop>syncOnProgramOpen</tabstop>
-	<tabstop>tabs</tabstop>
-	<tabstop>fullSync</tabstop>
-	<tabstop>syncMedia</tabstop>
-	<tabstop>syncDeauth</tabstop>
-  </tabstops>
-  <resources/>
-  <connections>
-	<connection>
-	  <sender>buttonBox</sender>
-	  <signal>accepted()</signal>
-	  <receiver>Preferences</receiver>
-	  <slot>accept()</slot>
-	  <hints>
-		<hint type="sourcelabel">
-		  <x>285</x>
-		  <y>439</y>
-		</hint>
-		<hint type="destinationlabel">
-		  <x>157</x>
-		  <y>274</y>
-		</hint>
-	  </hints>
-	</connection>
-	<connection>
-	  <sender>buttonBox</sender>
-	  <signal>rejected()</signal>
-	  <receiver>Preferences</receiver>
-	  <slot>reject()</slot>
-	  <hints>
-		<hint type="sourcelabel">
-		  <x>332</x>
-		  <y>439</y>
-		</hint>
-		<hint type="destinationlabel">
-		  <x>286</x>
-		  <y>274</y>
-		</hint>
-	  </hints>
-	</connection>
-  </connections>
+ <class>Preferences</class>
+ <widget class="QDialog" name="Preferences">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>436</width>
+    <height>552</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Preferences</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
+    <widget class="QTabWidget" name="tabs">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="tab_1">
+      <attribute name="title">
+       <string>Basic</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <property name="spacing">
+        <number>12</number>
+       </property>
+       <property name="leftMargin">
+        <number>12</number>
+       </property>
+       <property name="topMargin">
+        <number>12</number>
+       </property>
+       <property name="rightMargin">
+        <number>12</number>
+       </property>
+       <property name="bottomMargin">
+        <number>12</number>
+       </property>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Interface language:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="lang">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="hwAccel">
+         <property name="text">
+          <string>Hardware acceleration (faster, may cause display issues)</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="showEstimates">
+         <property name="text">
+          <string>Show next review time above answer buttons</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="showProgress">
+         <property name="text">
+          <string>Show remaining card count during review</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="pastePNG">
+         <property name="text">
+          <string>Paste clipboard images as PNG</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="nightMode">
+         <property name="text">
+          <string>Show cards as white on black (night mode)</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="dayLearnFirst">
+         <property name="text">
+          <string>Show learning cards with larger steps before reviews</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="newSched">
+         <property name="text">
+          <string>Experimental V2 scheduler</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="useCurrent">
+         <item>
+          <property name="text">
+           <string>When adding, default to current deck</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Change deck depending on note type</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="newSpread"/>
+       </item>
+       <item>
+        <layout class="QGridLayout" name="gridLayout_4">
+         <property name="spacing">
+          <number>12</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_23">
+           <property name="text">
+            <string>Next day starts at</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QSpinBox" name="dayOffset">
+           <property name="maximumSize">
+            <size>
+             <width>60</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="maximum">
+            <number>23</number>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_24">
+           <property name="text">
+            <string>Learn ahead limit</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QSpinBox" name="lrnCutoff">
+           <property name="maximumSize">
+            <size>
+             <width>60</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="maximum">
+            <number>999</number>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QLabel" name="label_29">
+           <property name="text">
+            <string>mins</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_30">
+           <property name="text">
+            <string>Timebox time limit</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QSpinBox" name="timeLimit">
+           <property name="maximum">
+            <number>9999</number>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QLabel" name="label_39">
+           <property name="text">
+            <string>mins</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QLabel" name="label_40">
+           <property name="text">
+            <string>hours past midnight</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Expanding</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_2">
+      <attribute name="title">
+       <string>Network</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <property name="spacing">
+        <number>12</number>
+       </property>
+       <property name="leftMargin">
+        <number>12</number>
+       </property>
+       <property name="topMargin">
+        <number>12</number>
+       </property>
+       <property name="rightMargin">
+        <number>12</number>
+       </property>
+       <property name="bottomMargin">
+        <number>12</number>
+       </property>
+       <item>
+        <layout class="QHBoxLayout">
+         <property name="spacing">
+          <number>10</number>
+         </property>
+         <item>
+          <layout class="QVBoxLayout">
+           <item>
+            <widget class="QCheckBox" name="changeModelWithoutFullSync">
+             <property name="text">
+              <string>Change note type without requiring a full sync</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="syncLabel">
+             <property name="text">
+              <string>&lt;b&gt;Synchronisation&lt;/b&gt;</string>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+             <property name="openExternalLinks">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="syncMedia">
+             <property name="text">
+              <string>Synchronize audio and images too</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="syncOnProgramOpen">
+             <property name="text">
+              <string>Automatically sync on profile open/close</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="fullSync">
+             <property name="text">
+              <string>On next sync, force changes in one direction</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout">
+             <item>
+              <widget class="QPushButton" name="syncDeauth">
+               <property name="text">
+                <string>Deauthorize</string>
+               </property>
+               <property name="autoDefault">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="syncUser">
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_2">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>1</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>Backups</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <property name="spacing">
+        <number>12</number>
+       </property>
+       <property name="leftMargin">
+        <number>12</number>
+       </property>
+       <property name="topMargin">
+        <number>12</number>
+       </property>
+       <property name="rightMargin">
+        <number>12</number>
+       </property>
+       <property name="bottomMargin">
+        <number>12</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="label_9">
+         <property name="text">
+          <string>&lt;b&gt;Backups&lt;/b&gt;&lt;br&gt;Anki will create a backup of your collection each time it is closed or synchronized.</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QGridLayout" name="gridLayout_2">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_10">
+           <property name="text">
+            <string>Keep</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QSpinBox" name="numBackups">
+           <property name="minimumSize">
+            <size>
+             <width>60</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>60</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="maximum">
+            <number>99999</number>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QLabel" name="label_11">
+           <property name="text">
+            <string>backups</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3">
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="longTermBackUp">
+         <property name="text">
+          <string>Also keep some long term back-ups</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="openBackupFolder">
+         <property name="text">
+          <string>&lt;a href=&quot;backups&quot;&gt;Open backup folder&lt;/a&gt;</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Note: Media is not backed up. Please create a periodic backup of your Anki folder to be safe.</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="Line" name="line">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;I understand that I should take care of syncing myself, or I might create bugs&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_4">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>59</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_21">
+         <property name="text">
+          <string>Some settings will take effect after you restart Anki.</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_3">
+      <attribute name="title">
+       <string>Processing</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <property name="spacing">
+        <number>12</number>
+       </property>
+       <property name="leftMargin">
+        <number>12</number>
+       </property>
+       <property name="topMargin">
+        <number>12</number>
+       </property>
+       <property name="rightMargin">
+        <number>12</number>
+       </property>
+       <property name="bottomMargin">
+        <number>12</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="label_12">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Configure how and when anki generate cards&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="allowEmptyFirstField">
+         <property name="toolTip">
+          <string>You can add and import cards, even if their first field is not filled.</string>
+         </property>
+         <property name="text">
+          <string>Allow empty first field</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="Line" name="line">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="compileLaTeX">
+         <property name="text">
+          <string>Compile LaTeX as soon as it is written</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Adding tag LaTeXError to cards with faulty notes. </string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="preserveName">
+         <property name="text">
+          <string>When changing a note's type, preserve name of fields/cards</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="Line" name="line">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="keepEmptyNote">
+         <property name="toolTip">
+          <string>While the note is not deleted, this option alone does not allow you to recover the note, since it has no card.</string>
+         </property>
+         <property name="text">
+          <string>When a note has no more card, warns instead of deleting it.</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="limitAllCards">
+         <property name="text">
+          <string>Limit the total number of cards seen by day in a deck</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="Line" name="line">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="complexTemplates">
+         <property name="toolTip">
+          <string>This option allow you to create complex card type. Cards risks not to be seen on smartphone, and to be erased by «Empty cards».</string>
+         </property>
+         <property name="text">
+          <string>Cards are generated if and only if they show a field.</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_12">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Configure how and when anki generate cards&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="noteWithoutCard">
+         <property name="text">
+          <string>Note with no card: create card 1 instead of deleting the note</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_5">
+      <attribute name="title">
+       <string>Interface</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_7">
+       <property name="spacing">
+        <number>12</number>
+       </property>
+       <property name="leftMargin">
+        <number>12</number>
+       </property>
+       <property name="topMargin">
+        <number>12</number>
+       </property>
+       <property name="rightMargin">
+        <number>12</number>
+       </property>
+       <property name="bottomMargin">
+        <number>12</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Configure the graphical user interface.</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="keepSeenCard">
+         <property name="toolTip">
+          <string>When you do &quot;Check &gt; Cards...&quot;, you won't delete cards you already reviewed once. This will allow you to correct their template if necessary without loosing your review history.</string>
+         </property>
+         <property name="text">
+          <string>Delete empty cards only if they are new</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="exportSiblings">
+         <property name="text">
+          <string>Export siblings of exported cards</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="browserOnMissingMedia">
+         <property name="text">
+          <string>In case of missing media, show the notes in the browser.</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_6">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Configure the graphical user interface.</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="Line" name="line_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Which window can be opened multiple time&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QCheckBox" name="AddCardsMultipleTime">
+           <property name="text">
+            <string>Add Cards</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="BrowserMultipleTime">
+           <property name="text">
+            <string>Browser</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="EditCurrentMultipleTime">
+           <property name="text">
+            <string>Edit Cards</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="OtherWindowsMultipleTime">
+           <property name="text">
+            <string>Other</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_8">
+         <property name="text">
+          <string>When you post pone cards, how much should anki take into account the fact this postponing to compute the new delays ?</string>
+         </property>
+         <property name="scaledContents">
+          <bool>false</bool>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="advancedDeckColumns">
+         <property name="text">
+          <string>Show advanced columns in deck browser</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QFormLayout" name="formLayout">
+         <property name="rowWrapPolicy">
+          <enum>QFormLayout::WrapLongRows</enum>
+         </property>
+         <item row="0" column="1">
+          <widget class="QDoubleSpinBox" name="factorAddDay">
+           <property name="maximum">
+            <double>1.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.100000000000000</double>
+           </property>
+           <property name="value">
+            <double>0.330000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_6">
+           <property name="text">
+            <string>When adding days</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QDoubleSpinBox" name="factorRemoveDay">
+           <property name="maximum">
+            <double>1.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.100000000000000</double>
+           </property>
+           <property name="value">
+            <double>0.330000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_7">
+           <property name="text">
+            <string>When removing days</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_6">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_4">
+      <attribute name="title">
+       <string>Colours</string>
+      </attribute>
+      <layout class="QBoxLayout" name="verticalLayout">
+       <property name="spacing">
+        <number>12</number>
+       </property>
+       <property name="leftMargin">
+        <number>12</number>
+       </property>
+       <property name="topMargin">
+        <number>12</number>
+       </property>
+       <property name="rightMargin">
+        <number>12</number>
+       </property>
+       <property name="bottomMargin">
+        <number>12</number>
+       </property>
+       <item row="0" column="1">
+        <widget class="QPushButton" name="newButton">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="toolTip">
+          <string>Cards you'll see today, and that you have already
+          seen (sum of review, and learning).</string>
+         </property>
+         <property name="locale">
+          <locale language="English" country="UnitedStates"/>
+         </property>
+         <property name="text">
+          <string>Due cards</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QPushButton" name="dueButton">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="toolTip">
+          <string>Cards that you have recently seen and that you'll
+          see again soon. Either a new card which has not graduated,
+          or a review which you forgot.</string>
+         </property>
+         <property name="locale">
+          <locale language="English" country="UnitedStates"/>
+         </property>
+         <property name="text">
+          <string>Cards in learning</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QPushButton" name="learnButton">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="toolTip">
+          <string>Cards which have already graduated, that you are
+          supposed to see today, and have not already seen.</string>
+         </property>
+         <property name="locale">
+          <locale language="English" country="UnitedStates"/>
+         </property>
+         <property name="text">
+          <string>Today's revisition</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QPushButton" name="revButton">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="toolTip">
+          <string>Cards which are not new, nor in learning.</string>
+         </property>
+         <property name="locale">
+          <locale language="English" country="UnitedStates"/>
+         </property>
+         <property name="text">
+          <string>Graduated cards</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="QPushButton" name="gradButton">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="toolTip">
+          <string>Cards whose interval is less than three weeks.</string>
+         </property>
+         <property name="locale">
+          <locale language="English" country="UnitedStates"/>
+         </property>
+         <property name="text">
+          <string>Young cards</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1">
+        <widget class="QPushButton" name="youngButton">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="toolTip">
+          <string>Cards whose interval is at least three weeks.</string>
+         </property>
+         <property name="locale">
+          <locale language="English" country="UnitedStates"/>
+         </property>
+         <property name="text">
+          <string>Mature cards</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="1">
+        <widget class="QPushButton" name="matureButton">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="toolTip">
+          <string>Cards which you never saw (or which you buried
+          before they graduated)</string>
+         </property>
+         <property name="locale">
+          <locale language="English" country="UnitedStates"/>
+         </property>
+         <property name="text">
+          <string>Unseen cards</string>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="1">
+        <widget class="QPushButton" name="unseenButton">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="toolTip">
+          <string/>
+         </property>
+         <property name="locale">
+          <locale language="English" country="UnitedStates"/>
+         </property>
+         <property name="text">
+          <string>Suspended cards</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="1">
+        <widget class="QPushButton" name="suspButton">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="10" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="toolTip">
+          <string>Cards such that you pressed «bury» today on them</string>
+         </property>
+         <property name="locale">
+          <locale language="English" country="UnitedStates"/>
+         </property>
+         <property name="text">
+          <string>Manually buried cards</string>
+         </property>
+        </widget>
+       </item>
+       <item row="10" column="1">
+        <widget class="QPushButton" name="userBuriedButton">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="11" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="toolTip">
+          <string>Cards which were buried because you reviewed one of
+          their siblings.</string>
+         </property>
+         <property name="locale">
+          <locale language="English" country="UnitedStates"/>
+         </property>
+         <property name="text">
+          <string>Automatically buried cards</string>
+         </property>
+        </widget>
+       </item>
+       <item row="11" column="1">
+        <widget class="QPushButton" name="schedBuriedButton">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="13" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="toolTip">
+          <string>A card which is currently in a filtered deck.</string>
+         </property>
+         <property name="locale">
+          <locale language="English" country="UnitedStates"/>
+         </property>
+         <property name="text">
+          <string>Filtered cards</string>
+         </property>
+        </widget>
+       </item>
+       <item row="13" column="1">
+        <widget class="QPushButton" name="cramButton">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="14" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="toolTip">
+          <string>Colour used to show a sum over the history of your deck</string>
+         </property>
+         <property name="locale">
+          <locale language="English" country="UnitedStates"/>
+         </property>
+         <property name="text">
+          <string>Cumulative</string>
+         </property>
+        </widget>
+       </item>
+       <item row="14" column="1">
+        <widget class="QPushButton" name="cumButton">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QPushButton" name="relearnButton">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Cards forgotten</string>
+         </property>
+        </widget>
+       </item>
+       <item row="15" column="0">
+        <widget class="QLabel" name="label_5">
+         <property name="toolTip">
+          <string>Only used in stats</string>
+         </property>
+         <property name="text">
+          <string>Intervals</string>
+         </property>
+        </widget>
+       </item>
+       <item row="15" column="1">
+        <widget class="QPushButton" name="ivlButton">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="21" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="toolTip">
+          <string>Notes on which you pressed «mark».</string>
+         </property>
+         <property name="locale">
+          <locale language="English" country="UnitedStates"/>
+         </property>
+         <property name="text">
+          <string>Marked cards</string>
+         </property>
+        </widget>
+       </item>
+       <item row="21" column="1">
+        <widget class="QPushButton" name="markedButton">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="16" column="0">
+        <widget class="QLabel" name="label_6">
+         <property name="toolTip">
+          <string>Only used in stats.</string>
+         </property>
+         <property name="text">
+          <string>Hour</string>
+         </property>
+        </widget>
+       </item>
+       <item row="16" column="1">
+        <widget class="QPushButton" name="hourButton">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="17" column="0">
+        <widget class="QLabel" name="label_6">
+         <property name="toolTip">
+          <string>Flag 1.</string>
+         </property>
+         <property name="text">
+          <string>Flag 1</string>
+         </property>
+        </widget>
+       </item>
+       <item row="17" column="1">
+        <widget class="QPushButton" name="flag1Button">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="18" column="0">
+        <widget class="QLabel" name="label_6">
+         <property name="toolTip">
+          <string>Flag 2.</string>
+         </property>
+         <property name="text">
+          <string>Flag 2</string>
+         </property>
+        </widget>
+       </item>
+       <item row="18" column="1">
+        <widget class="QPushButton" name="flag2Button">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="19" column="0">
+        <widget class="QLabel" name="label_6">
+         <property name="toolTip">
+          <string>Flag 3.</string>
+         </property>
+         <property name="text">
+          <string>Flag 3</string>
+         </property>
+        </widget>
+       </item>
+       <item row="19" column="1">
+        <widget class="QPushButton" name="flag3Button">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="20" column="0">
+        <widget class="QLabel" name="label_6">
+         <property name="toolTip">
+          <string>Flag 4.</string>
+         </property>
+         <property name="text">
+          <string>Flag 4</string>
+         </property>
+        </widget>
+       </item>
+       <item row="20" column="1">
+        <widget class="QPushButton" name="flag4Button">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="12" column="0">
+        <widget class="QLabel" name="label_7">
+         <property name="text">
+          <string>Buried cards</string>
+         </property>
+        </widget>
+       </item>
+       <item row="12" column="1">
+        <widget class="QPushButton" name="buriedButton">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="toolTip">
+          <string>Cards that you are supposed to see today</string>
+         </property>
+         <property name="locale">
+          <locale language="English" country="UnitedStates"/>
+         </property>
+         <property name="text">
+          <string>New cards</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_4">
+      <attribute name="title">
+       <string>Edition</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_5">
+       <property name="spacing">
+        <number>12</number>
+       </property>
+       <property name="leftMargin">
+        <number>12</number>
+       </property>
+       <property name="topMargin">
+        <number>12</number>
+       </property>
+       <property name="rightMargin">
+        <number>12</number>
+       </property>
+       <property name="bottomMargin">
+        <number>12</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Configure the different action you can take to edit cards</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="newLineInBatchEdit">
+         <property name="toolTip">
+          <string>Line will be between the previous text and the text inserted.</string>
+         </property>
+         <property name="text">
+          <string>Add new line when batch editing fields</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="preserveCreation">
+         <property name="text">
+          <string>Note copy: preserve date of creation</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="preserveReviewInfo">
+         <property name="text">
+          <string>Note copy: preserve easyness, interval, due date, ...</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_6">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Close|QDialogButtonBox::Help</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>lang</tabstop>
+  <tabstop>hwAccel</tabstop>
+  <tabstop>showEstimates</tabstop>
+  <tabstop>showProgress</tabstop>
+  <tabstop>pastePNG</tabstop>
+  <tabstop>nightMode</tabstop>
+  <tabstop>dayLearnFirst</tabstop>
+  <tabstop>newSched</tabstop>
+  <tabstop>useCurrent</tabstop>
+  <tabstop>newSpread</tabstop>
+  <tabstop>dayOffset</tabstop>
+  <tabstop>lrnCutoff</tabstop>
+  <tabstop>timeLimit</tabstop>
+  <tabstop>numBackups</tabstop>
+  <tabstop>syncOnProgramOpen</tabstop>
+  <tabstop>tabs</tabstop>
+  <tabstop>fullSync</tabstop>
+  <tabstop>syncMedia</tabstop>
+  <tabstop>syncDeauth</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>Preferences</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>285</x>
+     <y>439</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>Preferences</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>332</x>
+     <y>439</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
