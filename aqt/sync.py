@@ -135,7 +135,7 @@ Please visit AnkiWeb, upgrade your deck, then try again."""))
         elif evt == "clockOff":
             self._clockOff()
         elif evt == "checkFailed":
-            self._checkFailed("checkFailed")
+            self._checkFailed(f"checkFailed during step {args[0]}")
         elif evt == "mediaSanity":
             showWarning(_("""\
 A problem occurred while syncing media. Please use Tools>Check Media, then \
@@ -421,8 +421,10 @@ class SyncThread(QThread):
             return self.fireEvent("badAuth")
         elif ret == "clockOff":
             return self.fireEvent("clockOff")
-        elif ret == "basicCheckFailed" or ret == "sanityCheckFailed":
-            return self.fireEvent("checkFailed")
+        elif ret == "sanityCheckFailed":
+            return self.fireEvent("checkFailed", "sanity")
+        elif ret == "basicCheckFailed":
+            return self.fireEvent("checkFailed", "basic :"+self.client.errorMessages)
         # full sync?
         if ret == "fullSync":
             return self._fullSync()
