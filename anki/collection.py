@@ -928,8 +928,9 @@ where c.nid == f.id
     # DB maintenance
     ##########################################################################
 
-    def basicCheck(self):
+    def basicCheck(self, syncer=None):
         """True if basic integrity is meet.
+        Otherwise an explanation of the error
 
         Used before and after sync, or before a full upload.
 
@@ -958,15 +959,17 @@ ooo
                 continue
             checks.append((f"""select id, ord, nid from cards where ord <0 or ord>{len(m['tmpls'])} and nid in (select id from notes where mid = {mid})""",
                            "Card {}'s ord {} of note {} does not exists in model {mid}"))
-        error = False
+        errorMessages = list()
         for query,msg in checks:
             l = self.db.all(query)
             for tup in l:
                 #print(f"Message is «{msg}», tup = «{tup}»", file = sys.stderr)
                 formatted = msg.format(*tup)
                 print(formatted, file = sys.stderr)
-                error = True
-        if error:
+                errorMessages.append(formatted)
+        if errorMessages:
+            if syncer:
+                syncer.errorMessages = "\n".join(errorMessages)
             return
         return True
 
