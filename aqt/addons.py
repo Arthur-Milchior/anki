@@ -105,9 +105,12 @@ class AddonManager:
             return root
         return os.path.join(root, dir)
 
+    def isIncorporated(self, dir):
+        return dir in incorporatedAddonsDict or (re.match(r"^\d+$", dir) and int(dir) in incorporatedAddonsDict)
+
     def loadAddons(self):
         for dir in self.allAddons():
-            if dir in incorporatedAddonsDict or (re.match(r"^\d+$", dir) and int(dir) in incorporatedAddonsDict):
+            if self.isIncorporated(dir):
                 continue
             meta = self.addonMeta(dir)
             if meta.get("disabled"):
@@ -178,6 +181,8 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
         buf = self.addonName(dir)
         if not self.isEnabled(dir):
             buf += _(" (disabled)")
+        if self.isIncorporated(dir):
+            buf += _(" (incorporated)")
         return buf
 
     # Conflict resolution
@@ -613,7 +618,7 @@ class AddonsDialog(QDialog):
         addonList.clear()
         for name, dir in self.addons:
             item = QListWidgetItem(name, addonList)
-            if not mgr.isEnabled(dir):
+            if not mgr.isEnabled(dir) or mgr.isIncorporated(dir):
                 item.setForeground(Qt.gray)
             if dir in selected:
                 item.setSelected(True)
