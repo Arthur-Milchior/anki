@@ -991,7 +991,7 @@ where c.nid == f.id
         * each note has a model
         * each note has a card
         * each card's ord is valid according to the note model.
-ooo
+
         """
         checks = [
             ("select id, nid from cards where nid not in (select id from notes)",
@@ -1061,13 +1061,12 @@ ooo
         self.optimize()
         newSize = os.stat(self.path)[stat.ST_SIZE]
         txt = _("Database rebuilt and optimized.")
-        ok = not self.problems
         self.problems.append(txt)
         # if any self.problems were found, force a full sync
-        if not ok:
+        if self.problems:
             self.modSchema(check=False)
         self.save()
-        return ("\n".join(self.problems), ok)
+        return ("\n".join(self.problems), not self.problems)
 
     def integrity(self):
         # whether sqlite find a problem in its database

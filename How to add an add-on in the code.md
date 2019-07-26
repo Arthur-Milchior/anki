@@ -4,7 +4,13 @@ Create a branch, with parent baseFork. The name of this branch should
 describe the feature you add. You then must modifies the code as
 follow. See [branchs.md](branchs.md) to see what each branches are.
 
-## Addon folder
+In order to add another add-on, you must do the following change.
+
+# aqt/addons.py
+
+Add your add-on to the set of add-ons.
+
+# addons
 
 In this folder, put a copy of the add-on, as it is in ankiweb when it
 was added to this folder.
@@ -13,7 +19,7 @@ This ensure that, if an add-on is updated, you can check easily what
 was updated. What's new today, and thus not what is not yet
 incorporated in the fork code.
 
-## differences.md
+# differences.md
 
 List your add-on in the list of change between this fork and regular
 anki. Add the add-on number after the title.
@@ -29,7 +35,6 @@ anyone is interested in contributing), satisfies the same rules:
 The database is not changed at all.  Otherwise, it creates risk of
 incompatibility with ankidroid, ios and ankiweb. However, I allow to
 add element in json's dictionaries.
-
 
 ### Method return
 All methods returns the same kind of values in the forked version and
@@ -48,11 +53,7 @@ All methods takes the same arguments. Any other arguments are keyword
 argument. Most of the time, the default value could either ensure that
 Anki is imitated, unless there is a good reason not to do it.
 
-### aqt/addons.py
-
-Add your add-on to the set of add-ons.
-
-## Configuration options
+# Configuration options
 
 If there are options to configure, add the buttons to
 designer/preferences.ui
@@ -99,8 +100,6 @@ and
           <property name="orientation">
            <enum>Qt::Vertical</enum>
 ```
-
-#### Editing configuration
 In `aqt.preferences` you should edit `extraOptions`, adding a tuple
 (even if it contains a single value, it should be a tuple !), with the
 following element:
@@ -123,4 +122,3 @@ synchronized, it is in the collection's configuration, and thus it is
 accessed by
 ```Python
 	col.conf.get("xMLName", DefaultValue)
-```

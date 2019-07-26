@@ -283,7 +283,6 @@ select count() from cards where did in %s and queue = {QUEUE_PREVIEW}
                 self.lrnCount -= 1
                 return card
 
-
     def _answerLrnCard(self, card, ease):
         conf = self._lrnConf(card)
         if card.type in (CARD_DUE,CARD_FILTERED):
@@ -488,7 +487,6 @@ select count() from (select id from cards where
 did in %s and queue = {QUEUE_REV} and due <= ? limit {lim})""" %
                                            ids2str(self.col.decks.active()),
                                            self.today)
-
     def _fillRev(self):
         if self._revQueue:
             return True
@@ -846,8 +844,7 @@ where id = ?
             return 0
         # (re)learning?
         if card.queue in (QUEUE_NEW_CRAM, QUEUE_LRN, QUEUE_DAY_LRN):
-            r =  self._nextLrnIvl(card, ease)
-            return r
+            return self._nextLrnIvl(card, ease)
         elif ease == BUTTON_ONE:
             # lapse
             conf = self._lapseConf(card)

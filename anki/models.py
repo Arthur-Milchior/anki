@@ -40,7 +40,6 @@ ord -- "ordinal of the field - goes from 0 to num fields -1",
 rtl -- "boolean, right-to-left script",
 size -- "font size",
 sticky -- "sticky fields retain the value that was last added
-when adding new notes"
 tmp -- some values which should not be saved in json.(not always here)
 """
 

@@ -349,7 +349,7 @@ class DeckManager:
         self.save()
 
     def allNames(self, dyn=True, sort=False):
-        """A list of all deck names.
+        """An (unsorted) list of all deck names.
 
         Keyword arguments:
         dyn -- if set to false, do not list the dynamic decks.
@@ -770,7 +770,8 @@ same id."""
 
         Keyword arguments:
         did -- the id of the deck we consider
-        childMap -- dictionnary, associating to a deck id its node as returned by .childMap()"""
+        childMap -- dictionnary, associating to a deck id its node as returned by .childMap()
+        includeSelf -- whether self is in the list"""
         # get ancestors names
         return [g['id'] for g in self.childrenDecks(did, includeSelf=includeSelf, sort=sort)]
 

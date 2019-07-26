@@ -281,12 +281,11 @@ select count() from cards where did in %s and queue = {QUEUE_DAY_LRN}
 and due <= ? limit %d""" % (self._deckLimit(),  self.reportLimit),
                                             self.today)
 
-    # sub-day learning
     def _fillLrn(self):
-        return super()._fillLrn(self.dayCutoff, f"({QUEUE_LRN})")
+         return super()._fillLrn(self.dayCutoff, f"({QUEUE_LRN})")
 
     def _getLrnCard(self, collapse=False):
-        if self._fillLrn():
+       if self._fillLrn():
             cutoff = time.time()
             if collapse:
                 cutoff += self.col.conf['collapseTime']
@@ -570,7 +569,7 @@ did = ? and queue = {QUEUE_REV} and due <= ? limit ?""",
             """
 select count() from cards where id in (
 select id from cards where did in %s and queue = {QUEUE_REV} and due <= ? limit ?)"""
-            % ids2str(self.col.decks.active()), self.today, self.reportLimit)
+            % (ids2str(self.col.decks.active()), self.today, self.reportLimit))
 
     # Answering a review card
     ##########################################################################
@@ -921,8 +920,7 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?""" % queue, data)
     def nextIvl(self, card, ease):
         "Return the next interval for CARD, in seconds."
         if card.queue in (QUEUE_NEW_CRAM, QUEUE_LRN, QUEUE_DAY_LRN):
-            r = self._nextLrnIvl(card, ease)
-            return r
+            return self._nextLrnIvl(card, ease)
         elif ease == BUTTON_ONE:
             # lapsed
             conf = self._lapseConf(card)
@@ -974,8 +972,8 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?""" % queue, data)
         "Unsuspend cards."
         self.col.log(ids)
         self.col.db.execute(
-            (f"update cards set queue=type,mod=?,usn=? "
-            f"where queue = {QUEUE_SUSPENDED} and id in ")+ ids2str(ids),
+            (f"""update cards set queue=type,mod=?,usn=?
+            where queue = {QUEUE_SUSPENDED} and id in """)+ ids2str(ids),
             intTime(), self.col.usn())
 
     def buryCards(self, cids):

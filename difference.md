@@ -79,7 +79,7 @@ list of every notes deleted, the reason of the deletion, and some
 other informations. It's saved as CSV, so that it can be recovered
 (with difficulty, but it theoretically can)
 
-## Explain errors
+# Explain errors
 You obtain more detailled error message if a sync fail, and if you try
 do do a «Check database».
 
