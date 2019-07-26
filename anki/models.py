@@ -147,7 +147,31 @@ class ModelManager:
         self.changed = False
         self.models = json.loads(json_)
 
-    def save(self, m=None, templates=False):
+    def getChangedTemplates(self, m, oldModel = None, newTemplatesData=None):
+        """A set of index of templates potentially modified.
+
+        keyword arguments:
+        oldModel -- the previous version of the model. If it is not
+        present, everything is potentially changed.
+        newTemplatesData
+        m -- the new model.
+        newTemplatesData -- a dictionnarry associating to each new template a dictionnary, with "old idx" representing the old positiof of the card.
+        """
+        if newTemplatesData is None or oldModel is None:
+            changedTemplates = set(range(len(m['tmpls'])))
+            return changedTemplates
+        changedTemplates = set()
+        for idx, tmpl in enumerate(m['tmpls']):
+            oldIdx = newTemplatesData[idx]["old idx"]
+            if oldIdx is None:
+                changedTemplates.add(idx)
+            else:
+                oldTmpl =oldModel['tmpls'][oldIdx]
+                if tmpl['qfmt']!=oldTmpl['qfmt']:
+                        changedTemplates.add(idx)
+        return changedTemplates
+
+    def save(self, m=None, templates=False, oldModel=None, newTemplatesData = None, recomputeReq=True):
         """
         * Mark m modified if provided.
         * Schedule registry flush.
@@ -156,13 +180,23 @@ class ModelManager:
         Keyword arguments:
         m -- A Model
         templates -- whether to check for cards not generated in this model
+        oldModel -- a previous version of the model, to which to compare
+        newTemplatesData -- a list whose i-th element state which is the
+        new position of the i-th template of the old model and whether the
+        template is new. It is set only if oldModel is set.
         """
         if m and m['id']:
+            if newTemplatesData is None:
+                newTemplatesData = [{"is new": True,
+                                     "old idx":None}]*len(m['tmpls'])
             m['mod'] = intTime()
             m['usn'] = self.col.usn()
-            self._updateRequired(m)
+            if recomputeReq:
+                changedOrNewReq = self._updateRequired(m, oldModel, newTemplatesData)
+            else:
+                changedOrNewReq = set()
             if templates:
-                self._syncTemplates(m)
+                self._syncTemplates(m, changedOrNewReq)
         self.changed = True
         runHook("newModel") # By default, only refresh side bar of browser
 
@@ -487,7 +521,6 @@ and notes.mid = ? and cards.ord = ?""", m['id'], ord)
                     t[fmt] = re.sub(
                         pat  % re.escape(field['name']), "", t[fmt])
         field['name'] = newName
-        self.save(m)
 
     def _updateFieldOrds(self, m):
         """
@@ -605,11 +638,11 @@ update cards set ord = (case %s end),usn=?,mod=? where nid in (
 select id from notes where mid = ?)""" % " ".join(map),
                              self.col.usn(), intTime(), m['id'])
 
-    def _syncTemplates(self, m):
+    def _syncTemplates(self, m, changedOrNewReq = None):
         """Generate all cards not yet generated, whose note's model is m.
 
         It's called only when model is saved, a new model is given and template is asked to be computed"""
-        rem = self.col.genCards(self.nids(m))
+        rem = self.col.genCards(self.nids(m), changedOrNewReq)
 
     # Model changing
     ##########################################################################
@@ -721,17 +754,42 @@ select id from notes where mid = ?)""" % " ".join(map),
     # Required field/text cache
     ##########################################################################
 
-    def _updateRequired(self, m):
-        """Entirely recompute the model's req value"""
+    def _updateRequired(self, m, oldModel = None, newTemplatesData = None):
+        """Entirely recompute the model's req value.
+
+        Return positions idx such that the req for idx in model is not the
+        req for oldIdx in oldModel. Or such that this card is new.
+        """
         if m['type'] == MODEL_CLOZE:
             # nothing to do
             return
+        changedTemplates = self.getChangedTemplates(m, oldModel, newTemplatesData)
         req = []
+        changedOrNewReq = set()
         flds = [f['name'] for f in m['flds']]
-        for t in m['tmpls']:
-            ret = self._reqForTemplate(m, flds, t)
-            req.append((t['ord'], ret[0], ret[1]))
+        for idx,t in enumerate(m['tmpls']):
+            oldIdx = newTemplatesData[idx]["old idx"]# Assumed not None,
+            oldTup = oldModel['req'][oldIdx] if oldIdx is not None and oldModel else None
+            if oldModel is not None and idx not in changedTemplates :
+                if oldTup is None:
+                    print(f"newTemplatesData is «{newTemplatesData}»")
+                    print(f"oldIdx is «{oldIdx}»")
+                    print(f"oldReq is «oldModel['req']»")
+                    assert False
+                oldIdx, oldType, oldReq_ = oldTup
+                tup = (idx, oldType, oldReq_)
+                req.append(tup)
+                if newTemplatesData[idx]["is new"]:
+                    changedOrNewReq.add(idx)
+                continue
+            else:
+                ret = self._reqForTemplate(m, flds, t)
+                tup = (idx, ret[0], ret[1])
+                if oldTup is None or oldTup[1]!=tup[1] or oldTup[2]!=tup[2]:
+                    changedOrNewReq.add(idx)
+                req.append(tup)
         m['req'] = req
+        return changedOrNewReq
 
     def _reqForTemplate(self, m, flds, t):
         """A rule which is supposed to determine whether a card should be
@@ -779,19 +837,25 @@ select id from notes where mid = ?)""" % " ".join(map),
                 req.append(i)
         return type, req
 
-    def availOrds(self, m, flds):
-        """Given a joined field string, return ordinal of card type which
-        should be generated. See
-        ../documentation/templates_generation_rules.md for the detail
-
-        """
+    def availOrds(self, m, flds, changedOrNewReq = None):
+        #oldModel = None, newTemplatesData = None
+        """Given a joined field string, return template ordinals which should be
+        seen. See ../documentation/templates_generation_rules.md for
+        the detail
+         """
         if m['type'] == MODEL_CLOZE:
             return self._availClozeOrds(m, flds)
         fields = {}
         for c, f in enumerate(splitFields(flds)):
             fields[c] = f.strip()
-        avail = []#List of ord of cards which would be generated
-        for ord, type, req in m['req']:
+        avail = []#List of ord cards which would be generated
+        for tup in m['req']:
+            # print(f"""tup is {tup}.
+            # m['req'] is {m['req']}
+            # m is {m}""")
+            ord, type, req = tup
+            if changedOrNewReq is not None and ord not in changedOrNewReq:
+                continue
             # unsatisfiable template
             if type == "none":
                 continue

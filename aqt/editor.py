@@ -500,7 +500,7 @@ class Editor:
             # save tags to model
             m = self.note.model()
             m['tags'] = self.note.tags
-            self.mw.col.models.save(m)
+            self.mw.col.models.save(m, recomputeReq=False)
 
     def hideCompleters(self):
         "Remove tags's line"

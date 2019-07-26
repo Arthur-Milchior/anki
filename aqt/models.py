@@ -73,7 +73,7 @@ class Models(QDialog):
         txt = getText(_("New name:"), default=self.model['name'])
         if txt[1] and txt[0]:
             self.model['name'] = txt[0]
-            self.mm.save(self.model)
+            self.mm.save(self.model, recomputeReq = False)
         self.updateModelsList()
 
     def updateModelsList(self):
@@ -92,8 +92,6 @@ class Models(QDialog):
 
     def modelChanged(self):
         """Called if the selected model has changed, in order to change self.model"""
-        if self.model:
-            self.saveModel()
         idx = self.form.modelsList.currentRow()
         self.model = self.models[idx]
 

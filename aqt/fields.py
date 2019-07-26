@@ -6,10 +6,12 @@ from anki.consts import *
 import aqt
 from aqt.utils import showWarning, openHelp, getOnlyText, askUser
 from anki.lang import _, ngettext
+import copy
 
 class FieldDialog(QDialog):
 
     def __init__(self, mw, note, ord=0, parent=None):
+        self.originalModel = copy.deepcopy(note.model())
         QDialog.__init__(self, parent or mw) #, Qt.Window)
         self.mw = aqt.mw
         self.parent = parent or mw
@@ -58,12 +60,15 @@ class FieldDialog(QDialog):
     def _uniqueName(self, prompt, ignoreOrd=None, old=""):
         """Ask for a new name using prompt, and default value old. Return it.
 
-        Unles this name is already used elsewhere, in this case, return None and show a warning. """
+        Unless this name is already used elsewhere, in this case, return None and show a warning.
+        If default name is given, return None."""
         txt = getOnlyText(prompt, default=old)
         if not txt:
             return
         for f in self.model['flds']:
             if ignoreOrd is not None and f['ord'] == ignoreOrd:
+                if f['name'] == txt:
+                    return
                 continue
             if f['name'] == txt:
                 showWarning(_("That field name is already used."))

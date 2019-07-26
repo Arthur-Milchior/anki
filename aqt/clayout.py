@@ -7,6 +7,7 @@
 * preview the different cards of a note."""
 import collections
 import re
+import copy
 
 from aqt.qt import *
 from anki.consts import *
@@ -77,6 +78,11 @@ class CardLayout(QDialog):
         # take the focus away from the first input area when starting up,
         # as users tend to accidentally type into the template
         self.setFocus()
+        self.newTemplatesData = [
+            {"is new":False,
+             "old idx":idx}
+            for idx in (range(len(self.model['tmpls'])))]
+        self.originalModel = copy.deepcopy(self.model)
 
     def redraw(self):
         """TODO
@@ -250,6 +256,7 @@ class CardLayout(QDialog):
             return showWarning(_("""\
 Removing this card type would cause one or more notes to be deleted. \
 Please create a new card type first."""))
+        del self.newTemplatesData[idx]
         self.redraw()
 
     # Buttons
@@ -368,7 +375,7 @@ Please create a new card type first."""))
 
         On the question side, it shows "exomple", on the answer side
         it shows the correction, for when the right answer is "an
-        example". 
+        example".
 
         txt -- the card type
         type -- a side. 'q' for question, 'a' for answer
@@ -411,6 +418,8 @@ Please create a new card type first."""))
         pos = getOnlyText(
             _("Enter new card position (1...%s):") % n,
             default=str(cur))
+        idx = self.ord
+        originalMeta = self.newTemplatesData[idx]
         if not pos:
             return
         try:
@@ -423,6 +432,7 @@ Please create a new card type first."""))
             return
         pos -= 1
         self.mm.moveTemplate(self.model, self.card.template(), pos)
+        self.newTemplatesData.insert(pos,originalMeta)
         self.ord = pos
         self.redraw()
 
@@ -448,6 +458,8 @@ Please create a new card type first."""))
         t['qfmt'] = old['qfmt']
         t['afmt'] = old['afmt']
         self.mm.addTemplate(self.model, t)
+        self.newTemplatesData.append({"old idx":self.newTemplatesData[self.ord]["old idx"],
+                                      "is new": True})
         self.ord = len(self.cards)
         self.redraw()
 
@@ -604,7 +616,9 @@ Enter deck to place new %s cards in, or leave blank:""") %
                 self.note[name] = ""
             self.mw.col.db.execute("delete from notes where id = ?",
                                    self.note.id)
-        self.mm.save(self.model, templates=True)
+        oldModel = self.originalModel
+        print(f"newTemplatesData is {self.newTemplatesData}")
+        self.mm.save(self.model, templates=True, oldModel = oldModel, newTemplatesData = self.newTemplatesData)
         self.mw.reset()
         saveGeom(self, "CardLayout")
         self.pform.frontWeb = None
