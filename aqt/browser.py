@@ -1242,14 +1242,14 @@ where id in %s""" % ids2str(
     def oneModelNotes(self):
         return self.applyToSelected(self._oneModelNotes)
 
-    def _oneModelNotes(self, sf):
+    def _oneModelNotes(self, nids):
         mods = self.col.db.scalar("""
 select count(distinct mid) from notes
-where id in %s""" % ids2str(sf))
+where id in %s""" % ids2str(nids))
         if mods > 1:
             showInfo(_("Please select cards from only one note type."))
             return
-        return sf
+        return nids
 
     def onHelp(self):
         openHelp("browser")
@@ -1483,7 +1483,7 @@ where id in %s""" % ids2str(sf))
     def _deleteNotes(self):
         return self.applyToSelected(self.__deleteNotes)
 
-    def __deleteNotes(self, sf):
+    def __deleteNotes(self, nids):
         self.mw.checkpoint(_("Delete Notes"))
         self.model.beginReset()
         # figure out where to place the cursor after the deletion
