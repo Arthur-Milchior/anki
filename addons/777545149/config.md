@@ -1,0 +1,3 @@
+* "deleted file": the name of the file in which deletions are logged. This file will be in your collection's folder.
+* "deletion log in CSV": whether to use CSV for deletion log instead of anki
+* "Create empty card for empty note while checking database" when the database check finds a note without card, whether to create a card instead of deleting the note. It allows to avoid loosing notes by accident.
