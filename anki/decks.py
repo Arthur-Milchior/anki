@@ -755,7 +755,7 @@ same id."""
         return [g for g in self.all(sort=sort) if g['name'].startswith(start)]
     #todo, maybe sort only this smaller list, at least until all() memoize
 
-    def childDids(self, did, childMap=None, includeSelf=False, sort=False):
+    def childDids(self, did, childMap=None, includeSelf=False, sort=True):
         #childmap is useless. Keep for consistency with anki.
         #sort was True by default, but never used.
         """The list of all descendant of did, as deck ids, ordered alphabetically
