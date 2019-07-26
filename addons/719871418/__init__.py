@@ -1,15 +1,26 @@
 from anki.collection import _Collection
 from aqt.browser import ChangeModel
-
-oldAccept = ChangeModel.accept
+from aqt.fields import FieldDialog
 
 def modSchema(self, check):
-    pass
+    self.setMod()
 
-def accept(self):
-    oldModSchema = _Collection.modSchema
-    _Collection.modSchema = modSchema
-    oldAccept(self)
-    _Collection.modSchema = oldModSchema
 
-ChangeModel.accept = accept
+for (class_, methodName) in [
+        (ChangeModel, "accept"),
+        (FieldDialog, "reject"),
+        (FieldDialog, "onRename"),
+        (FieldDialog, "onDelete"),
+        (FieldDialog, "onAdd"),
+        (FieldDialog, "onPosition"),
+]:
+    method = getattr(class_, methodName)
+    def aux(method):
+        #two methods, to fix method to this precise value
+        def aux_(self):
+            oldModSchema = _Collection.modSchema
+            _Collection.modSchema = modSchema
+            method(self)
+            _Collection.modSchema = oldModSchema
+        return aux_
+    setattr(class_, methodName, aux(method))

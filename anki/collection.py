@@ -308,7 +308,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         self.load()
         self.lock()
 
-    def modSchema(self, check):
+    def modSchema(self, check, onlyMod=False):
         """Mark schema modified. Call this first so user can abort if necessary.
 
         Raise AnkiError("abortSchemaMod") if the change is
@@ -319,11 +319,12 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
 
         Change the scm value
         """
-        if not self.schemaChanged():
-            if check and not runFilter("modSchema", True):
-                #default hook is added in aqt/main setupHooks. It is function onSchemaMod from class AnkiQt aqt/main
-                raise AnkiError("abortSchemaMod")
-        self.scm = intTime(1000)
+        if not onlyMod:
+            if not self.schemaChanged():
+                if check and not runFilter("modSchema", True):
+                    #default hook is added in aqt/main setupHooks. It is function onSchemaMod from class AnkiQt aqt/main
+                    raise AnkiError("abortSchemaMod")
+            self.scm = intTime(1000)
         self.setMod()
 
     def schemaChanged(self):
