@@ -244,6 +244,8 @@ class Editor:
             QShortcut(QKeySequence(keys), self.widget, activated=fn)
 
     def _addFocusCheck(self, fn):
+        """Function, calling fn if there is a currrent field, otherwise nothing.
+        """
         def checkFocus():
             if self.currentField is None:
                 return
@@ -251,16 +253,24 @@ class Editor:
         return checkFocus
 
     def onFields(self):
+        """Save the editor content, and open the field editor"""
         self.saveNow(self._onFields)
 
     def _onFields(self):
+        """Open the field editor"""
         from aqt.fields import FieldDialog
         FieldDialog(self.mw, self.note, parent=self.parentWindow)
 
     def onCardLayout(self):
+        """Save the editor content, and open the editor of card type"""
         self.saveNow(self._onCardLayout)
 
     def _onCardLayout(self):
+        """open the editor of card type. On current card if there is one
+        (i.e. in browser, or from editor), or card 0 otherwise
+        (i.e. when creating notes)
+
+        """
         from aqt.clayout import CardLayout
         if self.card:
             ord = self.card.ord
@@ -325,9 +335,8 @@ class Editor:
             self.note.flush()
             self.mw.requireReset()
 
-    def onFocus(self):
+    def onFocus(self, num):
         # focused into field?
-        (type, num) = cmd.split(":", 1)
         self.currentField = int(num)
         runHook("editFocusGained", self.note, self.currentField)
 
@@ -931,6 +940,7 @@ to a cloze type first, via Edit>Change Note Type."""))
         cutOrCopy=onCutOrCopy,
         key=onKey,
         blur=onBlur,
+        focus=onFocus,
         toggleLineAlone=onToggleLineAlone,
         toggleFroze=onFroze,
     )
