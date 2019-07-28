@@ -283,7 +283,7 @@ class ModelManager:
 
     def rem(self, m):
         "Delete model, and all its cards/notes."
-        self.modSchema()
+        self.col.modSchema(check=True)
         current = self.current()['id'] == m['id']
         # delete notes/cards
         cids = self.col.db.list("""
@@ -415,7 +415,7 @@ and notes.mid = ? and cards.ord = ?""", m['id'], ord)
         idx -- the identifier of a field
         """
         assert 0 <= idx < len(m['flds'])
-        self.modSchema()
+        self.col.modSchema(check=True)
         m['sortf'] = idx
         self.col.updateFieldCache(self.nids(m))
         self.save(m)
@@ -431,7 +431,7 @@ and notes.mid = ? and cards.ord = ?""", m['id'], ord)
         """
         # only mod schema if model isn't new
         if m['id']:
-            self.modSchema()
+            self.col.modSchema(check=True)
         m['flds'].append(field)
         self._updateFieldOrds(m)
         self.save(m)
@@ -449,7 +449,7 @@ and notes.mid = ? and cards.ord = ?""", m['id'], ord)
 
         m -- the model
         field -- the field object"""
-        self.modSchema()
+        self.col.modSchema(check=True)
         # save old sort field
         sortFldName = m['flds'][m['sortf']]['name']
         idx = m['flds'].index(field)
@@ -477,7 +477,7 @@ and notes.mid = ? and cards.ord = ?""", m['id'], ord)
         idx -- new position, integer
         field -- a field object
         """
-        self.modSchema()
+        self.col.modSchema(check=True)
         oldidx = m['flds'].index(field)
         if oldidx == idx:
             return
@@ -506,7 +506,7 @@ and notes.mid = ? and cards.ord = ?""", m['id'], ord)
         newName -- either a name. Or None if the field is deleted.
 
         """
-        self.modSchema()
+        self.col.modSchema(check=True)
         #Regexp associating to a mustache the name of its field
         pat = r'{{([^{}]*)([:#^/]|[^:#/^}][^:}]*?:|)%s}}'
         def wrap(txt):
@@ -570,7 +570,7 @@ and notes.mid = ? and cards.ord = ?""", m['id'], ord)
 
         "Note: should call col.genCards() afterwards."
         if m['id']:
-            self.modSchema()
+            self.col.modSchema(check=True)
         m['tmpls'].append(template)
         self._updateTemplOrds(m)
         self.save(m)
@@ -597,7 +597,7 @@ having count() < 2
 limit 1""" % ids2str(cids)):
             return False
         # ok to proceed; remove cards
-        self.modSchema()
+        self.col.modSchema(check=True)
         self.col.remCards(cids, reason=f"Removing card type {template} from model {m}")
         # shift ordinals
         self.col.db.execute("""
