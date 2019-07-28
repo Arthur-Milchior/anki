@@ -1,6 +1,7 @@
 In this file, I present anki's synchronization process. I first
 describe the general mechanism used in anki's code (desktop
-version). I then describe each step.
+version). I then describe each step. I end with a note about when a
+full change is required.
 
 
 # Protocol
@@ -344,3 +345,27 @@ Otherwise, it returns a sqlite database. It is checked to be a
 database readable with at least a card. If it has no card and current
 collectio has card, then nothing the downloaded db is deleted,
 otherwise it becomes the collection's database.
+
+
+# Full sync required
+Here is a list of times when a full sync is required.
+
+## Preferences
+You can request it in the preferences. This is actually useful if anki
+does not realize by itself that a full sync should occurs.
+
+## Changing a note type
+This occur while adding/removing/renaming/moving a field or a card type.
+
+One could imagine that, by marking each card/notes as modified, and uploading them, this would allow to avoid to upload the whole database. Sadly, ankiweb does not works like this. It'll throw an HTTP 500 error if we try to change the note type without doing a full sync.
+
+
+## Other
+* Change of scheduler version
+* if a full upload was started and interupted
+* if a sync did fail during sanity check
+* if some problem did occur during `anki.collection._Collection.fixIntegrity`(see the file db_check.md for more informations about this)
+* upgrading from a collection whose schema version is less than 11 (in general, which is not current version, but some change of version does not actually require a full sync). It's not clear to me right now what version actually means.
+* removing a deck configuration (this is probably because a deck created in another folder may have used this configuration)
+* if a backup is imported
+* when changing the note type of a note already existing. (actually, it should be possible to change this one without triggering a 500 error)
