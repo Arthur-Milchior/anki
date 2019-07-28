@@ -45,6 +45,9 @@ class ForeignCard:
 # 0: update if first field matches existing note
 # 1: ignore if first field matches existing note
 # 2: import even if first field matches existing note
+updateMode = 0
+ignoreMode = 1
+addMode = 2
 
 class NoteImporter(Importer):
     """TODO
@@ -60,7 +63,7 @@ class NoteImporter(Importer):
     needMapper = True
     needDelimiter = False
     allowHTML = False
-    importMode = 0
+    importMode = updateMode
 
     def __init__(self, col, file):
         Importer.__init__(self, col, file)
@@ -222,9 +225,9 @@ class NoteImporter(Importer):
         part1 = ngettext("%d note added", "%d notes added", len(new)) % len(new)
         part2 = ngettext("%d note updated", "%d notes updated",
                          self.updateCount) % self.updateCount
-        if self.importMode == 0:
+        if self.importMode == updateMode:
             unchanged = dupeCount - self.updateCount
-        elif self.importMode == 1:
+        elif self.importMode == ignoreMode:
             unchanged = dupeCount
         else:
             unchanged = 0
