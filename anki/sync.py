@@ -910,7 +910,7 @@ class FullSyncer(HttpSyncer):
         # make sure it's ok before we try to upload
         if self.col.db.scalar("pragma integrity_check") != "ok":
             return False
-        if bc is not True :
+        if not self.col.basicCheck():
             return False
         # apply some adjustments, then upload
         self.col.beforeUpload()
