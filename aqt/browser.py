@@ -2040,7 +2040,7 @@ class ChangeModel(QDialog):
         indices = {}
         sources = getattr(self,key+"src")
         sourcesNames = [template["name"] for template in sources]
-        if self.col.conf.get("preserveName", True):
+        if self.browser.col.conf.get("preserveName", True):
             assoc = eltToPos(sourcesNames, targets)
         else:
             assoc = enumerate(sourcesNames)
