@@ -277,7 +277,6 @@ Not currently enabled; click the sync button in the main window to enable."""))
         ("allowEmptyFirstField", ),
         ("advancedDeckColumns", ),
         ("browserOnMissingMedia", True),
-        ("changeModelWithoutFullSync", False, True, False),
         ("compileLaTeX", ),
         ("complexTemplates",),
         ("exportSiblings",),

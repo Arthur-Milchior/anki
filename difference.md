@@ -37,13 +37,6 @@ field, or adding text after/before it.
 In preferences, you can decide whether you add a new line between the
 old text and the added one.
 
-## Changing a note type without synchronizing (719871418)
-The preference "Change model without requiring a full sync" allow you
-to avoid full sync after adding/removing a field or a card type to a
-note type. However, this is risky. Thus you should only do this if you
-are sure that the change on all devices are already
-synchronized. Otherwise, it could create a bug.
-
 ## Copy note (1566928056)
 If you select notes in the browser, and do `Notes>Copy Notes` or
 `Ctrl+Alt+C`, a copy of the notes are created.

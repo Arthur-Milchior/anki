@@ -2356,15 +2356,16 @@ If a note has no remaining cards, it will be lost. \
 Are you sure you want to continue?""")):
                 return
         self.browser.mw.checkpoint(_("Change Note Type"))
-        if not self.browser.mw.pm.profile.get("changeModelWithoutFullSync", False):
-            self.browser.mw.col.modSchema(check=True)
-        self.browser.mw.progress.start()
-        self.browser.model.beginReset()
-        self.browser.mw.col.models.change(self.oldModel, self.nids, self.targetModel, fmap, cmap)
-        self.browser.search()
-        self.browser.model.endReset()
-        self.browser.mw.progress.finish()
-        self.browser.mw.reset()
+        b = self.browser
+        b.mw.col.modSchema(check=True)
+        b.mw.progress.start()
+        b.model.beginReset()
+        mm = b.mw.col.models
+        mm.change(self.oldModel, self.nids, self.targetModel, fmap, cmap)
+        b.search()
+        b.model.endReset()
+        b.mw.progress.finish()
+        b.mw.reset()
         self.cleanup()
         QDialog.accept(self)
 
