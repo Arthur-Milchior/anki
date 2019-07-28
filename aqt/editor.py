@@ -401,6 +401,10 @@ class Editor:
                 self.web.setFocus()
             runHook("loadNote", self)
 
+        if self.web is None:
+            #This occurs when action occurs just before the window is closed
+            return
+
         self.web.evalWithCallback("setFields(%s); setFonts(%s); focusField(%s); setNoteId(%s)" % (
             json.dumps(data),
             json.dumps(self.fonts()),
