@@ -37,6 +37,11 @@ field, or adding text after/before it.
 In preferences, you can decide whether you add a new line between the
 old text and the added one.
 
+## Change type of a note without a full sync (1564281585)
+This is not activated by default, because it may causes problem if you
+edit the note while it is not synchronized to it's new note type. So I
+want to ensure that doing so is your responsibility.
+
 ## Copy note (1566928056)
 If you select notes in the browser, and do `Notes>Copy Notes` or
 `Ctrl+Alt+C`, a copy of the notes are created.

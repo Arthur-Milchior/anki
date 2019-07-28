@@ -334,6 +334,20 @@
              </item>
             </layout>
            </item>
+           <item>
+            <widget class="QCheckBox" name="changeTypeOfNoteWithoutSync">
+             <property name="text">
+              <string>Change type of notes without full sync.</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_5">
+             <property name="text">
+              <string>You need to be sure that this note won't be edited on any other device before they are synced.</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </item>
         </layout>
