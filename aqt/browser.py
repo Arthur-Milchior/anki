@@ -2147,7 +2147,8 @@ Are you sure you want to continue?""")):
                 return
         self.browser.mw.checkpoint(_("Change Note Type"))
         b = self.browser
-        b.mw.col.modSchema(check=True)
+        if not self.browser.col.conf.get("changeTypeOfNoteWithoutSync", False):
+            b.mw.col.modSchema(check=True)
         b.mw.progress.start()
         b.model.beginReset()
         mm = b.mw.col.models
