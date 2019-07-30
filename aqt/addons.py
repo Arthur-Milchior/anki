@@ -953,6 +953,8 @@ incorporatedAddonsSet = {
     Addon("Explain deletions", 12287769, 1556149013, "aa0d9485974fafd109ccd426f393a0d17aa94306", "https://github.com/Arthur-Milchior/anki-note-deletion"),
     Addon("Export cards selected in the Browser", 1983204951, 1560768960, "f8990da153af2745078e7b3c33854d01cb9fa304", "https://github.com/Arthur-Milchior/anki-export-from-browser"),
     Addon("Frozen Fields", 516643804, 1561600792, "191bbb759b3a9554e88fa36ba20b83fe68187f2d", "https://github.com/glutanimate/frozen-fields"),
+    Addon("CTRL+F5 to Refresh the Browser", 1347728560, 1564463100, "056a2cf4b0096c42e077876578778b1cfe3cc90c", "https://github.com/Arthur-Milchior/anki-addons-misc/tree/refreshBrowser/src/browser_refresh"),
+    Addon("F5 to Refresh the Browser", 832679841, gitRepo="https://github.com/glutanimate/anki-addons-misc/tree/master/src/browser_refresh"),
     Addon("If a note has no more card warns instead of deleting it", 2018640062, 1560126140, "4a854242d06a05b2ca801a0afc29760682004782", "https://github.com/Arthur-Milchior/anki-keep-empty-note"),
     Addon("Improving change note type", 513858554, 1560753393, "4ece9f1da85358bce05a75d3bbeffa91d8c17ad4", "https://github.com/Arthur-Milchior/anki-change-note-type-clozes"),
     Addon("Improve speed of change of note type", 115825506, 1551823299, "8b125aa55a490b276019d1a2e7f6f8c0767d65b3", "https://github.com/Arthur-Milchior/anki-better-card-generation"),

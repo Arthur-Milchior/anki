@@ -208,6 +208,9 @@ The prefenece "In case of missing media, show the notes in the
 browser" allows to decide whether the browser show you the list of
 notes with missing media when you check media.
 
+## Refresh browser (1347728560, 832679841)
+Add the short-cut CTRL-F5 in browser to update the search
+
 ## Remove "Map to" in item import window for CSV (46741504)
 Because of this text, the keyboard can't be used to search a field. I
 thus remove it.

@@ -249,6 +249,8 @@
     <addaction name="actionSelectNotes"/>
     <addaction name="actionInvertSelection"/>
     <addaction name="separator"/>
+    <addaction name="actionRefresh"/>
+    <addaction name="separator"/>
     <addaction name="actionClose"/>
    </widget>
    <widget class="QMenu" name="menuJump">
@@ -659,6 +661,11 @@
   <action name="actionPostpone_reviews">
    <property name="text">
     <string>P&amp;ostpone reviews</string>
+   </property>
+  </action>
+  <action name="actionRefresh">
+   <property name="text">
+    <string>Refresh</string>
    </property>
   </action>
  </widget>
