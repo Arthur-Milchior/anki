@@ -45,6 +45,7 @@ class DataModel(QAbstractTableModel):
     allows to avoid reloading cards already seen since browser was
     opened. If a nose is «refreshed» then it is remove from the
     dic. It is emptied during reset.
+    showNotes -- whether cards or notes are shown. It should be mw.col.conf.get("advbrowse_uniqueNote", False) when browser is opened; but it may change later.
     focusedCard -- the last thing focused, assuming it was a single line. Used to restore a selection after edition/deletion. (Notes keep by compatibility, but it may be a note id)
     selectedCards -- a dictionnary containing the set of selected card's id, associating them to True. Seems that the associated value is never used. Used to restore a selection after some edition
     """
@@ -185,7 +186,16 @@ class DataModel(QAbstractTableModel):
         self.cards = []
         invalid = False
         try:
-            self.cards = self.col.findCards(txt, order=True)
+            if not self.browser.showNotes: #Keep one card by note
+                self.cards = self.col.findCards(txt, order=True)
+            else:
+                nids = set()
+                self.cards = []
+                for cid, nid in self.col.findCards(txt, order=True, withNids=True):
+                    if nid not in nids:
+                        self.cards.append(cid)
+                        nids.add(nid)
+
         except Exception as e:
             if str(e) == "invalidSearch":
                 self.cards = []
@@ -550,8 +560,14 @@ class Browser(QMainWindow):
         self.setupEditor()
         self.updateFont()
         self.onUndoState(self.mw.form.actionUndo.isEnabled())
+        self.dealWithShowNotes(self.mw.col.conf.get("advbrowse_uniqueNote", False))
         self.setupSearch()
         self.show()
+
+    def dealWithShowNotes(self, showNotes):
+        self.mw.col.conf["advbrowse_uniqueNote"] = showNotes
+        self.showNotes = showNotes
+        self.form.menu_Cards.setEnabled(not showNotes)
 
     def setupMenus(self):
         # pylint: disable=unnecessary-lambda
@@ -568,6 +584,7 @@ class Browser(QMainWindow):
         f.actionSelectNotes.triggered.connect(self.selectNotes)
         if not isMac:
             f.actionClose.setVisible(False)
+        f.actionShow_Notes_Cards.triggered.connect(self.toggleUniqueNote)
         # notes
         f.actionAdd.triggered.connect(self.mw.onAddCard)
         f.actionAdd_Tags.triggered.connect(lambda: self.addTags())
@@ -624,9 +641,10 @@ class Browser(QMainWindow):
 
         """
         m = QMenu()
-        for act in self.form.menu_Cards.actions():
-            m.addAction(act)
-        m.addSeparator()
+        if not self.showNotes:
+            for act in self.form.menu_Cards.actions():
+                m.addAction(act)
+            m.addSeparator()
         for act in self.form.menu_Notes.actions():
             m.addAction(act)
         runHook("browser.onContextMenu", self, m)
@@ -776,15 +794,17 @@ class Browser(QMainWindow):
     def updateTitle(self):
         """Set the browser's window title, to take into account the number of
         cards and of selected cards"""
-
+        """
         selected = len(self.form.tableView.selectionModel().selectedRows())
         cur = len(self.model.cards)
-        self.setWindowTitle(ngettext("Browse (%(cur)d card shown; %(sel)s)",
-                                     "Browse (%(cur)d cards shown; %(sel)s)",
-                                 cur) % {
-            "cur": cur,
-            "sel": ngettext("%d selected", "%d selected", selected) % selected
-            })
+        name = "note" if self.showNotes else "card"
+        self.setWindowTitle(ngettext(f"Browse (%(cur)d {name} shown; %(sel)s)",
+                                     f"Browse (%(cur)d {name}s shown; %(sel)s)",
+                                     cur)
+                            % {
+                                "cur": cur,
+                                "sel": ngettext("%d selected", "%d selected", selected) % selected
+                            })
         return selected
 
     def onReset(self):
@@ -1405,6 +1425,7 @@ please see the browser documentation.""")
         return [self.model.cards[idx.row()] for idx in
                 self.form.tableView.selectionModel().selectedRows()]
 
+
     def selectedNotes(self):
         return self.col.db.list("""
 select distinct nid from cards
@@ -1881,6 +1902,15 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
                 self.selectedCards(), fmin, fmax)
         self.search()
         self.mw.requireReset()
+        self.model.endReset()
+
+    # Edit: Toggle notes/cards
+    ######################################################################
+
+    def toggleUniqueNote(self):
+        self.model.beginReset()
+        self.dealWithShowNotes(not self.showNotes)
+        self.onSearchActivated()
         self.model.endReset()
 
     # Edit: selection
