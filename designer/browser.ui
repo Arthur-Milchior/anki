@@ -236,7 +236,7 @@
      <x>0</x>
      <y>0</y>
      <width>750</width>
-     <height>22</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuEdit">
@@ -248,6 +248,8 @@
     <addaction name="actionSelectAll"/>
     <addaction name="actionSelectNotes"/>
     <addaction name="actionInvertSelection"/>
+    <addaction name="separator"/>
+    <addaction name="actionRefresh"/>
     <addaction name="separator"/>
     <addaction name="actionClose"/>
    </widget>
@@ -597,6 +599,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+K</string>
+   </property>
+  </action>
+  <action name="actionRefresh">
+   <property name="text">
+    <string>Refresh</string>
    </property>
   </action>
  </widget>
