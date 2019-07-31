@@ -27,6 +27,32 @@ from aqt.webview import AnkiWebView
 from anki.consts import *
 from anki.sound import clearAudioQueue, allSounds, play
 
+"""The set of column names related to cards. Hence which should not be
+shown in note mode"""
+cardColumns = {"question", "answer", "template", "deck",
+               "cardMod", "cardDue", "cardIvl", "cardEase",
+               "cardReps", "cardLapses"}
+class ActiveCols:
+    """A descriptor, so that activecols is still a variable, and can
+    take into account whether it's note.
+
+    _
+    """
+    def __get__(self, dataModel, owner):
+        browser = dataModel.browser
+        showNotes = browser.showNotes
+        if showNotes:
+            l = [columnName for columnName in dataModel._activeCols
+                    if columnName not in cardColumns]
+        else:
+            l = dataModel._activeCols
+        return l
+
+    def __set__(self, dataModel, _activeCols):
+        dataModel._activeCols = _activeCols
+
+    def __str__(self):
+        return "Active cols"
 
 # Data model
 ##########################################################################
@@ -47,15 +73,18 @@ class DataModel(QAbstractTableModel):
     dic. It is emptied during reset.
     showNotes -- whether cards or notes are shown. It should be mw.col.conf.get("advbrowse_uniqueNote", False) when browser is opened; but it may change later.
     focusedCard -- the last thing focused, assuming it was a single line. Used to restore a selection after edition/deletion. (Notes keep by compatibility, but it may be a note id)
-    selectedCards -- a dictionnary containing the set of selected card's id, associating them to True. Seems that the associated value is never used. Used to restore a selection after some edition
+    selectedCards -- a descriptor, sending _selectedCards, but without
+    the cards columns if it's note type
+    _selectedCards -- a dictionnary containing the set of selected card's id, associating them to True. Seems that the associated value is never used. Used to restore a selection after some edition
     """
+    activeCols = ActiveCols()
     def __init__(self, browser):
         QAbstractTableModel.__init__(self)
         self.browser = browser
         self.col = browser.col
         self.sortKey = None
-        self.activeCols = self.col.conf.get(
-            "activeCols", ["noteFld", "template", "cardDue", "deck"])
+        defaultCols = ["noteFld", "template", "cardDue", "deck"]
+        self.activeCols = self.col.conf.get("activeCols", defaultCols)
         self.cards = []
         self.cardObjs = {}
 
@@ -315,12 +344,12 @@ class DataModel(QAbstractTableModel):
         row = index.row()
         col = index.column()
         type = self.columnType(col)
-        c = self.getCard(index)
+        card = self.getCard(index)
         method = getattr(self, f"{type}Content", None)
         if method:
             return method(card, row, col)
 
-    def noteFldContent(card, row, col):
+    def noteFldContent(self, card, row, col):
         """The content of the sorting field, on a single line."""
         f = card.note()
         model = f.model()
@@ -328,14 +357,14 @@ class DataModel(QAbstractTableModel):
         sortField = f.fields[sortIdx]
         return htmlToTextLine(sortField)
 
-    def templateContent(card, row, col):
+    def templateContent(self, card, row, col):
         """Name of the card type. With its number if it's a cloze card"""
         t = card.template()['name']
         if card.model()['type'] == MODEL_CLOZE:
             t += " %d" % (card.ord+1)
         return t
 
-    def cardDueContent(card, row, col):
+    def cardDueContent(self, card, row, col):
         """
         The content of the 'due' column in the browser.
         * (filtered) if the card is in a filtered deck
@@ -353,35 +382,35 @@ class DataModel(QAbstractTableModel):
             t = "(" + t + ")"
         return t
 
-    def noteCrtContent(card, row, col):
+    def noteCrtContent(self, card, row, col):
         """Date at wich the card's note was created"""
         return time.strftime("%Y-%m-%d", time.localtime(card.note().id/1000))
 
-    def noteModContent(card, row, col):
+    def noteModContent(self, card, row, col):
         """Date at wich the card's note was last modified"""
         return time.strftime("%Y-%m-%d", time.localtime(card.note().mod))
 
-    def cardModContent(card, row, col):
+    def cardModContent(self, card, row, col):
         """Date at wich the card note was last modified"""
         return time.strftime("%Y-%m-%d", time.localtime(card.mod))
 
-    def cardRepsContent(card, row, col):
+    def cardRepsContent(self, card, row, col):
         """Number of reviews to do"""
         return str(card.reps)
 
-    def cardLaspsesContent(card, row, col):
+    def cardLaspsesContent(self, card, row, col):
         """Number of times the card lapsed"""
         return str(card.lapses)
 
-    def noteTagsContent(card, row, col):
+    def noteTagsContent(self, card, row, col):
         """The list of tags for this card's note."""
         return " ".join(card.note().tags)
 
-    def noteContent(card, row, col):
+    def noteContent(self, card, row, col):
         """The name of the card's note's type"""
         return card.model()['name']
 
-    def cardIvlContent(card, row, col):
+    def cardIvlContent(self, card, row, col):
         """Whether card is new, in learning, or some representation of the
         interval as a number of days."""
         if card.type == 0:
@@ -390,13 +419,13 @@ class DataModel(QAbstractTableModel):
             return _("(learning)")
         return fmtTimeSpan(card.ivl*86400)
 
-    def cardEaseContent(card, row, col):
+    def cardEaseContent(self, card, row, col):
         """Either (new) or the ease fo the card as a percentage."""
         if card.type == 0:
             return _("(new)")
         return "%d%%" % (card.factor/10)
 
-    def deckContent(card, row, col):
+    def deckContent(self, card, row, col):
         """Name of the card's deck (with original deck in parenthesis if there
         is one)
 
@@ -409,13 +438,13 @@ class DataModel(QAbstractTableModel):
         # normal deck
         return self.browser.mw.col.decks.name(card.did)
 
-    def question(self, card, **args):
+    def questionContent(self, card, *args, **kwargs):
         """The question side of card, fitted in a single line"""
         # args because this allow questionContent to be equal to question
         return htmlToTextLine(card.q(browser=True))
-    questionContent = question
+    question = questionContent
 
-    def answer(self, card, **args):
+    def answerContent(self, card, *args, **kwargs):
         """The answer side on a single line.
 
         Either bafmt if it is defined. Otherwise normal answer,
@@ -432,7 +461,7 @@ class DataModel(QAbstractTableModel):
         if a.startswith(q):
             return a[len(q):].strip()
         return a
-    answerContent = answer
+    answer = answerContent
 
     def nextDue(self, card, index):
         """
@@ -553,6 +582,7 @@ class Browser(QMainWindow):
         self.form.splitter.setChildrenCollapsible(False)
         self.card = None
         self.setupColumns()
+        self.dealWithShowNotes(self.mw.col.conf.get("advbrowse_uniqueNote", False))
         self.setupTable()
         self.setupMenus()
         self.setupHeaders()
@@ -560,7 +590,6 @@ class Browser(QMainWindow):
         self.setupEditor()
         self.updateFont()
         self.onUndoState(self.mw.form.actionUndo.isEnabled())
-        self.dealWithShowNotes(self.mw.col.conf.get("advbrowse_uniqueNote", False))
         self.setupSearch()
         self.show()
 
@@ -803,7 +832,6 @@ class Browser(QMainWindow):
     def updateTitle(self):
         """Set the browser's window title, to take into account the number of
         cards and of selected cards"""
-        """
         selected = len(self.form.tableView.selectionModel().selectedRows())
         cur = len(self.model.cards)
         name = "note" if self.showNotes else "card"
@@ -840,16 +868,16 @@ class Browser(QMainWindow):
             self.mw, self.form.fieldsArea, self)
 
     def onRowChanged(self, current, previous):
-        "Save the none. Hide or show editor depending on which cards are
+        """Save the none. Hide or show editor depending on which cards are
         selected.
 
-        "
+        """
         self.editor.saveNow(lambda: self._onRowChanged(current, previous))
 
     def _onRowChanged(self, current, previous):
-        "Hide or show editor depending on which cards are selected.
+        """Hide or show editor depending on which cards are selected.
 
-        "
+        """
         update = self.updateTitle()
         show = self.model.cards and update == 1
         self.form.splitter.widget(1).setVisible(not not show)
@@ -965,6 +993,8 @@ by clicking on one on the left."""))
         for type, name in self.columns:
             a = m.addAction(name)
             a.setCheckable(True)
+            if self.showNotes and type in cardColumns:
+                a.setEnabled(False)
             a.setChecked(type in self.model.activeCols)
             a.toggled.connect(lambda b, t=type: self.toggleField(t))
         m.exec_(gpos)
@@ -988,10 +1018,10 @@ by clicking on one on the left."""))
             if len(self.model.activeCols) < 2:
                 self.model.endReset()
                 return showInfo(_("You must have at least one column."))
-            self.model.activeCols.remove(type)
+            self.model._activeCols.remove(type)
             adding=False
         else:
-            self.model.activeCols.append(type)
+            self.model._activeCols.append(type)
             adding=True
         # sorted field may have been hidden
         self.setSortIndicator()
