@@ -1059,7 +1059,7 @@ by clicking on one on the left."""))
         remove if there are less than two columns.
         """
         self.model.beginReset()
-        if type in self.model.activeCols:
+        if type in self.model._activeCols:
             if len(self.model.activeCols) < 2:
                 self.model.endReset()
                 return showInfo(_("You must have at least one column."))
@@ -1072,6 +1072,7 @@ by clicking on one on the left."""))
         self.setSortIndicator()
         self.setColumnSizes()
         self.model.endReset()
+        self.onSearchActivated()
         # if we added a column, scroll to it
         if adding:
             row = self.currentRow()
