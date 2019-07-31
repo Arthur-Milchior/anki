@@ -178,7 +178,7 @@ class DataModel(QAbstractTableModel):
         choice)
 
         """
-        if orientation == Qt.Vertical or role != Qt.DisplayRole or section < len(self.activeCols):
+        if orientation == Qt.Vertical or not(role == Qt.DisplayRole and section < len(self.activeCols)):
             return
         type = self.columnType(section)
         txt = None
@@ -438,13 +438,13 @@ class DataModel(QAbstractTableModel):
         # normal deck
         return self.browser.mw.col.decks.name(card.did)
 
-    def questionContent(self, card, *args, **kwargs):
+    def question(self, card, *args, **kwargs):
         """The question side of card, fitted in a single line"""
         # args because this allow questionContent to be equal to question
         return htmlToTextLine(card.q(browser=True))
-    question = questionContent
+    questionContent = question
 
-    def answerContent(self, card, *args, **kwargs):
+    def answer(self, card, *args, **kwargs):
         """The answer side on a single line.
 
         Either bafmt if it is defined. Otherwise normal answer,
@@ -461,7 +461,7 @@ class DataModel(QAbstractTableModel):
         if a.startswith(q):
             return a[len(q):].strip()
         return a
-    answer = answerContent
+    answerContent = answer
 
     def nextDue(self, card, index):
         """
