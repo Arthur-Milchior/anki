@@ -57,7 +57,7 @@ class Finder:
             print(f"On query «{query}», sql «{sql}» return empty because of {e}")
             return []
 
-    def findCards(self, query, order=False, withNids=False, oneByNote=False):
+    def findCards(self, query, order=False, withNids=False, oneByNote=False, rev=False):
         """Return a list of card ids for QUERY.
 
         order --
@@ -76,7 +76,10 @@ class Finder:
         if withNids:
             select += ", card.nid "
         groupBy = "card.nid" if oneByNote else ""
-        return self._find(query, select, order, ifInvalid, withNids, groupBy)
+        l = self._find(query, select, order, ifInvalid, withNids, groupBy)
+        if rev:
+            r.reverse()
+        return l
 
     def findNotes(self, query):
         def ifInvalid():

@@ -19,6 +19,7 @@ from anki.lang import _, ngettext
 from anki.sound import allSounds, clearAudioQueue, play
 from anki.utils import (bodyClass, fmtTimeSpan, htmlToTextLine, ids2str,
                         intTime, isMac, isWin)
+from aqt.browserColumn import BrowserColumn, ColumnList
 from aqt.qt import *
 from aqt.utils import (MenuList, SubMenu, askUser, getOnlyText, getTag,
                        mungeQA, openHelp, qtMenuShortcutWorkaround,
@@ -26,6 +27,20 @@ from aqt.utils import (MenuList, SubMenu, askUser, getOnlyText, getTag,
                        restoreState, saveGeom, saveHeader, saveSplitter,
                        saveState, shortcut, showInfo, showWarning, tooltip)
 from aqt.webview import AnkiWebView
+
+
+class ActiveCols:
+    """A descriptor, so that activecols is still a variable, and can
+    take into account whether it's note.
+    """
+    def __get__(self, dataModel, owner):
+        return [column for column in dataModel._activeCols if column.show(dataModel.browser)]
+
+    def __set__(self, dataModel, _activeCols):
+        dataModel._activeCols = ColumnList(_activeCols)
+
+    def __str__(self):
+        return "Active cols"
 
 # Data model
 ##########################################################################
@@ -37,8 +52,7 @@ class DataModel(QAbstractTableModel):
 
     Implemented as a separate class because that is how QT show those tables.
 
-    sortKey -- never used
-    activeCols -- the list of name of columns to display in the browser
+    activeCols -- the list of BrowserColumn to show
     cards -- the set of cards corresponding to current browser's search
     cardObjs -- dictionnady from card's id to the card object. It
     allows to avoid reloading cards already seen since browser was
@@ -47,13 +61,14 @@ class DataModel(QAbstractTableModel):
     focusedCard -- the last thing focused, assuming it was a single line. Used to restore a selection after edition/deletion.
     selectedCards -- a dictionnary containing the set of selected card's id, associating them to True. Seems that the associated value is never used. Used to restore a selection after some edition
     """
+    activeCols = ActiveCols()
     def __init__(self, browser, focusedCard=None, selectedCards=None):
         QAbstractTableModel.__init__(self)
         self.browser = browser
         self.col = browser.col
-        self.sortKey = None
-        self.activeCols = self.col.conf.get(
-            "activeCols", ["noteFld", "template", "cardDue", "deck"])
+        defaultColsNames = ["noteFld", "template", "cardDue", "deck"]
+        activeColsNames = self.col.conf.get("activeCols", defaultColsNames)
+        self.activeCols = [BrowserColumn.getBrowserColumn(type) for type in activeColsNames]
         self.cards = []
         self.cardObjs = {}
         self.focusedCard = focusedCard
@@ -98,7 +113,8 @@ class DataModel(QAbstractTableModel):
         """
         if parent and parent.isValid():
             return 0
-        return len(self.activeCols)
+        s = len(self.activeCols)
+        return s
 
     def data(self, index, role):
         """Some information to display the content of the table, at index
@@ -112,7 +128,7 @@ class DataModel(QAbstractTableModel):
             return
         if role == Qt.FontRole:
             # The font used for items rendered with the default delegate.
-            if self.activeCols[index.column()] not in (
+            if self.activeCols[index.column()].type not in (
                 "question", "answer", "noteFld"):
                 return
             row = index.row()
@@ -128,7 +144,7 @@ class DataModel(QAbstractTableModel):
         elif role == Qt.TextAlignmentRole:
             #The alignment of the text for items rendered with the default delegate.
             align = Qt.AlignVCenter
-            if self.activeCols[index.column()] not in ("question", "answer",
+            if self.activeCols[index.column()].type not in ("question", "answer",
                "template", "deck", "noteFld", "note"):
                 align |= Qt.AlignHCenter
             return align
@@ -151,16 +167,8 @@ class DataModel(QAbstractTableModel):
         """
         if orientation == Qt.Vertical or not(role == Qt.DisplayRole and section < len(self.activeCols)):
             return
-        type = self.columnType(section)
-        txt = None
-        for stype, name in self.browser.columns:
-            if type == stype:
-                txt = name
-                break
-        # handle case where extension has set an invalid column type
-        if not txt:
-            txt = self.browser.columns[0][1]
-        return txt
+        column = self.activeCols[section]
+        return column.name
 
     def flags(self, index):
         """Required by QAbstractTableModel. State that interaction is possible
@@ -186,7 +194,8 @@ class DataModel(QAbstractTableModel):
         self.cards = []
         invalid = False
         try:
-            self.cards = self.col.findCards(txt, order=True)
+            sortColumn = BrowserColumn.getBrowserColumn(self.browser.sortKey)
+            self.cards = self.col.findCards(txt, order=sortColumn.sort, rev=self.browser.sortBackwards)
         except Exception as e:
             if str(e) == "invalidSearch":
                 self.cards = []
@@ -291,7 +300,7 @@ class DataModel(QAbstractTableModel):
 
     def columnType(self, column):
         """The name of the column in position `column`"""
-        return self.activeCols[column]
+        return self.activeCols[column].type
 
     def columnData(self, index):
         """Return the text of the cell at a precise index.
@@ -304,11 +313,9 @@ class DataModel(QAbstractTableModel):
         """
         row = index.row()
         col = index.column()
-        type = self.columnType(col)
-        method = getattr(self, f"{type}Content", None)
-        if method:
-            card = self.getCard(index)
-            return method(card, row, col)
+        column = self.activeCols[col]
+        card = self.getCard(index)
+        return column.content(card, self)
 
     @staticmethod
     def noteFldContent(card, row, col):
@@ -511,6 +518,8 @@ class StatusDelegate(QItemDelegate):
 class Browser(QMainWindow):
     """model: the data model (and not a card model !)
 
+    sortKey -- the key by which columns are sorted
+    sortBackwards -- whether values are sorted in backward order
     card -- the card in the reviewer when the browser was opened, or the last selected card.
     columns -- A list of pair of potential columns, with their internal name and their local name.
     card -- card selected if there is a single one
@@ -529,6 +538,8 @@ class Browser(QMainWindow):
         QMainWindow.__init__(self, None, Qt.Window)
         self.mw = mw
         self.col = self.mw.col
+        self.sortKey = self.col.conf['sortType']
+        self.sortBackwards = self.col.conf['sortBackwards']
         self.lastFilter = ""
         self.focusTo = None
         self._previewWindow = None
@@ -541,7 +552,6 @@ class Browser(QMainWindow):
         restoreSplitter(self.form.splitter, "editor3")
         self.form.splitter.setChildrenCollapsible(False)
         self.card = None
-        self.setupColumns()
         self.setupTable()
         self.setupMenus()
         self.setupHeaders()
@@ -661,7 +671,7 @@ class Browser(QMainWindow):
         saveGeom(self, "editor")
         saveState(self, "editor")
         saveHeader(self.form.tableView.horizontalHeader(), "editor")
-        self.col.conf['activeCols'] = self.model.activeCols
+        self.col.conf['activeCols'] = [column.type for column in self.model._activeCols]
         self.col.setMod()
         self.teardownHooks()
         self.mw.maybeReset()
@@ -682,29 +692,6 @@ class Browser(QMainWindow):
             self.close()
         else:
             super().keyPressEvent(evt)
-
-    def setupColumns(self):
-        """Set self.columns"""
-        self.columns = [
-            ('question', _("Question")),
-            ('answer', _("Answer")),
-            ('template', _("Card")),
-            ('deck', _("Deck")),
-            ('noteFld', _("Sort Field")),
-            ('noteCrt', _("Created")),
-            ('noteMod', _("Edited")),
-            ('cardMod', _("Changed")),
-            ('cardDue', _("Due")),
-            ('cardIvl', _("Interval")),
-            ('cardEase', _("Ease")),
-            ('cardReps', _("Reviews")),
-            ('cardLapses', _("Lapses")),
-            ('noteTags', _("Tags")),
-            ('note', _("Note")),
-        ]
-        self.columns.sort(key=itemgetter(1)) # allow to sort by
-                                             # alphabetical order in
-                                             # the local language
 
 
     # Searching
@@ -877,9 +864,9 @@ class Browser(QMainWindow):
         self.editor.saveNow(lambda: self._onSortChanged(idx, ord))
 
     def _onSortChanged(self, idx, ord):
-        type = self.model.activeCols[idx]
-        noSort = ("question", "answer", "template", "deck", "note", "noteTags")
-        if type in noSort:
+        column = self.model.activeCols[idx]
+        type = column.type
+        if column.sort is None:
             if type == "template":
                 showInfo(_("""\
 This column can't be sorted on, but you can search for individual card types, \
@@ -891,17 +878,20 @@ by clicking on one on the left."""))
             else:
                 showInfo(_("Sorting on this column is not supported. Please "
                            "choose another."))
-            type = self.col.conf['sortType']
-        if self.col.conf['sortType'] != type:
-            self.col.conf['sortType'] = type
+            type = self.sortKey
+        if self.sortKey != type:
+            self.sortKey = type
+            self.col.conf['sortType'] = self.sortKey
             # default to descending for non-text fields
             if type == "noteFld":
                 ord = not ord
-            self.col.conf['sortBackwards'] = ord
+            self.sortBackwards = ord
+            self.col.conf['sortBackwards'] = self.sortBackwards
             self.search()
         else:
-            if self.col.conf['sortBackwards'] != ord:
-                self.col.conf['sortBackwards'] = ord
+            if self.sortBackwards != ord:
+                self.sortBackwards = ord
+                self.col.conf['sortBackwards'] = self.sortBackwards
                 self.model.reverse()
         self.setSortIndicator()
 
@@ -909,12 +899,11 @@ by clicking on one on the left."""))
         """Add the arrow indicating which column is used to sort, and
         in which order, in the column header"""
         hh = self.form.tableView.horizontalHeader()
-        type = self.col.conf['sortType']
-        if type not in self.model.activeCols:
+        if self.sortKey not in self.model.activeCols:
             hh.setSortIndicatorShown(False)
             return
-        idx = self.model.activeCols.index(type)
-        if self.col.conf['sortBackwards']:
+        idx = self.model.activeCols.index(self.sortKey)
+        if self.sortBackwards:
             ord = Qt.DescendingOrder
         else:
             ord = Qt.AscendingOrder
@@ -931,10 +920,15 @@ by clicking on one on the left."""))
         gpos = self.form.tableView.mapToGlobal(pos) # the position,
         # usable from the browser
         menu = QMenu()
-        for type, name in self.columns:
+        columns = [(type, column.name) for type, column in BrowserColumn.typeToObject.items() if column.showAsPotential()]
+        columns.sort(key=itemgetter(1))
+        for type, name in columns:
             action = menu.addAction(name)
             action.setCheckable(True)
-            action.setChecked(type in self.model.activeCols)
+            if type in self.model.activeCols:
+                action.setChecked(True)
+            if column.showAsPotential(self) and not column.show(self):
+                action.setEnabled(False)
             action.toggled.connect(lambda button, type=type: self.toggleField(type))
         menu.exec_(gpos)
 
@@ -957,10 +951,10 @@ by clicking on one on the left."""))
             if len(self.model.activeCols) < 2:
                 self.model.endReset()
                 return showInfo(_("You must have at least one column."))
-            self.model.activeCols.remove(type)
+            self.model._activeCols.remove(type)
             adding=False
         else:
-            self.model.activeCols.append(type)
+            self.model._activeCols.append(BrowserColumn.getBrowserColumn(type))
             adding=True
         # sorted field may have been hidden
         self.setSortIndicator()
