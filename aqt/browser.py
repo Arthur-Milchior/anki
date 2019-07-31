@@ -343,17 +343,23 @@ class DataModel(QAbstractTableModel):
             t = "(" + t + ")"
         return t
 
+    def timeFormat(self):
+        if self.browser.col.conf.get("minutesInBrowser", False):
+            return "%Y-%m-%d %H:%M"
+        else:
+            return "%Y-%m-%d"
+
     def noteCrtContent(self, card, row, col):
         """Date at wich the card's note was created"""
-        return time.strftime("%Y-%m-%d", time.localtime(card.note().id/1000))
+        return time.strftime(self.timeFormat(), time.localtime(card.note().id/1000))
 
     def noteModContent(self, card, row, col):
         """Date at wich the card's note was last modified"""
-        return time.strftime("%Y-%m-%d", time.localtime(card.note().mod))
+        return time.strftime(self.timeFormat(), time.localtime(card.note().mod))
 
     def cardModContent(self, card, row, col):
         """Date at wich the card note was last modified"""
-        return time.strftime("%Y-%m-%d", time.localtime(card.mod))
+        return time.strftime(self.timeFormat(), time.localtime(card.mod))
 
     def cardRepsContent(self, card, row, col):
         """Number of reviews to do"""
@@ -446,7 +452,7 @@ class DataModel(QAbstractTableModel):
             date = time.time() + ((card.due - self.col.sched.today)*86400)
         else:
             return ""
-        return time.strftime("%Y-%m-%d", time.localtime(date))
+        return time.strftime(self.timeFormat(), time.localtime(date))
 
     def isRTL(self, index):
         col = index.column()
