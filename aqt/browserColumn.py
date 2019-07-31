@@ -96,6 +96,26 @@ def cardDueContent(card, browser):
         t = "(" + t + ")"
     return t
 
+def answerContent(card, browser):
+    """The answer side on a single line.
+     Either bafmt if it is defined. Otherwise normal answer,
+    removing the question if it starts with it.
+    """
+    # args because this allow questionContent to be equal to question
+    if card.template().get('bafmt'):
+        # they have provided a template, use it verbatim
+        card.q(browser=True)
+        return htmlToTextLine(card.a())
+    # need to strip question from answer
+    q = htmlToTextLine(card.q(browser=True))
+    a = htmlToTextLine(card.a())
+    if a.startswith(q):
+        return a[len(q):].strip()
+    return a
+
+def format(browser):
+    return "%Y-%m-%d"+( " %H:%M" if browser.minutes else "")
+
 basicColumns = [
 BrowserColumn(
     type="noteFld",
@@ -124,7 +144,7 @@ BrowserColumn(
 BrowserColumn(
     type="noteCrt",
     name="Created",
-    content=lambda card, browser: time.strftime("%Y-%m-%d", time.localtime(card.note().id/1000)),
+    content=lambda card, browser: time.strftime(format(browser), time.localtime(card.note().id/1000)),
     sort="n.id, c.ord",
     menu=["Note"],
     description="""Date at wich the card's note was created""",
@@ -133,7 +153,7 @@ BrowserColumn(
 BrowserColumn(
     type="noteMod",
     name="Edited",
-    content=lambda card, browser: time.strftime("%Y-%m-%d", time.localtime(card.note().mod)),
+    content=lambda card, browser: time.strftime(format(browser), time.localtime(card.note().mod)),
     sort="n.mod, c.ord",
     menu=["Note"],
     description="""Date at wich the card's note was last modified""",
@@ -142,7 +162,7 @@ BrowserColumn(
 BrowserColumn(
     type="cardMod",
     name="Changed",
-    content=lambda card, browser: time.strftime("%Y-%m-%d", time.localtime(card.mod)),
+    content=lambda card, browser: time.strftime(format(browser), time.localtime(card.mod)),
     sort="c.mod",
     menu=["Card"],
     description="""Date at wich the card note was last modified""",
