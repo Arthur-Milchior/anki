@@ -848,6 +848,13 @@
          </property>
         </widget>
        </item>
+	   <item>
+        <widget class="QCheckBox" name="minutesInBrowser">
+         <property name="text">
+          <string>Show hours and minutes in the Browser</string>
+         </property>
+        </widget>
+       </item>
        <item>
         <widget class="QCheckBox" name="advancedDeckColumns">
          <property name="text">
