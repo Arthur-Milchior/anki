@@ -2131,14 +2131,11 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         self.mw.progress.start()
         self.model.beginReset()
         isHtml = frm.insertAsHtml.isChecked()
-        print(f"isHtml is {isHtml}")
         html = frm.textToAdd.toPlainText()
-        print(f"html is {html}")
         html = html.replace('\n', '<br/>')
         if not isHtml:
             html = html.replace('<', '&lt;')
             html = html.replace('>', '&gt;')
-        print(f"html became {html}")
         cnt = 0
         for nid in nids:
             note = self.mw.col.getNote(nid)
