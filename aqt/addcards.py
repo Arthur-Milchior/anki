@@ -155,7 +155,7 @@ class AddCards(QDialog):
     def onHistory(self):
         m = QMenu(self)
         for nid in self.history:
-            if self.mw.col.findNotes("nid:%s" % nid):
+            if self.mw.col.findNotes(f"nid:{nid}"):
                 fields = self.mw.col.getNote(nid).fields
                 txt = htmlToTextLine(", ".join(fields))
                 if len(txt) > 30:
