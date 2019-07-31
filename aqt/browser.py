@@ -29,7 +29,8 @@ from anki.consts import *
 from anki.sound import clearAudioQueue, allSounds, play
 from aqt.browserColumn import BrowserColumn, UnknownColumn
 
-
+"""The set of column names related to cards. Hence which should not be
+shown in note mode"""
 class ActiveCols:
     """A descriptor, so that activecols is still a variable, and can
     take into account whether it's note.
@@ -47,6 +48,8 @@ class ActiveCols:
         currentResult = []
         for column in dataModel._activeCols:
             if column.hide:
+                continue
+            if dataModel.browser.showNotes and column.cardRelated:
                 continue
             currentResult.append(column)
         self.lastVersion = copy.deepcopy(currentVersion)
@@ -78,6 +81,8 @@ class DataModel(QAbstractTableModel):
     dic. It is emptied during reset.
     showNotes -- whether cards or notes are shown. It should be mw.col.conf.get("advbrowse_uniqueNote", False) when browser is opened; but it may change later.
     focusedCard -- the last thing focused, assuming it was a single line. Used to restore a selection after edition/deletion. (Notes keep by compatibility, but it may be a note id)
+    activeCols -- a descriptor, sending _activeCols, but without
+    the cards columns if it's note type and without the columns we don't know how to use (they may have been added to the list of selected columns by a version of anki/add-on with more columns)
     selectedCards -- a dictionnary containing the set of selected card's id, associating them to True. Seems that the associated value is never used. Used to restore a selection after some edition
     """
     activeCols = ActiveCols()
@@ -86,8 +91,8 @@ class DataModel(QAbstractTableModel):
         self.browser = browser
         self.col = browser.col
         self.sortKey = None
-        activeColsNames = self.col.conf.get(
-            "activeCols", ["noteFld", "template", "cardDue", "deck"])
+        defaultCols = ["noteFld", "template", "cardDue", "deck"]
+        activeColsNames = self.col.conf.get("activeCols", defaultCols)
         self.activeCols = [BrowserColumn.typeToObject.get(type, UnknownColumn(type)) for type in
     activeColsNames]
         self.cards = []
@@ -665,7 +670,6 @@ class Browser(QMainWindow):
     def updateTitle(self):
         """Set the browser's window title, to take into account the number of
         cards and of selected cards"""
-
         selected = len(self.form.tableView.selectionModel().selectedRows())
         cur = len(self.model.cards)
         name = "note" if self.showNotes else "card"
@@ -824,13 +828,15 @@ by clicking on one on the left."""))
         gpos = self.form.tableView.mapToGlobal(pos) # the position,
         # usable from the browser
         m = QMenu()
-        l = [(type, column.name) for type, column in BrowserColumn.typeToObject.items()]
-        l.sort(key=itemgetter(1))
-        for type, name in l:
-            a = m.addAction(name)
+        l = [(type, column) for type, column in BrowserColumn.typeToObject.items()]
+        l.sort(key=lambda type_column: type_column[1].name)
+        for type, column in l:
+            a = m.addAction(column.name)
             a.setCheckable(True)
             if type in self.model.activeCols:
                 a.setChecked(True)
+            if self.showNotes and column.cardRelated :
+                a.setEnabled(False)
             a.toggled.connect(lambda b, t=type: self.toggleField(t))
         m.exec_(gpos)
 
@@ -849,7 +855,7 @@ by clicking on one on the left."""))
         remove if there are less than two columns.
         """
         self.model.beginReset()
-        if type in self.model.activeCols:
+        if type in self.model._activeCols:
             if len(self.model.activeCols) < 2:
                 self.model.endReset()
                 return showInfo(_("You must have at least one column."))
@@ -862,6 +868,7 @@ by clicking on one on the left."""))
         self.setSortIndicator()
         self.setColumnSizes()
         self.model.endReset()
+        self.onSearchActivated()
         # if we added a column, scroll to it
         if adding:
             row = self.currentRow()

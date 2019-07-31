@@ -12,12 +12,13 @@ class BrowserColumn(str):
     """
     typeToObject = dict()
 
-    def __init_subclass__(self, type, name, noSort=False, hide=False):
+    def __init_subclass__(self, type, name, noSort=False, hide=False, cardRelated=False):
         self.type = type
         self.name = _(name)
         self.noSort = noSort
         self.typeToObject[type] = self()
         self.hide = hide
+        self.cardRelated = cardRelated
 
     @staticmethod
     def content(card, col):
@@ -50,7 +51,7 @@ class noteFldColumn(BrowserColumn, type="noteFld", name="Sort Field"):
         sortField = f.fields[sortIdx]
         return htmlToTextLine(sortField)
 
-class templateColumn(BrowserColumn, type="template", name="Card", noSort=True):
+class templateColumn(BrowserColumn, type="template", name="Card", noSort=True, cardRelated=True):
 
     @staticmethod
     def content(card, col):
@@ -60,7 +61,7 @@ class templateColumn(BrowserColumn, type="template", name="Card", noSort=True):
             t += " %d" % (card.ord+1)
         return t
 
-class cardDueColumn(BrowserColumn, type="cardDue", name="Due"):
+class cardDueColumn(BrowserColumn, type="cardDue", name="Due", cardRelated=True):
 
     @staticmethod
     def content(card, col):
@@ -106,21 +107,21 @@ class noteModColumn(BrowserColumn, type="noteMod", name="Edited"):
         """Date at wich the card's note was last modified"""
         return time.strftime("%Y-%m-%d", time.localtime(card.note().mod))
 
-class cardModColumn(BrowserColumn, type="cardMod", name="Changed"):
+class cardModColumn(BrowserColumn, type="cardMod", name="Changed", cardRelated=True):
 
     @staticmethod
     def content(card, col):
         """Date at wich the card note was last modified"""
         return time.strftime("%Y-%m-%d", time.localtime(card.mod))
 
-class cardRepsColumn(BrowserColumn, type="cardReps", name="Reviews"):
+class cardRepsColumn(BrowserColumn, type="cardReps", name="Reviews", cardRelated=True):
 
     @staticmethod
     def content(card, col):
         """Number of reviews to do"""
         return str(card.reps)
 
-class cardLaspsesColumn(BrowserColumn, type="cardLaspses", name="Lapses"):
+class cardLaspsesColumn(BrowserColumn, type="cardLaspses", name="Lapses", cardRelated=True):
 
     @staticmethod
     def content(card, col):
@@ -141,7 +142,7 @@ class noteColumn(BrowserColumn, type="note", name="Note", noSort=True):
         """The name of the card's note's type"""
         return card.model()['name']
 
-class cardIvlColumn(BrowserColumn, type="cardIvl", name="Interval"):
+class cardIvlColumn(BrowserColumn, type="cardIvl", name="Interval", cardRelated=True):
 
     @staticmethod
     def content(card, col):
@@ -153,7 +154,7 @@ class cardIvlColumn(BrowserColumn, type="cardIvl", name="Interval"):
             return _("(learning)")
         return fmtTimeSpan(card.ivl*86400)
 
-class cardEaseColumn(BrowserColumn, type="cardEase", name="Ease"):
+class cardEaseColumn(BrowserColumn, type="cardEase", name="Ease", cardRelated=True):
 
     @staticmethod
     def content(card, col):
@@ -162,7 +163,7 @@ class cardEaseColumn(BrowserColumn, type="cardEase", name="Ease"):
             return _("(new)")
         return "%d%%" % (card.factor/10)
 
-class deckColumn(BrowserColumn, type="deck", name="Deck", noSort=True):
+class deckColumn(BrowserColumn, type="deck", name="Deck", noSort=True, cardRelated=True):
 
     @staticmethod
     def content(card, col):
@@ -178,14 +179,14 @@ class deckColumn(BrowserColumn, type="deck", name="Deck", noSort=True):
         # normal deck
         return col.decks.name(card.did)
 
-class questionColumn(BrowserColumn, type="question", name="Question", noSort=True):
+class questionColumn(BrowserColumn, type="question", name="Question", noSort=True, cardRelated=True):
 
     @staticmethod
     def content(card, *args, **kwargs):
         # args because this allow content to be equal to question
         return htmlToTextLine(card.q(browser=True))
 
-class answerColumn(BrowserColumn, type="answer", name="Answer", noSort=True):
+class answerColumn(BrowserColumn, type="answer", name="Answer", noSort=True, cardRelated=True):
 
     @staticmethod
     def content(card, *args, **kwargs):
