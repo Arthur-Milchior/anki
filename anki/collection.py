@@ -854,12 +854,19 @@ where c.nid == f.id
     # Finding cards
     ##########################################################################
 
-    def findCards(self, query, order=False):
-        return anki.find.Finder(self).findCards(query, order)
+    def findCards(self, *args, **kwargs):
+        """Return a list of card ids for QUERY.
 
-    def findNotes(self, query):
-        "Return a list of notes ids for QUERY."
-        return anki.find.Finder(self).findNotes(query)
+        See finder's findCards for more details
+        """
+        return anki.find.Finder(self).findCards(*args, **kwargs)
+
+    def findNotes(self, *args, **kwargs):
+        """Return a list of notes ids for QUERY.
+
+        See finder's findNotes for more details
+        """
+        return anki.find.Finder(self).findNotes(*args, **kwargs)
 
     def findReplace(self, nids, src, dst, regex=None, field=None, fold=True):
         return anki.find.findReplace(self, nids, src, dst, regex, field, fold)

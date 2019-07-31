@@ -9,6 +9,13 @@ cards. This ensure that they all belong to a same deck, while keeping
 the same deck hierarchy. `Decks > Remove prefix` allows to remove this
 common prefix and thus cancel the action `Add prefix`.
 
+## Advanced browser (874215009)
+This add-on adds many features.
+
+### Show notes instead of cards
+In the browser, the shortcut Ctrl+n toggle between two modes, showing
+modes and showing cards.
+
 ## Anki quicker (802285486)
 Those modification makes anki quicker. Technical details are on the
 add-on page.

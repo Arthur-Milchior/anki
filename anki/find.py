@@ -39,7 +39,7 @@ class Finder:
         self.search['is'] = self._findCardState
         runHook("search", self.search)
 
-    def find(self, query, ifInvalid, sqlBase, order=""):
+    def find(self, query, ifInvalid, sqlBase, order="", groupBy="", tuples=False):
         tokens = self._tokenize(query)
         preds, args = self._where(tokens)
         if preds is None:
@@ -52,31 +52,37 @@ class Finder:
         sql += preds
         if order:
             sql += " " + order
+        if groupBy:
+            sql += " group by "+groupBy
         try:
-            return self.col.db.list(sql, *args)
+            if tuples:
+                return self.col.db.all(sql, *args)
+            else:
+                return self.col.db.list(sql, *args)
         except:
             # invalid grouping
             return []
 
-    def findCards(self, query, order=False):
+    def findCards(self, query, order=False, withNids=False):
         """Return the set of card ids, of card satisfying predicate preds,
         where c is a card and n its note, ordered according to the sql
-        `order`"""
+        `order`
+
+        withNids -- whether it returns nids
+        """
         order, rev = self._order(order)
         # can we skip the note table?
         def ifInvalid():
             raise Exception("invalidSearch")
+        selectNote = ", c.nid" if withNids else ""
         def sqlBase(preds, order):
-            if "n." not in preds and "n." not in order:
-                return "select c.id from cards c where "
-            else:
-                return "select c.id from cards c, notes n where c.nid=n.id and "
+            from_ = " cards c where " if "n." not in preds and "n." not in order else " cards c, notes n where c.nid=n.id and "
+            return f"select c.id{selectNote} from {from_}"
         # order
-        res = self.find(query, ifInvalid, sqlBase, order)
+        res = self.find(query, ifInvalid, sqlBase, order, tuples=withNids)
         if rev:
             res.reverse()
         return res
-
 
     def findNotes(self, query):
         "Return a list of notes ids for QUERY."
@@ -87,6 +93,14 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """
             return []
         return self.find(query, ifInvalid, sqlBase)
 
+    def findNotesWithOneCard(self, query):
+        "Return a list of notes ids for QUERY."
+        def sqlBase(*args, **kwargs):
+            return """
+select c.nid, min(c.id) from cards c, notes n where c.nid=n.id and """
+        def ifInvalid():
+            return []
+        return self.find(query, ifInvalid, sqlBase, groupBy="c.nid", tuples=True)
 
     # Tokenizing
     ######################################################################

@@ -252,6 +252,7 @@
     <addaction name="actionRefresh"/>
     <addaction name="separator"/>
     <addaction name="actionClose"/>
+    <addaction name="actionShow_Notes_Cards"/>
    </widget>
    <widget class="QMenu" name="menuJump">
     <property name="title">
@@ -666,6 +667,14 @@
   <action name="actionRefresh">
    <property name="text">
     <string>Refresh</string>
+   </property>
+  </action>
+  <action name="actionShow_Notes_Cards">
+   <property name="text">
+    <string>Show Notes/Cards</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Alt+N</string>
    </property>
   </action>
  </widget>

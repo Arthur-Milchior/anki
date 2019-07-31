@@ -29,6 +29,32 @@ from anki.consts import *
 from anki.sound import clearAudioQueue, allSounds, play
 from anki.notes import Note
 
+"""The set of column names related to cards. Hence which should not be
+shown in note mode"""
+cardColumns = {"question", "answer", "template", "deck",
+               "cardMod", "cardDue", "cardIvl", "cardEase",
+               "cardReps", "cardLapses"}
+class ActiveCols:
+    """A descriptor, so that activecols is still a variable, and can
+    take into account whether it's note.
+
+    _
+    """
+    def __get__(self, dataModel, owner):
+        browser = dataModel.browser
+        showNotes = browser.showNotes
+        if showNotes:
+            l = [columnName for columnName in dataModel._activeCols
+                    if columnName not in cardColumns]
+        else:
+            l = dataModel._activeCols
+        return l
+
+    def __set__(self, dataModel, _activeCols):
+        dataModel._activeCols = _activeCols
+
+    def __str__(self):
+        return "Active cols"
 
 # Data model
 ##########################################################################
@@ -47,16 +73,20 @@ class DataModel(QAbstractTableModel):
     allows to avoid reloading cards already seen since browser was
     opened. If a nose is «refreshed» then it is remove from the
     dic. It is emptied during reset.
+    showNotes -- whether cards or notes are shown. It should be mw.col.conf.get("advbrowse_uniqueNote", False) when browser is opened; but it may change later.
     focusedCard -- the last thing focused, assuming it was a single line. Used to restore a selection after edition/deletion. (Notes keep by compatibility, but it may be a note id)
-    selectedCards -- a dictionnary containing the set of selected card's id, associating them to True. Seems that the associated value is never used. Used to restore a selection after some edition
+    selectedCards -- a descriptor, sending _selectedCards, but without
+    the cards columns if it's note type
+    _selectedCards -- a dictionnary containing the set of selected card's id, associating them to True. Seems that the associated value is never used. Used to restore a selection after some edition
     """
+    activeCols = ActiveCols()
     def __init__(self, browser):
         QAbstractTableModel.__init__(self)
         self.browser = browser
         self.col = browser.col
         self.sortKey = None
-        self.activeCols = self.col.conf.get(
-            "activeCols", ["noteFld", "template", "cardDue", "deck"])
+        defaultCols = ["noteFld", "template", "cardDue", "deck"]
+        self.activeCols = self.col.conf.get("activeCols", defaultCols)
         self.cards = []
         self.cardObjs = {}
 
@@ -187,7 +217,16 @@ class DataModel(QAbstractTableModel):
         self.cards = []
         invalid = False
         try:
-            self.cards = self.col.findCards(txt, order=True)
+            if not self.browser.showNotes: #Keep one card by note
+                self.cards = self.col.findCards(txt, order=True)
+            else:
+                nids = set()
+                self.cards = []
+                for cid, nid in self.col.findCards(txt, order=True, withNids=True):
+                    if nid not in nids:
+                        self.cards.append(cid)
+                        nids.add(nid)
+
         except Exception as e:
             if str(e) == "invalidSearch":
                 self.cards = []
@@ -536,6 +575,7 @@ class Browser(QMainWindow):
         self.form.splitter.setChildrenCollapsible(False)
         self.card = None
         self.setupColumns()
+        self.dealWithShowNotes(self.mw.col.conf.get("advbrowse_uniqueNote", False))
         self.setupTable()
         self.setupMenus()
         self.setupHeaders()
@@ -545,6 +585,20 @@ class Browser(QMainWindow):
         self.onUndoState(self.mw.form.actionUndo.isEnabled())
         self.setupSearch()
         self.show()
+
+    def dealWithShowNotes(self, showNotes):
+        self.mw.col.conf["advbrowse_uniqueNote"] = showNotes
+        self.showNotes = showNotes
+        self.form.menu_Cards.setEnabled(not showNotes)
+
+    def warnOnShowNotes(self, what):
+        """Return self.showNotes. If we show note, then warn that action what
+        is impossible.
+
+        """
+        if self.showNotes:
+            tooltip(_(f"You can't {what} a note. Please switch to card mode before doing this action."))
+        return self.showNotes
 
     def setupMenus(self):
         # pylint: disable=unnecessary-lambda
@@ -562,6 +616,7 @@ class Browser(QMainWindow):
         if not isMac:
             f.actionClose.setVisible(False)
         f.actionRefresh.triggered.connect(self.onSearchActivated)
+        f.actionShow_Notes_Cards.triggered.connect(self.toggleUniqueNote)
         # notes
         f.actionAdd.triggered.connect(self.mw.onAddCard)
         f.actionAdd_Tags.triggered.connect(lambda: self.addTags())
@@ -629,9 +684,10 @@ class Browser(QMainWindow):
 
         """
         m = QMenu()
-        for act in self.form.menu_Cards.actions():
-            m.addAction(act)
-        m.addSeparator()
+        if not self.showNotes:
+            for act in self.form.menu_Cards.actions():
+                m.addAction(act)
+            m.addSeparator()
         for act in self.form.menu_Notes.actions():
             m.addAction(act)
         runHook("browser.onContextMenu", self, m)
@@ -781,15 +837,16 @@ class Browser(QMainWindow):
     def updateTitle(self):
         """Set the browser's window title, to take into account the number of
         cards and of selected cards"""
-
         selected = len(self.form.tableView.selectionModel().selectedRows())
         cur = len(self.model.cards)
-        self.setWindowTitle(ngettext("Browse (%(cur)d card shown; %(sel)s)",
-                                     "Browse (%(cur)d cards shown; %(sel)s)",
-                                 cur) % {
-            "cur": cur,
-            "sel": ngettext("%d selected", "%d selected", selected) % selected
-            })
+        name = "note" if self.showNotes else "card"
+        self.setWindowTitle(ngettext(f"Browse (%(cur)d {name} shown; %(sel)s)",
+                                     f"Browse (%(cur)d {name}s shown; %(sel)s)",
+                                     cur)
+                            % {
+                                "cur": cur,
+                                "sel": ngettext("%d selected", "%d selected", selected) % selected
+                            })
         return selected
 
     def onReset(self):
@@ -941,6 +998,8 @@ by clicking on one on the left."""))
         for type, name in self.columns:
             a = m.addAction(name)
             a.setCheckable(True)
+            if self.showNotes and type in cardColumns:
+                a.setEnabled(False)
             a.setChecked(type in self.model.activeCols)
             a.toggled.connect(lambda b, t=type: self.toggleField(t))
         m.exec_(gpos)
@@ -964,10 +1023,10 @@ by clicking on one on the left."""))
             if len(self.model.activeCols) < 2:
                 self.model.endReset()
                 return showInfo(_("You must have at least one column."))
-            self.model.activeCols.remove(type)
+            self.model._activeCols.remove(type)
             adding=False
         else:
-            self.model.activeCols.append(type)
+            self.model._activeCols.append(type)
             adding=True
         # sorted field may have been hidden
         self.setSortIndicator()
@@ -1319,6 +1378,8 @@ by clicking on one on the left."""))
     ######################################################################
 
     def showCardInfo(self):
+        if warnOnShowNotes("show info of"):
+            return
         if not self.card:
             return
         info, cs = self._cardInfoData()
@@ -1409,6 +1470,7 @@ please see the browser documentation.""")
         """The list of selected card's id"""
         return [self.model.cards[idx.row()] for idx in
                 self.form.tableView.selectionModel().selectedRows()]
+
 
     def selectedNotes(self):
         return self.col.db.list("""
@@ -1717,6 +1779,8 @@ where id in %s""" % ids2str(nids))
     ######################################################################
 
     def setDeck(self):
+        if warnOnShowNotes("change the deck of"):
+            return
         self.editor.saveNow(self._setDeck)
 
     def _setDeck(self):
@@ -1843,6 +1907,8 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         return bool (self.card and self.card.queue == QUEUE_SUSPENDED)
 
     def onSuspend(self):
+        if self.warnOnShowNotes("suspend"):
+            return
         self.editor.saveNow(self._onSuspend)
 
     def _onSuspend(self):
@@ -1859,6 +1925,8 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
     ######################################################################
 
     def onSetFlag(self, n):
+        if self.warnOnShowNotes("change the flag of"):
+            return
         # flag needs toggling off?
         if n == self.card.userFlag():
             n = 0
@@ -1895,6 +1963,8 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
     ######################################################################
 
     def reposition(self):
+        if self.warnOnShowNotes("reposition"):
+            return
         self.editor.saveNow(self._reposition)
 
     def _reposition(self):
@@ -1929,6 +1999,8 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
     ######################################################################
 
     def reschedule(self):
+        if self.warnOnShowNotes("reschedule"):
+            return
         self.editor.saveNow(self._reschedule)
 
     def _reschedule(self):
@@ -1955,6 +2027,15 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
     def onPostpone_reviews(self):
         cids=self.selectedCards()
         self.col.addDelay(cids)
+
+    # Edit: Toggle notes/cards
+    ######################################################################
+
+    def toggleUniqueNote(self):
+        self.model.beginReset()
+        self.dealWithShowNotes(not self.showNotes)
+        self.onSearchActivated()
+        self.model.endReset()
 
     # Edit: selection
     ######################################################################
