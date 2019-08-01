@@ -4,6 +4,7 @@
 
 import sre_constants
 import html
+import copy
 import time
 import re
 import unicodedata
@@ -27,28 +28,34 @@ from anki.hooks import runHook, addHook, remHook, runFilter
 from aqt.webview import AnkiWebView
 from anki.consts import *
 from anki.sound import clearAudioQueue, allSounds, play
-from anki.notes import Note
+from aqt.browserColumn import BrowserColumn, UnknownColumn
 
 """The set of column names related to cards. Hence which should not be
 shown in note mode"""
-cardColumns = {"question", "answer", "template", "deck",
-               "cardMod", "cardDue", "cardIvl", "cardEase",
-               "cardReps", "cardLapses"}
 class ActiveCols:
     """A descriptor, so that activecols is still a variable, and can
     take into account whether it's note.
 
     _
     """
+    def __init__(self):
+        self.lastVersion = None
+        self.lastResult = None
+
     def __get__(self, dataModel, owner):
-        browser = dataModel.browser
-        showNotes = browser.showNotes
-        if showNotes:
-            l = [columnName for columnName in dataModel._activeCols
-                    if columnName not in cardColumns]
-        else:
-            l = dataModel._activeCols
-        return l
+        currentVersion = (dataModel._activeCols, dataModel.browser.showNotes)
+        if self.lastVersion == currentVersion:
+            return self.lastResult
+        currentResult = []
+        for column in dataModel._activeCols:
+            if column.hide:
+                continue
+            if dataModel.browser.showNotes and column.cardRelated:
+                continue
+            currentResult.append(column)
+        self.lastVersion = copy.deepcopy(currentVersion)
+        self.lastResult = currentResult
+        return currentResult
 
     def __set__(self, dataModel, _activeCols):
         dataModel._activeCols = _activeCols
@@ -67,7 +74,7 @@ class DataModel(QAbstractTableModel):
     Implemented as a separate class because that is how QT show those tables.
 
     sortKey -- never used
-    activeCols -- the list of name of columns to display in the browser
+    activeCols -- the list of BrowserColumn to show
     cards -- the set of cards corresponding to current browser's search
     cardObjs -- dictionnady from card's id to the card object. It
     allows to avoid reloading cards already seen since browser was
@@ -78,6 +85,8 @@ class DataModel(QAbstractTableModel):
     selectedCards -- a descriptor, sending _selectedCards, but without
     the cards columns if it's note type
     _selectedCards -- a dictionnary containing the set of selected card's id, associating them to True. Seems that the associated value is never used. Used to restore a selection after some edition
+    activeCols -- a descriptor, sending _activeCols, but without
+    the cards columns if it's note type and without the columns we don't know how to use (they may have been added to the list of selected columns by a version of anki/add-on with more columns)
     """
     activeCols = ActiveCols()
     def __init__(self, browser):
@@ -86,7 +95,9 @@ class DataModel(QAbstractTableModel):
         self.col = browser.col
         self.sortKey = None
         defaultCols = ["noteFld", "template", "cardDue", "deck"]
-        self.activeCols = self.col.conf.get("activeCols", defaultCols)
+        activeColsNames = self.col.conf.get("activeCols", defaultCols)
+        self.activeCols = [BrowserColumn.typeToObject.get(type, UnknownColumn(type)) for type in
+    activeColsNames]
         self.cards = []
         self.cardObjs = {}
 
@@ -143,7 +154,7 @@ class DataModel(QAbstractTableModel):
             return
         if role == Qt.FontRole:
             # The font used for items rendered with the default delegate.
-            if self.activeCols[index.column()] not in (
+            if self.activeCols[index.column()].type not in (
                 "question", "answer", "noteFld"):
                 return
             row = index.row()
@@ -159,7 +170,7 @@ class DataModel(QAbstractTableModel):
         elif role == Qt.TextAlignmentRole:
             #The alignment of the text for items rendered with the default delegate.
             align = Qt.AlignVCenter
-            if self.activeCols[index.column()] not in ("question", "answer",
+            if self.activeCols[index.column()].type not in ("question", "answer",
                "template", "deck", "noteFld", "note"):
                 align |= Qt.AlignHCenter
             return align
@@ -182,16 +193,8 @@ class DataModel(QAbstractTableModel):
         """
         if orientation == Qt.Vertical or not(role == Qt.DisplayRole and section < len(self.activeCols)):
             return
-        type = self.columnType(section)
-        txt = None
-        for stype, name in self.browser.columns:
-            if type == stype:
-                txt = name
-                break
-        # handle case where extension has set an invalid column type
-        if not txt:
-            txt = self.browser.columns[0][1]
-        return txt
+        column = self.activeCols[section]
+        return column.name
 
     def flags(self, index):
         """Required by QAbstractTableModel. State that interaction is possible
@@ -332,7 +335,7 @@ class DataModel(QAbstractTableModel):
 
     def columnType(self, column):
         """The name of the column in position `column`"""
-        return self.activeCols[column]
+        return self.activeCols[column].type
 
     def columnData(self, index):
         """Return the text of the cell at a precise index.
@@ -345,155 +348,9 @@ class DataModel(QAbstractTableModel):
         """
         row = index.row()
         col = index.column()
-        type = self.columnType(col)
         card = self.getCard(index)
-        method = getattr(self, f"{type}Content", None)
-        if method:
-            return method(card, row, col)
-
-    def noteFldContent(self, card, row, col):
-        """The content of the sorting field, on a single line."""
-        f = card.note()
-        model = f.model()
-        sortIdx = self.col.models.sortIdx(model)
-        sortField = f.fields[sortIdx]
-        return htmlToTextLine(sortField)
-
-    def templateContent(self, card, row, col):
-        """Name of the card type. With its number if it's a cloze card"""
-        t = card.template()['name']
-        if card.model()['type'] == MODEL_CLOZE:
-            t += " %d" % (card.ord+1)
-        return t
-
-    def cardDueContent(self, card, row, col):
-        """
-        The content of the 'due' column in the browser.
-        * (filtered) if the card is in a filtered deck
-        * the due integer if the card is new
-        * the due date if the card is in learning or review mode.
-
-        Parenthesis if suspended or buried
-        """
-        # catch invalid dates
-        try:
-            t = self.nextDue(card, None)
-        except:
-            t = ""
-        if card.queue < 0:#supsended or buried
-            t = "(" + t + ")"
-        return t
-
-    def timeFormat(self):
-        if self.browser.col.conf.get("minutesInBrowser", False):
-            return "%Y-%m-%d %H:%M"
-        else:
-            return "%Y-%m-%d"
-
-    def noteCrtContent(self, card, row, col):
-        """Date at wich the card's note was created"""
-        return time.strftime(self.timeFormat(), time.localtime(card.note().id/1000))
-
-    def noteModContent(self, card, row, col):
-        """Date at wich the card's note was last modified"""
-        return time.strftime(self.timeFormat(), time.localtime(card.note().mod))
-
-    def cardModContent(self, card, row, col):
-        """Date at wich the card note was last modified"""
-        return time.strftime(self.timeFormat(), time.localtime(card.mod))
-
-    def cardRepsContent(self, card, row, col):
-        """Number of reviews to do"""
-        return str(card.reps)
-
-    def cardLaspsesContent(self, card, row, col):
-        """Number of times the card lapsed"""
-        return str(card.lapses)
-
-    def noteTagsContent(self, card, row, col):
-        """The list of tags for this card's note."""
-        return " ".join(card.note().tags)
-
-    def noteContent(self, card, row, col):
-        """The name of the card's note's type"""
-        return card.model()['name']
-
-    def cardIvlContent(self, card, row, col):
-        """Whether card is new, in learning, or some representation of the
-        interval as a number of days."""
-        if card.type == 0:
-            return _("(new)")
-        elif card.type == 1:
-            return _("(learning)")
-        return fmtTimeSpan(card.ivl*86400)
-
-    def cardEaseContent(self, card, row, col):
-        """Either (new) or the ease fo the card as a percentage."""
-        if card.type == 0:
-            return _("(new)")
-        return "%d%%" % (card.factor/10)
-
-    def deckContent(self, card, row, col):
-        """Name of the card's deck (with original deck in parenthesis if there
-        is one)
-
-        """
-        if card.odid:
-            # in a cram deck
-            return "%s (%s)" % (
-                self.browser.mw.col.decks.name(card.did),
-                self.browser.mw.col.decks.name(card.odid))
-        # normal deck
-        return self.browser.mw.col.decks.name(card.did)
-
-    def question(self, card, *args, **kwargs):
-        """The question side of card, fitted in a single line"""
-        # args because this allow questionContent to be equal to question
-        return htmlToTextLine(card.q(browser=True))
-    questionContent = question
-
-    def answer(self, card, *args, **kwargs):
-        """The answer side on a single line.
-
-        Either bafmt if it is defined. Otherwise normal answer,
-        removing the question if it starts with it.
-        """
-        # args because this allow questionContent to be equal to question
-        if card.template().get('bafmt'):
-            # they have provided a template, use it verbatim
-            card.q(browser=True)
-            return htmlToTextLine(card.a())
-        # need to strip question from answer
-        q = self.question(card)
-        a = htmlToTextLine(card.a())
-        if a.startswith(q):
-            return a[len(q):].strip()
-        return a
-    answerContent = answer
-
-    def nextDue(self, card, index):
-        """
-        The content of the 'due' column in the browser.
-        * (filtered) if the card is in a filtered deck
-        * the due integer if the card is new
-        * the due date if the card is in learning or review mode.
-
-        Only used in cardDueContent. It's kept outside of it only by consistency with original anki.
-
-        index -- not used"""
-        if card.odid:
-            return _("(filtered)")
-        elif card.queue == QUEUE_LRN:
-            date = card.due
-        elif card.queue == QUEUE_NEW_CRAM or card.type == CARD_NEW:
-            return str(card.due)
-        elif card.queue in (QUEUE_REV, QUEUE_DAY_LRN) or (card.type == CARD_DUE and
-                                                          card.queue < 0#suspended or buried
-        ):
-            date = time.time() + ((card.due - self.col.sched.today)*86400)
-        else:
-            return ""
-        return time.strftime(self.timeFormat(), time.localtime(date))
+        column = self.activeCols[col]
+        return column.content(card, self.col)
 
     def isRTL(self, index):
         col = index.column()
@@ -580,7 +437,6 @@ class Browser(QMainWindow):
         restoreSplitter(self.form.splitter, "editor3")
         self.form.splitter.setChildrenCollapsible(False)
         self.card = None
-        self.setupColumns()
         self.dealWithShowNotes(self.mw.col.conf.get("advbrowse_uniqueNote", False))
         self.setupTable()
         self.setupMenus()
@@ -730,7 +586,7 @@ class Browser(QMainWindow):
         saveGeom(self, "editor")
         saveState(self, "editor")
         saveHeader(self.form.tableView.horizontalHeader(), "editor")
-        self.col.conf['activeCols'] = self.model.activeCols
+        self.col.conf['activeCols'] = [column.type for column in self.model._activeCols]
         self.col.setMod()
         self.teardownHooks()
         self.mw.maybeReset()
@@ -751,29 +607,6 @@ class Browser(QMainWindow):
             self.close()
         else:
             super().keyPressEvent(evt)
-
-    def setupColumns(self):
-        """Set self.columns"""
-        self.columns = [
-            ('question', _("Question")),
-            ('answer', _("Answer")),
-            ('template', _("Card")),
-            ('deck', _("Deck")),
-            ('noteFld', _("Sort Field")),
-            ('noteCrt', _("Created")),
-            ('noteMod', _("Edited")),
-            ('cardMod', _("Changed")),
-            ('cardDue', _("Due")),
-            ('cardIvl', _("Interval")),
-            ('cardEase', _("Ease")),
-            ('cardReps', _("Reviews")),
-            ('cardLapses', _("Lapses")),
-            ('noteTags', _("Tags")),
-            ('note', _("Note")),
-        ]
-        self.columns.sort(key=itemgetter(1)) # allow to sort by
-                                             # alphabetical order in
-                                             # the local language
 
 
     # Searching
@@ -947,9 +780,9 @@ class Browser(QMainWindow):
         self.editor.saveNow(lambda: self._onSortChanged(idx, ord))
 
     def _onSortChanged(self, idx, ord):
-        type = self.model.activeCols[idx]
-        noSort = ("question", "answer", "template", "deck", "note", "noteTags")
-        if type in noSort:
+        column = self.model.activeCols[idx]
+        type = column.type
+        if column.noSort:
             if type == "template":
                 showInfo(_("""\
 This column can't be sorted on, but you can search for individual card types, \
@@ -1001,12 +834,15 @@ by clicking on one on the left."""))
         gpos = self.form.tableView.mapToGlobal(pos) # the position,
         # usable from the browser
         m = QMenu()
-        for type, name in self.columns:
-            a = m.addAction(name)
+        l = [(type, column) for type, column in BrowserColumn.typeToObject.items()]
+        l.sort(key=lambda type_column: type_column[1].name)
+        for type, column in l:
+            a = m.addAction(column.name)
             a.setCheckable(True)
-            if self.showNotes and type in cardColumns:
+            if type in self.model.activeCols:
+                a.setChecked(True)
+            if self.showNotes and column.cardRelated :
                 a.setEnabled(False)
-            a.setChecked(type in self.model.activeCols)
             a.toggled.connect(lambda b, t=type: self.toggleField(t))
         m.exec_(gpos)
 
@@ -1025,19 +861,20 @@ by clicking on one on the left."""))
         remove if there are less than two columns.
         """
         self.model.beginReset()
-        if type in self.model.activeCols:
+        if type in self.model._activeCols:
             if len(self.model.activeCols) < 2:
                 self.model.endReset()
                 return showInfo(_("You must have at least one column."))
             self.model._activeCols.remove(type)
             adding=False
         else:
-            self.model._activeCols.append(type)
+            self.model._activeCols.append(BrowserColumn.typeToObject.get(type, UnknownColumn(type)))
             adding=True
         # sorted field may have been hidden
         self.setSortIndicator()
         self.setColumnSizes()
         self.model.endReset()
+        self.onSearchActivated()
         # if we added a column, scroll to it
         if adding:
             row = self.currentRow()

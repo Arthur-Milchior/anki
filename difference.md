@@ -12,6 +12,10 @@ common prefix and thus cancel the action `Add prefix`.
 ## Advanced browser (874215009)
 This add-on adds many features.
 
+### Show notes instead of cards
+In the browser, the shortcut Ctrl+n toggle between two modes, showing
+modes and showing cards.
+
 ## Minutes in the browser
 Allow the columns in browser to show hours and minutes. It may helps
 to see more precisely when cards in learning are due, and see in which
