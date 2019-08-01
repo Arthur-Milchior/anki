@@ -1,4 +1,6 @@
 # Forked Anki, Alpha version
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FArthur-Milchior%2Fanki.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FArthur-Milchior%2Fanki?ref=badge_shield)
+
 -------------------------------------
 
 This is the development branch of a forked version of Anki. For the official, please see [https://apps.ankiweb.net](https://apps.ankiweb.net).
@@ -41,3 +43,7 @@ For a detailled explanation, see [How to add an add-on in the code.md](How to ad
 To run from source, please see README.development.
 
 If you are interested in contributing changes to this Fork, just contact arthur@milchior.fr
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FArthur-Milchior%2Fanki.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FArthur-Milchior%2Fanki?ref=badge_large)
