@@ -21,8 +21,8 @@ from anki.lang import _, ngettext
 from anki.sound import allSounds, clearAudioQueue, play
 from anki.utils import (bodyClass, fmtTimeSpan, htmlToTextLine, ids2str,
                         intTime, isMac, isWin)
-from aqt.browserColumn import (BrowserColumn, ColumnList, basicColumns,
-                               unknownColumn)
+from aqt.browserColumn import (BrowserColumn, ColumnList, advancedColumns,
+                               basicColumns, internalColumns, unknownColumn)
 from aqt.qt import *
 from aqt.utils import (MenuList, SubMenu, askUser, getOnlyText, getTag,
                        mungeQA, openHelp, qtMenuShortcutWorkaround,
@@ -98,10 +98,14 @@ class DataModel(QAbstractTableModel):
         self.potentialColumns = dict()
         self.absentColumns = set()
         defaultColsNames = ["noteFld", "template", "cardDue", "deck"]
-        activeColsNames = self.col.conf.get("advbrowse_activeCols", defaultColsNames)
+        activeStandardColsNames = self.col.conf.get("activeCols")
+        if not activeStandardColsNames:
+            self.col.conf["activeCols"] = defaultColsNames
+            activeStandardColsNames = defaultColsNames
+        activeColsNames = self.col.conf.get("advbrowse_activeCols")
         if not activeColsNames:
-            self.col.conf["advbrowse_activeCols"] = defaultColsNames
-            activeColsNames = defaultColsNames
+            self.col.conf["advbrowse_activeCols"] = activeStandardColsNames
+            activeColsNames = activeStandardColsNames
         self.activeCols = [self.getColumnByType(type) for type in activeColsNames]
         self.cards = []
         self.cardObjs = {}
@@ -518,6 +522,8 @@ class DataModel(QAbstractTableModel):
         basicList = basicColumns.copy()
         lists = [
             basicList,
+            advancedColumns,
+            internalColumns,
         ]
         columns = [column for list in lists for column in list]
         return columns
@@ -733,7 +739,7 @@ class Browser(QMainWindow):
         saveGeom(self, "editor")
         saveState(self, "editor")
         saveHeader(self.form.tableView.horizontalHeader(), "editor")
-        self.col.conf['activeCols'] = [column.type for column in self.model._activeCols]
+        self.col.conf['advbrowse_activeCols'] = [column.type for column in self.model._activeCols]
         self.col.setMod()
         self.teardownHooks()
         self.mw.maybeReset()
