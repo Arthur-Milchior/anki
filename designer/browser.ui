@@ -320,6 +320,7 @@
     <property name="title">
      <string>&amp;Columns</string>
     </property>
+    <addaction name="actionShowNotesCards"/>
    </widget>
    <widget class="QMenu" name="menu_Decks">
     <property name="title">
@@ -609,6 +610,14 @@
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+K</string>
+   </property>
+  </action>
+  <action name="actionShowNotesCards">
+   <property name="text">
+    <string>Toggle Notes/Cards Mode</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Alt+N</string>
    </property>
   </action>
  </widget>

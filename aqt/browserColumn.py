@@ -46,11 +46,13 @@ class BrowserColumn:
     def show(self, browser):
         """Whether this column should be shown.
 
-        It may not be the case either if the column should be hidden,
-        or if other feature developped later requires it.
-
+        It may not be the case either if:
+        * the column should be hidden,
+        * the column deals with cards and the browser is interested in notes
+        * or if other feature developped later requires it.
         """
         if (self.hide
+            or (self.menu[0]=="Card" and browser.showNotes)
         ):
             return False
         return True
