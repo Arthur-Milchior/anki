@@ -20,7 +20,7 @@ class BrowserColumn:
 
     Return None if it can't be sorted"""
 
-    def __init__(self, type, name, content, hide=False, sort=None, menu=[], description=None):
+    def __init__(self, type, name, content, hide=False, sort=None, menu=[], advanced=False, description=None):
         self.type = type
         self.name = _(name)
         self.hide = hide
