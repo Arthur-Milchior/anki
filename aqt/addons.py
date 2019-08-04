@@ -434,7 +434,7 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
 
     def addonFromModule(self, module):
         """Returns the string of module before the first dot"""
-        return module.split(".")[0]
+        return module.split(".",1)[0]
 
     def configAction(self, addon):
         """The function to call for addon when add-on manager ask for

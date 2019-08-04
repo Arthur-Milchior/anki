@@ -385,9 +385,7 @@ Please run Tools>Empty Cards""")
         if not matches:
             return None
         def noHint(txt):
-            if "::" in txt:
-                return txt.split("::")[0]
-            return txt
+            return txt.split("::", 1)[0]
         matches = [noHint(txt) for txt in matches]
         uniqMatches = set(matches)
         if len(uniqMatches) == 1:
