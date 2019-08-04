@@ -2,6 +2,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import copy
 import html
 import json
 import re
@@ -29,12 +30,26 @@ from aqt.utils import (MenuList, SubMenu, askUser, getOnlyText, getTag,
 from aqt.webview import AnkiWebView
 
 
+"""The set of column names related to cards. Hence which should not be
+shown in note mode"""
 class ActiveCols:
     """A descriptor, so that activecols is still a variable, and can
     take into account whether it's note.
     """
+    def __init__(self):
+        self.lastVersion = None
+        self.lastResult = None
+
     def __get__(self, dataModel, owner):
-        return [column for column in dataModel._activeCols if column.show(dataModel.browser)]
+        currentVersion = (
+            dataModel._activeCols,
+        )
+        if self.lastVersion == currentVersion:
+            return self.lastResult
+        currentResult = [column for column in dataModel._activeCols if column.show(dataModel.browser)]
+        self.lastVersion = copy.deepcopy(currentVersion)
+        self.lastResult = currentResult
+        return currentResult
 
     def __set__(self, dataModel, _activeCols):
         dataModel._activeCols = ColumnList(_activeCols)
@@ -58,7 +73,9 @@ class DataModel(QAbstractTableModel):
     allows to avoid reloading cards already seen since browser was
     opened. If a nose is «refreshed» then it is remove from the
     dic. It is emptied during reset.
-    focusedCard -- the last thing focused, assuming it was a single line. Used to restore a selection after edition/deletion.
+    focusedCard -- the last thing focused, assuming it was a single line. Used to restore a selection after edition/deletion. (Notes keep by compatibility, but it may be a note id)
+    activeCols -- a descriptor, sending _activeCols, but without
+    the cards columns if it's note type and without the columns we don't know how to use (they may have been added to the list of selected columns by a version of anki/add-on with more columns)
     selectedCards -- a dictionnary containing the set of selected card's id, associating them to True. Seems that the associated value is never used. Used to restore a selection after some edition
     """
     activeCols = ActiveCols()
