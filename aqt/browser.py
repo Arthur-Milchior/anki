@@ -44,10 +44,10 @@ class DataModel(QAbstractTableModel):
     allows to avoid reloading cards already seen since browser was
     opened. If a nose is «refreshed» then it is remove from the
     dic. It is emptied during reset.
-    focusedCard -- the last thing focused, assuming it was a single line. Used to restore a selection after edition/deletion. (Notes keep by compatibility, but it may be a note id)
+    focusedCard -- the last thing focused, assuming it was a single line. Used to restore a selection after edition/deletion.
     selectedCards -- a dictionnary containing the set of selected card's id, associating them to True. Seems that the associated value is never used. Used to restore a selection after some edition
     """
-    def __init__(self, browser):
+    def __init__(self, browser, focusedCard=None, selectedCards=None):
         QAbstractTableModel.__init__(self)
         self.browser = browser
         self.col = browser.col
@@ -56,6 +56,8 @@ class DataModel(QAbstractTableModel):
             "activeCols", ["noteFld", "template", "cardDue", "deck"])
         self.cards = []
         self.cardObjs = {}
+        self.focusedCard = focusedCard
+        self.selectedCards = selectedCards
 
     def getCard(self, index):
         """The card object at position index in the list"""
@@ -518,10 +520,11 @@ class Browser(QMainWindow):
     _lastPreviewRender -- when was the last call to _renderScheduledPreview
     """
 
-    def __init__(self, mw, search=None):
+    def __init__(self, mw, search=None, focusedCard=None, selectedCards=None):
         """
 
         search -- the search query to use when opening the browser
+        focusedCard, selectedCards -- as in DataModel
         """
         QMainWindow.__init__(self, None, Qt.Window)
         self.mw = mw
@@ -546,7 +549,7 @@ class Browser(QMainWindow):
         self.setupEditor()
         self.updateFont()
         self.onUndoState(self.mw.form.actionUndo.isEnabled())
-        self.setupSearch(search)
+        self.setupSearch(search=search, focusedCard=focusedCard, selectedCards=selectedCards)
         self.show()
 
     def setupMenus(self):
@@ -707,13 +710,15 @@ class Browser(QMainWindow):
     # Searching
     ######################################################################
 
-    def setupSearch(self, search=None):
+    def setupSearch(self, search=None, focusedCard=None, selectedCards=None):
         self.form.searchButton.clicked.connect(self.onSearchActivated)
         self.form.searchEdit.lineEdit().returnPressed.connect(self.onSearchActivated)
         self.form.searchEdit.setCompleter(None)
-        self._searchPrompt = search or _("<type here to search; hit enter to show current deck>")
-        self.form.searchEdit.addItems([self._searchPrompt] + self.mw.pm.profile['searchHistory'])
+        self._searchPrompt = _("<type here to search; hit enter to show current deck>")
+        self.form.searchEdit.addItems([search or self._searchPrompt] + self.mw.pm.profile['searchHistory'])
         self._lastSearchTxt = search or "is:current"
+        self.card = focusedCard
+        self.model.selectedCards = selectedCards
         self.search()
         # then replace text for easily showing the deck
         self.form.searchEdit.lineEdit().setText(self._searchPrompt)
@@ -758,7 +763,8 @@ class Browser(QMainWindow):
         if "is:current" in self._lastSearchTxt:
             # show current card if there is one
             card = self.mw.reviewer.card
-            self.card = self.mw.reviewer.card
+            if self.card is None:
+                self.card = card
             nid = card and card.nid or 0
             self.model.search("nid:%d"%nid)
         else:
