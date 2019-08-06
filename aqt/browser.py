@@ -518,7 +518,11 @@ class Browser(QMainWindow):
     _lastPreviewRender -- when was the last call to _renderScheduledPreview
     """
 
-    def __init__(self, mw):
+    def __init__(self, mw, search=None):
+        """
+
+        search -- the search query to use when opening the browser
+        """
         QMainWindow.__init__(self, None, Qt.Window)
         self.mw = mw
         self.col = self.mw.col
@@ -542,7 +546,7 @@ class Browser(QMainWindow):
         self.setupEditor()
         self.updateFont()
         self.onUndoState(self.mw.form.actionUndo.isEnabled())
-        self.setupSearch()
+        self.setupSearch(search)
         self.show()
 
     def setupMenus(self):
@@ -703,13 +707,13 @@ class Browser(QMainWindow):
     # Searching
     ######################################################################
 
-    def setupSearch(self):
+    def setupSearch(self, search=None):
         self.form.searchButton.clicked.connect(self.onSearchActivated)
         self.form.searchEdit.lineEdit().returnPressed.connect(self.onSearchActivated)
         self.form.searchEdit.setCompleter(None)
-        self._searchPrompt = _("<type here to search; hit enter to show current deck>")
+        self._searchPrompt = search or _("<type here to search; hit enter to show current deck>")
         self.form.searchEdit.addItems([self._searchPrompt] + self.mw.pm.profile['searchHistory'])
-        self._lastSearchTxt = "is:current"
+        self._lastSearchTxt = search or "is:current"
         self.search()
         # then replace text for easily showing the deck
         self.form.searchEdit.lineEdit().setText(self._searchPrompt)
