@@ -74,14 +74,14 @@
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="showEstimates">
+        <widget class="QCheckBox" name="estTimes">
          <property name="text">
           <string>Show next review time above answer buttons</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="showProgress">
+        <widget class="QCheckBox" name="dueCounts">
          <property name="text">
           <string>Show remaining card count during review</string>
          </property>
@@ -116,7 +116,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="useCurrent">
+        <widget class="QComboBox" name="addToCur">
          <item>
           <property name="text">
            <string>When adding, default to current deck</string>
@@ -145,7 +145,7 @@
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QSpinBox" name="dayOffset">
+          <widget class="QSpinBox" name="rollover">
            <property name="maximumSize">
             <size>
              <width>60</width>
@@ -165,7 +165,7 @@
           </widget>
          </item>
          <item row="1" column="1">
-          <widget class="QSpinBox" name="lrnCutoff">
+          <widget class="QSpinBox" name="collapseTime">
            <property name="maximumSize">
             <size>
              <width>60</width>
@@ -192,7 +192,7 @@
           </widget>
          </item>
          <item row="2" column="1">
-          <widget class="QSpinBox" name="timeLimit">
+          <widget class="QSpinBox" name="timeLim">
            <property name="maximum">
             <number>9999</number>
            </property>
@@ -280,7 +280,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QCheckBox" name="syncOnProgramOpen">
+            <widget class="QCheckBox" name="autoSync">
              <property name="text">
               <string>Automatically sync on profile open/close</string>
              </property>
@@ -482,19 +482,19 @@
  <tabstops>
   <tabstop>lang</tabstop>
   <tabstop>hwAccel</tabstop>
-  <tabstop>showEstimates</tabstop>
-  <tabstop>showProgress</tabstop>
+  <tabstop>estTimes</tabstop>
+  <tabstop>dueCounts</tabstop>
   <tabstop>pastePNG</tabstop>
   <tabstop>nightMode</tabstop>
   <tabstop>dayLearnFirst</tabstop>
   <tabstop>newSched</tabstop>
-  <tabstop>useCurrent</tabstop>
+  <tabstop>addToCur</tabstop>
   <tabstop>newSpread</tabstop>
-  <tabstop>dayOffset</tabstop>
-  <tabstop>lrnCutoff</tabstop>
-  <tabstop>timeLimit</tabstop>
+  <tabstop>rollover</tabstop>
+  <tabstop>collapseTime</tabstop>
+  <tabstop>timeLim</tabstop>
   <tabstop>numBackups</tabstop>
-  <tabstop>syncOnProgramOpen</tabstop>
+  <tabstop>autoSync</tabstop>
   <tabstop>tabWidget</tabstop>
   <tabstop>fullSync</tabstop>
   <tabstop>syncMedia</tabstop>
