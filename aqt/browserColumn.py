@@ -21,13 +21,14 @@ class BrowserColumn:
     Return None if it can't be sorted"""
 
     typeToObject = dict()
-    def __init__(self, type, name, content, hide=False, sort=None):
+    def __init__(self, type, name, content, hide=False, sort=None, menu=[]):
         self.type = type
         self.name = _(name)
         self.typeToObject[self.type] = self
         self.hide = hide
         self.sort = sort
         self.content = content
+        self.menu = menu
 
     def __eq__(self, other):
         if isinstance(other, BrowserColumn):
@@ -79,12 +80,14 @@ BrowserColumn(
     name="Sort Field",
     content=(lambda card, browser: htmlToTextLine(card.note().getSField())),
     sort="n.sfld collate nocase, c.ord",
+    menu=["Note"],
 )
 
 BrowserColumn(
     type="template",
     name="Card",
     content=lambda card, browser: card.template()['name'] + (f" {card.ord+1}" if card.model()['type'] == MODEL_CLOZE else ""),
+    menu=["Card"],
 )
 
 def cardDueContent(card, browser):
@@ -128,7 +131,9 @@ BrowserColumn(
     name="Created",
     content=lambda card, browser: time.strftime("%Y-%m-%d", time.localtime(card.note().id/1000)),
     sort="n.id, c.ord",
-)
+    menu=["Note"],
+
+),
 
 """Date at wich the card's note was last modified"""
 BrowserColumn(
@@ -136,6 +141,7 @@ BrowserColumn(
     name="Edited",
     content=lambda card, browser: time.strftime("%Y-%m-%d", time.localtime(card.note().mod)),
     sort="n.mod, c.ord",
+    menu=["Note"],
 )
 
 """Date at wich the card note was last modified"""
@@ -144,6 +150,7 @@ BrowserColumn(
     name="Changed",
     content=lambda card, browser: time.strftime("%Y-%m-%d", time.localtime(card.mod)),
     sort="c.mod",
+    menu=["Card"],
 )
 
 """Number of reviews to do"""
@@ -152,6 +159,7 @@ BrowserColumn(
     name="Reviews",
     content=lambda card, browser: str(card.reps),
     sort="c.reps",
+    menu=["Card"],
 )
 
 """Number of times the card lapsed"""
@@ -160,6 +168,7 @@ BrowserColumn(
     name="Lapses",
     content=lambda card, browser: str(card.lapses),
     sort="c.lapses",
+    menu=["Card"],
 )
 
 """The list of tags for this card's note."""
@@ -167,6 +176,7 @@ BrowserColumn(
     type="noteTags",
     name="Tags",
     content=lambda card, browser: " ".join(card.note().tags),
+    menu=["Note"],
 )
 
 """The name of the card's note's type"""
@@ -174,6 +184,7 @@ BrowserColumn(
     type="note",
     name="Note",
     content=lambda card, browser: card.model()['name'],
+    menu=["Note"],
 )
 
 """Whether card is new, in learning, or some representation of the
@@ -183,6 +194,7 @@ BrowserColumn(
     name="Interval",
     content=lambda card, browser: {0: _("(new)"), 1:_("(learning)")}.get(card.type, fmtTimeSpan(card.ivl*86400)),
     sort="c.ivl",
+    menu=["Card"],
 )
 
 """Either (new) or the ease fo the card as a percentage."""
@@ -191,6 +203,7 @@ BrowserColumn(
     name="Ease",
     content=lambda card, browser:_("(new)") if card.type == CARD_NEW else  f"{card.factor/10}%",
     sort="c.factor",
+    menu=["Card"],
 )
 
 """Name of the card's deck (with original deck in parenthesis if there
@@ -199,12 +212,14 @@ BrowserColumn(
     type="deck",
     name="Deck",
     content=lambda card, browser: f"{browser.col.decks.name(card.did)} ({browser.col.decks.name(card.odid)})" if card.odid else browser.col.decks.name(card.did),
+    menu=["Card"],
 )
 
 BrowserColumn(
     type="question",
     name="Question",
     content=lambda card, browser: htmlToTextLine(card.q(browser=True)),
+    menu=["Card"],
 )
 
 def answerContent(card, browser):
@@ -223,10 +238,12 @@ def answerContent(card, browser):
     if a.startswith(q):
         return a[len(q):].strip()
     return a
+
 BrowserColumn(
     type="answer",
     name="Answer",
     content=answerContent,
+    menu=["Card"],
 )
 
 def unknownContent(card, browser):
@@ -238,6 +255,7 @@ def unknownColumn(type):
         name=_("Unknown")+" "+type,
         hide=True,
         content=unknownContent,
+        menu=["Note"],
 )
 
 class ColumnList(list):
@@ -252,4 +270,4 @@ class ColumnList(list):
         for idx, column in enumerate(self):
             if column.type == type:
                 return True
-            return False
+        return False
