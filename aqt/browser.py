@@ -8,6 +8,7 @@ import json
 import re
 import sre_constants
 import time
+import traceback
 import unicodedata
 from operator import itemgetter
 
@@ -41,15 +42,20 @@ class ActiveCols:
         self.lastResult = None
 
     def __get__(self, dataModel, owner):
-        currentVersion = (
-            dataModel._activeCols,
-        )
-        if self.lastVersion == currentVersion:
-            return self.lastResult
-        currentResult = [column for column in dataModel._activeCols if column.show(dataModel.browser)]
-        self.lastVersion = copy.deepcopy(currentVersion)
-        self.lastResult = currentResult
-        return currentResult
+        try:
+            currentVersion = (
+                dataModel._activeCols,
+            )
+            if self.lastVersion == currentVersion:
+                return self.lastResult
+            currentResult = [column for column in dataModel._activeCols if column.show(dataModel.browser)]
+            self.lastVersion = copy.deepcopy(currentVersion)
+            self.lastResult = currentResult
+            return currentResult
+        except Exception as e:
+            print(f"exception «{e}» in ActiveCols getter:")
+            traceback.print_exc()
+            raise
 
     def __set__(self, dataModel, _activeCols):
         dataModel._activeCols = ColumnList(_activeCols)
