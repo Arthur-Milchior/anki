@@ -95,8 +95,10 @@ class DataModel(QAbstractTableModel):
         self.potentialColumns = dict()
         self.absentColumns = set()
         defaultColsNames = ["noteFld", "template", "cardDue", "deck"]
-        activeColsNames = self.col.conf.get("activeCols", defaultColsNames)
-
+        activeColsNames = self.col.conf.get("advbrowse_activeCols", defaultColsNames)
+        if not activeColsNames:
+            self.col.conf["advbrowse_activeCols"] = defaultColsNames
+            activeColsNames = defaultColsNames
         self.activeCols = [self.getColumnByType(type) for type in activeColsNames]
         self.cards = []
         self.cardObjs = {}
