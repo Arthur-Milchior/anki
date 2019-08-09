@@ -850,8 +850,9 @@ class Browser(QMainWindow):
 
         selected = len(self.form.tableView.selectionModel().selectedRows())
         cur = len(self.model.cards)
-        self.setWindowTitle(ngettext("Browse (%(cur)d card shown; %(sel)s)",
-                                     "Browse (%(cur)d cards shown; %(sel)s)",
+        what = "note" if self.showNotes else "card"
+        self.setWindowTitle(ngettext(f"Browse (%(cur)d {what} shown; %(sel)s)",
+                                     f"Browse (%(cur)d {what}s shown; %(sel)s)",
                                  cur) % {
             "cur": cur,
             "sel": ngettext("%d selected", "%d selected", selected) % selected
