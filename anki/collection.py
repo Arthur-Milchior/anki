@@ -720,77 +720,91 @@ where card.nid = note.id and card.id in %s group by nid""" % ids2str(cids)):
                 for row in self._qaData(where)]
 
     def _renderQA(self, data, qfmt=None, afmt=None):
-        """Returns a dictionnary containing hash of id, question, answer.
-
+        """Returns hash of id, question, answer.
         Keyword arguments:
         data -- [cid, nid, mid, did, ord, tags, flds] (see db
         documentation for more information about those values)
         This corresponds to the information you can obtain in templates, using {{Tags}}, {{Type}}, etc..
         qfmt -- question format string (as in template)
         afmt -- answer format string (as in template)
-
-        unpack fields and create dict
-        TODO comment better
-
+        Return a dictionnary associating the question, the answer and the card id
         """
         cid, nid, mid, did, ord, tags, flds, cardFlags = data
-        flist = splitFields(flds)#the list of fields
-        fields = {} #
-        #name -> ord for each field, tags
-        # Type: the name of the model,
-        # Deck, Subdeck: their name
-        # Card: the template name
-        # cn: 1 for n being the ord+1
-        # FrontSide :
+        # data is [cid, nid, mid, did, ord, tags, flds, cardFlags]
+        # unpack fields and create dict
+
         model = self.models.get(mid)
+        if model['type'] == MODEL_STD:
+            template = model['tmpls'][ord]
+        else:
+            template = model['tmpls'][0]
+        fields = self._extendedFields(flds, tags, ord, cardFlags, model, template, did)
+        # render q & a
+        d = dict()
+        d['id'] = cid
+        d['q'] = self._renderQuestion(data, fields, flds, ord, template, model, qfmt)
+        d['a'] = self._renderAnswer(data, fields, ord, template, model, afmt)
+        return d
+
+    def _basicFields(self, flds, model):
+        """A dict associating:
+        for each field name it's content
+        """
+        fields = {}
+        flist = splitFields(flds)#the list of fields
         for (name, (idx, conf)) in list(self.models.fieldMap(model).items()):#conf is not used
             fields[name] = flist[idx]
+        return fields
+
+    def _extendedFields(self, flds, tags, ord, cardFlags, model, template, did):
+        """A dict associating:
+        for each field name it's content
+        Type: the name of the model,
+        Deck, Subdeck: their name
+        Card: the template name
+        cn: 1 for n being the ord+1
+        it'll be extended by renderQuestion to add FrontSide to it"""
+        fields = self._basicFields(flds, model)
         fields['Tags'] = tags.strip()
         fields['Type'] = model['name']
         fields['Deck'] = self.decks.name(did)
         fields['Subdeck'] = self.decks._basename(fields['Deck'])
         fields['CardFlag'] = self._flagNameFromCardFlags(cardFlags)
-        if model['type'] == MODEL_STD:#model['type'] is distinct from fields['Type']
-            template = model['tmpls'][ord]
-        else:#for cloze deletions
-            template = model['tmpls'][0]
         fields['Card'] = template['name']
         fields['c%d' % (ord+1)] = "1"
-        # render q & a
-        d = dict(id=cid)
-        # id: card id
-        qfmt = qfmt or template['qfmt']
-        afmt = afmt or template['afmt']
-        for (type, format) in (("q", qfmt), ("a", afmt)):
-            if type == "q":#if/else is in the loop in order for d['q'] to be defined below
-                format = re.sub("{{(?!type:)(.*?)cloze:", r"{{\1cq-%d:" % (ord+1), format)
-                #Replace {{'foo'cloze: by {{'foo'cq-(ord+1), where 'foo' does not begins with "type:"
-                format = format.replace("<%cloze:", "<%%cq:%d:" % (
-                    ord+1))
-                #Replace <%cloze: by <%%cq:(ord+1)
-            else:
-                format = re.sub("{{(.*?)cloze:", r"{{\1ca-%d:" % (ord+1), format)
-                #Replace {{'foo'cloze: by {{'foo'ca-(ord+1)
-                format = format.replace("<%cloze:", "<%%ca:%d:" % (
-                    ord+1))
-                #Replace <%cloze: by <%%ca:(ord+1)
-                fields['FrontSide'] = stripSounds(d['q'])
-                #d['q'] is defined during loop's first iteration
-            fields = runFilter("mungeFields", fields, model, data, self) # TODO check
-            html = anki.template.render(format, fields) #replace everything of the form {{ by its value TODO check
-            d[type] = runFilter(
-                "mungeQA", html, type, fields, model, data, self) # TODO check
-            # empty cloze?
-            if type == 'q' and model['type'] == MODEL_CLOZE:
-                if not self.models._availClozeOrds(model, flds, False):
-                    d['q'] += ("<p>" + _(
+        return fields
+
+    def _renderQuestion(self, data, fields, flds, ord, template, model, qfmt=None):
+        """The question for this template, given those fields."""
+        format = qfmt or template['qfmt']
+        #Replace {{'foo'cloze: by {{'foo'cq-(ord+1), where 'foo' does not begins with "type:"
+        format = re.sub("{{(?!type:)(.*?)cloze:", r"{{\1cq-%d:" % (ord+1), format)
+        #Replace <%cloze: by <%%cq:(ord+1)
+        format = format.replace("<%cloze:", "<%%cq:%d:" % (ord+1))
+        question = self.__renderQA(fields, model, data, format, "q")
+        fields['FrontSide'] = stripSounds(question)
+        # empty cloze?
+        if model['type'] == MODEL_CLOZE and not self.models._availClozeOrds(model, flds, False):
+             question += ("<p>" + _(
                 "Please edit this note and add some cloze deletions. (%s)") % (
-                "<a href=%s#cloze>%s</a>" % (HELP_SITE, _("help"))))
-                    #in the case where there is a cloze note type
-                    #without {{cn in fields indicated by
-                    #{{cloze:fieldName; an error message should be
-                    #shown
-        return d
+                    "<a href=%s#cloze>%s</a>" % (HELP_SITE, _("help"))))
+        return question
+
+    def _renderAnswer(self, data, fields, ord, template, model, afmt=None):
+        """The answer for this template, given those fields."""
+        format = afmt or template['afmt']
+        #Replace {{'foo'cloze: by {{'foo'ca-(ord+1)
+        format = re.sub("{{(.*?)cloze:", r"{{\1ca-%d:" % (ord+1), format)
+        #Replace <%cloze: by <%%ca:(ord+1)
+        format = format.replace("<%cloze:", "<%%ca:%d:" % (ord+1))
+        return self.__renderQA(fields, model, data, format, "a")
+
+    def __renderQA(self, fields, model, data, format, type):
+        """apply fields to format. Use munge hooks before and after"""
+        fields = runFilter("mungeFields", fields, model, data, self)
+        html = anki.template.render(format, fields)
+        return runFilter(
+            "mungeQA", html, type, fields, model, data, self)
 
     def _qaData(self, where=""):
         """The list of [cid, nid, mid, did, ord, tags, flds, cardFlags] for each pair cards satisfying where.
