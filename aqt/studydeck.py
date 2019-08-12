@@ -6,6 +6,7 @@ The window obtained, from main window "Tools>Study deck"
 """
 
 import aqt
+from anki.consts import DECK_STD
 from anki.hooks import addHook, remHook
 from anki.lang import _
 from aqt.qt import *
@@ -50,6 +51,7 @@ class StudyDeck(QDialog):
         if title:
             self.setWindowTitle(title)
         if not names:
+            dyn = None if dyn is False else DECK_STD
             names = sorted(self.mw.col.decks.allNames(dyn=dyn))
             self.nameFunc = None
             self.origNames = names

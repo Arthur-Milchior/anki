@@ -334,32 +334,35 @@ class DeckManager:
             self.select(int(list(self.decks.keys())[0]))
         self.save()
 
-    def allNames(self, dyn=True, sort=False):
+    def allNames(self, dyn=None, sort=False):
         """A list of all deck names.
 
         Keyword arguments:
+        dyn -- What kind of decks to get
         sort -- whether to sort
         """
-        decksNames = self.all(sort=sort)
-        if not dyn:
-            decksNames = [deck['name'] for deck in decks if not deck['dyn']]
+        decks = self.all(dyn=dyn, sort=sort)
+        decksNames = [deck['name'] for deck in decks]
         return decksNames
 
-    def all(self, sort=False):
+    def all(self, sort=False, dyn=None):
         """A list of all deck objects.
 
-        sort -- whether to sort
+        dyn -- What kind of decks to get
+        standard -- whether to incorporate non dynamic deck
         """
         decks = list(self.decks.values())
+        if dyn is not None:
+            decks = [deck for deck in decks if deck['dyn']==dyn]
         if sort:
-            decks.sort(key = operator.itemgetter("name"))
+            decks.sort(key=operator.itemgetter("name"))
         return decks
 
-    def allIds(self, sort=False):
+    def allIds(self, sort=False, dyn=None):
         """A list of all deck's id.
 
         sort -- whether to sort by name"""
-        return map(operator.itemgetter("id"), self.all(sort=sort))
+        return map(operator.itemgetter("id"), self.all(sort=sort, dyn=dyn))
 
     def collapse(self, did):
         """Change the collapsed state of deck whose id is did. Then
