@@ -69,12 +69,13 @@ class Template:
     # Closing tag delimiter
     ctag = '}}'
 
-    def __init__(self, template, context=None, encoding=None):
+    def __init__(self, template, context=None, ord=None, encoding=None):
         self.template = template
         self.context = context or {}
         self.compile_regexps()
-        self.encoding = encoding
+        self.ord = ord
         self.showAField = False
+        self.encoding = encoding
 
     def render(self):
         """Turns a Mustache template into something wonderful."""
@@ -163,6 +164,14 @@ class Template:
         """Rendering a comment always returns nothing."""
         return ''
 
+    def specialFields(self):
+        """Set of fields which have a special value, and should not be enough
+        to justify to show a card"""
+        s = {'Tags', 'Type', 'Deck', 'Subdeck', 'CardFlag', 'Card', 'FrontSide'}
+        if self.ord is not None:
+            s.add(f'c{self.ord+1}')
+        return s
+
     @modifier(None)
     def render_unescaped(self, tag_name=None):
         """Render a tag without escaping it."""
@@ -171,7 +180,7 @@ class Template:
             # some field names could have colons in them
             # avoid interpreting these as field modifiers
             # better would probably be to put some restrictions on field names
-            if bool(txt.strip()):### MODIFIED
+            if bool(txt.strip()) and tag_name not in self.specialFields():### MODIFIED
                 self.showAField = True
             return txt### MODIFIED
 

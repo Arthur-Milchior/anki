@@ -439,7 +439,7 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         for ord in potentialOrds:
             template = self["tmpls"][ord]
             format = template['qfmt']
-            html, showAField = anki.template.renderAndIsFieldPresent(format, fields) #replace everything of the form {{ by its value TODO check
+            html, showAField = anki.template.renderAndIsFieldPresent(format, context=fields, ord=ord) #replace everything of the form {{ by its value TODO check
             if showAField:
                 available.append(ord)
         return available
