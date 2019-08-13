@@ -128,7 +128,7 @@ class Template:
             # Ensuring we don't consider whitespace in val
             if val:
                 val = stripHTMLMedia(val).strip()
-            if (val and not inverted) or (not val and inverted):
+            if bool(val) != inverted:
                 replacer = inner
 
             template = template.replace(section, replacer)
