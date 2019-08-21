@@ -137,7 +137,8 @@ Please visit AnkiWeb, upgrade your deck, then try again."""))
         elif evt == "clockOff":
             self._clockOff()
         elif evt == "checkFailed":
-            self._checkFailed(f"checkFailed during step {args[0]}")
+            self._checkFailed(f"""checkFailed during step(s):
+{args[0]}""")
         elif evt == "mediaSanity":
             showWarning(_("""\
 A problem occurred while syncing media. Please use Tools>Check Media, then \
