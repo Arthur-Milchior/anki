@@ -228,6 +228,11 @@ conf, models, decks, dconf, tags from col""")
         self.models.load(models)
         self.decks.load(decks, dconf)
         self.tags.load(tags)
+        self.loadSqlFunctions()
+
+    def loadSqlFunctions(self):
+        """Add some function to the database. E.g. it can be used to sort
+        elements."""
 
     def setMod(self):
         """Mark DB modified.
