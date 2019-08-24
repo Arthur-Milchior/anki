@@ -230,6 +230,21 @@ select id from cards where nid in (select id from notes where mid = ?)""",
     # Templates
     ##################################################
 
+    def nameByOrd(self, ord):
+        """A template name, given from the template's ord.
+
+        Used to sort models in browse
+
+        """
+        templates = self['tmpls']
+        if self['type'] == MODEL_CLOZE:
+            template = templates[0]
+            return templates[0]['name']+ f" {ord+1}"
+        else:
+            template = templates[ord]
+            return template['name']
+        
+
     def newTemplate(self, name):
         """A new template, whose content is the one of
         defaultTemplate, and name is name.

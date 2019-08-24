@@ -234,6 +234,12 @@ conf, models, decks, dconf, tags from col""")
     def loadSqlFunctions(self):
         """Add some function to the database. E.g. it can be used to sort
         elements."""
+        self.db._db.create_function("nameForDeck", 1, self.decks.name)
+        self.db._db.create_function("nameByMid", 1, self.models.nameByMid)
+        self.db._db.create_function("nameByMidOrd", 2, self.models.nameByMidOrd)
+        self.db._db.create_function("answerContentByCid", 1, lambda cid: self.getCard(cid).answerContent())
+        self.db._db.create_function("questionContentByCid", 1, lambda cid: self.getCard(cid)._getQA()['q'])
+
 
     def setMod(self):
         """Mark DB modified.

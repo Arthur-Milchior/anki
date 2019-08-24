@@ -6,7 +6,7 @@ import time
 
 from anki.consts import *
 from anki.hooks import runHook
-from anki.utils import intTime, joinFields, timestampID
+from anki.utils import htmlToTextLine, intTime, joinFields, timestampID
 
 # Cards
 ##########################################################################
@@ -206,6 +206,23 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
         """Return the card answer with its css"""
         return self.css() + self._getQA()['a']
 
+    def answerContent(self):
+        """The answer side on a single line.
+         Either bafmt if it is defined. Otherwise normal answer,
+        removing the question if it starts with it.
+        """
+        # args because this allow questionContent to be equal to question
+        if self.template().get('bafmt'):
+            # they have provided a template, use it verbatim
+            self.q(browser=True)
+            return htmlToTextLine(self.a())
+        # need to strip question from answer
+        q = htmlToTextLine(self.q(browser=True))
+        a = htmlToTextLine(self.a())
+        if a.startswith(q):
+            return a[len(q):].strip()
+        return a
+
     def css(self):
         """Return the css of the card's model, as html code"""
         return "<style>%s</style>" % self.model()['css']
@@ -317,3 +334,7 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
 
     def currentConf(self):
         return self.currentDeck().getConf()
+
+    def templateName(self):
+        """The name of the template of the card"""
+        return self.template()['name']

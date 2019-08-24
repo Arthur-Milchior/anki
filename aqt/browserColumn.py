@@ -96,23 +96,6 @@ def cardDueContent(card, browser):
         t = "(" + t + ")"
     return t
 
-def answerContent(card, browser):
-    """The answer side on a single line.
-     Either bafmt if it is defined. Otherwise normal answer,
-    removing the question if it starts with it.
-    """
-    # args because this allow questionContent to be equal to question
-    if card.template().get('bafmt'):
-        # they have provided a template, use it verbatim
-        card.q(browser=True)
-        return htmlToTextLine(card.a())
-    # need to strip question from answer
-    q = htmlToTextLine(card.q(browser=True))
-    a = htmlToTextLine(card.a())
-    if a.startswith(q):
-        return a[len(q):].strip()
-    return a
-
 basicColumns = [
 BrowserColumn(
     type="noteFld",
@@ -125,8 +108,9 @@ BrowserColumn(
 BrowserColumn(
     type="template",
     name="Card",
-    content=lambda card, browser: card.template()['name'] + (f" {card.ord+1}" if card.model()['type'] == MODEL_CLOZE else ""),
+    content=lambda card, browser: card.templateName() + (f" {card.ord+1}" if card.model()['type'] == MODEL_CLOZE else ""),
     menu=["Card"],
+    sort="nameByMidOrd(n.mid, c.ord)",
 ),
 
 BrowserColumn(
@@ -143,7 +127,7 @@ BrowserColumn(
     content=lambda card, browser: time.strftime("%Y-%m-%d", time.localtime(card.note().id/1000)),
     sort="n.id, c.ord",
     menu=["Note"],
-
+    description="""Date at wich the card's note was created""",
 ),
 
 BrowserColumn(
@@ -170,7 +154,7 @@ BrowserColumn(
     content=lambda card, browser: str(card.reps),
     sort="c.reps",
     menu=["Card"],
-    description="""Number of reviews to do"""
+    description="""Number of reviews to do""",
 ),
 
 BrowserColumn(
@@ -188,6 +172,7 @@ BrowserColumn(
     content=lambda card, browser: " ".join(card.note().tags),
     menu=["Note"],
     description="""The list of tags for this card's note.""",
+    sort="n.tags",
 ),
 
 BrowserColumn(
@@ -196,6 +181,7 @@ BrowserColumn(
     content=lambda card, browser: card.model()['name'],
     menu=["Note"],
     description="""The name of the card's note's type""",
+    sort="nameByMid(n.mid)",
 ),
 
 BrowserColumn(
@@ -224,6 +210,7 @@ BrowserColumn(
     menu=["Card"],
     description="""Name of the card's deck (with original deck in parenthesis if there
 is one)""",
+    sort="nameForDeck(c.did)",
 ),
 
 BrowserColumn(
@@ -231,13 +218,15 @@ BrowserColumn(
     name="Question",
     content=lambda card, browser: htmlToTextLine(card.q(browser=True)),
     menu=["Card"],
+    sort="questionContentByCid(c.id)"
 ),
 
 BrowserColumn(
     type="answer",
     name="Answer",
-    content=answerContent,
+    content=lambda card, browser: card.answerContent(),
     menu=["Card"],
+    sort="answerContentByCid(c.id)"
 ),
 ]
 

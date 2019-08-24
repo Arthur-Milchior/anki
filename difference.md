@@ -17,4 +17,11 @@ In the preferences, the button «Note with no card: create card 1
 instead of deleting the note» chage the behavior of anki when he finds
 a note which has no more card. This allow to lose the content of the
 note, and let you correct the note instead to generate cards.
+This add-on adds many features to the browser.
+
+### Sorting everything
+You can sort any columns. Including decks, cards, notes, tags.
+
+### Improvment for dev
+To add a column, you only need to add one more object of type BrowserColumn.
 

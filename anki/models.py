@@ -188,6 +188,17 @@ class ModelManager:
         """The list of id of models"""
         return list(self.models.keys())
 
+    def nameByMid(self, mid):
+        """A model name, given from the model id.
+
+        Used to sort models in browse"""
+        return self.get(mid).getName()
+
+    def nameByMidOrd(self, mid, ord):
+        """A template name, given from the model id and the template's ord.
+
+        Used to sort models in browse"""
+        model = self.get(mid).nameByOrd(ord)
     # Sync handling
     ##########################################################################
 

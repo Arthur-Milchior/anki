@@ -56,7 +56,7 @@ class CardStats:
                 self.addLine(_("Total Time"), self.time(total))
         elif card.queue == QUEUE_NEW:
             self.addLine(_("Position"), card.due)
-        self.addLine(_("Card Type"), card.template().getName())
+        self.addLine(_("Card Type"), card.templateName())
         self.addLine(_("Note Type"), card.model().getName())
         self.addLine(_("Deck"), card.currentDeck())
         self.addLine(_("Note ID"), card.nid)

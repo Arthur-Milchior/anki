@@ -395,10 +395,10 @@ Please create a new card type first."""))
 
     def onRename(self):
         name = getOnlyText(_("New name:"),
-                           default=self.card.template().getName())
+                           default=self.card.templateName())
         if not name:
             return
-        if name in [card.template().getName() for card in self.cards
+        if name in [card.templateName() for card in self.cards
                     if card.template()['ord'] != self.ord]:
             return showWarning(_("That name is already used."))
         self.card.template().setName(name)
@@ -429,8 +429,8 @@ Please create a new card type first."""))
     def _newCardName(self):
         cardUserIndex = len(self.cards) + 1
         while 1:
-            name = _("Card %d") % cardUserIndex
-            if name not in [card.template().getName() for card in self.cards]:
+            name = _("Card %d") % n
+            if name not in [card.templateName() for card in self.cards]:
                 break
             cardUserIndex += 1
         return name
@@ -533,7 +533,7 @@ adjust the template manually to switch the question and answer."""))
         layout = QVBoxLayout()
         lab = QLabel(_("""\
 Enter deck to place new %s cards in, or leave blank:""") %
-                           self.card.template().getName())
+                           self.card.templateName())
         lab.setWordWrap(True)
         layout.addWidget(lab)
         te = TagEdit(dialog, type=1)
