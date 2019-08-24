@@ -262,4 +262,5 @@ def fieldColumn(fieldName, model, dataModel):
         name = fieldName,
         content = lambda card, browser:  card.note().get(fieldName, ""),
         menu = ["Fields"] if dataModel.fieldsTogether else ["Fields", model['name']],
+        sort = f"valueForField(n.mid, n.flds, '{fieldName}')"
     )
