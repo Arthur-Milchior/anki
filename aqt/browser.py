@@ -22,7 +22,7 @@ from anki.sound import allSounds, clearAudioQueue, play
 from anki.utils import (bodyClass, fmtTimeSpan, htmlToTextLine, ids2str,
                         intTime, isMac, isWin)
 from aqt.browserColumn import (BrowserColumn, ColumnList, basicColumns,
-                               unknownColumn)
+                               fieldColumn, unknownColumn)
 from aqt.qt import *
 from aqt.utils import (MenuList, SubMenu, askUser, getOnlyText, getTag,
                        mungeQA, openHelp, qtMenuShortcutWorkaround,
@@ -517,8 +517,16 @@ class DataModel(QAbstractTableModel):
         """List of column header. Potentially with repetition if they appear
         in multiple place in the menu"""
         basicList = basicColumns.copy()
+        fieldList = []
+        for model in self.col.models.all():
+            for field in model['flds']:
+                fieldName = field['name']
+                column = fieldColumn(fieldName, model, self)
+                fieldList.append(column)
+
         lists = [
             basicList,
+            fieldList,
         ]
         columns = [column for list in lists for column in list]
         return columns

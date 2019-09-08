@@ -255,3 +255,11 @@ class ColumnList(list):
             if column.type == type:
                 return True
         return False
+
+def fieldColumn(fieldName, model, dataModel):
+    return BrowserColumn(
+        type = f"_field_{fieldName}",
+        name = fieldName,
+        content = lambda card, browser:  card.note().get(fieldName, ""),
+        menu = ["Fields"] if dataModel.fieldsTogether else ["Fields", model['name']],
+    )
