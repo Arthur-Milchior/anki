@@ -675,6 +675,13 @@ title="%s" %s>%s</button>''' % (
     def closeAllWindows(self, onsuccess):
         aqt.dialogs.closeAll(onsuccess)
 
+    def executeInProgress(self, fun, immediate=True):
+        self.progress.start(immediate=immediate)
+        try:
+            return fun()
+        finally:
+            self.progress.finish()
+
     # Components
     ##########################################################################
 
