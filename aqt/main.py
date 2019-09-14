@@ -7,7 +7,9 @@ import gc
 import platform
 import re
 import signal
+import sys
 import time
+import traceback
 import zipfile
 from threading import Thread
 
@@ -423,6 +425,7 @@ Debug info:
             self.col.close()
         except:
             corrupt = True
+            print(traceback.format_exc(), file=sys.stderr)
         finally:
             self.col = None
         if corrupt:
