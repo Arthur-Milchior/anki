@@ -19,6 +19,7 @@ import anki.sound
 import aqt.forms
 from anki.db import DB
 from anki.lang import _
+from anki.profiles import ProfileManager as PM
 from anki.utils import intTime, isMac, isWin
 from aqt import appHelpSite
 from aqt.qt import *
@@ -60,7 +61,7 @@ profileConf = dict(
     importMode=1,
 )
 
-class ProfileManager:
+class ProfileManager(PM):
     """The window which allow to select a profile.
 
     base -- the repertory containing one directory by profile, and the profile database
@@ -71,8 +72,7 @@ class ProfileManager:
     def __init__(self, base=None):
         self.name = None
         self.db = None
-        # instantiate base folder
-        self._setBaseFolder(base)
+        super().__init__(base)
 
         anki.sound.setMpvConfigBase(self.base)
 
@@ -92,44 +92,6 @@ class ProfileManager:
                 self.load(profile)
             except TypeError:
                 raise Exception("Provided profile does not exist.")
-
-    # Base creation
-    ######################################################################
-
-    def ensureBaseExists(self):
-        try:
-            self._ensureExists(self.base)
-        except:
-            # can't translate, as lang not initialized, and qt may not be
-            print("unable to create base folder")
-            QMessageBox.critical(
-                None, "Error", """\
-Anki could not create the folder %s. Please ensure that location is not \
-read-only and you have permission to write to it. If you cannot fix this \
-issue, please see the documentation for information on running Anki from \
-a flash drive.""" % self.base)
-            raise
-
-    # Folder migration
-    ######################################################################
-
-    def _oldFolderLocation(self):
-        if isMac:
-            return os.path.expanduser("~/Documents/Anki")
-        elif isWin:
-            from aqt.winpaths import get_personal
-            return os.path.join(get_personal(), "Anki")
-        else:
-            oldAnkiPath = os.path.expanduser("~/Anki")
-            if os.path.isdir(oldAnkiPath):
-                return oldAnkiPath
-            return os.path.expanduser("~/Documents/Anki")
-
-    def maybeMigrateFolder(self):
-        oldBase = self._oldFolderLocation()
-
-        if oldBase and not os.path.exists(self.base) and os.path.isdir(oldBase):
-            shutil.move(oldBase, self.base)
 
     # Profile load/save
     ######################################################################
@@ -289,13 +251,6 @@ and no other programs are accessing your profile folders, then try again."""))
             self._ensureExists(path)
         return path
 
-    def addonFolder(self):
-        """The path to the add-on folder.
-
-        Guarenteed to exists.
-        It is in base, not in profile"""
-        return self._ensureExists(os.path.join(self.base, "addons21"))
-
     def backupFolder(self):
         """The path to the backup folder.
 
@@ -308,22 +263,6 @@ and no other programs are accessing your profile folders, then try again."""))
 
     # Helpers
     ######################################################################
-
-    def _ensureExists(self, path):
-        """Create the path if it does not exists. Return the path"""
-        if not os.path.exists(path):
-            os.makedirs(path)
-        return path
-
-    def _setBaseFolder(self, cmdlineBase):
-        if cmdlineBase:
-            self.base = os.path.abspath(cmdlineBase)
-        elif os.environ.get("ANKI_BASE"):
-            self.base = os.path.abspath(os.environ["ANKI_BASE"])
-        else:
-            self.base = self._defaultBase()
-            self.maybeMigrateFolder()
-        self.ensureBaseExists()
 
     def _defaultBase(self):
         """The default folder containing every file related to anki's configuration. """
