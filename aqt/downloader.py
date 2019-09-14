@@ -84,3 +84,6 @@ class Downloader(QThread):
         self.fname = re.match("attachment; filename=(.+)",
                               resp.headers['content-disposition']).group(1)
         self.data = data
+        
+def downloadIds(ids, mw):
+    return {n:download(mw, n) for n in ids}
