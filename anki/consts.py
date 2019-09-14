@@ -143,3 +143,11 @@ colSusp = "#ff0"
 colNew = "#000099"
 colRev = "#007700"
 colDue = "#007700"
+
+# Websites' page
+appWebsite="http://ankisrs.net/"
+appChanges="http://ankisrs.net/docs/changes.html"
+appDonate="http://ankisrs.net/support/"
+appShared="https://ankiweb.net/shared/"
+appUpdate="https://ankiweb.net/update/desktop"
+appHelpSite=HELP_SITE

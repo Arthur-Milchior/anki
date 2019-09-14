@@ -11,19 +11,14 @@ import tempfile
 
 import anki.lang
 from anki import version as _version
-from anki.consts import HELP_SITE
+from anki.consts import (  # imported because those variables were originally in this file
+    appChanges, appDonate, appHelpSite, appShared, appUpdate, appWebsite)
 from anki.lang import langDir
 from anki.utils import checksum, isLin, isMac
 from aqt import about, addcards, browser, editcurrent, preferences, stats
 from aqt.qt import *
 
 appVersion=_version
-appWebsite="http://ankisrs.net/"
-appChanges="http://ankisrs.net/docs/changes.html"
-appDonate="http://ankisrs.net/support/"
-appShared="https://ankiweb.net/shared/"
-appUpdate="https://ankiweb.net/update/desktop"
-appHelpSite=HELP_SITE
 mw = None # set on init
 
 moduleDir = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
