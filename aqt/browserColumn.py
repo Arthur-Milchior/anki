@@ -198,7 +198,7 @@ BrowserColumn(
     type="cardEase",
     name="Ease",
     content=lambda card, browser:_("(new)") if card.type == CARD_NEW else  f"{card.factor/10}%",
-    sort="c.factor",
+    sort=f"c.type == {CARD_NEW}, c.factor",
     menu=["Card"],
     description="""Either (new) or the ease fo the card as a percentage.""",
 ),
