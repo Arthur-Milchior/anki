@@ -64,6 +64,7 @@ class Editor:
         self.widget = widget
         self.parentWindow = parentWindow
         self.note = None
+        self.model= None
         self.addMode = addMode
         self.currentField = None
         # current card, for card layout
@@ -367,8 +368,10 @@ class Editor:
         self.note = note
         self.currentField = None
         if self.note:
+            self.model = note.model()
             self.loadNote(focusTo=focusTo)
         else:
+            self.model = None
             self.hideCompleters()
             if hide:
                 self.widget.hide()
@@ -400,14 +403,15 @@ class Editor:
 
         self.web.evalWithCallback("setFields(%s); setFonts(%s); focusField(%s); setNoteId(%s)" % (
             json.dumps(data),
-            json.dumps(self.fonts()), json.dumps(focusTo),
-                                  json.dumps(self.note.id)),
+            json.dumps(self.fonts()),
+            json.dumps(focusTo),
+            json.dumps(self.note.id)),
                                   oncallback)
 
     def fonts(self):
         return [(runFilter("mungeEditingFontName", fldType['font']),
                  fldType['size'], fldType['rtl'])
-                for fldType in self.note.model()['flds']]
+                for fldType in self.model['flds']]
 
     def saveNow(self, callback, keepFocus=False):
         "Save unsaved edits then call callback()."
@@ -517,9 +521,8 @@ class Editor:
         """During creation of new notes, save tags to the note's model"""
         if self.addMode:
             # save tags to model
-            model = self.note.model()
-            model['tags'] = self.note.tags
-            self.mw.col.models.save(model)
+            self.model['tags'] = self.note.tags
+            self.mw.col.models.save(self.model)
 
     def hideCompleters(self):
         "Remove tags's line"
@@ -554,7 +557,7 @@ class Editor:
 
     def _onCloze(self):
         # check that the model is set up for cloze deletion
-        if not re.search('{{(.*:)*cloze:',self.note.model()['tmpls'][0]['qfmt']):
+        if not re.search('{{(.*:)*cloze:',self.model['tmpls'][0]['qfmt']):
             if self.addMode:
                 tooltip(_("Warning, cloze deletions will not work until "
                 "you switch the type at the top to Cloze."))
