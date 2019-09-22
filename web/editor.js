@@ -351,27 +351,53 @@ function onCutOrCopy() {
     return true;
 }
 
+function createDiv(ord,  fieldValue){
+	return "    <td width=100%>\n\
+      <div id='f{0}' onkeydown='onKey();' oninput='onInput();' onmouseup='onKey();'  onfocus='onFocus(this);' onblur='onBlur();' class='field clearfix' ondragover='onDragOver(this);' onpaste='onPaste(this);' oncopy='onCutOrCopy(this);' oncut='onCutOrCopy(this);' contentEditable=true class=field\n\
+        >{1}</div>\n\
+    </td>".format(ord, fieldValue);
+}
+// no new line/space around {1} because otherwise they'd be saved in the note
+
+function createNameTd(ord, fieldName){
+	return "    <td class='fname'>\n\
+      <span>\n\
+       {0}\n\
+      </span>\n\
+    </td>".format(fieldName);
+}
+
 function setFields(fields) {
 	/*Replace #fields by the HTML to show the list of fields to edit.
 	  Potentially change buttons
 
-	  fields -- a list of fields, as (name of the field, current value) */
+	  fields -- a list of fields, as (name of the field, current value, whether it has its own line)
+	*/
     var txt = "";
+	var partialNames = "";
+	var partialFields = "";
+	var lengthLine = 0;
     for (var i = 0; i < fields.length; i++) {
         var fieldName = fields[i][0];
         var fieldValue = fields[i][1];
         if (!fieldValue) {
             fieldValue = "<br>";
         }
-        txt += "<tr><td class=fname>{0}</td></tr><tr><td width=100%>".format(fieldName);
-        txt += "<div id=f{0} onkeydown='onKey();' oninput='onInput()' onmouseup='onKey();'".format(i);
-        txt += " onfocus='onFocus(this);' onblur='onBlur();' class='field clearfix' ";
-        txt += "ondragover='onDragOver(this);' onpaste='onPaste(this);' ";
-        txt += "oncopy='onCutOrCopy(this);' oncut='onCutOrCopy(this);' ";
-        txt += "contentEditable=true class=field>{0}</div>".format(fieldValue);
-        txt += "</td></tr>";
+		//console.log("fieldName: "+fieldName+", fieldValue: "+fieldValue+", alone: "+alone);
+		fieldValueHtml = createDiv(i, fieldValue);
+		fieldNameHtml = createNameTd(i, fieldName)
+		nameTd = fieldNameHtml
+		txt += "  <tr>\n\
+"+fieldNameHtml+"\n\
+  </tr>\n\
+  <tr>\n\
+"+fieldValueHtml+"\n\
+  </tr>";
     }
-    $("#fields").html("<table cellpadding=0 width=100% style='table-layout: fixed;'>" + txt + "</table>");
+    $("#fields").html("\n\
+<table cellpadding=0 width=100% style='table-layout: fixed;'>\n\
+" + txt + "\n\
+</table>");
     maybeDisableButtons();
 }
 
