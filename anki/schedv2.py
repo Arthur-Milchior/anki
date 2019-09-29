@@ -106,12 +106,12 @@ class Scheduler:
     def _answerCardPreview(self, card, ease):
         assert 1 <= ease <= 2
 
-        if ease == 1:
+        if ease == BUTTON_ONE:
             # repeat after delay
             card.queue = QUEUE_PREVIEW
             card.due = intTime() + self._previewDelay(card)
             self.lrnCount += 1
-        else: #2
+        else: #BUTTON_TWO
             # restore original card state and remove from filtered deck
             self._restorePreviewCard(card)
             self._removeFromFiltered(card)
@@ -544,18 +544,18 @@ did = ? and queue = {QUEUE_DAY_LRN} and due <= ? limit ?"""),
         leaving = False
 
         # immediate graduate?
-        if ease == 4:
+        if ease == BUTTON_FOUR:
             self._rescheduleAsRev(card, conf, True)
             leaving = True
         # next step?
-        elif ease == 3:
+        elif ease == BUTTON_THREE:
             # graduation time?
             if (card.left%1000)-1 <= 0:
                 self._rescheduleAsRev(card, conf, False)
                 leaving = True
             else:
                 self._moveToNextStep(card, conf)
-        elif ease == 2:
+        elif ease == BUTTON_TWO:
             self._repeatStep(card, conf)
         else:
             # back to first step
@@ -830,7 +830,7 @@ select id from cards where did in %s and queue = {QUEUE_REV} and due <= ? limit 
         early = card.odid and (card.odue > self.today)
         type = early and REVLOG_CRAM or REVLOG_REV
 
-        if ease == 1:
+        if ease == BUTTON_ONE:
             delay = self._rescheduleLapse(card)
         else:
             self._rescheduleRev(card, ease, early)
@@ -906,11 +906,11 @@ select id from cards where did in %s and queue = {QUEUE_REV} and due <= ? limit 
         else:
             hardMin = 0
         ivl2 = self._constrainedIvl(card.ivl * hardFactor, conf, hardMin, fuzz)
-        if ease == 2:
+        if ease == BUTTON_TWO:
             return ivl2
 
         ivl3 = self._constrainedIvl((card.ivl + delay // 2) * fct, conf, ivl2, fuzz)
-        if ease == 3:
+        if ease == BUTTON_THREE:
             return ivl3
 
         ivl4 = self._constrainedIvl(
@@ -969,14 +969,14 @@ select id from cards where did in %s and queue = {QUEUE_REV} and due <= ? limit 
         # early 3/4 reviews shouldn't decrease previous interval
         minNewIvl = 1
 
-        if ease == 2:
+        if ease == BUTTON_TWO:
             factor = conf.get("hardFactor", 1.2)
             # hard cards shouldn't have their interval decreased by more than 50%
             # of the normal factor
             minNewIvl = factor / 2
-        elif ease == 3:
+        elif ease == BUTTON_THREE:
             factor = card.factor / 1000
-        else: # ease == 4:
+        else: # ease == BUTTON_FOUR:
             factor = card.factor / 1000
             ease4 = conf['ease4']
             # 1.3 -> 1.15
@@ -1321,14 +1321,14 @@ To study outside of the normal schedule, click the Custom Study button below."""
         "Return the next interval for CARD, in seconds."
         # preview mode?
         if self._previewingCard(card):
-            if ease == 1:
+            if ease == BUTTON_ONE:
                 return self._previewDelay(card)
             return 0
 
         # (re)learning?
         if card.queue in (QUEUE_NEW, QUEUE_LRN, QUEUE_DAY_LRN):
             return self._nextLrnIvl(card, ease)
-        elif ease == 1:
+        elif ease == BUTTON_ONE:
             # lapse
             conf = self._lapseConf(card)
             if conf['delays']:
@@ -1347,14 +1347,14 @@ To study outside of the normal schedule, click the Custom Study button below."""
         if card.queue == QUEUE_NEW:
             card.left = self._startingLeft(card)
         conf = self._lrnConf(card)
-        if ease == 1:
+        if ease == BUTTON_ONE:
             # fail
             return self._delayForGrade(conf, len(conf['delays']))
-        elif ease == 2:
+        elif ease == BUTTON_TWO:
             return self._delayForRepeatingGrade(conf, card.left)
-        elif ease == 4:
+        elif ease == BUTTON_FOUR:
             return self._graduatingIvl(card, conf, True, fuzz=False) * 86400
-        else: # ease == 3
+        else: # ease == BUTTON_THREE
             left = card.left%1000 - 1
             if left <= 0:
                 # graduate

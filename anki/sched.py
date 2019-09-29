@@ -519,16 +519,16 @@ did = ? and queue = {QUEUE_DAY_LRN} and due <= ? limit ?""",
         # lrnCount was decremented once when card was fetched
         lastLeft = card.left
         # immediate graduate?
-        if ease == 3:
+        if ease == BUTTON_THREE:
             self._rescheduleAsRev(card, conf, True)
             leaving = True
         # graduation time?
-        elif ease == 2 and (card.left%1000)-1 <= 0:
+        elif ease == BUTTON_TWO and (card.left%1000)-1 <= 0:
             self._rescheduleAsRev(card, conf, False)
             leaving = True
         else:
             # one step towards graduation
-            if ease == 2:
+            if ease == BUTTON_TWO:
                 # decrement real left count and recalculate left today
                 left = (card.left % 1000) - 1
                 card.left = self._leftToday(conf['delays'], left)*1000 + left
@@ -792,7 +792,7 @@ select id from cards where did in %s and queue = {QUEUE_REV} and due <= ? limit 
 
     def _answerRevCard(self, card, ease):
         delay = 0
-        if ease == 1:
+        if ease == BUTTON_ONE:
             delay = self._rescheduleLapse(card)
         else:
             self._rescheduleRev(card, ease)
@@ -878,11 +878,11 @@ select id from cards where did in %s and queue = {QUEUE_REV} and due <= ? limit 
         ivl3 = self._constrainedIvl((card.ivl + delay // 2) * fct, conf, ivl2)
         ivl4 = self._constrainedIvl(
             (card.ivl + delay) * fct * conf['ease4'], conf, ivl3)
-        if ease == 2:
+        if ease == BUTTON_TWO:
             interval = ivl2
-        elif ease == 3:
+        elif ease == BUTTON_THREE:
             interval = ivl3
-        elif ease == 4:
+        elif ease == BUTTON_FOUR:
             interval = ivl4
         # interval capped?
         return min(interval, conf['maxIvl'])
@@ -1217,7 +1217,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
         "Return the next interval for CARD, in seconds."
         if card.queue in (QUEUE_NEW, QUEUE_LRN, QUEUE_DAY_LRN):
             return self._nextLrnIvl(card, ease)
-        elif ease == 1:
+        elif ease == BUTTON_ONE:
             # lapsed
             conf = self._lapseConf(card)
             if conf['delays']:
@@ -1232,10 +1232,10 @@ To study outside of the normal schedule, click the Custom Study button below."""
         if card.queue == QUEUE_NEW:
             card.left = self._startingLeft(card)
         conf = self._lrnConf(card)
-        if ease == 1:
+        if ease == BUTTON_ONE:
             # fail
             return self._delayForGrade(conf, len(conf['delays']))
-        elif ease == 3:
+        elif ease == BUTTON_THREE:
             # early removal
             if not self._resched(card):
                 return 0

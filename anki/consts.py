@@ -76,6 +76,12 @@ CARD_LRN = 1
 CARD_DUE = 2
 CARD_FILTERED = 3
 
+# Buttons
+BUTTON_ONE = 1
+BUTTON_TWO = 2
+BUTTON_THREE = 3
+BUTTON_FOUR = 4
+
 # Labels
 ##########################################################################
 
