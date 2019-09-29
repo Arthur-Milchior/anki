@@ -257,20 +257,20 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         (val, args) = args
         if val in ("review", "new", "learn"):
             if val == "review":
-                n = 2
+                n = CARD_DUE
             elif val == "new":
-                n = 0
+                n = CARD_NEW
             else:
-                return "queue in (1, 3)"
+                return f"queue in ({QUEUE_LRN}, {QUEUE_DAY_LRN})"
             return "type = %d" % n
         elif val == "suspended":
-            return "c.queue = -1"
+            return f"c.queue = {QUEUE_SUSPENDED}"
         elif val == "buried":
-            return "c.queue in (-2, -3)"
+            return f"c.queue in ({QUEUE_SCHED_BURIED}, {QUEUE_USER_BURIED})"
         elif val == "due":
-            return """
-(c.queue in (2,3) and c.due <= %d) or
-(c.queue = 1 and c.due <= %d)""" % (
+            return f"""
+(c.queue in ({QUEUE_REV},{QUEUE_DAY_LRN}) and c.due <= %d) or
+(c.queue = {QUEUE_LRN} and c.due <= %d)""" % (
     self.col.sched.today, self.col.sched.dayCutoff)
 
     def _findFlag(self, args):
@@ -333,7 +333,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         if prop == "due":
             val += self.col.sched.today
             # only valid for review/daily learning
-            q.append("(c.queue in (2,3))")
+            q.append(f"(c.queue in ({QUEUE_REV},{QUEUE_DAY_LRN}))")
         elif prop == "ease":
             prop = "factor"
             val = int(val*1000)

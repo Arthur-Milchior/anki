@@ -252,7 +252,7 @@ class DataModel(QAbstractTableModel):
                 t = self.nextDue(c, index)
             except:
                 t = ""
-            if c.queue < 0:
+            if c.queue < 0:#supsended or buried
                 t = "(" + t + ")"
             return t
         elif type == "noteCrt":
@@ -306,11 +306,13 @@ class DataModel(QAbstractTableModel):
     def nextDue(self, c, index):
         if c.odid:
             return _("(filtered)")
-        elif c.queue == 1:
+        elif c.queue == QUEUE_LRN:
             date = c.due
-        elif c.queue == 0 or c.type == 0:
+        elif c.queue == QUEUE_NEW or c.type == CARD_NEW:
             return str(c.due)
-        elif c.queue in (2,3) or (c.type == 2 and c.queue < 0):
+        elif c.queue in (QUEUE_REV, QUEUE_DAY_LRN) or (c.type == CARD_DUE and
+                                                          c.queue < 0#suspended or buried
+        ):
             date = time.time() + ((c.due - self.col.sched.today)*86400)
         else:
             return ""
@@ -366,7 +368,7 @@ class StatusDelegate(QItemDelegate):
             col = flagColours[c.userFlag()]
         elif c.note().hasTag("Marked"):
             col = COLOUR_MARKED
-        elif c.queue == -1:
+        elif c.queue == QUEUE_SUSPENDED:
             col = COLOUR_SUSPENDED
         if col:
             brush = QBrush(QColor(col))
@@ -1178,13 +1180,13 @@ border: 1px solid #000; padding: 3px; '>%s</div>""" % rep
                     _("Resched")][type]
             import anki.stats as st
             fmt = "<span style='color:%s'>%s</span>"
-            if type == 0:
+            if type == CARD_NEW:
                 tstr = fmt % (st.colLearn, tstr)
-            elif type == 1:
+            elif type == CARD_LRN:
                 tstr = fmt % (st.colMature, tstr)
-            elif type == 2:
+            elif type == CARD_DUE:
                 tstr = fmt % (st.colRelearn, tstr)
-            elif type == 3:
+            elif type == CARD_FILTERED:
                 tstr = fmt % (st.colCram, tstr)
             else:
                 tstr = fmt % ("#000", tstr)
@@ -1573,7 +1575,7 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
     ######################################################################
 
     def isSuspended(self):
-        return not not (self.card and self.card.queue == -1)
+        return not not (self.card and self.card.queue == QUEUE_SUSPENDED)
 
     def onSuspend(self):
         self.editor.saveNow(self._onSuspend)
@@ -1633,7 +1635,7 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
     def _reposition(self):
         cids = self.selectedCards()
         cids2 = self.col.db.list(
-            "select id from cards where type = 0 and id in " + ids2str(cids))
+            f"select id from cards where type = {CARD_NEW} and id in " + ids2str(cids))
         if not cids2:
             return showInfo(_("Only new cards can be repositioned."))
         d = QDialog(self)
@@ -1641,7 +1643,7 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         frm = aqt.forms.reposition.Ui_Dialog()
         frm.setupUi(d)
         (pmin, pmax) = self.col.db.first(
-            "select min(due), max(due) from cards where type=0 and odid=0")
+            f"select min(due), max(due) from cards where type={CARD_NEW} and odid=0")
         pmin = pmin or 0
         pmax = pmax or 0
         txt = _("Queue top: %d") % pmin
@@ -2103,4 +2105,3 @@ Are you sure you want to continue?""")):
 
     def onHelp(self):
         openHelp("browsermisc")
-

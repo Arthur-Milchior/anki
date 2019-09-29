@@ -5,6 +5,7 @@
 import os
 import unicodedata
 from anki import Collection
+from anki.consts import *
 from anki.utils import intTime, splitFields, joinFields
 from anki.importing.base import Importer
 from anki.lang import _
@@ -334,7 +335,7 @@ class Anki2Importer(Importer):
             card[4] = intTime()
             card[5] = usn
             # review cards have a due date relative to collection
-            if card[7] in (2, 3) or card[6] == 2:
+            if card[7] in (CARD_DUE, CARD_FILTERED) or card[6] == QUEUE_REV:
                 card[8] -= aheadBy
             # odue needs updating too
             if card[14]:
@@ -347,13 +348,13 @@ class Anki2Importer(Importer):
                 card[8] = card[14]
                 card[14] = 0
                 # queue
-                if card[6] == 1: # type
-                    card[7] = 0
+                if card[6] == QUEUE_LRN: # type
+                    card[7] = CARD_NEW
                 else:
                     card[7] = card[6]
                 # type
-                if card[6] == 1:
-                    card[6] = 0
+                if card[6] == QUEUE_LRN:
+                    card[6] = QUEUE_NEW
             cards.append(card)
             # we need to import revlog, rewriting card ids and bumping usn
             for rev in self.src.db.execute(

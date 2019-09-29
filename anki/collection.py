@@ -825,8 +825,8 @@ select id from cards where nid not in (select id from notes)""")
                          "Deleted %d cards with missing note.", cnt) % cnt)
             self.remCards(ids)
         # cards with odue set when it shouldn't be
-        ids = self.db.list("""
-select id from cards where odue > 0 and (type=1 or queue=2) and not odid""")
+        ids = self.db.list(f"""
+select id from cards where odue > 0 and (type={CARD_LRN} or queue={CARD_DUE}) and not odid""")
         if ids:
             cnt = len(ids)
             problems.append(
@@ -837,7 +837,7 @@ select id from cards where odue > 0 and (type=1 or queue=2) and not odid""")
         # cards with odid set when not in a dyn deck
         dids = [id for id in self.decks.allIds() if not self.decks.isDyn(id)]
         ids = self.db.list("""
-select id from cards where odid > 0 and did in %s""" % ids2str(dids))
+        select id from cards where odid > 0 and did in %s""" % ids2str(dids))
         if ids:
             cnt = len(ids)
             problems.append(
@@ -852,14 +852,14 @@ select id from cards where odid > 0 and did in %s""" % ids2str(dids))
             self.updateFieldCache(self.models.nids(m))
         # new cards can't have a due position > 32 bits, so wrap items over
         # 2 million back to 1 million
-        curs.execute("""
+        curs.execute(f"""
 update cards set due=1000000+due%1000000,mod=?,usn=? where due>=1000000
-and type=0""", [intTime(), self.usn()])
+and type = {CARD_NEW}""", [intTime(), self.usn()])
         if curs.rowcount:
             problems.append("Found %d new cards with a due number >= 1,000,000 - consider repositioning them in the Browse screen." % curs.rowcount)
         # new card position
         self.conf['nextPos'] = self.db.scalar(
-            "select max(due)+1 from cards where type = 0") or 0
+            f"select max(due)+1 from cards where type = {CARD_NEW}") or 0
         # reviews should have a reasonable due #
         ids = self.db.list(
             "select id from cards where queue = 2 and due > 100000")
