@@ -33,7 +33,7 @@ class CardStats:
             self.addLine(_("First Review"), self.date(first/1000))
             self.addLine(_("Latest Review"), self.date(last/1000))
         if card.type in (CARD_LRN, CARD_DUE):
-            if card.odid or card.queue < 0:
+            if card.isFiltered() or card.queue < 0:
                 next = None
             else:
                 if card.queue in (QUEUE_REV, QUEUE_DAY_LRN):

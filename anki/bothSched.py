@@ -460,7 +460,7 @@ select id from cards where did in %s and queue = {QUEUE_REV} and due <= ? limit 
 
     def _daysLate(self, card):
         "Number of days later than scheduled."
-        due = card.odue if card.odid else card.due
+        due = card.odue if card.isFiltered() else card.due
         return max(0, self.today - due)
 
     # Dynamic deck handling
@@ -523,7 +523,7 @@ select id from cards where did in %s and queue = {QUEUE_REV} and due <= ? limit 
         """
         conf = self._cardConf(card)
         # normal deck
-        if not card.odid:
+        if not card.isFiltered():
             return conf['new']
         # dynamic deck; override some attributes, use original deck for others
         oconf = self.col.decks.confForDid(card.odid)
@@ -546,7 +546,7 @@ select id from cards where did in %s and queue = {QUEUE_REV} and due <= ? limit 
         """
         conf = self._cardConf(card)
         # normal deck
-        if not card.odid:
+        if not card.isFiltered():
             return conf['lapse']
         # dynamic deck; override some attributes, use original deck for others
         oconf = self.col.decks.confForDid(card.odid)
@@ -569,7 +569,7 @@ select id from cards where did in %s and queue = {QUEUE_REV} and due <= ? limit 
         """
         conf = self._cardConf(card)
         # normal deck
-        if not card.odid:
+        if not card.isFiltered():
             return conf['rev']
         # dynamic deck
         return self.col.decks.confForDid(card.odid)['rev']

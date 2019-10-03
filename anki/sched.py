@@ -47,7 +47,7 @@ class Scheduler(BothScheduler):
             # init reps to graduation
             card.left = self._startingLeft(card)
             # dynamic?
-            if card.odid and card.type == CARD_DUE:
+            if card.isFiltered() and card.type == CARD_DUE:
                 if self._resched(card):
                     # reviews get their ivl boosted on first sight
                     card.ivl = self._dynIvlBoost(card)
@@ -94,7 +94,7 @@ class Scheduler(BothScheduler):
         """The number of buttons to show in the reviewer for `card`"""
         if card.odue:
             # normal review in dyn deck?
-            if card.odid and card.queue == QUEUE_REV:
+            if card.isFiltered() and card.queue == QUEUE_REV:
                 return 4
             conf = self._lrnConf(card)
             if card.type in (CARD_NEW,CARD_LRN) or len(conf['delays']) > 1:
@@ -278,7 +278,7 @@ and due <= ? limit %d""" % (self._deckLimit(),  self.reportLimit),
     def _answerLrnCard(self, card, ease):
         # ease 1=no, 2=yes, 3=remove
         conf = self._lrnConf(card)
-        if card.odid and not card.wasNew:
+        if card.isFiltered() and not card.wasNew:
             type = REVLOG_CRAM
         elif card.type == CARD_DUE:
             type = REVLOG_RELRN
@@ -311,7 +311,7 @@ and due <= ? limit %d""" % (self._deckLimit(),  self.reportLimit),
                 else:
                     # new card; no ivl adjustment
                     pass
-                if resched and card.odid:
+                if resched and card.isFiltered():
                     card.odue = self.today + 1
             delay = self._delayForGrade(conf, card.left)
             if card.due < time.time():
@@ -378,7 +378,7 @@ and due <= ? limit %d""" % (self._deckLimit(),  self.reportLimit),
         card.type = CARD_DUE
         # if we were dynamic, graduating means moving back to the old deck
         resched = self._resched(card)
-        if card.odid:
+        if card.isFiltered():
             card.did = card.odid
             card.odue = 0
             card.odid = 0
@@ -416,7 +416,7 @@ and due <= ? limit %d""" % (self._deckLimit(),  self.reportLimit),
         """
         if card.type == CARD_DUE:
             # lapsed card being relearnt
-            if card.odid:
+            if card.isFiltered():
                 if conf['resched']:
                     return self._dynIvlBoost(card)
             return card.ivl
@@ -597,7 +597,7 @@ select id from cards where did in %s and queue = {QUEUE_REV} and due <= ? limit 
             card.factor = max(1300, card.factor-200)
             card.due = self.today + card.ivl
             # if it's a filtered deck, update odue as well
-            if card.odid:
+            if card.isFiltered():
                 card.odue = card.due
         # if suspended as a leech, nothing to do
         delay = 0
@@ -650,7 +650,7 @@ select id from cards where did in %s and queue = {QUEUE_REV} and due <= ? limit 
             card.due = self.today + card.ivl
         else:#Filtered without rescheduling
             card.due = card.odue
-        if card.odid:
+        if card.isFiltered():
             card.did = card.odid
             card.odid = 0
             card.odue = 0
@@ -795,7 +795,7 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?""" % queue, data)
         ```maxIvl``` of the card's configuration.
 
         """
-        assert card.odid and card.type == CARD_DUE
+        assert card.isFiltered() and card.type == CARD_DUE
         assert card.factor
         lastReview = (card.odue - card.ivl)
         elapsed = self.today - lastReview
@@ -830,7 +830,7 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?""" % queue, data)
                 # if it has an old due, remove it from cram/relearning
                 if card.odue:
                     card.due = card.odue
-                if card.odid:
+                if card.isFiltered():
                     card.did = card.odid
                 card.odue = card.odid = 0
                 card.queue = QUEUE_SUSPENDED

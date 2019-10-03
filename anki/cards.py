@@ -24,7 +24,7 @@ class Card:
     valid values are from 0 to num templates - 1
     mod -- modificaton time as epoch seconds
     usn -- update sequence number : see README.synchronization
-    type -- -- 0=new, 1=learning, 2=due, 3=filtered. Only for cards
+    type -- -- 0=new, 1=learning, 2=due, 3=filtered. (3 only in sched v2)
     queue --
          -- QUEUE_SCHED_BURIED: card buried by scheduler, -3
          -- QUEUE_USER_BURIED: card buried by user, -2
@@ -49,7 +49,9 @@ class Card:
       -- of the form a*1000+b, with:
       -- b the number of reps left till graduation
       -- a the number of reps left today
-    odue -- original due: only used when the card is currently in filtered deck
+    odue -- original due: In filtered decks, it's the original due date that the card had before moving to filtered.
+             If the card lapsed in scheduler1, then it's the value before the lapse. (This is used when switching to scheduler 2. At this time, cards in learning becomes due again, with their previous due date)
+             In any other case it's 0.
     odid -- original did: only used when the card is currently in filtered deck
     flags -- an integer. This integer mod 8 represents a "flag", which can be see in browser and while reviewing a note. Red 1, Orange 2, Green 3, Blue 4, no flag: 0. This integer divided by 8 represents currently nothing
     data -- currently unused
@@ -298,3 +300,6 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
     def setUserFlag(self, flag):
         assert 0 <= flag <= 7
         self.flags = (self.flags & ~0b111) | flag
+
+    def isFiltered(self):
+        return self.odid

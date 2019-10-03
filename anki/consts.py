@@ -75,7 +75,7 @@ REVLOG_CRAM = 3
 CARD_NEW = 0
 CARD_LRN = 1
 CARD_DUE = 2
-CARD_FILTERED = 3
+CARD_FILTERED = 3 # Only used in sched v2.
 
 # Kind of deck
 DECK_STD = 0
