@@ -222,7 +222,7 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
             note = self.note(reload)
             model = self.model()
             template = self.template()
-            data = [self.id, note.id, model['id'], self.odid or self.did, self.ord,
+            data = [self.id, note.id, model['id'], self.originalDid(), self.ord,
                     note.stringTags(), note.joinedFields(), self.flags]
             if browser:
                 args = (template.get('bqfmt'), template.get('bafmt'))
@@ -263,14 +263,14 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
         """Time limit for answering in milliseconds.
 
         According to the deck's information."""
-        conf = self.col.decks.confForDid(self.odid or self.did)
+        conf = self.col.decks.confForDid(self.originalDid())
         return conf['maxTaken']*1000
 
     def shouldShowTimer(self):
         """Whether timer should be shown.
 
         According to the deck's information."""
-        conf = self.col.decks.confForDid(self.odid or self.did)
+        conf = self.col.decks.confForDid(self.originalDid())
         return conf['timer']
 
     def timeTaken(self):
@@ -303,3 +303,7 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
 
     def isFiltered(self):
         return self.odid
+
+    def originalDid(self):
+        """Independantly of whether the card is filtered or not."""
+        return self.odid or self.did

@@ -187,12 +187,12 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
 
     def autoplay(self, card):
         return self.mw.col.decks.confForDid(
-            card.odid or card.did)['autoplay']
+            card.originalDid())['autoplay']
 
     def _replayq(self, card, previewer=None):
         cardOwner = previewer if previewer else self
         return cardOwner.mw.col.decks.confForDid(
-            cardOwner.card.odid or cardOwner.card.did).get('replayq', True)
+            cardOwner.card.originalDid()).get('replayq', True)
 
     def _drawFlag(self):
         self.web.eval("_drawFlag(%s);" % self.card.userFlag())
@@ -646,7 +646,7 @@ time = %(time)d;
 
     def onOptions(self):
         self.mw.onDeckConf(self.mw.col.decks.get(
-            self.card.odid or self.card.did))
+            self.card.originalDid()))
 
     def setFlag(self, flag):
         # need to toggle off?

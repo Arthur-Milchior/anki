@@ -40,10 +40,7 @@ class DeckChooser(QHBoxLayout):
                 # if they're reviewing, try default to current card
                 card = self.mw.reviewer.card
                 if self.mw.state == "review" and card:
-                    if not card.isFiltered():
-                        did = card.did
-                    else:
-                        did = card.odid
+                    did = card.originalDid()
                 else:
                     did = 1
             self.setDeckName(self.mw.col.decks.nameOrNone(
