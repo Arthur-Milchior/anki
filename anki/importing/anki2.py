@@ -332,7 +332,8 @@ class Anki2Importer(Importer):
         for card in self.src.db.execute(
             "select note.guid, note.mid, card.* from cards card, notes note "
             "where card.nid = note.id"):
-            guid = card[0]
+            guid, mid, cid, nid, did, ord, mod, usn_, type, queue, due, ivl, factor, reps, lapses, left, odue, odid, flags, data = card
+            scid = cid
             if guid in self._changedGuids:
                 guid = self._changedGuids[guid]
             if guid in self._ignoredGuids:
@@ -342,50 +343,47 @@ class Anki2Importer(Importer):
                 continue
             dnid = self._notes[guid]
             # does the card already exist in the dst col?
-            ord = card[5]
             if (guid, ord) in self._cards:
                 # fixme: in future, could update if newer mod time
                 continue
             # doesn't exist. strip off note info, and save src id for later
-            card = list(card[2:])
-            scid = card[0]
             # ensure the card id is unique
-            while card[0] in existing:
-                card[0] += 999
-            existing[card[0]] = True
+            while cid in existing:
+                cid += 999
+            existing[cid] = True
             # update cid, nid, etc
-            card[1] = self._notes[guid][0]
-            card[2] = self._did(card[2])
-            card[4] = intTime()
-            card[5] = usn
+            nid = self._notes[guid][0]
+            did = self._did(did)
+            mod = intTime()
             # review cards have a due date relative to collection
-            if card[7] in (CARD_DUE, CARD_FILTERED) or card[6] == QUEUE_REV:
-                card[8] -= aheadBy
+            if queue in (CARD_DUE, CARD_FILTERED) or type == QUEUE_REV:
+                due -= aheadBy
             # odue needs updating too
-            if card[14]:
-                card[14] -= aheadBy
+            if odue:
+                odue -= aheadBy
             # if odid true, convert card from filtered to normal
-            if card[15]:
+            if odid:
                 # odid
-                card[15] = 0
+                odid = 0
                 # odue
-                card[8] = card[14]
-                card[14] = 0
+                due = odue
+                odue = 0
                 # queue
-                if card[6] == QUEUE_LRN: # type
-                    card[7] = CARD_NEW
+                if type == QUEUE_LRN: # type
+                    queue = CARD_NEW
                 else:
-                    card[7] = card[6]
+                    queue = type
                 # type
-                if card[6] == QUEUE_LRN:
-                    card[6] = QUEUE_NEW
+                if type == QUEUE_LRN:
+                    type = QUEUE_NEW
+                if type == 1:
+                    type = 0
+            card = (cid, nid, did, ord, mod, usn, type, queue, due, ivl, factor, reps, lapses, left, odue, odid, flags, data)
             cards.append(card)
             # we need to import revlog, rewriting card ids and bumping usn
-            for rev in self.src.db.execute(
+            for rid, cid_, usn_, ease, ivl, lastIvl, factor, time, type in self.src.db.execute(
                 "select * from revlog where cid = ?", scid):
-                rev = list(rev)
-                rev[1] = card[0]
-                rev[2] = self.dst.usn()
+                rev = (rid, cid, usn, ease, ivl, lastIvl, factor, time, type)
                 revlog.append(rev)
             cnt += 1
         # apply
