@@ -11,9 +11,6 @@ from anki.importing.base import Importer
 from anki.lang import _
 from anki.utils import intTime, joinFields, splitFields
 
-GUID = 1
-MID = 2
-MOD = 3
 
 class Anki2Importer(Importer):
 
@@ -109,39 +106,43 @@ class Anki2Importer(Importer):
             "select * from notes"):
             total += 1
             # turn the db result into a mutable list
-            note = list(note)
-            shouldAdd = self._uniquifyNote(note)
+            nid, guid, mid, mod, usn_, tags, flds, sfld, csum, flags, data = note
+            shouldAdd, mid = self._uniquifyNote(guid, mid)
             if shouldAdd:
                 # ensure id is unique
-                while note[0] in existing:
-                    note[0] += 999
-                existing[note[0]] = True
+                while nid in existing:
+                    nid += 999
+                existing[nid] = True
                 # bump usn
-                note[4] = usn
+                usn_ = usn
                 # update media references in case of dupes
-                note[6] = self._mungeMedia(note[MID], note[6])
+                flds = self._mungeMedia(mid, flds)
+                note = nid, guid, mid, mod, usn_, tags, flds, sfld, csum, flags, data
                 add.append(note)
-                dirty.append(note[0])
-                # note we have the added the guid
-                self._notes[note[GUID]] = (note[0], note[3], note[MID])
+                dirty.append(nid)
+                # note we have added the guid
+                self._notes[guid] = (nid, mod, mid)
             else:
                 # a duplicate or changed schema - safe to update?
                 if self.allowUpdate:
-                    oldNid, oldMod, oldMid = self._notes[note[GUID]]
+                    oldNid, oldMod, oldMid = self._notes[guid]
                     # will update if incoming note more recent
-                    if oldMod < note[MOD]:
+                    if oldMod < mod:
                         # safe if note types identical
-                        if oldMid == note[MID]:
+                        if oldMid == mid:
                             # incoming note should use existing id
-                            note[0] = oldNid
-                            note[4] = usn
-                            note[6] = self._mungeMedia(note[MID], note[6])
+                            nid = oldNid
+                            usn_ = usn
+                            flds = self._mungeMedia(mid, flds)
+                            note = nid, guid, mid, mod, usn_, tags, flds, sfld, csum, flags, data
                             update.append(note)
-                            dirty.append(note[0])
+                            dirty.append(nid)
                         else:
+                            note = nid, guid, mid, mod, usn_, tags, flds, sfld, csum, flags, data
                             dupesIgnored.append(note)
-                            self._ignoredGuids[note[GUID]] = True
+                            self._ignoredGuids[guid] = True
                     else:
+                        note = nid, guid, mid, mod, usn_, tags, flds, sfld, csum, flags, data
                         dupesIdentical.append(note)
 
         self.log.append(_("Notes found in file: %d") % total)
@@ -194,20 +195,17 @@ class Anki2Importer(Importer):
 
     # determine if note is a duplicate, and adjust mid and/or guid as required
     # returns true if note should be added
-    def _uniquifyNote(self, note):
-        origGuid = note[GUID]
-        srcMid = note[MID]
+    def _uniquifyNote(self, origGuid, srcMid):
         dstMid = self._mid(srcMid)
         # duplicate schemas?
         if srcMid == dstMid:
-            return origGuid not in self._notes
+            return (origGuid not in self._notes, srcMid)
         # differing schemas and note doesn't exist?
-        note[MID] = dstMid
         if origGuid not in self._notes:
-            return True
+            return True, dstMid
         # schema changed; don't import
         self._ignoredGuids[origGuid] = True
-        return False
+        return False, dstMid
 
     # Models
     ######################################################################
@@ -221,7 +219,7 @@ class Anki2Importer(Importer):
         self._modelMap = {}
 
     def _mid(self, srcMid):
-        """Return local id for remote MID.
+        """Return local id for remote mid.
 
         Two models are assumed to be compatible if they have the same
         names of fields and of card type. If imported model is
