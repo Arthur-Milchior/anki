@@ -169,6 +169,12 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
     </td>
   </tr>"""
 
+    def _onAddDelay(self, deck):
+        deckName = deck['name']
+        cids = self.mw.col.findCards(f"\"deck:{deckName}\"")
+        self.mw.addDelay(cids)
+
+
     # Top buttons
     ######################################################################
 
