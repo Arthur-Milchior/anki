@@ -133,8 +133,10 @@ class AddonManager:
 
     def writeAddonMeta(self, dir, meta):
         path = self._addonMetaPath(dir)
+        text = json.dumps(meta, sort_keys=True, indent=4, separators=(',', ': '))
+        text = readableJson(text)
         with open(path, "w", encoding="utf8") as file:
-            json.dump(meta, file)
+            file.write(text)
 
     def isEnabled(self, dir):
         meta = self.addonMeta(dir)
