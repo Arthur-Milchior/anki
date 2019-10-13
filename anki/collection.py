@@ -307,7 +307,10 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         self.lock()
 
     def modSchema(self, check):
-        """Mark schema modified. Call this first so user can abort if necessary.
+        """Mark schema modified.
+
+        To be called before anything modifying the schema, so anki can
+        check with the user if it's all right.
 
         Raise AnkiError("abortSchemaMod") if the change is
         rejected by the filter (e.g. if the user states to abort).
@@ -316,6 +319,9 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         synchronization occurs.
 
         Change the scm value
+
+        check -- whether to ask user whether they want it.
+
         """
         if not self.schemaChanged():
             if check and not runFilter("modSchema", True):
