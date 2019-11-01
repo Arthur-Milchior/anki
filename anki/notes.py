@@ -160,6 +160,9 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
         """Whether key is a field of this note."""
         return key in list(self._fmap.keys())
 
+    def getSField(self):
+        return self.fields[self.col.models.sortIdx(self._model)]
+
     # Tags
     ##################################################
 

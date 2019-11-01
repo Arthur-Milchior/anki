@@ -77,7 +77,7 @@ class BrowserColumn:
 BrowserColumn(
     type="noteFld",
     name="Sort Field",
-    content=(lambda card, browser: htmlToTextLine(card.note().fields[browser.col.models.sortIdx(card.note().model())])),
+    content=(lambda card, browser: htmlToTextLine(card.note().getSField())),
     sort="n.sfld collate nocase, c.ord",
 )
 
