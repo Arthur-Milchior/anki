@@ -70,6 +70,25 @@ class BrowserColumn:
             return False
         return True
 
+    @classmethod
+    def getBrowserColumn(cls, type):
+        if type in cls.typeToObject:
+            return cls.typeToObject[type]
+        return unknownColumn(type)
+
+BrowserColumn(
+    type="noteFld",
+    name="Sort Field",
+    content=(lambda card, browser: htmlToTextLine(card.note().getSField())),
+    sort="n.sfld collate nocase, c.ord",
+)
+
+BrowserColumn(
+    type="template",
+    name="Card",
+    content=lambda card, browser: card.template()['name'] + (f" {card.ord+1}" if card.model()['type'] == MODEL_CLOZE else ""),
+)
+
 def cardDueContent(card, browser):
     """
     The content of the 'due' column in the browser.
