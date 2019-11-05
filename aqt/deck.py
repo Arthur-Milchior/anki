@@ -53,6 +53,10 @@ class Deck(anki.deck.Deck):
         self.select()
         self.manager.mw.onReviewOrOverview()
 
+    def _overviewDeck(self):
+        self.select()
+        self.manager.mw.onOverview()
+
     def _showOptions(self):
         menu = QMenu(self.manager.mw)
         action = menu.addAction(_("Rename"))
@@ -63,6 +67,9 @@ class Deck(anki.deck.Deck):
         action.triggered.connect(lambda button, deck=self: deck._export())
         action = menu.addAction(_("Delete"))
         action.triggered.connect(lambda button, deck=self: deck._delete())
+        if not self.mw.col.conf.get("overview", False):
+            action = menu.addAction(_("Overview"))
+            action.triggered.connect(lambda button, deck=self: deck._overviewDeck())
         runHook("showDeckOptions", menu, self.getId())
         # still passing did, as add-ons have not updated to my fork.
         menu.exec_(QCursor.pos())
