@@ -1,0 +1,2 @@
+rm directToReview.zip
+zip directToReview.zip config.* *py  LICENSE *.md zipping --exclude \*~ \*zip
