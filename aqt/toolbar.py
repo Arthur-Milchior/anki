@@ -63,8 +63,7 @@ class Toolbar:
     def _studyLinkHandler(self):
         # if overview already shown, switch to review
         if self.mw.state == "overview":
-            self.mw.col.startTimebox()
-            self.mw.moveToState("review")
+            self.mw.onReview()
         else:
             self.mw.onOverview()
 

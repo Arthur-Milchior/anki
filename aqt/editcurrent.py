@@ -73,7 +73,7 @@ class EditCurrent(QDialog):
         else:
             self.mw.reviewer.cardQueue.append(self.mw.reviewer.card)
         self.editor.cleanup()
-        self.mw.moveToState("review")
+        self.mw.moveToState("review") # not onReview because we don't restart timer
         saveGeom(self, "editcurrent")
         aqt.dialogs.markClosed("EditCurrent")
         QDialog.reject(self)

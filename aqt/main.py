@@ -944,6 +944,10 @@ QTreeWidget {
         self.col.reset()
         self.moveToState("overview")
 
+    def onReview(self):
+        self.col.startTimebox()
+        self.moveToState("review")
+
     def onStats(self):
         """Open stats for selected decks
 

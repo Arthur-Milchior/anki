@@ -35,8 +35,7 @@ class Overview:
 
     def _linkHandler(self, url):
         if url == "study":
-            self.mw.col.startTimebox()
-            self.mw.moveToState("review")
+            self.mw.onReview()
             if self.mw.state == "overview":
                 tooltip(_("No cards are due yet."))
         elif url == "anki":
