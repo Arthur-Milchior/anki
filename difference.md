@@ -14,3 +14,7 @@ instead of deleting the note» chage the behavior of anki when he finds
 a note which has no more card. This allow to lose the content of the
 note, and let you correct the note instead to generate cards.
 
+## Merge decks (443286122)
+If you move/rename a deck and that it conflicts with an already
+existing deck, Anki will ask whether you want to merge decks.
+
