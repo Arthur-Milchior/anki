@@ -124,8 +124,9 @@ class Deck(DictAugmentedDyn):
         """Rename the deck object to newName. Updates children. Creates
         parents of newName if required.
 
-        If newName already exists or if it a descendant of a filtered
-        deck, the operation is aborted.
+        If newName already exists, the content of deck is merged in
+        it. If newName is a descendant of a filtered deck, the
+        operation is aborted.
 
         """
         # ensure we have parents
@@ -142,10 +143,16 @@ class Deck(DictAugmentedDyn):
         oldName = self.getName()
         for child in self.getDescendants(includeSelf=True):
             del self.manager.decksByNames[child.getNormalizedName()]
-            child.setName(child.getName().replace(oldName, newName, 1))
-            child.addInModel()
-            child.save()
-        # ensure we have parents again, as we may have renamed parent->child
+            newChildName = child.getName().replace(oldName, newName, 1)
+            newChild = self.manager.byName(newChildName)
+            if newChild: #deck with same name already existed. We move cards.
+                self.col.db.execute("update cards set did=?, mod=?, usn=? where did=?", newChild.getId(), intTime(), self.col.usn(), childId)
+                child.rem(childrenToo=False)
+            else: #no deck with same name. Deck renamed.
+                child.setName(newChildName)
+                child.addInModel()
+                child.save()
+        # ensure we have parents again, as we may have renamed parent->Descendant
         parent, newName = self.manager._ensureParents(newName)
         self.parent = parent
         self.parent.addChild(self)
