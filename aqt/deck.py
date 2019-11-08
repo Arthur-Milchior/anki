@@ -70,11 +70,11 @@ class Deck(anki.deck.Deck):
     def _export(self):
         self.manager.mw.onExport(deck=self)
 
-    def _rename(self):
-        self.manager.mw.checkpoint(_("Rename Deck"))
+    def _rename(self, newName=None):
         oldName = self.getName()
-        newName = getOnlyText(_("New deck name:"), default=oldName)
-        newName = newName.replace('"', "")
+        if newName is None:
+            newName = getOnlyText(_("New deck name:"), default=oldName)
+            newName = newName.replace('"', "")
         if not newName or newName == oldName:
             return
         try:
