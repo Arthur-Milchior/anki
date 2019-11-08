@@ -154,6 +154,13 @@ class Deck(DictAugmentedDyn):
         """Rename the deck whose id is draggedDeckDid as a children of
         the deck whose id is ontoDeckDid."""
         assert not self.exporting
+        newName = self.newNameForDragAndDrop(ontoDeckDid)
+        if newName is not None:
+            self.rename(newName)
+
+
+    def newNameForDragAndDrop(self, ontoDeckDid):
+        """name that would result from this drag and drop. None if it's impossible"""
         draggedDeckName = self.getName()
         ontoDeck = self.manager.get(ontoDeckDid)
         ontoDeckName = ontoDeck.getName()
@@ -161,14 +168,13 @@ class Deck(DictAugmentedDyn):
             #if the deck is dragged to toplevel
             if not self.isTopLevel():
                 #And is not already at top level
-                self.rename(self.manager._basename(draggedDeckName))
+                return self.manager._basename(draggedDeckName)
         elif self._canDragAndDrop(ontoDeck):
             #The following three lines seems to be useless, as they
             #repeat lines above
-            draggedDeckName = self.getName()
             ontoDeckName = self.manager.get(ontoDeckDid).getName()
             assert ontoDeckName.strip()
-            self.rename(ontoDeckName + "::" + self.manager._basename(draggedDeckName))
+            return ontoDeckName + "::" + self.manager._basename(draggedDeckName)
 
     def _canDragAndDrop(self, ontoDeck):
         """Whether draggedDeckName can be moved as a children of
