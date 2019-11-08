@@ -295,20 +295,20 @@ values(1,0,0,%(s)s,%(v)s,0,0,0,'','{}','','','{}');
 def _getColVars(db):
     import anki.collection
     import anki.decks
-    g = copy.deepcopy(anki.decks.defaultDeck)
-    g['id'] = 1
-    g['name'] = _("Default")
-    g['conf'] = 1
-    g['mod'] = intTime()
+    deck = copy.deepcopy(anki.decks.defaultDeck)
+    deck['id'] = 1
+    deck['name'] = _("Default")
+    deck['conf'] = 1
+    deck['mod'] = intTime()
     gc = copy.deepcopy(anki.decks.defaultConf)
     gc['id'] = 1
-    return g, gc, anki.collection.defaultConf.copy()
+    return deck, gc, anki.collection.defaultConf.copy()
 
-def _addColVars(db, g, gc, c):
+def _addColVars(db, deck, gc, c):
     db.execute("""
 update col set conf = ?, decks = ?, dconf = ?""",
                    json.dumps(c),
-                   json.dumps({'1': g}),
+                   json.dumps({'1': deck}),
                    json.dumps({'1': gc}))
 
 def _updateIndices(db):

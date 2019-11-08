@@ -199,8 +199,8 @@ class CardLayout(QDialog):
         if self._isCloze():
             cnt = len(self.mm.availOrds(
                 self.model, joinFields(self.note.fields)))
-            for g in self.pform.groupBox, self.pform.groupBox_2:
-                g.setTitle(g.title() + _(" (1 of %d)") % max(cnt, 1))
+            for groupBox in self.pform.groupBox, self.pform.groupBox_2:
+                groupBox.setTitle(groupBox.title() + _(" (1 of %d)") % max(cnt, 1))
 
     def onRemove(self):
         if len(self.model['tmpls']) < 2:

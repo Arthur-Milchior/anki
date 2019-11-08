@@ -113,11 +113,11 @@ class DeckManager:
         if not found:
             self.changed = False
 
-    def save(self, g=None):
+    def save(self, deckOrOption=None):
         "Can be called with either a deck or a deck configuration."
-        if g:
-            g['mod'] = intTime()
-            g['usn'] = self.col.usn()
+        if deckOrOption:
+            deckOrOption['mod'] = intTime()
+            deckOrOption['usn'] = self.col.usn()
         self.changed = True
 
     def flush(self):
@@ -141,18 +141,18 @@ class DeckManager:
             return int(deck["id"])
         if not create:
             return None
-        g = copy.deepcopy(type)
+        deck = copy.deepcopy(type)
         if "::" in name:
             # not top level; ensure all parents exist
             name = self._ensureParents(name)
-        g['name'] = name
+        deck['name'] = name
         while 1:
             id = intTime(1000)
             if str(id) not in self.decks:
                 break
-        g['id'] = id
-        self.decks[str(id)] = g
-        self.save(g)
+        deck['id'] = id
+        self.decks[str(id)] = deck
+        self.save(deck)
         self.maybeAddToActive()
         runHook("newDeck")
         return int(id)
@@ -248,14 +248,14 @@ class DeckManager:
             if self.equalName(m['name'], name):
                 return m
 
-    def update(self, g):
+    def update(self, deck):
         "Add or update an existing deck. Used for syncing and merging."
-        self.decks[str(g['id'])] = g
+        self.decks[str(deck['id'])] = deck
         self.maybeAddToActive()
         # mark registry changed, but don't bump mod time
         self.save()
 
-    def rename(self, g, newName):
+    def rename(self, deck, newName):
         "Rename deck prefix to NAME if not exists. Updates children."
         # make sure target node doesn't already exist
         if self.byName(newName):
@@ -267,16 +267,16 @@ class DeckManager:
         # ensure we have parents
         newName = self._ensureParents(newName)
         # rename children
-        for grp in self.all():
-            if grp['name'].startswith(g['name'] + "::"):
-                grp['name'] = grp['name'].replace(g['name']+ "::",
+        for child in self.all():
+            if child['name'].startswith(deck['name'] + "::"):
+                child['name'] = child['name'].replace(deck['name']+ "::",
                                                   newName + "::", 1)
-                self.save(grp)
+                self.save(child)
         # adjust name
-        g['name'] = newName
+        deck['name'] = newName
         # ensure we have parents again, as we may have renamed parent->child
         newName = self._ensureParents(newName)
-        self.save(g)
+        self.save(deck)
         # renaming may have altered active did order
         self.maybeAddToActive()
 
@@ -353,8 +353,8 @@ class DeckManager:
     def getConf(self, confId):
         return self.dconf[str(confId)]
 
-    def updateConf(self, g):
-        self.dconf[str(g['id'])] = g
+    def updateConf(self, conf):
+        self.dconf[str(conf['id'])] = conf
         self.save()
 
     def confId(self, name, cloneFrom=None):
@@ -377,17 +377,17 @@ class DeckManager:
         assert int(id) != 1
         self.col.modSchema(check=True)
         del self.dconf[str(id)]
-        for g in self.all():
+        for deck in self.all():
             # ignore cram decks
-            if 'conf' not in g:
+            if 'conf' not in deck:
                 continue
-            if str(g['conf']) == str(id):
-                g['conf'] = 1
-                self.save(g)
+            if str(deck['conf']) == str(id):
+                deck['conf'] = 1
+                self.save(deck)
 
-    def setConf(self, grp, id):
-        grp['conf'] = id
-        self.save(grp)
+    def setConf(self, deck, id):
+        deck['conf'] = id
+        self.save(deck)
 
     def didsForConf(self, conf):
         dids = []
@@ -510,9 +510,9 @@ class DeckManager:
         "All children of did, as (name, id)."
         name = self.get(did)['name']
         actv = []
-        for g in self.all():
-            if g['name'].startswith(name + "::"):
-                actv.append((g['name'], g['id']))
+        for deck in self.all():
+            if deck['name'].startswith(name + "::"):
+                actv.append((deck['name'], deck['id']))
         return actv
 
     def childDids(self, did, childMap):

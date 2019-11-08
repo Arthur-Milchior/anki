@@ -162,22 +162,22 @@ order by due""" % (self._deckLimit()),
 
     def _updateStats(self, card, type, cnt=1):
         key = type+"Today"
-        for g in ([self.col.decks.get(card.did)] +
+        for deck in ([self.col.decks.get(card.did)] +
                   self.col.decks.parents(card.did)):
             # add
-            g[key][1] += cnt
-            self.col.decks.save(g)
+            deck[key][1] += cnt
+            self.col.decks.save(deck)
 
     def extendLimits(self, new, rev):
         cur = self.col.decks.current()
         parents = self.col.decks.parents(cur['id'])
         children = [self.col.decks.get(did) for (name, did) in
                     self.col.decks.children(cur['id'])]
-        for g in [cur] + parents + children:
+        for deck in [cur] + parents + children:
             # add
-            g['newToday'][1] -= new
-            g['revToday'][1] -= rev
-            self.col.decks.save(g)
+            deck['newToday'][1] -= new
+            deck['revToday'][1] -= rev
+            self.col.decks.save(deck)
 
     def _walkingCount(self, limFn=None, cntFn=None):
         tot = 0
@@ -250,21 +250,21 @@ order by due""" % (self._deckLimit()),
     def deckDueTree(self):
         return self._groupChildren(self.deckDueList())
 
-    def _groupChildren(self, grps):
+    def _groupChildren(self, decks):
         # first, split the group names into components
-        for g in grps:
-            g[0] = g[0].split("::")
+        for deck in decks:
+            deck[0] = deck[0].split("::")
         # and sort based on those components
-        grps.sort(key=itemgetter(0))
+        decks.sort(key=itemgetter(0))
         # then run main function
-        return self._groupChildrenMain(grps)
+        return self._groupChildrenMain(decks)
 
-    def _groupChildrenMain(self, grps):
+    def _groupChildrenMain(self, decks):
         tree = []
         # group and recurse
-        def key(grp):
-            return grp[0][0]
-        for (head, tail) in itertools.groupby(grps, key=key):
+        def key(deck):
+            return deck[0][0]
+        for (head, tail) in itertools.groupby(decks, key=key):
             tail = list(tail)
             did = None
             rev = 0
@@ -398,8 +398,8 @@ did = ? and queue = {QUEUE_NEW} limit ?)""", did, lim)
         sel = self.col.decks.get(did)
         lim = -1
         # for the deck and each of its parents
-        for g in [sel] + self.col.decks.parents(did):
-            rem = fn(g)
+        for deck in [sel] + self.col.decks.parents(did):
+            rem = fn(deck)
             if lim == -1:
                 lim = rem
             else:
@@ -415,12 +415,12 @@ did = ? and queue = {QUEUE_NEW} limit ?)""", did, lim)
 select count() from
 (select 1 from cards where did = ? and queue = {QUEUE_NEW} limit ?)""", did, lim)
 
-    def _deckNewLimitSingle(self, g):
+    def _deckNewLimitSingle(self, deck):
         "Limit for deck without parent limits."
-        if g['dyn']:
+        if deck['dyn']:
             return self.reportLimit
-        c = self.col.decks.confForDid(g['id'])
-        return max(0, c['new']['perDay'] - g['newToday'][1])
+        c = self.col.decks.confForDid(deck['id'])
+        return max(0, c['new']['perDay'] - deck['newToday'][1])
 
     def totalNewForCurrentDeck(self):
         return self.col.db.scalar(
@@ -1129,11 +1129,11 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?""" % queue, data)
             self.col.log(self.today, self.dayCutoff)
         # update all daily counts, but don't save decks to prevent needless
         # conflicts. we'll save on card answer instead
-        def update(g):
+        def update(deck):
             for t in "new", "rev", "lrn", "time":
                 key = t+"Today"
-                if g[key][0] != self.today:
-                    g[key] = [self.today, 0]
+                if deck[key][0] != self.today:
+                    deck[key] = [self.today, 0]
         for deck in self.col.decks.all():
             update(deck)
         # unbury if the day has rolled over

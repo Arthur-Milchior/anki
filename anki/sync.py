@@ -196,8 +196,8 @@ class Syncer:
             if self.col.db.scalar(
                 "select count() from %s where usn = -1" % t):
                 return "%s had usn = -1" % t
-        for g in self.col.decks.all():
-            if g['usn'] == -1:
+        for deck in self.col.decks.all():
+            if deck['usn'] == -1:
                 return "deck had usn = -1"
         for t, usn in self.col.tags.allItems():
             if usn == -1:
@@ -356,12 +356,12 @@ from notes where %s""" % d)
     ##########################################################################
 
     def getDecks(self):
-        decks = [g for g in self.col.decks.all() if g['usn'] == -1]
-        for g in decks:
-            g['usn'] = self.maxUsn
-        dconf = [g for g in self.col.decks.allConf() if g['usn'] == -1]
-        for g in dconf:
-            g['usn'] = self.maxUsn
+        decks = [deck for deck in self.col.decks.all() if deck['usn'] == -1]
+        for deck in decks:
+            deck['usn'] = self.maxUsn
+        dconf = [deck for deck in self.col.decks.allConf() if deck['usn'] == -1]
+        for deck in dconf:
+            deck['usn'] = self.maxUsn
         self.col.decks.save()
         return [decks, dconf]
 
