@@ -14,3 +14,9 @@ instead of deleting the note» chage the behavior of anki when he finds
 a note which has no more card. This allow to lose the content of the
 note, and let you correct the note instead to generate cards.
 
+## Sort new cards (1665261045)
+In the browser, and in the gear near the deck, you can change the
+order in which you see new cards. You'll need to read
+https://github.com/Arthur-Milchior/anki_sort_cards to learn how this
+new order can be parametrized.
+
