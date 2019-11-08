@@ -2,6 +2,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import pprint
+from random import random
 import time
 
 from anki.consts import *
@@ -317,3 +318,39 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
 
     def currentConf(self):
         return self.currentDeck().getConf()
+
+    # Methods to sort new card
+    ######################################################
+
+    nidToRand = dict()
+    def toTup(self, params):
+        """A tuple to sort the card. See bothSched.sortCids to get more
+        informations."""
+        l = []
+        for param in params:
+            if isinstance(param, tuple):
+                param, reverse = param
+            else:
+                reverse = False
+            if param == "new first":
+                val = (self.note().isNotNew())#false occurs first in list
+            elif param == "seen first":
+                val = (self.note().isNew())#false occurs first in list
+            elif param in {"ord", "card position"}:
+                val = (self.ord)
+            elif param == "note creation":
+                val = (self.nid)
+            elif param == "card creation":
+                val = (self.id)
+            elif param == "mod":
+                val = (self.note().mod)
+            elif param == "note random":
+                if self.nid not in nidToRand:
+                    nidToRand[self.nid] = random()
+                val = nidToRand[self.nid]
+            elif param == "card random":
+                val = (random())
+            if reverse:
+                val = -val
+            l.append(val)
+        return tuple(l)
