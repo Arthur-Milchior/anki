@@ -641,6 +641,9 @@ usn=:usn,mod=:mod,factor=:fact where id=:id""",
     # Repositioning new cards
     ##########################################################################
 
+    def sortDid(self, deck, params, start=None, step=1):
+        return self.sortCids(deck.cids(True), params, start, step)
+
     def sortCids(self, cids, params, start=None, step=1):
         """Re-order all new cards whose id belong to cids
 

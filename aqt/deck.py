@@ -4,7 +4,7 @@ from anki.errors import DeckRenameError
 from anki.hooks import runHook
 from anki.lang import _
 from aqt.qt import *
-from aqt.utils import getOnlyText
+from aqt.utils import getOnlyText, getText
 
 
 class Deck(anki.deck.Deck):
@@ -63,6 +63,8 @@ class Deck(anki.deck.Deck):
         action.triggered.connect(lambda button, deck=self: deck._export())
         action = menu.addAction(_("Delete"))
         action.triggered.connect(lambda button, deck=self: deck._delete())
+        action = m.addAction(_("Sort"))
+        action.triggered.connect(lambda button, deck=self: deck._sort())
         runHook("showDeckOptions", menu, self.getId())
         # still passing did, as add-ons have not updated to my fork.
         menu.exec_(QCursor.pos())
@@ -103,6 +105,15 @@ class Deck(anki.deck.Deck):
             self.rem(True)
             self.manager.mw.progress.finish()
             self.manager.mw.deckBrowser.show()
+
+    def _sort(self):
+        params = self.get("special sort", "")
+        (params, ret) = getText("How to sort those cards", default=params)
+        if not ret:
+            return
+        self["special sort"] = params
+        self.save()
+        self.manager.mw.col.sched.sortDid(deck(), f"[{params}]")
 
     def _dragDeckOnto(self, ontoDeckDid):
         try:

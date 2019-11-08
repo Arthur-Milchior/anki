@@ -20,12 +20,11 @@ from anki.sound import allSounds, clearAudioQueue, play
 from anki.utils import (bodyClass, fmtTimeSpan, htmlToTextLine, ids2str,
                         intTime, isMac, isWin)
 from aqt.qt import *
-from aqt.utils import (MenuList, SubMenu, askUser, getOnlyText,
-                       getTag, getText, mungeQA, openHelp,
-                       qtMenuShortcutWorkaround, restoreGeom,
-                       restoreHeader, restoreSplitter, restoreState,
-                       saveGeom, saveHeader, saveSplitter, saveState,
-                       shortcut, showInfo, showWarning, tooltip)
+from aqt.utils import (MenuList, SubMenu, askUser, getOnlyText, getTag,
+                       getText, mungeQA, openHelp, qtMenuShortcutWorkaround,
+                       restoreGeom, restoreHeader, restoreSplitter,
+                       restoreState, saveGeom, saveHeader, saveSplitter,
+                       saveState, shortcut, showInfo, showWarning, tooltip)
 from aqt.webview import AnkiWebView
 
 # Data model
