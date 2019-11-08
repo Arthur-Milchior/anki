@@ -4,7 +4,7 @@ from anki.errors import DeckRenameError
 from anki.hooks import runHook
 from anki.lang import _
 from aqt.qt import *
-from aqt.utils import getOnlyText
+from aqt.utils import askUser, getOnlyText
 
 
 class Deck(anki.deck.Deck):
@@ -78,7 +78,9 @@ class Deck(anki.deck.Deck):
         if not newName or newName == oldName:
             return
         try:
-            self.rename(newName)
+            if (newName not in self.manager.mw.col.decks.allNames() or
+                askUser(_("The deck %s already exists. Do you want to merge %s in it ?")%(newName, oldName))):
+                self.rename(newName)
         except DeckRenameError as e:
             return showWarning(e.description)
         self.manager.mw.deckBrowser.show()
