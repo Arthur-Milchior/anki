@@ -120,12 +120,14 @@ class Deck(DictAugmentedDyn):
             self.manager.all()[0].select()
         self.manager.save()
 
-    def rename(self, newName):
-        """Rename the deck object g to newName. Updates
-        children. Creates parents of newName if required.
+    def rename(self, newName, merge=False):
+        """Rename the deck object to newName. Updates children. Creates
+        parents of newName if required.
 
         If newName already exists or if it a descendant of a filtered
-        deck, the operation is aborted."""
+        deck, the operation is aborted.
+
+        """
         # ensure we have parents
         assert not self.exporting
         parent, newName = self.manager._ensureParents(newName)
@@ -133,7 +135,7 @@ class Deck(DictAugmentedDyn):
         if newName is False:
             raise DeckRenameError(_("A filtered deck cannot have subdecks."))
         # make sure target node doesn't already exist
-        if self.manager.byName(newName):
+        if (not merge) and self.manager.byName(newName):
             raise DeckRenameError(_("That deck already exists."))
         self.parent.removeChild(self)
         # rename children

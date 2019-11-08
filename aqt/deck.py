@@ -110,7 +110,7 @@ class Deck(anki.deck.Deck):
         ontoDeckName = self.newNameForDragAndDrop(ontoDeckDid)
         if ontoDeckName is None:
             return
-        self._rename(newName=ontoDeckName)
+        self._rename(newName=ontoDeckName, merge=True)
         self.manager.mw.deckBrowser.show()
 
     def _collapse(self):
