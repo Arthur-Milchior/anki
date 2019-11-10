@@ -103,7 +103,7 @@ class CardLayout(QDialog):
         self.redrawing = True
         combo = self.topAreaForm.templatesBox
         combo.clear()
-        combo.addItems(self._summarizedName(t) for t in self.model['tmpls'])
+        combo.addItems(self._summarizedName(template) for template in self.model['tmpls'])
         combo.setCurrentIndex(self.ord)
         combo.setEnabled(not self._isCloze())
         self.redrawing = False
@@ -256,11 +256,11 @@ Please create a new card type first."""))
         self.renderPreview()
 
     def readCard(self):
-        t = self.card.template()
+        template = self.card.template()
         self.redrawing = True
-        self.tform.front.setPlainText(t['qfmt'])
+        self.tform.front.setPlainText(template['qfmt'])
         self.tform.css.setPlainText(self.model['css'])
-        self.tform.back.setPlainText(t['afmt'])
+        self.tform.back.setPlainText(template['afmt'])
         self.tform.front.setAcceptRichText(False)
         self.tform.css.setAcceptRichText(False)
         self.tform.back.setAcceptRichText(False)
@@ -390,11 +390,11 @@ Please create a new card type first."""))
         if not askUser(txt):
             return
         name = self._newCardName()
-        t = self.mm.newTemplate(name)
+        template = self.mm.newTemplate(name)
         old = self.card.template()
-        t['qfmt'] = old['qfmt']
-        t['afmt'] = old['afmt']
-        self.mm.addTemplate(self.model, t)
+        template['qfmt'] = old['qfmt']
+        template['afmt'] = old['afmt']
+        self.mm.addTemplate(self.model, template)
         self.ord = len(self.cards)
         self.redraw()
 
@@ -432,8 +432,8 @@ adjust the template manually to switch the question and answer."""))
 
             menu.addSeparator()
 
-            t = self.card.template()
-            if t['did']:
+            template = self.card.template()
+            if template['did']:
                 s = _(" (on)")
             else:
                 s = _(" (off)")
@@ -449,31 +449,31 @@ adjust the template manually to switch the question and answer."""))
         d = QDialog()
         dialog = aqt.forms.browserdisp.Ui_Dialog()
         dialog.setupUi(d)
-        t = self.card.template()
-        dialog.qfmt.setText(t.get('bqfmt', ""))
-        dialog.afmt.setText(t.get('bafmt', ""))
-        if t.get("bfont"):
+        template = self.card.template()
+        dialog.qfmt.setText(template.get('bqfmt', ""))
+        dialog.afmt.setText(template.get('bafmt', ""))
+        if template.get("bfont"):
             dialog.overrideFont.setChecked(True)
-        dialog.font.setCurrentFont(QFont(t.get('bfont', "Arial")))
-        dialog.fontSize.setValue(t.get('bsize', 12))
+        dialog.font.setCurrentFont(QFont(template.get('bfont', "Arial")))
+        dialog.fontSize.setValue(template.get('bsize', 12))
         dialog.buttonBox.accepted.connect(lambda: self.onBrowserDisplayOk(dialog))
         d.exec_()
 
     def onBrowserDisplayOk(self, form):
-        t = self.card.template()
-        t['bqfmt'] = form.qfmt.text().strip()
-        t['bafmt'] = form.afmt.text().strip()
+        template = self.card.template()
+        template['bqfmt'] = form.qfmt.text().strip()
+        template['bafmt'] = form.afmt.text().strip()
         if form.overrideFont.isChecked():
-            t['bfont'] = form.font.currentFont().family()
-            t['bsize'] = form.fontSize.value()
+            template['bfont'] = form.font.currentFont().family()
+            template['bsize'] = form.fontSize.value()
         else:
             for key in ("bfont", "bsize"):
-                if key in t:
-                    del t[key]
+                if key in template:
+                    del template[key]
 
     def onTargetDeck(self):
         from aqt.tagedit import TagEdit
-        t = self.card.template()
+        template = self.card.template()
         d = QDialog(self)
         d.setWindowTitle("Anki")
         d.setMinimumWidth(400)
@@ -486,8 +486,8 @@ Enter deck to place new %s cards in, or leave blank:""") %
         te = TagEdit(d, type=1)
         te.setCol(self.col)
         l.addWidget(te)
-        if t['did']:
-            te.setText(self.col.decks.get(t['did'])['name'])
+        if template['did']:
+            te.setText(self.col.decks.get(template['did'])['name'])
             te.selectAll()
         bb = QDialogButtonBox(QDialogButtonBox.Close)
         bb.rejected.connect(d.close)
@@ -495,9 +495,9 @@ Enter deck to place new %s cards in, or leave blank:""") %
         d.setLayout(l)
         d.exec_()
         if not te.text().strip():
-            t['did'] = None
+            template['did'] = None
         else:
-            t['did'] = self.col.decks.id(te.text())
+            template['did'] = self.col.decks.id(te.text())
 
     def onAddField(self):
         diag = QDialog(self)
@@ -528,10 +528,10 @@ Enter deck to place new %s cards in, or leave blank:""") %
                        form.size.value())
 
     def _addField(self, widg, fldName, font, size):
-        t = widg.toPlainText()
-        t +="\n<div style='font-family: %s; font-size: %spx;'>{{%s}}</div>\n" % (
+        templateHtml = widg.toPlainText()
+        templateHtml +="\n<div style='font-family: %s; font-size: %spx;'>{{%s}}</div>\n" % (
             font, size, fldName)
-        widg.setPlainText(t)
+        widg.setPlainText(templateHtml)
         self.saveCard()
 
     # Closing & Help

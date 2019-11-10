@@ -130,7 +130,7 @@ class NoteImporter(Importer):
                 if not self.allowHTML:
                     note.fields[fieldIndex] = note.fields[fieldIndex].replace("\note", "<br>")
                 note.fields[fieldIndex] = unicodedata.normalize("NFC", note.fields[fieldIndex])
-            note.tags = [unicodedata.normalize("NFC", t) for t in note.tags]
+            note.tags = [unicodedata.normalize("NFC", tag) for tag in note.tags]
             fld0 = note.fields[fld0idx]
             csum = fieldChecksum(fld0)
             # first field must exist

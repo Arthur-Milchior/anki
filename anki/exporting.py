@@ -271,8 +271,8 @@ class AnkiExporter(Exporter):
         if fname in model["css"]:
             return True
         # If no reference to fname then check the templates as well
-        for t in model["tmpls"]:
-            if fname in t["qfmt"] or fname in t["afmt"]:
+        for template in model["tmpls"]:
+            if fname in template["qfmt"] or fname in template["afmt"]:
                 return True
         return False
 

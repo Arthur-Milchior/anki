@@ -41,10 +41,10 @@ class TagManager:
     def register(self, tags, usn=None):
         "Given a list of tags, add any missing ones to tag registry."
         found = False
-        for t in tags:
-            if t not in self.tags:
+        for tag in tags:
+            if tag not in self.tags:
                 found = True
-                self.tags[t] = self.col.usn() if usn is None else usn
+                self.tags[tag] = self.col.usn() if usn is None else usn
                 self.changed = True
         if found:
             runHook("newTag")
@@ -102,7 +102,7 @@ class TagManager:
             l = "tags "
             fn = self.remFromStr
         lim = " or ".join(
-            [l+"like :_%d" % card for card, t in enumerate(newTags)])
+            [l+"like :_%d" % card for card, tag in enumerate(newTags)])
         res = self.col.db.all(
             "select id, tags from notes where id in %s and (%s)" % (
                 ids2str(ids), lim),
@@ -112,10 +112,10 @@ class TagManager:
         nids = []
         def fix(row):
             nids.append(row[0])
-            return {'id': row[0], 't': fn(tags, row[1]), 'mod':intTime(),
+            return {'id': row[0], 'tags': fn(tags, row[1]), 'mod':intTime(),
                 'u':self.col.usn()}
         self.col.db.executemany(
-            "update notes set tags=:t,mod=:mod,usn=:u where id = :id",
+            "update notes set tags=:tags,mod=:mod,usn=:u where id = :id",
             [fix(row) for row in res])
 
     def bulkRem(self, ids, tags):
@@ -126,7 +126,7 @@ class TagManager:
 
     def split(self, tags):
         "Parse a string and return a list of tags."
-        return [t for t in tags.replace('\u3000', ' ').split(" ") if t]
+        return [tag for tag in tags.replace('\u3000', ' ').split(" ") if tag]
 
     def join(self, tags):
         "Join tags into a single string, with leading and trailing spaces."
@@ -165,8 +165,8 @@ class TagManager:
     def canonify(self, tagList):
         "Strip duplicates, adjust case to match existing tags, and sort."
         strippedTags = []
-        for t in tagList:
-            s = re.sub("[\"']", "", t)
+        for tag in tagList:
+            s = re.sub("[\"']", "", tag)
             for existingTag in self.tags:
                 if s.lower() == existingTag.lower():
                     s = existingTag
@@ -175,7 +175,7 @@ class TagManager:
 
     def inList(self, tag, tags):
         "True if TAG is in TAGS. Ignore case."
-        return tag.lower() in [t.lower() for t in tags]
+        return tag.lower() in [tag.lower() for tag in tags]
 
     # Sync handling
     ##########################################################################

@@ -38,11 +38,11 @@ class TagLimit(QDialog):
         groupedTags.append(usertags)
         self.tags = []
         for tags in groupedTags:
-            for t in tags:
-                self.tags.append(t)
-                item = QListWidgetItem(t.replace("_", " "))
+            for tag in tags:
+                self.tags.append(tag)
+                item = QListWidgetItem(tag.replace("_", " "))
                 self.dialog.activeList.addItem(item)
-                if t in yesHash:
+                if tag in yesHash:
                     mode = QItemSelectionModel.Select
                     self.dialog.activeCheck.setChecked(True)
                 else:
@@ -50,9 +50,9 @@ class TagLimit(QDialog):
                 idx = self.dialog.activeList.indexFromItem(item)
                 self.dialog.activeList.selectionModel().select(idx, mode)
                 # inactive
-                item = QListWidgetItem(t.replace("_", " "))
+                item = QListWidgetItem(tag.replace("_", " "))
                 self.dialog.inactiveList.addItem(item)
-                if t in noHash:
+                if tag in noHash:
                     mode = QItemSelectionModel.Select
                 else:
                     mode = QItemSelectionModel.Deselect

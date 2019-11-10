@@ -416,8 +416,8 @@ select distinct(note.id) from cards card, notes note where card.nid=note.id and 
         # search for template names
         lims = []
         for model in self.col.models.all():
-            for t in model['tmpls']:
-                if unicodedata.normalize("NFC", t['name'].lower()) == val.lower():
+            for template in model['tmpls']:
+                if unicodedata.normalize("NFC", template['name'].lower()) == val.lower():
                     if model['type'] == MODEL_CLOZE:
                         # if the user has asked for a cloze card, we want
                         # to give all ordinals, so we just limit to the
@@ -425,7 +425,7 @@ select distinct(note.id) from cards card, notes note where card.nid=note.id and 
                         lims.append("(note.mid = %s)" % model['id'])
                     else:
                         lims.append("(note.mid = %s and card.ord = %s)" % (
-                            model['id'], t['ord']))
+                            model['id'], template['ord']))
         return " or ".join(lims)
 
     def _findField(self, field, val):

@@ -192,14 +192,14 @@ class Syncer:
     def sanityCheck(self):
         if not self.col.basicCheck():
             return "failed basic check"
-        for t in "cards", "notes", "revlog", "graves":
+        for type in "cards", "notes", "revlog", "graves":
             if self.col.db.scalar(
-                "select count() from %s where usn = -1" % t):
-                return "%s had usn = -1" % t
+                "select count() from %s where usn = -1" % type):
+                return "%s had usn = -1" % type
         for deck in self.col.decks.all():
             if deck['usn'] == -1:
                 return "deck had usn = -1"
-        for t, usn in self.col.tags.allItems():
+        for type, usn in self.col.tags.allItems():
             if usn == -1:
                 return "tag had usn = -1"
         found = False
@@ -389,10 +389,10 @@ from notes where %s""" % d)
 
     def getTags(self):
         tags = []
-        for t, usn in self.col.tags.allItems():
+        for tag, usn in self.col.tags.allItems():
             if usn == -1:
-                self.col.tags.tags[t] = self.maxUsn
-                tags.append(t)
+                self.col.tags.tags[tag] = self.maxUsn
+                tags.append(tag)
         self.col.tags.save()
         return tags
 

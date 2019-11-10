@@ -71,12 +71,12 @@ class ProgressManager:
                 print("Ignored progress func as collection unloaded: %s" % repr(func))
             else:
                 func()
-        t = QTimer(self.mw)
+        timer = QTimer(self.mw)
         if not repeat:
-            t.setSingleShot(True)
-        t.timeout.connect(handler)
-        t.start(ms)
-        return t
+            timer.setSingleShot(True)
+        timer.timeout.connect(handler)
+        timer.start(ms)
+        return timer
 
     # Creating progress dialogs
     ##########################################################################

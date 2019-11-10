@@ -78,12 +78,12 @@ class DataModel(QAbstractTableModel):
                 return
             row = index.row()
             card = self.getCard(index)
-            t = card.template()
-            if not t.get("bfont"):
+            template = card.template()
+            if not template.get("bfont"):
                 return
             font = QFont()
-            font.setFamily(t.get("bfont", "arial"))
-            font.setPixelSize(t.get("bsize", 12))
+            font.setFamily(template.get("bfont", "arial"))
+            font.setPixelSize(template.get("bsize", 12))
             return font
 
         elif role == Qt.TextAlignmentRole:
@@ -123,7 +123,7 @@ class DataModel(QAbstractTableModel):
 
     def search(self, txt):
         self.beginReset()
-        t = time.time()
+        startTime = time.time()
         # the db progress handler may cause a refresh, so we need to zero out
         # old data first
         self.cards = []
@@ -136,7 +136,7 @@ class DataModel(QAbstractTableModel):
                 invalid = True
             else:
                 raise
-        #print "fetch cards in %dms" % ((time.time() - t)*1000)
+        #print "fetch cards in %dms" % ((time.time() - startTime)*1000)
         self.endReset()
 
         if invalid:
@@ -156,7 +156,6 @@ class DataModel(QAbstractTableModel):
         self.cardObjs = {}
 
     def endReset(self):
-        t = time.time()
         self.endResetModel()
         self.restoreSelection()
         self.browser.mw.progress.finish()
@@ -240,19 +239,19 @@ class DataModel(QAbstractTableModel):
             note = card.note()
             return htmlToTextLine(note.fields[self.col.models.sortIdx(note.model())])
         elif type == "template":
-            t = card.template()['name']
+            templateName = card.template()['name']
             if card.model()['type'] == MODEL_CLOZE:
-                t += " %d" % (card.ord+1)
-            return t
+                templateName += " %d" % (card.ord+1)
+            return templateName
         elif type == "cardDue":
             # catch invalid dates
             try:
-                t = self.nextDue(card, index)
+                dueString = self.nextDue(card, index)
             except:
-                t = ""
+                dueString = ""
             if card.queue < 0:#supsended or buried
-                t = "(" + t + ")"
-            return t
+                dueString = "(" + dueString + ")"
+            return dueString
         elif type == "noteCrt":
             return time.strftime("%Y-%m-%d", time.localtime(card.note().id/1000))
         elif type == "noteMod":
@@ -487,8 +486,8 @@ class Browser(QMainWindow):
         # to pick a line height big enough for any card template
         curmax = 16
         for model in self.col.models.all():
-            for t in model['tmpls']:
-                bsize = t.get("bsize", 0)
+            for template in model['tmpls']:
+                bsize = template.get("bsize", 0)
                 if bsize > curmax:
                     curmax = bsize
         self.form.tableView.verticalHeader().setDefaultSectionSize(
@@ -755,7 +754,7 @@ by clicking on one on the left."""))
             a = menu.addAction(name)
             a.setCheckable(True)
             a.setChecked(type in self.model.activeCols)
-            a.toggled.connect(lambda b, t=type: self.toggleField(t))
+            a.toggled.connect(lambda b, type=type: self.toggleField(type))
         menu.exec_(gpos)
 
     def toggleField(self, type):
@@ -880,9 +879,9 @@ by clicking on one on the left."""))
             item.setIcon(0, QIcon(":/icons/heart.svg"))
 
     def _userTagTree(self, root):
-        for t in sorted(self.col.tags.all(), key=lambda t: t.lower()):
+        for tag in sorted(self.col.tags.all(), key=lambda tag: tag.lower()):
             item = self.CallbackItem(
-                root, t, lambda t=t: self.setFilter("tag", t))
+                root, tag, lambda tag=tag: self.setFilter("tag", tag))
             item.setIcon(0, QIcon(":/icons/tag.svg"))
 
     def _decksTree(self, root):
@@ -1012,8 +1011,8 @@ by clicking on one on the left."""))
         menu.addSeparator()
 
         tagList = MenuList()
-        for t in sorted(self.col.tags.all(), key=lambda s: s.lower()):
-            tagList.addItem(t, self._filterFunc("tag", t))
+        for tag in sorted(self.col.tags.all(), key=lambda s: s.lower()):
+            tagList.addItem(tag, self._filterFunc("tag", tag))
 
         menu.addChild(tagList.chunked())
         return menu
@@ -1715,8 +1714,8 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         addHook("editTimer", self.refreshCurrentCard)
         addHook("loadNote", self.onLoadNote)
         addHook("editFocusLost", self.refreshCurrentCardFilter)
-        for t in "newTag", "newModel", "newDeck":
-            addHook(t, self.maybeRefreshSidebar)
+        for type in "newTag", "newModel", "newDeck":
+            addHook(type, self.maybeRefreshSidebar)
 
     def teardownHooks(self):
         remHook("reset", self.onReset)
@@ -1724,8 +1723,8 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         remHook("loadNote", self.onLoadNote)
         remHook("editFocusLost", self.refreshCurrentCardFilter)
         remHook("undoState", self.onUndoState)
-        for t in "newTag", "newModel", "newDeck":
-            remHook(t, self.maybeRefreshSidebar)
+        for type in "newTag", "newModel", "newDeck":
+            remHook(type, self.maybeRefreshSidebar)
 
     def onUndoState(self, on):
         self.form.actionUndo.setEnabled(on)
@@ -1824,21 +1823,21 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
             self._dupesButton = b = frm.buttonBox.addButton(
                 _("Tag Duplicates"), QDialogButtonBox.ActionRole)
             b.clicked.connect(lambda: self._onTagDupes(res))
-        t = "<html><body>"
+        html = "<html><body>"
         groups = len(res)
         notes = sum(len(r[1]) for r in res)
         part1 = ngettext("%d group", "%d groups", groups) % groups
         part2 = ngettext("%d note", "%d notes", notes) % notes
-        t += _("Found %(a)s across %(b)s.") % dict(a=part1, b=part2)
-        t += "<p><ol>"
+        html += _("Found %(a)s across %(b)s.") % dict(a=part1, b=part2)
+        html += "<p><ol>"
         for val, nids in res:
-            t += '''<li><a href=# onclick="pycmd('%s');return false;">%s</a>: %s</a>''' % (
+            html += '''<li><a href=# onclick="pycmd('%s');return false;">%s</a>: %s</a>''' % (
                 "nid:" + ",".join(str(id) for id in nids),
-                ngettext("%d note", "%d notes", len(nids)) % len(nids),
+                ngettexhtml("%d note", "%d notes", len(nids)) % len(nids),
                 html.escape(val))
-        t += "</ol>"
-        t += "</body></html>"
-        web.setHtml(t)
+        html += "</ol>"
+        html += "</body></html>"
+        web.setHtml(html)
         self.mw.progress.finish()
 
     def _onTagDupes(self, res):

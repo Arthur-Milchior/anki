@@ -338,13 +338,13 @@ group by day order by day""" % (self._limit(), lim),
             (6, colLearn, _("Learn")),
             (10, colCram, _("Cram"))))
         if self.type == CARD_NEW:
-            t = _("Minutes")
+            kindOfTime = _("Minutes")
             convHours = False
         else:
-            t = _("Hours")
+            kindOfTime = _("Hours")
             convHours = True
         txt2 = self._title(_("Review Time"), _("The time taken to answer the questions."))
-        txt2 += plot("time", timdata, ylabel=t, ylabel2=_("Cumulative %s") % t)
+        txt2 += plot("time", timdata, ylabel=kindOfTime, ylabel2=_("Cumulative %s") % kindOfTime)
         rep, tot2 = self._ansInfo(
             timsum, daysStud, fstDay, _("minutes"), convHours, total=tot)
         txt2 += rep
@@ -705,12 +705,12 @@ group by hour having count() > 30 order by hour""" % lim,
         # graph data
         div = self._cards()
         d = []
-        for index, (t, col) in enumerate((
+        for index, (kindOfCard, col) in enumerate((
             (_("Mature"), colMature),
             (_("Young+Learn"), colYoung),
             (_("Unseen"), colUnseen),
             (_("Suspended+Buried"), colSusp))):
-            d.append(dict(data=div[index], label="%s: %s" % (t, div[index]), color=col))
+            d.append(dict(data=div[index], label="%s: %s" % (kindOfCard, div[index]), color=col))
         # text data
         i = []
         (countCard, countNote) = self.col.db.first("""
@@ -907,15 +907,15 @@ $(function () {
         if lim:
             lim = " where " + lim
         if by == 'review':
-            t = self.col.db.scalar("select id from revlog %s order by id limit 1" % lim)
+            time = self.col.db.scalar("select id from revlog %s order by id limit 1" % lim)
         elif by == 'add':
             lim = "where did in %s" % ids2str(self.col.decks.active())
-            t = self.col.db.scalar("select id from cards %s order by id limit 1" % lim)
-        if not t:
+            time = self.col.db.scalar("select id from cards %s order by id limit 1" % lim)
+        if not time:
             period = 1
         else:
             period = max(
-                1, int(1+((self.col.sched.dayCutoff - (t/1000)) / 86400)))
+                1, int(1+((self.col.sched.dayCutoff - (time/1000)) / 86400)))
         return period
 
     def _periodDays(self):

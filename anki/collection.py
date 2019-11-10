@@ -235,8 +235,8 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     def beforeUpload(self):
         "Called before a full upload."
         tbls = "notes", "cards", "revlog"
-        for t in tbls:
-            self.db.execute("update %s set usn=0 where usn=-1" % t)
+        for table in tbls:
+            self.db.execute("update %s set usn=0 where usn=-1" % table)
         # we can save space by removing the log of deletions
         self.db.execute("delete from graves")
         self._usn += 1
@@ -334,15 +334,15 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     def _tmplsFromOrds(self, model, avail):
         ok = []
         if model['type'] == MODEL_STD:
-            for t in model['tmpls']:
-                if t['ord'] in avail:
-                    ok.append(t)
+            for template in model['tmpls']:
+                if template['ord'] in avail:
+                    ok.append(template)
         else:
             # cloze - generate temporary templates from first
             for ord in avail:
-                t = copy.copy(model['tmpls'][0])
-                t['ord'] = ord
-                ok.append(t)
+                template = copy.copy(model['tmpls'][0])
+                template['ord'] = ord
+                ok.append(template)
         return ok
 
     def genCards(self, nids):
@@ -389,19 +389,19 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             did = dids.get(nid) or model['did']
             due = dues.get(nid)
             # add any missing cards
-            for t in self._tmplsFromOrds(model, avail):
-                doHave = nid in have and t['ord'] in have[nid]
+            for template in self._tmplsFromOrds(model, avail):
+                doHave = nid in have and template['ord'] in have[nid]
                 if not doHave:
                     # check deck is not a cram deck
-                    did = t['did'] or did
+                    did = template['did'] or did
                     if self.decks.isDyn(did):
                         did = 1
-                    # if the deck doesn't exist, use default instead
+                    # if the deck doesn'template exist, use default instead
                     did = self.decks.get(did)['id']
                     # use sibling due# if there is one, else use a new id
                     if due is None:
                         due = self.nextID("pos")
-                    data.append((ts, nid, did, t['ord'],
+                    data.append((ts, nid, did, template['ord'],
                                  now, usn, due))
                     ts += 1
             # note any cards that need removing
@@ -746,7 +746,7 @@ or mid not in %s limit 1""" % ids2str(self.models.ids())):
             if self.db.scalar("""
 select 1 from cards where ord not in %s and nid in (
 select id from notes where mid = ?) limit 1""" %
-                               ids2str([t['ord'] for t in model['tmpls']]),
+                               ids2str([template['ord'] for template in model['tmpls']]),
                                model['id']):
                 return
         return True
@@ -770,9 +770,9 @@ select id from notes where mid not in """ + ids2str(self.models.ids()))
             self.remNotes(ids)
         # for each model
         for model in self.models.all():
-            for t in model['tmpls']:
-                if t['did'] == "None":
-                    t['did'] = None
+            for template in model['tmpls']:
+                if template['did'] == "None":
+                    template['did'] = None
                     problems.append(_("Fixed AnkiDroid deck override bug."))
                     self.models.save(model)
             if model['type'] == MODEL_STD:
@@ -784,7 +784,7 @@ select id from notes where mid not in """ + ids2str(self.models.ids()))
                 ids = self.db.list("""
 select id from cards where ord not in %s and nid in (
 select id from notes where mid = ?)""" %
-                                   ids2str([t['ord'] for t in model['tmpls']]),
+                                   ids2str([template['ord'] for template in model['tmpls']]),
                                    model['id'])
                 if ids:
                     problems.append(

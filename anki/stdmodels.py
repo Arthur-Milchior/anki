@@ -17,10 +17,10 @@ def _newBasicModel(col, name=None):
     mm.addField(model, fm)
     fm = mm.newField(_("Back"))
     mm.addField(model, fm)
-    t = mm.newTemplate(_("Card 1"))
-    t['qfmt'] = "{{"+_("Front")+"}}"
-    t['afmt'] = "{{FrontSide}}\n\n<hr id=answer>\n\n"+"{{"+_("Back")+"}}"
-    mm.addTemplate(model, t)
+    template = mm.newTemplate(_("Card 1"))
+    template['qfmt'] = "{{"+_("Front")+"}}"
+    template['afmt'] = "{{FrontSide}}\n\n<hr id=answer>\n\n"+"{{"+_("Back")+"}}"
+    mm.addTemplate(model, template)
     return model
 
 def addBasicModel(col):
@@ -36,9 +36,9 @@ models.append((lambda: _("Basic"), addBasicModel))
 def addBasicTypingModel(col):
     mm = col.models
     model = _newBasicModel(col, _("Basic (type in the answer)"))
-    t = model['tmpls'][0]
-    t['qfmt'] = "{{"+_("Front")+"}}\n\n{{type:"+_("Back")+"}}"
-    t['afmt'] = "{{"+_("Front")+"}}\n\n<hr id=answer>\n\n{{type:"+_("Back")+"}}"
+    template = model['tmpls'][0]
+    template['qfmt'] = "{{"+_("Front")+"}}\n\n{{type:"+_("Back")+"}}"
+    template['afmt'] = "{{"+_("Front")+"}}\n\n<hr id=answer>\n\n{{type:"+_("Back")+"}}"
     mm.add(model)
     return model
 
@@ -50,10 +50,10 @@ models.append((lambda: _("Basic (type in the answer)"), addBasicTypingModel))
 def _newForwardReverse(col, name=None):
     mm = col.models
     model = _newBasicModel(col, name or _("Basic (and reversed card)"))
-    t = mm.newTemplate(_("Card 2"))
-    t['qfmt'] = "{{"+_("Back")+"}}"
-    t['afmt'] = "{{FrontSide}}\n\n<hr id=answer>\n\n"+"{{"+_("Front")+"}}"
-    mm.addTemplate(model, t)
+    template = mm.newTemplate(_("Card 2"))
+    template['qfmt'] = "{{"+_("Back")+"}}"
+    template['afmt'] = "{{FrontSide}}\n\n<hr id=answer>\n\n"+"{{"+_("Front")+"}}"
+    mm.addTemplate(model, template)
     return model
 
 def addForwardReverse(col):
@@ -72,8 +72,8 @@ def addForwardOptionalReverse(col):
     av = _("Add Reverse")
     fm = mm.newField(av)
     mm.addField(model, fm)
-    t = model['tmpls'][1]
-    t['qfmt'] = "{{#%s}}%s{{/%s}}" % (av, t['qfmt'], av)
+    template = model['tmpls'][1]
+    template['qfmt'] = "{{#%s}}%s{{/%s}}" % (av, template['qfmt'], av)
     mm.add(model)
     return model
 
@@ -92,7 +92,7 @@ def addClozeModel(col):
     mm.addField(model, fm)
     fm = mm.newField(_("Extra"))
     mm.addField(model, fm)
-    t = mm.newTemplate(_("Cloze"))
+    template = mm.newTemplate(_("Cloze"))
     fmt = "{{cloze:%s}}" % txt
     model['css'] += """
 .cloze {
@@ -102,9 +102,9 @@ def addClozeModel(col):
 .nightMode .cloze {
  color: lightblue;
 }"""
-    t['qfmt'] = fmt
-    t['afmt'] = fmt + "<br>\n{{%s}}" % _("Extra")
-    mm.addTemplate(model, t)
+    template['qfmt'] = fmt
+    template['afmt'] = fmt + "<br>\n{{%s}}" % _("Extra")
+    mm.addTemplate(model, template)
     mm.add(model)
     return model
 

@@ -388,8 +388,8 @@ class SupermemoXmlImporter(NoteImporter):
             # test if it's really topic
             if smel.Title is not None:
                 # remove topic from title list
-                t = self.cntMeta['title'].pop()
-                self.logger('End of topic \t- %s' % (t), level=2)
+                title = self.cntMeta['title'].pop()
+                self.logger('End of topic \t- %s' % (title), level=2)
 
     def do_Content(self, node):
         "Process SM element Content"
@@ -418,9 +418,9 @@ class SupermemoXmlImporter(NoteImporter):
     def do_Title(self, node):
         "Process SM element Title"
 
-        t = self._decode_htmlescapes(node.firstChild.data)
-        self.cntElm[-1][node.tagName] = t
-        self.cntMeta['title'].append(t)
+        title = self._decode_htmlescapes(node.firstChild.data)
+        self.cntElm[-1][node.tagName] = title
+        self.cntMeta['title'].append(title)
         self.cntElm[-1]['lTitle'] = self.cntMeta['title']
         self.logger('Start of topic \t- ' + " / ".join(self.cntMeta['title']), level=2)
 

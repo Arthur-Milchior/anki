@@ -318,14 +318,14 @@ and notes.mid = ? and cards.ord = ?""", model['id'], ord)
             def repl(match):
                 return '{{' + match.group(1) + match.group(2) + txt +  '}}'
             return repl
-        for t in model['tmpls']:
+        for template in model['tmpls']:
             for fmt in ('qfmt', 'afmt'):
                 if newName:
-                    t[fmt] = re.sub(
-                        pat % re.escape(fieldType['name']), wrap(newName), t[fmt])
+                    template[fmt] = re.sub(
+                        pat % re.escape(fieldType['name']), wrap(newName), template[fmt])
                 else:
-                    t[fmt] = re.sub(
-                        pat  % re.escape(fieldType['name']), "", t[fmt])
+                    template[fmt] = re.sub(
+                        pat  % re.escape(fieldType['name']), "", template[fmt])
         fieldType['name'] = newName
         self.save(model)
 
@@ -349,9 +349,9 @@ and notes.mid = ? and cards.ord = ?""", model['id'], ord)
     ##################################################
 
     def newTemplate(self, name):
-        t = defaultTemplate.copy()
-        t['name'] = name
-        return t
+        template = defaultTemplate.copy()
+        template['name'] = name
+        return template
 
     def addTemplate(self, model, template):
         "Note: should col.genCards() afterwards."
@@ -392,21 +392,21 @@ update cards set ord = ord - 1, usn = ?, mod = ?
         return True
 
     def _updateTemplOrds(self, model):
-        for index, t in enumerate(model['tmpls']):
-            t['ord'] = index
+        for index, template in enumerate(model['tmpls']):
+            template['ord'] = index
 
     def moveTemplate(self, model, template, idx):
         oldidx = model['tmpls'].index(template)
         if oldidx == idx:
             return
-        oldidxs = dict((id(t), t['ord']) for t in model['tmpls'])
+        oldidxs = dict((id(template), template['ord']) for template in model['tmpls'])
         model['tmpls'].remove(template)
         model['tmpls'].insert(idx, template)
         self._updateTemplOrds(model)
         # generate change map
         map = []
-        for t in model['tmpls']:
-            map.append("when ord = %d then %d" % (oldidxs[id(t)], t['ord']))
+        for template in model['tmpls']:
+            map.append("when ord = %d then %d" % (oldidxs[id(template)], template['ord']))
         # apply
         self.save(model)
         self.col.db.execute("""
@@ -485,8 +485,8 @@ select id from notes where mid = ?)""" % " ".join(map),
         s = ""
         for fieldType in model['flds']:
             s += fieldType['name']
-        for t in model['tmpls']:
-            s += t['name']
+        for template in model['tmpls']:
+            s += template['name']
         return checksum(s)
 
     # Required field/text cache
@@ -498,17 +498,17 @@ select id from notes where mid = ?)""" % " ".join(map),
             return
         req = []
         flds = [fieldType['name'] for fieldType in model['flds']]
-        for t in model['tmpls']:
-            ret = self._reqForTemplate(model, flds, t)
-            req.append((t['ord'], ret[0], ret[1]))
+        for template in model['tmpls']:
+            ret = self._reqForTemplate(model, flds, template)
+            req.append((template['ord'], ret[0], ret[1]))
         model['req'] = req
 
-    def _reqForTemplate(self, model, flds, t):
+    def _reqForTemplate(self, model, flds, template):
         a = ["ankiflag"] * len(flds)
         b = [""] * len(flds)
-        data = [1, 1, model['id'], 1, t['ord'], "", joinFields(a), 0]
+        data = [1, 1, model['id'], 1, template['ord'], "", joinFields(a), 0]
         full = self.col._renderQA(data)['q']
-        data = [1, 1, model['id'], 1, t['ord'], "", joinFields(b), 0]
+        data = [1, 1, model['id'], 1, template['ord'], "", joinFields(b), 0]
         empty = self.col._renderQA(data)['q']
         # if full and empty are the same, the template is invalid and there is
         # no way to satisfy it

@@ -39,12 +39,12 @@ class SyncManager(QObject):
         self._didError = False
         gc.collect()
         # create the thread, setup signals and start running
-        t = self.thread = SyncThread(
+        self.thread = SyncThread(
             self.pm.collectionPath(), self.pm.profile['syncKey'],
             auth=auth, media=self.pm.profile['syncMedia'],
             hostNum=self.pm.profile.get("hostNum"),
         )
-        t.event.connect(self.onEvent)
+        self.thread.event.connect(self.onEvent)
         self.label = _("Connecting...")
         prog = self.mw.progress.start(immediate=True, label=self.label)
         self.sentBytes = self.recvBytes = 0
@@ -103,19 +103,19 @@ automatically."""))
             self._didFullUp = False
             self._checkFailed()
         elif evt == "sync":
-            message = None; t = args[0]
-            if t == "login":
+            message = None; type = args[0]
+            if type == "login":
                 message = _("Syncing...")
-            elif t == "upload":
+            elif type == "upload":
                 self._didFullUp = True
                 message = _("Uploading to AnkiWeb...")
-            elif t == "download":
+            elif type == "download":
                 message = _("Downloading from AnkiWeb...")
-            elif t == "sanity":
+            elif type == "sanity":
                 message = _("Checking...")
-            elif t == "findMedia":
+            elif type == "findMedia":
                 message = _("Checking media...")
-            elif t == "upgradeRequired":
+            elif type == "upgradeRequired":
                 showText(_("""\
 Please visit AnkiWeb, upgrade your deck, then try again."""))
             if message:

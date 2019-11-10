@@ -104,10 +104,10 @@ class DeckManager:
         # set limits to within bounds
         found = False
         for conf in list(self.dconf.values()):
-            for t in ('rev', 'new'):
+            for type in ('rev', 'new'):
                 pd = 'perDay'
-                if conf[t][pd] > 999999:
-                    conf[t][pd] = 999999
+                if conf[type][pd] > 999999:
+                    conf[type][pd] = 999999
                     self.save(conf)
                     found = True
         if not found:

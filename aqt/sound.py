@@ -29,13 +29,13 @@ def getAudio(parent, encode=True):
     but = QPushButton(_("Cancel"))
     mb.addButton(but, QMessageBox.RejectRole)
     mb.setEscapeButton(but)
-    t = time.time()
+    startTime = time.time()
     r.start()
     time.sleep(r.startupDelay)
     QApplication.instance().processEvents()
     while not mb.clickedButton():
         txt =_("Recording...<br>Time: %0.1f")
-        mb.setText(txt % (time.time() - t))
+        mb.setText(txt % (time.time() - startTime))
         mb.show()
         QApplication.instance().processEvents()
     if mb.clickedButton() == mb.escapeButton():
@@ -44,7 +44,7 @@ def getAudio(parent, encode=True):
         return
     saveGeom(mb, "audioRecorder")
     # ensure at least a second captured
-    while time.time() - t < 1:
+    while time.time() - startTime < 1:
         time.sleep(0.1)
     r.stop()
     # process

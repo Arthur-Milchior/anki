@@ -1042,27 +1042,27 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
 
     def _dynOrder(self, o, l):
         if o == DYN_OLDEST:
-            t = "(select max(id) from revlog where cid=card.id)"
+            sort = "(select max(id) from revlog where cid=card.id)"
         elif o == DYN_RANDOM:
-            t = "random()"
+            sort = "random()"
         elif o == DYN_SMALLINT:
-            t = "ivl"
+            sort = "ivl"
         elif o == DYN_BIGINT:
-            t = "ivl desc"
+            sort = "ivl desc"
         elif o == DYN_LAPSES:
-            t = "lapses desc"
+            sort = "lapses desc"
         elif o == DYN_ADDED:
-            t = "note.id"
+            sort = "note.id"
         elif o == DYN_REVADDED:
-            t = "note.id desc"
+            sort = "note.id desc"
         elif o == DYN_DUE:
-            t = "card.due"
+            sort = "card.due"
         elif o == DYN_DUEPRIORITY:
-            t = f"(case when queue={QUEUE_REV} and due <= %d then (ivl / cast(%d-due+0.001 as real)) else 100000+due end)" % (self.today, self.today)
+            sort = f"(case when queue={QUEUE_REV} and due <= %d then (ivl / cast(%d-due+0.001 as real)) else 100000+due end)" % (self.today, self.today)
         else:
             # if we don't understand the term, default to due order
-            t = "card.due"
-        return t + " limit %d" % l
+            sort = "card.due"
+        return sort + " limit %d" % l
 
     def _moveToDyn(self, did, ids, start=-100000):
         deck = self.col.decks.get(did)
@@ -1206,8 +1206,8 @@ where id = ?
         # update all daily counts, but don't save decks to prevent needless
         # conflicts. we'll save on card answer instead
         def update(deck):
-            for t in "new", "rev", "lrn", "time":
-                key = t+"Today"
+            for type in "new", "rev", "lrn", "time":
+                key = type+"Today"
                 if deck[key][0] != self.today:
                     deck[key] = [self.today, 0]
         for deck in self.col.decks.all():
@@ -1479,11 +1479,11 @@ and (queue={QUEUE_NEW} or (queue={QUEUE_REV} and due<=?))""",
     def reschedCards(self, ids, imin, imax):
         "Put cards in review queue with a new interval in days (min, max)."
         d = []
-        t = self.today
+        today = self.today
         mod = intTime()
         for id in ids:
             r = random.randint(imin, imax)
-            d.append(dict(id=id, due=r+t, ivl=max(1, r), mod=mod,
+            d.append(dict(id=id, due=r+today, ivl=max(1, r), mod=mod,
                           usn=self.col.usn(), fact=STARTING_FACTOR))
         self.remFromDyn(ids)
         self.col.db.executemany(f"""

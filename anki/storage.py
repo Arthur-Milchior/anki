@@ -111,13 +111,13 @@ def _upgrade(col, ver):
         import anki.models
         for model in col.models.all():
             model['css'] = anki.models.defaultModel['css']
-            for t in model['tmpls']:
-                if 'css' not in t:
+            for template in model['tmpls']:
+                if 'css' not in template:
                     # ankidroid didn't bump version
                     continue
-                model['css'] += "\n" + t['css'].replace(
-                    ".card ", ".card%d "%(t['ord']+1))
-                del t['css']
+                model['css'] += "\n" + template['css'].replace(
+                    ".card ", ".card%d "%(template['ord']+1))
+                del template['css']
             col.models.save(model)
         col.db.execute("update col set ver = 6")
     if ver < 7:
@@ -179,24 +179,24 @@ update cards set left = left + left*1000 where queue = 1""")
             r['maxIvl'] = 36500
             col.decks.save(conf)
         for model in col.models.all():
-            for t in model['tmpls']:
-                t['bqfmt'] = ''
-                t['bafmt'] = ''
+            for template in model['tmpls']:
+                template['bqfmt'] = ''
+                template['bafmt'] = ''
             col.models.save(model)
         col.db.execute("update col set ver = 11")
 
 def _upgradeClozeModel(col, model):
     model['type'] = MODEL_CLOZE
     # convert first template
-    t = model['tmpls'][0]
+    template = model['tmpls'][0]
     for type in 'qfmt', 'afmt':
-        t[type] = re.sub("{{cloze:1:(.+?)}}", r"{{cloze:\1}}", t[type])
-    t['name'] = _("Cloze")
+        template[type] = re.sub("{{cloze:1:(.+?)}}", r"{{cloze:\1}}", template[type])
+    template['name'] = _("Cloze")
     # delete non-cloze cards for the model
     rem = []
-    for t in model['tmpls'][1:]:
-        if "{{cloze:" not in t['qfmt']:
-            rem.append(t)
+    for template in model['tmpls'][1:]:
+        if "{{cloze:" not in template['qfmt']:
+            rem.append(template)
     for r in rem:
         col.models.remTemplate(model, r)
     del model['tmpls'][1:]

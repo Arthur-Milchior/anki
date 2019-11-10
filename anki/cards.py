@@ -127,11 +127,11 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
 
     def _getQA(self, reload=False, browser=False):
         if not self._qa or reload:
-            note = self.note(reload); model = self.model(); t = self.template()
+            note = self.note(reload); model = self.model(); template = self.template()
             data = [self.id, note.id, model['id'], self.odid or self.did, self.ord,
                     note.stringTags(), note.joinedFields(), self.flags]
             if browser:
-                args = (t.get('bqfmt'), t.get('bafmt'))
+                args = (template.get('bqfmt'), template.get('bafmt'))
             else:
                 args = tuple()
             self._qa = self.col._renderQA(data, *args)
