@@ -447,25 +447,25 @@ adjust the template manually to switch the question and answer."""))
 
     def onBrowserDisplay(self):
         d = QDialog()
-        f = aqt.forms.browserdisp.Ui_Dialog()
-        f.setupUi(d)
+        dialog = aqt.forms.browserdisp.Ui_Dialog()
+        dialog.setupUi(d)
         t = self.card.template()
-        f.qfmt.setText(t.get('bqfmt', ""))
-        f.afmt.setText(t.get('bafmt', ""))
+        dialog.qfmt.setText(t.get('bqfmt', ""))
+        dialog.afmt.setText(t.get('bafmt', ""))
         if t.get("bfont"):
-            f.overrideFont.setChecked(True)
-        f.font.setCurrentFont(QFont(t.get('bfont', "Arial")))
-        f.fontSize.setValue(t.get('bsize', 12))
-        f.buttonBox.accepted.connect(lambda: self.onBrowserDisplayOk(f))
+            dialog.overrideFont.setChecked(True)
+        dialog.font.setCurrentFont(QFont(t.get('bfont', "Arial")))
+        dialog.fontSize.setValue(t.get('bsize', 12))
+        dialog.buttonBox.accepted.connect(lambda: self.onBrowserDisplayOk(dialog))
         d.exec_()
 
-    def onBrowserDisplayOk(self, f):
+    def onBrowserDisplayOk(self, form):
         t = self.card.template()
-        t['bqfmt'] = f.qfmt.text().strip()
-        t['bafmt'] = f.afmt.text().strip()
-        if f.overrideFont.isChecked():
-            t['bfont'] = f.font.currentFont().family()
-            t['bsize'] = f.fontSize.value()
+        t['bqfmt'] = form.qfmt.text().strip()
+        t['bafmt'] = form.afmt.text().strip()
+        if form.overrideFont.isChecked():
+            t['bfont'] = form.font.currentFont().family()
+            t['bsize'] = form.fontSize.value()
         else:
             for key in ("bfont", "bsize"):
                 if key in t:
@@ -503,7 +503,7 @@ Enter deck to place new %s cards in, or leave blank:""") %
         diag = QDialog(self)
         form = aqt.forms.addfield.Ui_Dialog()
         form.setupUi(diag)
-        fields = [f['name'] for f in self.model['flds']]
+        fields = [fldType['name'] for fldType in self.model['flds']]
         form.fields.addItems(fields)
         form.font.setCurrentFont(QFont("Arial"))
         form.size.setValue(20)
@@ -527,10 +527,10 @@ Enter deck to place new %s cards in, or leave blank:""") %
                        form.font.currentFont().family(),
                        form.size.value())
 
-    def _addField(self, widg, field, font, size):
+    def _addField(self, widg, fldName, font, size):
         t = widg.toPlainText()
         t +="\n<div style='font-family: %s; font-size: %spx;'>{{%s}}</div>\n" % (
-            font, size, field)
+            font, size, fldName)
         widg.setPlainText(t)
         self.saveCard()
 

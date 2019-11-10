@@ -28,8 +28,8 @@ class MnemosyneImporter(NoteImporter):
         notes = {}
         note = None
         for _id, id, k, v in db.execute("""
-select _id, id, key, value from facts f, data_for_fact d where
-f._id=d._fact_id"""):
+select _id, id, key, value from facts fact, data_for_fact d where
+fact._id=d._fact_id"""):
             if id != curid:
                 if note:
                     # pylint: disable=unsubscriptable-object
@@ -117,8 +117,8 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""):
             # create a foreign note object
             note = ForeignNote()
             note.fields = []
-            for f in fields:
-                fld = self._mungeField(orig.get(f, ''))
+            for fieldType in fields:
+                fld = self._mungeField(orig.get(fieldType, ''))
                 note.fields.append(fld)
             note.tags = orig['tags']
             note.cards = orig.get('cards', {})
@@ -149,8 +149,8 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""):
     def _addVocabulary(self, notes):
         mm = self.col.models
         model = mm.new("Mnemosyne-Vocabulary")
-        for f in "Expression", "Pronunciation", "Meaning", "Notes":
-            fm = mm.newField(f)
+        for fieldName in "Expression", "Pronunciation", "Meaning", "Notes":
+            fm = mm.newField(fieldName)
             mm.addField(model, fm)
         t = mm.newTemplate("Recognition")
         t['qfmt'] = "{{Expression}}"

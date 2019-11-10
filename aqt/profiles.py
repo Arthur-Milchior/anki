@@ -367,8 +367,8 @@ please see:
             def reject(self):
                 pass
         d = self.langDiag = NoCloseDiag()
-        f = self.langForm = aqt.forms.setlang.Ui_Dialog()
-        f.setupUi(d)
+        self.langForm = aqt.forms.setlang.Ui_Dialog()
+        self.langForm.setupUi(d)
         d.accepted.connect(self._onLangSelected)
         d.rejected.connect(lambda: True)
         # default to the system language
@@ -389,13 +389,12 @@ please see:
         if idx is None:
             idx = en
         # update list
-        f.lang.addItems([x[0] for x in anki.lang.langs])
-        f.lang.setCurrentRow(idx)
+        self.langForm.lang.addItems([x[0] for x in anki.lang.langs])
+        self.langForm.lang.setCurrentRow(idx)
         d.exec_()
 
     def _onLangSelected(self):
-        f = self.langForm
-        obj = anki.lang.langs[f.lang.currentRow()]
+        obj = anki.lang.langs[self.langForm.lang.currentRow()]
         code = obj[1]
         name = obj[0]
         en = "Are you sure you wish to display Anki's interface in %s?"

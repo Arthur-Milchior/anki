@@ -137,8 +137,8 @@ def _errMsg(type, texpath):
     msg = (_("Error executing %s.") % type) + "<br>"
     msg += (_("Generated file: %s") % texpath) + "<br>"
     try:
-        with open(namedtmp("latex_log.txt", rm=False)) as f:
-            log = f.read()
+        with open(namedtmp("latex_log.txt", rm=False)) as file:
+            log = file.read()
         if not log:
             raise Exception()
         msg += "<small><pre>" + html.escape(log) + "</pre></small>"

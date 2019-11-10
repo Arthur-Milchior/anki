@@ -418,13 +418,12 @@ class SyncThread(QThread):
         self.fireEvent("fullSync")
         while not self.fullSyncChoice:
             time.sleep(0.1)
-        f = self.fullSyncChoice
-        if f == "cancel":
+        if self.fullSyncChoice == "cancel":
             return
         self.client = FullSyncer(self.col, self.hkey, self.server.client,
                                  hostNum=self.hostNum)
         try:
-            if f == "upload":
+            if self.fulSyncChoice == "upload":
                 if not self.client.upload():
                     self.fireEvent("upbad")
             else:

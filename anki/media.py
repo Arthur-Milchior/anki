@@ -145,8 +145,8 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     # opath must be in unicode
 
     def addFile(self, opath):
-        with open(opath, "rb") as f:
-            return self.writeData(opath, f.read())
+        with open(opath, "rb") as file:
+            return self.writeData(opath, file.read())
 
     def writeData(self, opath, data, typeHint=None):
         # if fname is a full path, use only the basename
@@ -178,12 +178,12 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             path = os.path.join(self.dir(), fname)
             # if it doesn't exist, copy it directly
             if not os.path.exists(path):
-                with open(path, "wb") as f:
-                    f.write(data)
+                with open(path, "wb") as file:
+                    file.write(data)
                 return fname
             # if it's identical, reuse
-            with open(path, "rb") as f:
-                if checksum(f.read()) == csum:
+            with open(path, "rb") as file:
+                if checksum(file.read()) == csum:
                     return fname
             # otherwise, increment the index in the filename
             reg = r" \((\d+)\)$"
@@ -271,9 +271,9 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         for nid, mid, flds in self.col.db.execute("select id, mid, flds from notes"):
             noteRefs = self.filesInStr(mid, flds)
             # check the refs are in NFC
-            for f in noteRefs:
+            for file in noteRefs:
                 # if they're not, we'll need to fix them first
-                if f != unicodedata.normalize("NFC", f):
+                if file != unicodedata.normalize("NFC", file):
                     self._normalizeNoteRefs(nid)
                     noteRefs = self.filesInStr(mid, flds)
                     break
@@ -430,8 +430,8 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         return int(os.stat(path).st_mtime)
 
     def _checksum(self, path):
-        with open(path, "rb") as f:
-            return checksum(f.read())
+        with open(path, "rb") as file:
+            return checksum(file.read())
 
     def _changed(self):
         "Return dir mtime if it has changed since the last findChanges()"
@@ -445,10 +445,10 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     def _logChanges(self):
         (added, removed) = self._changes()
         media = []
-        for f, mtime in added:
-            media.append((f, self._checksum(f), mtime, 1))
-        for f in removed:
-            media.append((f, None, 0, 1))
+        for file, mtime in added:
+            media.append((file, self._checksum(file), mtime, 1))
+        for file in removed:
+            media.append((file, None, 0, 1))
         # update media db
         self.db.executemany("insert or replace into media values (?,?,?,?)",
                             media)
@@ -466,38 +466,38 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         removed = []
         # loop through on-disk files
         with os.scandir(self.dir()) as it:
-            for f in it:
+            for file in it:
                 # ignore folders and thumbs.db
-                if f.is_dir():
+                if file.is_dir():
                     continue
-                if f.name.lower() == "thumbs.db":
+                if file.name.lower() == "thumbs.db":
                     continue
                 # and files with invalid chars
-                if self.hasIllegal(f.name):
+                if self.hasIllegal(file.name):
                     continue
                 # empty files are invalid; clean them up and continue
-                sz = f.stat().st_size
+                sz = file.stat().st_size
                 if not sz:
-                    os.unlink(f.name)
+                    os.unlink(file.name)
                     continue
                 if sz > 100*1024*1024:
-                    self.col.log("ignoring file over 100MB", f.name)
+                    self.col.log("ignoring file over 100MB", file.name)
                     continue
                 # check encoding
-                normname = unicodedata.normalize("NFC", f.name)
+                normname = unicodedata.normalize("NFC", file.name)
                 if not isMac:
-                    if f.name != normname:
+                    if file.name != normname:
                         # wrong filename encoding which will cause sync errors
                         if os.path.exists(normname):
-                            os.unlink(f.name)
+                            os.unlink(file.name)
                         else:
-                            os.rename(f.name, normname)
+                            os.rename(file.name, normname)
                 else:
                     # on Macs we can access the file using any normalization
                     pass
 
                 # newly added?
-                mtime = int(f.stat().st_mtime)
+                mtime = int(file.stat().st_mtime)
                 if normname not in self.cache:
                     added.append((normname, mtime))
                 else:
@@ -560,8 +560,8 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     ##########################################################################
 
     def mediaChangesZip(self):
-        f = io.BytesIO()
-        z = zipfile.ZipFile(f, "w", compression=zipfile.ZIP_DEFLATED)
+        zipFile = io.BytesIO()
+        z = zipfile.ZipFile(zipFile, "w", compression=zipfile.ZIP_DEFLATED)
 
         fnames = []
         # meta is list of (fname, zipname), where zipname of None
@@ -590,12 +590,12 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
 
         z.writestr("_meta", json.dumps(meta))
         z.close()
-        return f.getvalue(), fnames
+        return zipFile.getvalue(), fnames
 
     def addFilesFromZip(self, zipData):
         "Extract zip data; true if finished."
-        f = io.BytesIO(zipData)
-        z = zipfile.ZipFile(f, "r")
+        zipFile = io.BytesIO(zipData)
+        z = zipfile.ZipFile(zipFile, "r")
         media = []
         # get meta info first
         meta = json.loads(z.read("_meta").decode("utf8"))
@@ -612,8 +612,8 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
                 # normalize name
                 name = unicodedata.normalize("NFC", name)
                 # save file
-                with open(name, "wb") as f:
-                    f.write(data)
+                with open(name, "wb") as file:
+                    file.write(data)
                 # update db
                 media.append((name, csum, self._mtime(name), 0))
                 cnt += 1

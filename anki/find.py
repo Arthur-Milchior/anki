@@ -434,9 +434,9 @@ select distinct(note.id) from cards card, notes note where card.nid=note.id and 
         # find models that have that field
         mods = {}
         for model in self.col.models.all():
-            for f in model['flds']:
-                if unicodedata.normalize("NFC", f['name'].lower()) == field:
-                    mods[str(model['id'])] = (model, f['ord'])
+            for fieldType in model['flds']:
+                if unicodedata.normalize("NFC", fieldType['name'].lower()) == field:
+                    mods[str(model['id'])] = (model, fieldType['ord'])
         if not mods:
             # nothing has that field
             return
@@ -484,9 +484,9 @@ def findReplace(col, nids, src, dst, regex=False, field=None, fold=True):
     mmap = {}
     if field:
         for model in col.models.all():
-            for f in model['flds']:
-                if f['name'].lower() == field.lower():
-                    mmap[str(model['id'])] = f['ord']
+            for fieldType in model['flds']:
+                if fieldType['name'].lower() == field.lower():
+                    mmap[str(model['id'])] = fieldType['ord']
         if not mmap:
             return 0
     # find and gather replacements
@@ -532,8 +532,8 @@ def findReplace(col, nids, src, dst, regex=False, field=None, fold=True):
 def fieldNames(col, downcase=True):
     fields = set()
     for model in col.models.all():
-        for f in model['flds']:
-            name=f['name'].lower() if downcase else f['name']
+        for fieldType in model['flds']:
+            name=fieldType['name'].lower() if downcase else fieldType['name']
             if name not in fields: #slower w/o
                 fields.add(name)
     return list(fields)
@@ -563,8 +563,8 @@ def findDupes(col, fieldName, search=""):
     def ordForMid(mid):
         if mid not in fields:
             model = col.models.get(mid)
-            for fieldIndex, f in enumerate(model['flds']):
-                if f['name'].lower() == fieldName.lower():
+            for fieldIndex, fieldType in enumerate(model['flds']):
+                if fieldType['name'].lower() == fieldName.lower():
                     fields[mid] = fieldIndex
                     break
         return fields[mid]

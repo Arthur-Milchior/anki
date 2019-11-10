@@ -713,11 +713,11 @@ group by hour having count() > 30 order by hour""" % lim,
             d.append(dict(data=div[index], label="%s: %s" % (t, div[index]), color=col))
         # text data
         i = []
-        (count, f) = self.col.db.first("""
+        (countCard, countNote) = self.col.db.first("""
 select count(id), count(distinct nid) from cards
 where did in %s """ % self._limit())
-        self._line(i, _("Total cards"), count)
-        self._line(i, _("Total notes"), f)
+        self._line(i, _("Total cards"), countCard)
+        self._line(i, _("Total notes"), countNote)
         (low, avg, high) = self._factors()
         if low:
             self._line(i, _("Lowest ease"), "%d%%" % low)

@@ -140,18 +140,18 @@ class AnkiQt(QMainWindow):
         self.pm.profile = None
         self.state = "profileManager"
         d = self.profileDiag = self.ProfileManager()
-        f = self.profileForm = aqt.forms.profiles.Ui_MainWindow()
-        f.setupUi(d)
-        f.login.clicked.connect(self.onOpenProfile)
-        f.profiles.itemDoubleClicked.connect(self.onOpenProfile)
-        f.openBackup.clicked.connect(self.onOpenBackup)
-        f.quit.clicked.connect(d.close)
+        profileForm = self.profileForm = aqt.forms.profiles.Ui_MainWindow()
+        profileForm.setupUi(d)
+        profileForm.login.clicked.connect(self.onOpenProfile)
+        profileForm.profiles.itemDoubleClicked.connect(self.onOpenProfile)
+        profileForm.openBackup.clicked.connect(self.onOpenBackup)
+        profileForm.quit.clicked.connect(d.close)
         d.onClose.connect(self.cleanupAndExit)
-        f.add.clicked.connect(self.onAddProfile)
-        f.rename.clicked.connect(self.onRenameProfile)
-        f.delete_2.clicked.connect(self.onRemProfile)
-        f.profiles.currentRowChanged.connect(self.onProfileRowChange)
-        f.statusbar.setVisible(False)
+        profileForm.add.clicked.connect(self.onAddProfile)
+        profileForm.rename.clicked.connect(self.onRenameProfile)
+        profileForm.delete_2.clicked.connect(self.onRemProfile)
+        profileForm.profiles.currentRowChanged.connect(self.onProfileRowChange)
+        profileForm.statusbar.setVisible(False)
         # enter key opens profile
         QShortcut(QKeySequence("Return"), d, activated=self.onOpenProfile)
         self.refreshProfilesList()
@@ -161,22 +161,22 @@ class AnkiQt(QMainWindow):
         d.raise_()
 
     def refreshProfilesList(self):
-        f = self.profileForm
-        f.profiles.clear()
+        profileForm = self.profileForm
+        profileForm.profiles.clear()
         profs = self.pm.profiles()
-        f.profiles.addItems(profs)
+        profileForm.profiles.addItems(profs)
         try:
             idx = profs.index(self.pm.name)
         except:
             idx = 0
-        f.profiles.setCurrentRow(idx)
+        profileForm.profiles.setCurrentRow(idx)
 
     def onProfileRowChange(self, profileIndex):
         if profileIndex < 0:
             # called on .clear()
             return
         name = self.pm.profiles()[profileIndex]
-        f = self.profileForm
+        profileForm = self.profileForm
         self.pm.load(name)
 
     def openProfile(self):
@@ -439,8 +439,8 @@ from the profile screen."))
         # do backup
         fname = time.strftime("backup-%Y-%m-%d-%H.%M.%S.colpkg", time.localtime(time.time()))
         newpath = os.path.join(dir, fname)
-        with open(path, "rb") as f:
-            data = f.read()
+        with open(path, "rb") as file:
+            data = file.read()
         b = self.BackupThread(newpath, data)
         b.start()
 
@@ -1051,15 +1051,15 @@ and if the problem comes up again, please ask on the support site."""))
     def onRemNotes(self, col, nids):
         path = os.path.join(self.pm.profileFolder(), "deleted.txt")
         existed = os.path.exists(path)
-        with open(path, "ab") as f:
+        with open(path, "ab") as file:
             if not existed:
-                f.write(b"nid\tmid\tfields\n")
+                file.write(b"nid\tmid\tfields\n")
             for id, mid, flds in col.db.execute(
                     "select id, mid, flds from notes where id in %s" %
                 ids2str(nids)):
                 fields = splitFields(flds)
-                f.write(("\t".join([str(id), str(mid)] + fields)).encode("utf8"))
-                f.write(b"\n")
+                file.write(("\t".join([str(id), str(mid)] + fields)).encode("utf8"))
+                file.write(b"\n")
 
     # Schema modifications
     ##########################################################################
@@ -1154,8 +1154,8 @@ will be lost. Continue?"""))
         self.progress.start(immediate=True)
         try:
             lastProgress = 0
-            for index, f in enumerate(unused):
-                path = os.path.join(mdir, f)
+            for index, file in enumerate(unused):
+                path = os.path.join(mdir, file)
                 if os.path.exists(path):
                     send2trash(path)
 

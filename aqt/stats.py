@@ -26,19 +26,18 @@ class DeckStats(QDialog):
         self.oldPos = None
         self.wholeCollection = False
         self.setMinimumWidth(700)
-        f = self.form
-        f.setupUi(self)
+        self.form.setupUi(self)
         restoreGeom(self, self.name)
-        b = f.buttonBox.addButton(_("Save PDF"),
+        b = self.form.buttonBox.addButton(_("Save PDF"),
                                           QDialogButtonBox.ActionRole)
         b.clicked.connect(self.saveImage)
         b.setAutoDefault(False)
-        f.groups.clicked.connect(lambda: self.changeScope("deck"))
-        f.groups.setShortcut("g")
-        f.all.clicked.connect(lambda: self.changeScope("collection"))
-        f.month.clicked.connect(lambda: self.changePeriod(0))
-        f.year.clicked.connect(lambda: self.changePeriod(1))
-        f.life.clicked.connect(lambda: self.changePeriod(2))
+        self.form.groups.clicked.connect(lambda: self.changeScope("deck"))
+        self.form.groups.setShortcut("g")
+        self.form.all.clicked.connect(lambda: self.changeScope("collection"))
+        self.form.month.clicked.connect(lambda: self.changePeriod(0))
+        self.form.year.clicked.connect(lambda: self.changePeriod(1))
+        self.form.life.clicked.connect(lambda: self.changePeriod(2))
         maybeHideClose(self.form.buttonBox)
         addCloseShortcut(self)
         self.show()

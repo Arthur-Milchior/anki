@@ -33,7 +33,7 @@ class Models(QDialog):
 
     def setupModels(self):
         self.model = None
-        f = self.form; box = f.buttonBox
+        box = self.form.buttonBox
         t = QDialogButtonBox.ActionRole
         b = box.addButton(_("Add"), t)
         b.clicked.connect(self.onAdd)
@@ -48,10 +48,10 @@ class Models(QDialog):
             b.clicked.connect(self.onCards)
         b = box.addButton(_("Options..."), t)
         b.clicked.connect(self.onAdvanced)
-        f.modelsList.currentRowChanged.connect(self.modelChanged)
-        f.modelsList.itemDoubleClicked.connect(self.onRename)
+        self.form.modelsList.currentRowChanged.connect(self.modelChanged)
+        self.form.modelsList.itemDoubleClicked.connect(self.onRename)
         self.updateModelsList()
-        f.modelsList.setCurrentRow(0)
+        self.form.modelsList.setCurrentRow(0)
         maybeHideClose(box)
 
     def onRename(self):

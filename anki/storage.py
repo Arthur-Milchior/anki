@@ -137,13 +137,13 @@ def _upgrade(col, ver):
         changed = False
         dir = col.media.dir()
         if dir:
-            for f in os.listdir(col.media.dir()):
-                if os.path.isfile(f) and not os.path.getsize(f):
-                    os.unlink(f)
+            for file in os.listdir(col.media.dir()):
+                if os.path.isfile(file) and not os.path.getsize(file):
+                    os.unlink(file)
                     col.media.db.execute(
-                        "delete from log where fname = ?", f)
+                        "delete from log where fname = ?", file)
                     col.media.db.execute(
-                        "delete from media where fname = ?", f)
+                        "delete from media where fname = ?", file)
                     changed = True
             if changed:
                 col.media.db.commit()

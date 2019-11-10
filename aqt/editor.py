@@ -339,9 +339,9 @@ class Editor:
                                   oncallback)
 
     def fonts(self):
-        return [(runFilter("mungeEditingFontName", f['font']),
-                 f['size'], f['rtl'])
-                for f in self.note.model()['flds']]
+        return [(runFilter("mungeEditingFontName", fldType['font']),
+                 fldType['size'], fldType['rtl'])
+                for fldType in self.note.model()['flds']]
 
     def saveNow(self, callback, keepFocus=False):
         "Save unsaved edits then call callback()."
@@ -353,10 +353,8 @@ class Editor:
         self.web.evalWithCallback("saveNow(%d)" % keepFocus, lambda res: callback())
 
     def checkValid(self):
-        cols = []
+        cols = ["#fff"] * len(self.note.fields)
         err = None
-        for f in self.note.fields:
-            cols.append("#fff")
         err = self.note.dupeOrEmpty()
         if err == 2:
             cols[0] = "#fcc"
@@ -377,11 +375,11 @@ class Editor:
         if not self.note:
             return True
         model = self.note.model()
-        for index, f in enumerate(self.note.fields):
+        for index, fldValue in enumerate(self.note.fields):
             notChangedvalues = {"", "<br>"}
             if previousNote and model['flds'][index]['sticky']:
                 notChangedvalues.add(previousNote.fields[index])
-            if f not in notChangedvalues:
+            if fldValue not in notChangedvalues:
                 return False
         return True
 

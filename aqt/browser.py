@@ -81,10 +81,10 @@ class DataModel(QAbstractTableModel):
             t = card.template()
             if not t.get("bfont"):
                 return
-            f = QFont()
-            f.setFamily(t.get("bfont", "arial"))
-            f.setPixelSize(t.get("bsize", 12))
-            return f
+            font = QFont()
+            font.setFamily(t.get("bfont", "arial"))
+            font.setPixelSize(t.get("bsize", 12))
+            return font
 
         elif role == Qt.TextAlignmentRole:
             align = Qt.AlignVCenter
@@ -237,8 +237,8 @@ class DataModel(QAbstractTableModel):
         elif type == "answer":
             return self.answer(card)
         elif type == "noteFld":
-            f = card.note()
-            return htmlToTextLine(f.fields[self.col.models.sortIdx(f.model())])
+            note = card.note()
+            return htmlToTextLine(note.fields[self.col.models.sortIdx(note.model())])
         elif type == "template":
             t = card.template()['name']
             if card.model()['type'] == MODEL_CLOZE:
@@ -413,51 +413,50 @@ class Browser(QMainWindow):
     def setupMenus(self):
         # pylint: disable=unnecessary-lambda
         # actions
-        f = self.form
-        f.previewButton.clicked.connect(self.onTogglePreview)
-        f.previewButton.setToolTip(_("Preview Selected Card (%s)") %
+        self.form.previewButton.clicked.connect(self.onTogglePreview)
+        self.form.previewButton.setToolTip(_("Preview Selected Card (%s)") %
                                    shortcut(_("Ctrl+Shift+P")))
 
-        f.filter.clicked.connect(self.onFilterButton)
+        self.form.filter.clicked.connect(self.onFilterButton)
         # edit
-        f.actionUndo.triggered.connect(self.mw.onUndo)
-        f.actionInvertSelection.triggered.connect(self.invertSelection)
-        f.actionSelectNotes.triggered.connect(self.selectNotes)
+        self.form.actionUndo.triggered.connect(self.mw.onUndo)
+        self.form.actionInvertSelection.triggered.connect(self.invertSelection)
+        self.form.actionSelectNotes.triggered.connect(self.selectNotes)
         if not isMac:
-            f.actionClose.setVisible(False)
+            self.form.actionClose.setVisible(False)
         # notes
-        f.actionAdd.triggered.connect(self.mw.onAddCard)
-        f.actionAdd_Tags.triggered.connect(lambda: self.addTags())
-        f.actionRemove_Tags.triggered.connect(lambda: self.deleteTags())
-        f.actionClear_Unused_Tags.triggered.connect(self.clearUnusedTags)
-        f.actionToggle_Mark.triggered.connect(lambda: self.onMark())
-        f.actionChangeModel.triggered.connect(self.onChangeModel)
-        f.actionFindDuplicates.triggered.connect(self.onFindDupes)
-        f.actionFindReplace.triggered.connect(self.onFindReplace)
-        f.actionManage_Note_Types.triggered.connect(self.mw.onNoteTypes)
-        f.actionDelete.triggered.connect(self.deleteNotes)
+        self.form.actionAdd.triggered.connect(self.mw.onAddCard)
+        self.form.actionAdd_Tags.triggered.connect(lambda: self.addTags())
+        self.form.actionRemove_Tags.triggered.connect(lambda: self.deleteTags())
+        self.form.actionClear_Unused_Tags.triggered.connect(self.clearUnusedTags)
+        self.form.actionToggle_Mark.triggered.connect(lambda: self.onMark())
+        self.form.actionChangeModel.triggered.connect(self.onChangeModel)
+        self.form.actionFindDuplicates.triggered.connect(self.onFindDupes)
+        self.form.actionFindReplace.triggered.connect(self.onFindReplace)
+        self.form.actionManage_Note_Types.triggered.connect(self.mw.onNoteTypes)
+        self.form.actionDelete.triggered.connect(self.deleteNotes)
         # cards
-        f.actionChange_Deck.triggered.connect(self.setDeck)
-        f.action_Info.triggered.connect(self.showCardInfo)
-        f.actionReposition.triggered.connect(self.reposition)
-        f.actionReschedule.triggered.connect(self.reschedule)
-        f.actionToggle_Suspend.triggered.connect(self.onSuspend)
-        f.actionRed_Flag.triggered.connect(lambda: self.onSetFlag(1))
-        f.actionOrange_Flag.triggered.connect(lambda: self.onSetFlag(2))
-        f.actionGreen_Flag.triggered.connect(lambda: self.onSetFlag(3))
-        f.actionBlue_Flag.triggered.connect(lambda: self.onSetFlag(4))
+        self.form.actionChange_Deck.triggered.connect(self.setDeck)
+        self.form.action_Info.triggered.connect(self.showCardInfo)
+        self.form.actionReposition.triggered.connect(self.reposition)
+        self.form.actionReschedule.triggered.connect(self.reschedule)
+        self.form.actionToggle_Suspend.triggered.connect(self.onSuspend)
+        self.form.actionRed_Flag.triggered.connect(lambda: self.onSetFlag(1))
+        self.form.actionOrange_Flag.triggered.connect(lambda: self.onSetFlag(2))
+        self.form.actionGreen_Flag.triggered.connect(lambda: self.onSetFlag(3))
+        self.form.actionBlue_Flag.triggered.connect(lambda: self.onSetFlag(4))
         # jumps
-        f.actionPreviousCard.triggered.connect(self.onPreviousCard)
-        f.actionNextCard.triggered.connect(self.onNextCard)
-        f.actionFirstCard.triggered.connect(self.onFirstCard)
-        f.actionLastCard.triggered.connect(self.onLastCard)
-        f.actionFind.triggered.connect(self.onFind)
-        f.actionNote.triggered.connect(self.onNote)
-        f.actionTags.triggered.connect(self.onFilterButton)
-        f.actionSidebar.triggered.connect(self.focusSidebar)
-        f.actionCardList.triggered.connect(self.onCardList)
+        self.form.actionPreviousCard.triggered.connect(self.onPreviousCard)
+        self.form.actionNextCard.triggered.connect(self.onNextCard)
+        self.form.actionFirstCard.triggered.connect(self.onFirstCard)
+        self.form.actionLastCard.triggered.connect(self.onLastCard)
+        self.form.actionFind.triggered.connect(self.onFind)
+        self.form.actionNote.triggered.connect(self.onNote)
+        self.form.actionTags.triggered.connect(self.onFilterButton)
+        self.form.actionSidebar.triggered.connect(self.focusSidebar)
+        self.form.actionCardList.triggered.connect(self.onCardList)
         # help
-        f.actionGuide.triggered.connect(self.onHelp)
+        self.form.actionGuide.triggered.connect(self.onHelp)
         # keyboard shortcut for shift+home/end
         self.pgUpCut = QShortcut(QKeySequence("Shift+Home"), self)
         self.pgUpCut.activated.connect(self.onFirstCard)
@@ -971,7 +970,7 @@ by clicking on one on the left."""))
         return ml
 
     def _filterFunc(self, *args):
-        return lambda *, f=args: self.setFilter(*f)
+        return lambda *, filter=args: self.setFilter(*filter)
 
     def _commonFilters(self):
         return self._simpleFilters((
@@ -1602,11 +1601,10 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         flag = self.card and self.card.userFlag()
         flag = flag or 0
 
-        f = self.form
-        flagActions = [f.actionRed_Flag,
-                       f.actionOrange_Flag,
-                       f.actionGreen_Flag,
-                       f.actionBlue_Flag]
+        flagActions = [self.form.actionRed_Flag,
+                       self.form.actionOrange_Flag,
+                       self.form.actionGreen_Flag,
+                       self.form.actionBlue_Flag]
 
         for index, act in enumerate(flagActions):
             act.setChecked(flag == index+1)
@@ -2051,14 +2049,14 @@ class ChangeModel(QDialog):
             combos = self.tcombos
             new = self.targetModel['tmpls']
         map = {}
-        for i, f in enumerate(old):
+        for i, fldType in enumerate(old):
             idx = combos[i].currentIndex()
             if idx == len(new):
                 # ignore
-                map[f['ord']] = None
+                map[fldType['ord']] = None
             else:
                 f2 = new[idx]
-                map[f['ord']] = f2['ord']
+                map[fldType['ord']] = f2['ord']
         return map
 
     def getFieldMap(self):

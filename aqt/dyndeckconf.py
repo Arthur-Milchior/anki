@@ -53,66 +53,64 @@ class DeckConf(QDialog):
                                                 and self.mw.col.schedVer() > 1)
 
     def loadConf(self):
-        f = self.form
         d = self.deck
 
-        f.resched.setChecked(d['resched'])
+        self.form.resched.setChecked(d['resched'])
         self._onReschedToggled(0)
 
         search, limit, order = d['terms'][0]
-        f.search.setText(search)
+        self.form.search.setText(search)
 
         if self.mw.col.schedVer() == 1:
             if d['delays']:
-                f.steps.setText(self.listToUser(d['delays']))
-                f.stepsOn.setChecked(True)
+                self.form.steps.setText(self.listToUser(d['delays']))
+                self.form.stepsOn.setChecked(True)
         else:
-            f.steps.setVisible(False)
-            f.stepsOn.setVisible(False)
+            self.form.steps.setVisible(False)
+            self.form.stepsOn.setVisible(False)
 
-        f.order.setCurrentIndex(order)
-        f.limit.setValue(limit)
-        f.previewDelay.setValue(d.get("previewDelay", 10))
+        self.form.order.setCurrentIndex(order)
+        self.form.limit.setValue(limit)
+        self.form.previewDelay.setValue(d.get("previewDelay", 10))
 
         if len(d['terms']) > 1:
             search, limit, order = d['terms'][1]
-            f.search_2.setText(search)
-            f.order_2.setCurrentIndex(order)
-            f.limit_2.setValue(limit)
-            f.secondFilter.setChecked(True)
-            f.filter2group.setVisible(True)
+            self.form.search_2.setText(search)
+            self.form.order_2.setCurrentIndex(order)
+            self.form.limit_2.setValue(limit)
+            self.form.secondFilter.setChecked(True)
+            self.form.filter2group.setVisible(True)
         else:
-            f.order_2.setCurrentIndex(5)
-            f.limit_2.setValue(20)
-            f.secondFilter.setChecked(False)
-            f.filter2group.setVisible(False)
+            self.form.order_2.setCurrentIndex(5)
+            self.form.limit_2.setValue(20)
+            self.form.secondFilter.setChecked(False)
+            self.form.filter2group.setVisible(False)
 
     def saveConf(self):
-        f = self.form
         d = self.deck
-        d['resched'] = f.resched.isChecked()
+        d['resched'] = self.form.resched.isChecked()
         d['delays'] = None
 
-        if self.mw.col.schedVer() == 1 and f.stepsOn.isChecked():
-            steps = self.userToList(f.steps)
+        if self.mw.col.schedVer() == 1 and self.form.stepsOn.isChecked():
+            steps = self.userToList(self.form.steps)
             if steps:
                 d['delays'] = steps
             else:
                 d['delays'] = None
 
         terms = [[
-            f.search.text(),
-            f.limit.value(),
-            f.order.currentIndex()]]
+            self.form.search.text(),
+            self.form.limit.value(),
+            self.form.order.currentIndex()]]
 
-        if f.secondFilter.isChecked():
+        if self.form.secondFilter.isChecked():
             terms.append([
-                f.search_2.text(),
-                f.limit_2.value(),
-                f.order_2.currentIndex()])
+                self.form.search_2.text(),
+                self.form.limit_2.value(),
+                self.form.order_2.currentIndex()])
 
         d['terms'] = terms
-        d['previewDelay'] = f.previewDelay.value()
+        d['previewDelay'] = self.form.previewDelay.value()
 
         self.mw.col.decks.save(d)
         return True

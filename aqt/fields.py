@@ -36,18 +36,17 @@ class FieldDialog(QDialog):
     def fillFields(self):
         self.currentIdx = None
         self.form.fieldList.clear()
-        for index, f in enumerate(self.model['flds']):
-            self.form.fieldList.addItem("{}: {}".format(index+1, f['name']))
+        for index, fldType in enumerate(self.model['flds']):
+            self.form.fieldList.addItem("{}: {}".format(index+1, fldType['name']))
 
     def setupSignals(self):
-        f = self.form
-        f.fieldList.currentRowChanged.connect(self.onRowChange)
-        f.fieldAdd.clicked.connect(self.onAdd)
-        f.fieldDelete.clicked.connect(self.onDelete)
-        f.fieldRename.clicked.connect(self.onRename)
-        f.fieldPosition.clicked.connect(self.onPosition)
-        f.sortField.clicked.connect(self.onSortField)
-        f.buttonBox.helpRequested.connect(self.onHelp)
+        self.form.fieldList.currentRowChanged.connect(self.onRowChange)
+        self.form.fieldAdd.clicked.connect(self.onAdd)
+        self.form.fieldDelete.clicked.connect(self.onDelete)
+        self.form.fieldRename.clicked.connect(self.onRename)
+        self.form.fieldPosition.clicked.connect(self.onPosition)
+        self.form.sortField.clicked.connect(self.onSortField)
+        self.form.buttonBox.helpRequested.connect(self.onHelp)
 
     def onRowChange(self, idx):
         if idx == -1:
@@ -59,21 +58,21 @@ class FieldDialog(QDialog):
         txt = getOnlyText(prompt, default=old)
         if not txt:
             return
-        for f in self.model['flds']:
-            if ignoreOrd is not None and f['ord'] == ignoreOrd:
+        for fldType in self.model['flds']:
+            if ignoreOrd is not None and fldType['ord'] == ignoreOrd:
                 continue
-            if f['name'] == txt:
+            if fldType['name'] == txt:
                 showWarning(_("That field name is already used."))
                 return
         return txt
 
     def onRename(self):
         idx = self.currentIdx
-        f = self.model['flds'][idx]
-        name = self._uniqueName(_("New name:"), self.currentIdx, f['name'])
+        fldType = self.model['flds'][idx]
+        name = self._uniqueName(_("New name:"), self.currentIdx, fldType['name'])
         if not name:
             return
-        self.mm.renameField(self.model, f, name)
+        self.mm.renameField(self.model, fldType, name)
         self.saveField()
         self.fillFields()
         self.form.fieldList.setCurrentRow(idx)
@@ -84,8 +83,8 @@ class FieldDialog(QDialog):
             return
         self.saveField()
         self.mw.progress.start()
-        f = self.mm.newField(name)
-        self.mm.addField(self.model, f)
+        fldType = self.mm.newField(name)
+        self.mm.addField(self.model, fldType)
         self.mw.progress.finish()
         self.fillFields()
         self.form.fieldList.setCurrentRow(len(self.model['flds'])-1)
@@ -97,9 +96,9 @@ class FieldDialog(QDialog):
         count = ngettext("%d note", "%d notes", count) % count
         if not askUser(_("Delete field from %s?") % count):
             return
-        f = self.model['flds'][self.form.fieldList.currentRow()]
+        fldType = self.model['flds'][self.form.fieldList.currentRow()]
         self.mw.progress.start()
-        self.mm.remField(self.model, f)
+        self.mm.remField(self.model, fldType)
         self.mw.progress.finish()
         self.fillFields()
         self.form.fieldList.setCurrentRow(0)
@@ -117,9 +116,9 @@ class FieldDialog(QDialog):
         if not 0 < pos <= l:
             return
         self.saveField()
-        f = self.model['flds'][self.currentIdx]
+        fldType = self.model['flds'][self.currentIdx]
         self.mw.progress.start()
-        self.mm.moveField(self.model, f, pos-1)
+        self.mm.moveField(self.model, fldType, pos-1)
         self.mw.progress.finish()
         self.fillFields()
         self.form.fieldList.setCurrentRow(pos-1)
@@ -131,25 +130,23 @@ class FieldDialog(QDialog):
 
     def loadField(self, idx):
         self.currentIdx = idx
-        fld = self.model['flds'][idx]
-        f = self.form
-        f.fontFamily.setCurrentFont(QFont(fld['font']))
-        f.fontSize.setValue(fld['size'])
-        f.sticky.setChecked(fld['sticky'])
-        f.sortField.setChecked(self.model['sortf'] == fld['ord'])
-        f.rtl.setChecked(fld['rtl'])
+        fldType = self.model['flds'][idx]
+        self.form.fontFamily.setCurrentFont(QFont(fldType['font']))
+        self.form.fontSize.setValue(fldType['size'])
+        self.form.sticky.setChecked(fldType['sticky'])
+        self.form.sortField.setChecked(self.model['sortf'] == fldType['ord'])
+        self.form.rtl.setChecked(fldType['rtl'])
 
     def saveField(self):
         # not initialized yet?
         if self.currentIdx is None:
             return
         idx = self.currentIdx
-        fld = self.model['flds'][idx]
-        f = self.form
-        fld['font'] = f.fontFamily.currentFont().family()
-        fld['size'] = f.fontSize.value()
-        fld['sticky'] = f.sticky.isChecked()
-        fld['rtl'] = f.rtl.isChecked()
+        fldType = self.model['flds'][idx]
+        fldType['font'] = self.form.fontFamily.currentFont().family()
+        fldType['size'] = self.form.fontSize.value()
+        fldType['sticky'] = self.form.sticky.isChecked()
+        fldType['rtl'] = self.form.rtl.isChecked()
 
     def reject(self):
         self.saveField()

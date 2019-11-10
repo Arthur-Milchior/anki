@@ -25,8 +25,8 @@ class AnkiPackageImporter(Anki2Importer):
 
         col = z.read("collection"+suffix)
         colpath = tmpfile(suffix=suffix)
-        with open(colpath, "wb") as f:
-            f.write(col)
+        with open(colpath, "wb") as file:
+            file.write(col)
         self.file = colpath
         # we need the media dict in advance, and we'll need a map of fname ->
         # number to use during the import
@@ -46,8 +46,8 @@ class AnkiPackageImporter(Anki2Importer):
                 continue
             path = os.path.join(self.col.media.dir(), file)
             if not os.path.exists(path):
-                with open(path, "wb") as f:
-                    f.write(z.read(card))
+                with open(path, "wb") as file:
+                    file.write(z.read(card))
 
     def _srcMediaData(self, fname):
         if fname in self.nameToNum:

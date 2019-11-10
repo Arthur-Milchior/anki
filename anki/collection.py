@@ -507,8 +507,8 @@ select id from notes where id in %s and id not in (select nid from cards)""" %
         for ords, cnt, flds in self.db.all("""
 select group_concat(ord+1), count(), flds from cards card, notes note
 where card.nid = note.id and card.id in %s group by nid""" % ids2str(cids)):
-            rep += _("Empty card numbers: %(card)s\nFields: %(f)s\n\n") % dict(
-                card=ords, f=flds.replace("\x1f", " / "))
+            rep += _("Empty card numbers: %(card)s\nFields: %(fieldsContent)s\n\n") % dict(
+                card=ords, fieldsContent=flds.replace("\x1f", " / "))
         return rep
 
     # Field checksums and sorting fields
@@ -542,7 +542,7 @@ where card.nid = note.id and card.id in %s group by nid""" % ids2str(cids)):
         if type == "card":
             where = "and card.id in " + ids2str(ids)
         elif type == "note":
-            where = "and f.id in " + ids2str(ids)
+            where = "and note.id in " + ids2str(ids)
         elif type == "model":
             where = "and model.id in " + ids2str(ids)
         elif type == "all":
@@ -601,9 +601,9 @@ where card.nid = note.id and card.id in %s group by nid""" % ids2str(cids)):
     def _qaData(self, where=""):
         "Return [cid, nid, mid, did, ord, tags, flds, cardFlags] db query"
         return self.db.execute("""
-select card.id, f.id, f.mid, card.did, card.ord, f.tags, f.flds, card.flags
-from cards card, notes f
-where card.nid == f.id
+select card.id, note.id, note.mid, card.did, card.ord, note.tags, note.flds, card.flags
+from cards card, notes note
+where card.nid == note.id
 %s""" % where)
 
     def _flagNameFromCardFlags(self, flags):

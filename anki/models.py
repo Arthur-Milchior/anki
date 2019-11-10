@@ -234,16 +234,16 @@ and notes.mid = ? and cards.ord = ?""", model['id'], ord)
 
     def newField(self, name):
         assert(isinstance(name, str))
-        f = defaultField.copy()
-        f['name'] = name
-        return f
+        fieldType = defaultField.copy()
+        fieldType['name'] = name
+        return fieldType
 
     def fieldMap(self, model):
         "Mapping of field name -> (ord, field)."
-        return dict((f['name'], (f['ord'], f)) for f in model['flds'])
+        return dict((fieldType['name'], (fieldType['ord'], fieldType)) for fieldType in model['flds'])
 
     def fieldNames(self, model):
-        return [f['name'] for f in model['flds']]
+        return [fieldType['name'] for fieldType in model['flds']]
 
     def sortIdx(self, model):
         return model['sortf']
@@ -255,52 +255,52 @@ and notes.mid = ? and cards.ord = ?""", model['id'], ord)
         self.col.updateFieldCache(self.nids(model))
         self.save(model)
 
-    def addField(self, model, field):
+    def addField(self, model, fieldType):
         # only mod schema if model isn't new
         if model['id']:
             self.col.modSchema(check=True)
-        model['flds'].append(field)
+        model['flds'].append(fieldType)
         self._updateFieldOrds(model)
         self.save(model)
-        def add(fields):
-            fields.append("")
-            return fields
+        def add(fieldsContents):
+            fieldsContents.append("")
+            return fieldsContents
         self._transformFields(model, add)
 
-    def remField(self, model, field):
+    def remField(self, model, fieldTypeToRemove):
         self.col.modSchema(check=True)
         # save old sort field
         sortFldName = model['flds'][model['sortf']]['name']
-        idx = model['flds'].index(field)
-        model['flds'].remove(field)
+        idx = model['flds'].index(fieldTypeToRemove)
+        model['flds'].remove(fieldTypeToRemove)
         # restore old sort field if possible, or revert to first field
         model['sortf'] = 0
-        for index, f in enumerate(model['flds']):
-            if f['name'] == sortFldName:
+        for index, fieldType in enumerate(model['flds']):
+            if fieldType['name'] == sortFldName:
                 model['sortf'] = index
                 break
         self._updateFieldOrds(model)
-        def delete(fields):
-            del fields[idx]
-            return fields
+        def delete(fieldsContents):
+            del fieldsContents[idx]
+            return fieldsContents
         self._transformFields(model, delete)
         if model['flds'][model['sortf']]['name'] != sortFldName:
             # need to rebuild sort field
             self.col.updateFieldCache(self.nids(model))
         # saves
-        self.renameField(model, field, None)
+        self.renameField(model, fieldTypeToRemove, None)
 
-    def moveField(self, model, field, idx):
+    def moveField(self, model, fieldType, idx):
         self.col.modSchema(check=True)
-        oldidx = model['flds'].index(field)
+        oldidx = model['flds'].index(fieldType)
         if oldidx == idx:
             return
-        # remember old sort field
+        # remember old sort fieldType
         sortf = model['flds'][model['sortf']]
         # move
-        model['flds'].remove(field)
-        model['flds'].insert(idx, field)
-        # restore sort field
+        model['flds'].remove(fieldType)
+        model['flds'].insert(idx, fieldType)
+        # restore sort fieldType
         model['sortf'] = model['flds'].index(sortf)
         self._updateFieldOrds(model)
         self.save(model)
@@ -311,7 +311,7 @@ and notes.mid = ? and cards.ord = ?""", model['id'], ord)
             return fields
         self._transformFields(model, move)
 
-    def renameField(self, model, field, newName):
+    def renameField(self, model, fieldType, newName):
         self.col.modSchema(check=True)
         pat = r'{{([^{}]*)([:#^/]|[^:#/^}][^:}]*?:|)%s}}'
         def wrap(txt):
@@ -322,16 +322,16 @@ and notes.mid = ? and cards.ord = ?""", model['id'], ord)
             for fmt in ('qfmt', 'afmt'):
                 if newName:
                     t[fmt] = re.sub(
-                        pat % re.escape(field['name']), wrap(newName), t[fmt])
+                        pat % re.escape(fieldType['name']), wrap(newName), t[fmt])
                 else:
                     t[fmt] = re.sub(
-                        pat  % re.escape(field['name']), "", t[fmt])
-        field['name'] = newName
+                        pat  % re.escape(fieldType['name']), "", t[fmt])
+        fieldType['name'] = newName
         self.save(model)
 
     def _updateFieldOrds(self, model):
-        for index, f in enumerate(model['flds']):
-            f['ord'] = index
+        for index, fieldType in enumerate(model['flds']):
+            fieldType['ord'] = index
 
     def _transformFields(self, model, fn):
         # model hasn't been added yet?
@@ -367,7 +367,7 @@ and notes.mid = ? and cards.ord = ?""", model['id'], ord)
         # find cards using this template
         ord = model['tmpls'].index(template)
         cids = self.col.db.list("""
-select card.id from cards card, notes f where card.nid=f.id and mid = ? and ord = ?""",
+select card.id from cards card, notes note where card.nid=note.id and mid = ? and ord = ?""",
                                  model['id'], ord)
         # all notes with this template must have at least two cards, or we
         # could end up creating orphaned notes
@@ -483,8 +483,8 @@ select id from notes where mid = ?)""" % " ".join(map),
     def scmhash(self, model):
         "Return a hash of the schema, to see if models are compatible."
         s = ""
-        for f in model['flds']:
-            s += f['name']
+        for fieldType in model['flds']:
+            s += fieldType['name']
         for t in model['tmpls']:
             s += t['name']
         return checksum(s)
@@ -497,18 +497,15 @@ select id from notes where mid = ?)""" % " ".join(map),
             # nothing to do
             return
         req = []
-        flds = [f['name'] for f in model['flds']]
+        flds = [fieldType['name'] for fieldType in model['flds']]
         for t in model['tmpls']:
             ret = self._reqForTemplate(model, flds, t)
             req.append((t['ord'], ret[0], ret[1]))
         model['req'] = req
 
     def _reqForTemplate(self, model, flds, t):
-        a = []
-        b = []
-        for f in flds:
-            a.append("ankiflag")
-            b.append("")
+        a = ["ankiflag"] * len(flds)
+        b = [""] * len(flds)
         data = [1, 1, model['id'], 1, t['ord'], "", joinFields(a), 0]
         full = self.col._renderQA(data)['q']
         data = [1, 1, model['id'], 1, t['ord'], "", joinFields(b), 0]
@@ -545,8 +542,8 @@ select id from notes where mid = ?)""" % " ".join(map),
         if model['type'] == MODEL_CLOZE:
             return self._availClozeOrds(model, flds)
         fields = {}
-        for index, f in enumerate(splitFields(flds)):
-            fields[index] = f.strip()
+        for index, fieldType in enumerate(splitFields(flds)):
+            fields[index] = fieldType.strip()
         avail = []
         for ord, type, req in model['req']:
             # unsatisfiable template

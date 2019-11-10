@@ -122,7 +122,7 @@ where cards.id in %s)""" % ids2str(cardIds)):
             if self.includeID:
                 row.append(str(id))
             # fields
-            row.extend([self.processText(f) for f in splitFields(flds)])
+            row.extend([self.processText(fieldContent) for fieldContent in splitFields(flds)])
             # tags
             if self.includeTags:
                 row.append(tags.strip())

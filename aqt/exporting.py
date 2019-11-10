@@ -112,8 +112,8 @@ class ExportDialog(QDialog):
         if file:
             self.mw.progress.start(immediate=True)
             try:
-                f = open(file, "wb")
-                f.close()
+                file = open(file, "wb")
+                file.close()
             except (OSError, IOError) as e:
                 showWarning(_("Couldn't save file: %s") % str(e))
             else:

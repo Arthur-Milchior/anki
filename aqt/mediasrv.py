@@ -74,10 +74,10 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
     mw = None
 
     def do_GET(self):
-        f = self.send_head()
-        if f:
+        head = self.send_head()
+        if head:
             try:
-                self.copyfile(f, self.wfile)
+                self.copyfile(head, self.wfile)
             except Exception as e:
                 if devMode:
                     print("http server caught exception:", e)
@@ -87,7 +87,7 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
                     # downloading
                     pass
             finally:
-                f.close()
+                head.close()
 
     def send_head(self):
         path = self.translate_path(self.path)
@@ -105,21 +105,21 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
 
         ctype = self.guess_type(path)
         try:
-            f = open(path, 'rb')
+            file = open(path, 'rb')
         except OSError:
             self.send_error(HTTPStatus.NOT_FOUND, "File not found")
             return None
         try:
             self.send_response(HTTPStatus.OK)
             self.send_header("Content-type", ctype)
-            fs = os.fstat(f.fileno())
+            fs = os.fstat(file.fileno())
             self.send_header("Content-Length", str(fs[6]))
             self.send_header("Last-Modified", self.date_time_string(fs.st_mtime))
             self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
-            return f
+            return file
         except:
-            f.close()
+            file.close()
             raise
 
     def log_message(self, format, *args):

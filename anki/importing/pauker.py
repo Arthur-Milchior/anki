@@ -38,12 +38,12 @@ class PaukerImporter(NoteImporter):
         notes = []
 
         try:
-            f = gzip.open(self.file)
-            tree = ET.parse(f)
+            file = gzip.open(self.file)
+            tree = ET.parse(file)
             lesson = tree.getroot()
             assert lesson.tag == "Lesson"
         finally:
-            f.close()
+            file.close()
 
         index = -4
 

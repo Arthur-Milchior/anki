@@ -279,9 +279,9 @@ def queueMplayer(path):
         dir = tmpdir()
         name = os.path.join(dir, "audio%s%s" % (
             random.randrange(0, 1000000), os.path.splitext(path)[1]))
-        f = open(name, "wb")
-        f.write(open(path, "rb").read())
-        f.close()
+        file = open(name, "wb")
+        file.write(open(path, "rb").read())
+        file.close()
         # it wants unix paths, too!
         path = name.replace("\\", "/")
     mplayerQueue.append(path)

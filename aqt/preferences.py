@@ -51,10 +51,9 @@ class Preferences(QDialog):
     ######################################################################
 
     def setupLang(self):
-        f = self.form
-        f.lang.addItems([x[0] for x in anki.lang.langs])
-        f.lang.setCurrentIndex(self.langIdx())
-        f.lang.currentIndexChanged.connect(self.onLangIdxChanged)
+        self.form.lang.addItems([x[0] for x in anki.lang.langs])
+        self.form.lang.setCurrentIndex(self.langIdx())
+        self.form.lang.currentIndexChanged.connect(self.onLangIdxChanged)
 
     def langIdx(self):
         codes = [x[1] for x in anki.lang.langs]
@@ -73,34 +72,32 @@ class Preferences(QDialog):
 
     def setupCollection(self):
         from anki.consts import newCardSchedulingLabels
-        f = self.form
         qc = self.mw.col.conf
         self._setupDayCutoff()
         if isMac:
-            f.hwAccel.setVisible(False)
+            self.form.hwAccel.setVisible(False)
         else:
-            f.hwAccel.setChecked(self.mw.pm.glMode() != "software")
-        f.lrnCutoff.setValue(qc['collapseTime']/60.0)
-        f.timeLimit.setValue(qc['timeLim']/60.0)
-        f.showEstimates.setChecked(qc['estTimes'])
-        f.showProgress.setChecked(qc['dueCounts'])
-        f.nightMode.setChecked(qc.get("nightMode", False))
-        f.newSpread.addItems(list(newCardSchedulingLabels().values()))
-        f.newSpread.setCurrentIndex(qc['newSpread'])
-        f.useCurrent.setCurrentIndex(int(not qc.get("addToCur", True)))
-        f.dayLearnFirst.setChecked(qc.get("dayLearnFirst", False))
+            self.form.hwAccel.setChecked(self.mw.pm.glMode() != "software")
+        self.form.lrnCutoff.setValue(qc['collapseTime']/60.0)
+        self.form.timeLimit.setValue(qc['timeLim']/60.0)
+        self.form.showEstimates.setChecked(qc['estTimes'])
+        self.form.showProgress.setChecked(qc['dueCounts'])
+        self.form.nightMode.setChecked(qc.get("nightMode", False))
+        self.form.newSpread.addItems(list(newCardSchedulingLabels().values()))
+        self.form.newSpread.setCurrentIndex(qc['newSpread'])
+        self.form.useCurrent.setCurrentIndex(int(not qc.get("addToCur", True)))
+        self.form.dayLearnFirst.setChecked(qc.get("dayLearnFirst", False))
         if self.mw.col.schedVer() != 2:
-            f.dayLearnFirst.setVisible(False)
+            self.form.dayLearnFirst.setVisible(False)
         else:
-            f.newSched.setChecked(True)
+            self.form.newSched.setChecked(True)
 
     def updateCollection(self):
-        f = self.form
         d = self.mw.col
 
         if not isMac:
             wasAccel = self.mw.pm.glMode() != "software"
-            wantAccel = f.hwAccel.isChecked()
+            wantAccel = self.form.hwAccel.isChecked()
             if wasAccel != wantAccel:
                 if wantAccel:
                     self.mw.pm.setGlMode("auto")
@@ -109,16 +106,16 @@ class Preferences(QDialog):
                 showInfo(_("Changes will take effect when you restart Anki."))
 
         qc = d.conf
-        qc['dueCounts'] = f.showProgress.isChecked()
-        qc['estTimes'] = f.showEstimates.isChecked()
-        qc['newSpread'] = f.newSpread.currentIndex()
-        qc['nightMode'] = f.nightMode.isChecked()
-        qc['timeLim'] = f.timeLimit.value()*60
-        qc['collapseTime'] = f.lrnCutoff.value()*60
-        qc['addToCur'] = not f.useCurrent.currentIndex()
-        qc['dayLearnFirst'] = f.dayLearnFirst.isChecked()
+        qc['dueCounts'] = self.form.showProgress.isChecked()
+        qc['estTimes'] = self.form.showEstimates.isChecked()
+        qc['newSpread'] = self.form.newSpread.currentIndex()
+        qc['nightMode'] = self.form.nightMode.isChecked()
+        qc['timeLim'] = self.form.timeLimit.value()*60
+        qc['collapseTime'] = self.form.lrnCutoff.value()*60
+        qc['addToCur'] = not self.form.useCurrent.currentIndex()
+        qc['dayLearnFirst'] = self.form.dayLearnFirst.isChecked()
         self._updateDayCutoff()
-        self._updateSchedVer(f.newSched.isChecked())
+        self._updateSchedVer(self.form.newSched.isChecked())
         d.setMod()
 
     # Scheduler version

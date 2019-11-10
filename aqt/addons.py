@@ -46,8 +46,7 @@ class AddonManager:
     def __init__(self, mw):
         self.mw = mw
         self.dirty = False
-        f = self.mw.form
-        f.actionAdd_ons.triggered.connect(self.onAddonsDialog)
+        self.mw.form.actionAdd_ons.triggered.connect(self.onAddonsDialog)
         sys.path.insert(0, self.addonsFolder())
 
     def allAddons(self):
@@ -101,15 +100,15 @@ When loading '%(name)s':
     def addonMeta(self, dir):
         path = self._addonMetaPath(dir)
         try:
-            with open(path, encoding="utf8") as f:
-                return json.load(f)
+            with open(path, encoding="utf8") as file:
+                return json.load(file)
         except:
             return dict()
 
     def writeAddonMeta(self, dir, meta):
         path = self._addonMetaPath(dir)
-        with open(path, "w", encoding="utf8") as f:
-            json.dump(meta, f)
+        with open(path, "w", encoding="utf8") as file:
+            json.dump(meta, file)
 
     def isEnabled(self, dir):
         meta = self.addonMeta(dir)
@@ -121,7 +120,7 @@ When loading '%(name)s':
         if enabled is True:
             conflicting = self._disableConflicting(dir)
             if conflicting:
-                addons = ", ".join(self.addonName(f) for f in conflicting)
+                addons = ", ".join(self.addonName(file) for file in conflicting)
                 showInfo(
                     _("The following add-ons are incompatible with %(name)s \
 and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addons),
@@ -174,8 +173,8 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
 
     def readManifestFile(self, zfile):
         try:
-            with zfile.open("manifest.json") as f:
-                data = json.loads(f.read())
+            with zfile.open("manifest.json") as file:
+                data = json.loads(file.read())
             jsonschema.validate(data, self._manifest_schema)
             # build new manifest from recognized keys
             schema = self._manifest_schema["properties"]
@@ -363,16 +362,16 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
     def addonConfigDefaults(self, dir):
         path = os.path.join(self.addonsFolder(dir), "config.json")
         try:
-            with open(path, encoding="utf8") as f:
-                return json.load(f)
+            with open(path, encoding="utf8") as file:
+                return json.load(file)
         except:
             return None
 
     def addonConfigHelp(self, dir):
         path = os.path.join(self.addonsFolder(dir), "config.md")
         if os.path.exists(path):
-            with open(path, encoding="utf-8") as f:
-                return markdown.markdown(f.read())
+            with open(path, encoding="utf-8") as file:
+                return markdown.markdown(file.read())
         else:
             return ""
 
@@ -460,16 +459,16 @@ class AddonsDialog(QDialog):
 
         super().__init__(self.mw)
 
-        f = self.form = aqt.forms.addons.Ui_Dialog()
-        f.setupUi(self)
-        f.getAddons.clicked.connect(self.onGetAddons)
-        f.installFromFile.clicked.connect(self.onInstallFiles)
-        f.checkForUpdates.clicked.connect(self.onCheckForUpdates)
-        f.toggleEnabled.clicked.connect(self.onToggleEnabled)
-        f.viewPage.clicked.connect(self.onViewPage)
-        f.viewFiles.clicked.connect(self.onViewFiles)
-        f.delete_2.clicked.connect(self.onDelete)
-        f.config.clicked.connect(self.onConfig)
+        self.form = aqt.forms.addons.Ui_Dialog()
+        self.form.setupUi(self)
+        self.form.getAddons.clicked.connect(self.onGetAddons)
+        self.form.installFromFile.clicked.connect(self.onInstallFiles)
+        self.form.checkForUpdates.clicked.connect(self.onCheckForUpdates)
+        self.form.toggleEnabled.clicked.connect(self.onToggleEnabled)
+        self.form.viewPage.clicked.connect(self.onViewPage)
+        self.form.viewFiles.clicked.connect(self.onViewFiles)
+        self.form.delete_2.clicked.connect(self.onDelete)
+        self.form.config.clicked.connect(self.onConfig)
         self.form.addonList.itemDoubleClicked.connect(self.onConfig)
         self.form.addonList.currentRowChanged.connect(self._onAddonItemSelected)
         self.setAcceptDrops(True)

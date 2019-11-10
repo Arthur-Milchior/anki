@@ -68,13 +68,13 @@ class View:
 
 
     def _load_template(self):
-        f = open(self.template_file, 'r')
+        file = open(self.template_file, 'r')
         try:
-            template = f.read()
+            template = file.read()
             if self.template_encoding:
                 template = str(template, self.template_encoding)
         finally:
-            f.close()
+            file.close()
         return template
 
     def get_template_name(self, name=None):

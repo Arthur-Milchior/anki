@@ -37,9 +37,8 @@ class DeckConf(QDialog):
 
     def setupCombos(self):
         import anki.consts as cs
-        f = self.form
-        f.newOrder.addItems(list(cs.newCardOrderLabels().values()))
-        f.newOrder.currentIndexChanged.connect(self.onNewOrderChanged)
+        self.form.newOrder.addItems(list(cs.newCardOrderLabels().values()))
+        self.form.newOrder.currentIndexChanged.connect(self.onNewOrderChanged)
 
     # Conf list
     ######################################################################
@@ -168,43 +167,42 @@ class DeckConf(QDialog):
         self.conf = self.mw.col.decks.confForDid(self.deck['id'])
         # new
         conf = self.conf['new']
-        f = self.form
-        f.lrnSteps.setText(self.listToUser(conf['delays']))
-        f.lrnGradInt.setValue(conf['ints'][0])
-        f.lrnEasyInt.setValue(conf['ints'][1])
-        f.lrnEasyInt.setValue(conf['ints'][1])
-        f.lrnFactor.setValue(conf['initialFactor']/10.0)
-        f.newOrder.setCurrentIndex(conf['order'])
-        f.newPerDay.setValue(conf['perDay'])
-        f.bury.setChecked(conf.get("bury", True))
-        f.newplim.setText(self.parentLimText('new'))
+        self.form.lrnSteps.setText(self.listToUser(conf['delays']))
+        self.form.lrnGradInt.setValue(conf['ints'][0])
+        self.form.lrnEasyInt.setValue(conf['ints'][1])
+        self.form.lrnEasyInt.setValue(conf['ints'][1])
+        self.form.lrnFactor.setValue(conf['initialFactor']/10.0)
+        self.form.newOrder.setCurrentIndex(conf['order'])
+        self.form.newPerDay.setValue(conf['perDay'])
+        self.form.bury.setChecked(conf.get("bury", True))
+        self.form.newplim.setText(self.parentLimText('new'))
         # rev
         conf = self.conf['rev']
-        f.revPerDay.setValue(conf['perDay'])
-        f.easyBonus.setValue(conf['ease4']*100)
-        f.fi1.setValue(conf['ivlFct']*100)
-        f.maxIvl.setValue(conf['maxIvl'])
-        f.revplim.setText(self.parentLimText('rev'))
-        f.buryRev.setChecked(conf.get("bury", True))
-        f.hardFactor.setValue(int(conf.get("hardFactor", 1.2)*100))
+        self.form.revPerDay.setValue(conf['perDay'])
+        self.form.easyBonus.setValue(conf['ease4']*100)
+        self.form.fi1.setValue(conf['ivlFct']*100)
+        self.form.maxIvl.setValue(conf['maxIvl'])
+        self.form.revplim.setText(self.parentLimText('rev'))
+        self.form.buryRev.setChecked(conf.get("bury", True))
+        self.form.hardFactor.setValue(int(conf.get("hardFactor", 1.2)*100))
         if self.mw.col.schedVer() == 1:
-            f.hardFactor.setVisible(False)
-            f.hardFactorLabel.setVisible(False)
+            self.form.hardFactor.setVisible(False)
+            self.form.hardFactorLabel.setVisible(False)
         # lapse
         conf = self.conf['lapse']
-        f.lapSteps.setText(self.listToUser(conf['delays']))
-        f.lapMult.setValue(conf['mult']*100)
-        f.lapMinInt.setValue(conf['minInt'])
-        f.leechThreshold.setValue(conf['leechFails'])
-        f.leechAction.setCurrentIndex(conf['leechAction'])
+        self.form.lapSteps.setText(self.listToUser(conf['delays']))
+        self.form.lapMult.setValue(conf['mult']*100)
+        self.form.lapMinInt.setValue(conf['minInt'])
+        self.form.leechThreshold.setValue(conf['leechFails'])
+        self.form.leechAction.setCurrentIndex(conf['leechAction'])
         # general
         conf = self.conf
-        f.maxTaken.setValue(conf['maxTaken'])
-        f.showTimer.setChecked(conf.get('timer', 0))
-        f.autoplaySounds.setChecked(conf['autoplay'])
-        f.replayQuestion.setChecked(conf.get('replayq', True))
+        self.form.maxTaken.setValue(conf['maxTaken'])
+        self.form.showTimer.setChecked(conf.get('timer', 0))
+        self.form.autoplaySounds.setChecked(conf['autoplay'])
+        self.form.replayQuestion.setChecked(conf.get('replayq', True))
         # description
-        f.desc.setPlainText(self.deck['desc'])
+        self.form.desc.setPlainText(self.deck['desc'])
 
     def onRestore(self):
         self.mw.progress.start()
@@ -251,14 +249,13 @@ class DeckConf(QDialog):
     def saveConf(self):
         # new
         conf = self.conf['new']
-        f = self.form
-        self.updateList(conf, 'delays', f.lrnSteps)
-        conf['ints'][0] = f.lrnGradInt.value()
-        conf['ints'][1] = f.lrnEasyInt.value()
-        conf['initialFactor'] = f.lrnFactor.value()*10
-        conf['order'] = f.newOrder.currentIndex()
-        conf['perDay'] = f.newPerDay.value()
-        conf['bury'] = f.bury.isChecked()
+        self.updateList(conf, 'delays', self.form.lrnSteps)
+        conf['ints'][0] = self.form.lrnGradInt.value()
+        conf['ints'][1] = self.form.lrnEasyInt.value()
+        conf['initialFactor'] = self.form.lrnFactor.value()*10
+        conf['order'] = self.form.newOrder.currentIndex()
+        conf['perDay'] = self.form.newPerDay.value()
+        conf['bury'] = self.form.bury.isChecked()
         if self._origNewOrder != conf['order']:
             # order of current deck has changed, so have to resort
             if conf['order'] == NEW_CARDS_RANDOM:
@@ -267,27 +264,27 @@ class DeckConf(QDialog):
                 self.mw.col.sched.orderCards(self.deck['id'])
         # rev
         conf = self.conf['rev']
-        conf['perDay'] = f.revPerDay.value()
-        conf['ease4'] = f.easyBonus.value()/100.0
-        conf['ivlFct'] = f.fi1.value()/100.0
-        conf['maxIvl'] = f.maxIvl.value()
-        conf['bury'] = f.buryRev.isChecked()
-        conf['hardFactor'] = f.hardFactor.value()/100.0
+        conf['perDay'] = self.form.revPerDay.value()
+        conf['ease4'] = self.form.easyBonus.value()/100.0
+        conf['ivlFct'] = self.form.fi1.value()/100.0
+        conf['maxIvl'] = self.form.maxIvl.value()
+        conf['bury'] = self.form.buryRev.isChecked()
+        conf['hardFactor'] = self.form.hardFactor.value()/100.0
         # lapse
         conf = self.conf['lapse']
-        self.updateList(conf, 'delays', f.lapSteps, minSize=0)
-        conf['mult'] = f.lapMult.value()/100.0
-        conf['minInt'] = f.lapMinInt.value()
-        conf['leechFails'] = f.leechThreshold.value()
-        conf['leechAction'] = f.leechAction.currentIndex()
+        self.updateList(conf, 'delays', self.form.lapSteps, minSize=0)
+        conf['mult'] = self.form.lapMult.value()/100.0
+        conf['minInt'] = self.form.lapMinInt.value()
+        conf['leechFails'] = self.form.leechThreshold.value()
+        conf['leechAction'] = self.form.leechAction.currentIndex()
         # general
         conf = self.conf
-        conf['maxTaken'] = f.maxTaken.value()
-        conf['timer'] = f.showTimer.isChecked() and 1 or 0
-        conf['autoplay'] = f.autoplaySounds.isChecked()
-        conf['replayq'] = f.replayQuestion.isChecked()
+        conf['maxTaken'] = self.form.maxTaken.value()
+        conf['timer'] = self.form.showTimer.isChecked() and 1 or 0
+        conf['autoplay'] = self.form.autoplaySounds.isChecked()
+        conf['replayq'] = self.form.replayQuestion.isChecked()
         # description
-        self.deck['desc'] = f.desc.toPlainText()
+        self.deck['desc'] = self.form.desc.toPlainText()
         self.mw.col.decks.save(self.deck)
         self.mw.col.decks.save(self.conf)
 

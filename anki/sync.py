@@ -432,7 +432,7 @@ from notes where %s""" % d)
         self.col.db.executemany(
             "insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)",
             rows)
-        self.col.updateFieldCache([f[0] for f in rows])
+        self.col.updateFieldCache([note[0] for note in rows])
 
     # Col config
     ##########################################################################
