@@ -46,30 +46,30 @@ class Syncer:
 
         # step 1: login & metadata
         runHook("sync", "login")
-        meta = self.server.meta()
+        serverMeta = self.server.meta()
         self.col.log("rmeta", meta)
-        if not meta:
+        if not serverMeta:
             return "badAuth"
         # server requested abort?
-        self.syncMsg = meta['msg']
-        if not meta['cont']:
+        self.syncMsg = serverMeta['msg']
+        if not serverMeta['cont']:
             return "serverAbort"
         else:
             # don't abort, but if 'msg' is not blank, gui should show 'msg'
             # after sync finishes and wait for confirmation before hiding
             pass
-        rscm = meta['scm']
-        rts = meta['ts']
-        self.rmod = meta['mod']
-        self.maxUsn = meta['usn']
-        self.uname = meta.get("uname", "")
-        self.hostNum = meta.get("hostNum")
-        meta = self.meta()
-        self.col.log("lmeta", meta)
-        self.lmod = meta['mod']
-        self.minUsn = meta['usn']
-        lscm = meta['scm']
-        lts = meta['ts']
+        rscm = serverMeta['scm']
+        rts = serverMeta['ts']
+        self.rmod = serverMeta['mod']
+        self.maxUsn = serverMeta['usn']
+        self.uname = serverMeta.get("uname", "")
+        self.hostNum = serverMeta.get("hostNum")
+        localMeta = self.meta()
+        self.col.log("lmeta", localMeta)
+        self.lmod = localMeta['mod']
+        self.minUsn = localMeta['usn']
+        lscm = localMeta['scm']
+        lts = localMeta['ts']
         if abs(rts - lts) > 300:
             self.col.log("clock off")
             return "clockOff"
