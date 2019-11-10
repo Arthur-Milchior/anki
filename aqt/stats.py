@@ -73,8 +73,8 @@ class DeckStats(QDialog):
         self.form.web.page().printToPdf(path)
         tooltip(_("Saved."))
 
-    def changePeriod(self, n):
-        self.period = n
+    def changePeriod(self, period):
+        self.period = period
         self.refresh()
 
     def changeScope(self, type):

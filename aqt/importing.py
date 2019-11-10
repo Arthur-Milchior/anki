@@ -28,22 +28,22 @@ class ChangeMap(QDialog):
         self.model = model
         self.frm = aqt.forms.changemap.Ui_ChangeMap()
         self.frm.setupUi(self)
-        n = 0
+        count = 0
         setCurrent = False
         for field in self.model['flds']:
             item = QListWidgetItem(_("Map to %s") % field['name'])
             self.frm.fields.addItem(item)
             if current == field['name']:
                 setCurrent = True
-                self.frm.fields.setCurrentRow(n)
-            n += 1
+                self.frm.fields.setCurrentRow(count)
+            count += 1
         self.frm.fields.addItem(QListWidgetItem(_("Map to Tags")))
         self.frm.fields.addItem(QListWidgetItem(_("Ignore field")))
         if not setCurrent:
             if current == "_tags":
-                self.frm.fields.setCurrentRow(n)
+                self.frm.fields.setCurrentRow(count)
             else:
-                self.frm.fields.setCurrentRow(n+1)
+                self.frm.fields.setCurrentRow(count+1)
         self.field = None
 
     def getField(self):
@@ -231,17 +231,17 @@ you can enter it here. Use \\t to represent tab."""),
             self.grid.addWidget(QLabel(text), num, 1)
             button = QPushButton(_("Change"))
             self.grid.addWidget(button, num, 2)
-            button.clicked.connect(lambda _, s=self,n=num: s.changeMappingNum(n))
+            button.clicked.connect(lambda _, s=self,num=num: s.changeMappingNum(num))
 
-    def changeMappingNum(self, n):
-        f = ChangeMap(self.mw, self.importer.model, self.mapping[n]).getField()
+    def changeMappingNum(self, num):
+        f = ChangeMap(self.mw, self.importer.model, self.mapping[num]).getField()
         try:
             # make sure we don't have it twice
             index = self.mapping.index(f)
             self.mapping[index] = None
         except ValueError:
             pass
-        self.mapping[n] = f
+        self.mapping[num] = f
         if getattr(self.importer, "delimiter", False):
             self.savedDelimiter = self.importer.delimiter
             def updateDelim():
@@ -416,10 +416,10 @@ def _replaceWithApkg(mw, file, backup):
     # unwanted media. in the future we might also want to deduplicate this
     # step
     d = os.path.join(mw.pm.profileFolder(), "collection.media")
-    for n, (cStr, file) in enumerate(
+    for index, (cStr, file) in enumerate(
             json.loads(z.read("media").decode("utf8")).items()):
         mw.progress.update(ngettext("Processed %d media file",
-                                    "Processed %d media files", n) % n)
+                                    "Processed %d media files", index) % index)
         size = z.getinfo(cStr).file_size
         dest = os.path.join(d, unicodedata.normalize("NFC", file))
         # if we have a matching file size

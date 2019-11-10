@@ -543,8 +543,8 @@ class MenuList:
         start = items[0].title
         end = items[-1].title
         prefix = os.path.commonprefix([start.upper(), end.upper()])
-        n = len(prefix)+1
-        return "{}-{}".format(start[:n].upper(), end[:n].upper())
+        length = len(prefix)+1
+        return "{}-{}".format(start[:length].upper(), end[:length].upper())
 
 class SubMenu(MenuList):
     def __init__(self, title):

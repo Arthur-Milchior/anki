@@ -79,7 +79,7 @@ class StudyDeck(QDialog):
     def redraw(self, filt, focus=None):
         self.filt = filt
         self.focus = focus
-        self.names = [n for n in self.origNames if self._matches(n, filt)]
+        self.names = [name for name in self.origNames if self._matches(name, filt)]
         l = self.form.list
         l.clear()
         l.addItems(self.names)
@@ -127,10 +127,10 @@ class StudyDeck(QDialog):
             default = self.form.filter.text()
         else:
             default = self.names[self.form.list.currentRow()]
-        n = getOnlyText(_("New deck name:"), default=default)
-        if n:
-            self.mw.col.decks.id(n)
-            self.name = n
+        name = getOnlyText(_("New deck name:"), default=default)
+        if name:
+            self.mw.col.decks.id(name)
+            self.name = name
             # make sure we clean up reset hook when manually exiting
             remHook('reset', self.onReset)
             QDialog.accept(self)

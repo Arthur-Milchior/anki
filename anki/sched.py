@@ -985,9 +985,9 @@ due = odue, odue = 0, odid = 0, usn = ? where %s""" % (lim),
         elif o == DYN_LAPSES:
             t = "lapses desc"
         elif o == DYN_ADDED:
-            t = "n.id"
+            t = "note.id"
         elif o == DYN_REVADDED:
-            t = "n.id desc"
+            t = "note.id desc"
         elif o == DYN_DUE:
             t = "card.due"
         elif o == DYN_DUEPRIORITY:

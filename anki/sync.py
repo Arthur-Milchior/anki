@@ -832,10 +832,10 @@ class MediaSyncer:
             self.col.log("received %d files"%cnt)
             fnames = fnames[cnt:]
 
-            n = self.downloadCount
+            count = self.downloadCount
             runHook("syncMsg", ngettext(
-                "%d media file downloaded", "%d media files downloaded", n)
-                    % n)
+                "%d media file downloaded", "%d media files downloaded", count)
+                    % count)
 
 # Remote media syncing
 ##########################################################################

@@ -26,13 +26,13 @@ class TagLimit(QDialog):
     def rebuildTagList(self):
         usertags = self.mw.col.tags.byDeck(self.deck['id'], True)
         yes = self.deck.get("activeTags", [])
-        no = self.deck.get("inactiveTags", [])
+        noes = self.deck.get("inactiveTags", [])
         yesHash = {}
         noHash = {}
         for y in yes:
             yesHash[y] = True
-        for n in no:
-            noHash[n] = True
+        for no in noes:
+            noHash[no] = True
         groupedTags = []
         usertags.sort()
         groupedTags.append(usertags)
@@ -65,10 +65,9 @@ class TagLimit(QDialog):
 
     def accept(self):
         self.hide()
-        n = 0
         # gather yes/no tags
         yes = []
-        no = []
+        noes = []
         for index in range(self.dialog.activeList.count()):
             # active
             if self.dialog.activeCheck.isChecked():
@@ -80,10 +79,10 @@ class TagLimit(QDialog):
             item = self.dialog.inactiveList.item(index)
             idx = self.dialog.inactiveList.indexFromItem(item)
             if self.dialog.inactiveList.selectionModel().isSelected(idx):
-                no.append(self.tags[index])
+                noes.append(self.tags[index])
         # save in the deck for future invocations
         self.deck['activeTags'] = yes
-        self.deck['inactiveTags'] = no
+        self.deck['inactiveTags'] = noes
         self.mw.col.decks.save(self.deck)
         # build query string
         self.tags = ""
@@ -92,9 +91,9 @@ class TagLimit(QDialog):
             for req in yes:
                 arr.append("tag:'%s'" % req)
             self.tags += "(" + " or ".join(arr) + ")"
-        if no:
+        if noes:
             arr = []
-            for req in no:
+            for req in noes:
                 arr.append("-tag:'%s'" % req)
             self.tags += " " + " ".join(arr)
         saveGeom(self, "tagLimit")

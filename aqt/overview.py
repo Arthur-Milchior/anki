@@ -165,9 +165,9 @@ to their original deck.""")
         counts = list(self.mw.col.sched.counts())
         finished = not sum(counts)
         if self.mw.col.schedVer() == 1:
-            for n in range(len(counts)):
-                if counts[n] >= 1000:
-                    counts[n] = "1000+"
+            for index in range(len(counts)):
+                if counts[index] >= 1000:
+                    counts[index] = "1000+"
         but = self.mw.button
         if finished:
             return '<div style="white-space: pre-wrap;">%s</div>' % (

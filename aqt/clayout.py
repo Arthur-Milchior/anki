@@ -79,8 +79,8 @@ class CardLayout(QDialog):
         for i in range(1,9):
             QShortcut(QKeySequence("Ctrl+%d" % i), self, activated=lambda i=i: self.selectCard(i))
 
-    def selectCard(self, n):
-        self.ord = n-1
+    def selectCard(self, number):
+        self.ord = number-1
         self.redraw()
 
     def setupTopArea(self):
@@ -354,10 +354,10 @@ Please create a new card type first."""))
         self.redraw()
 
     def onReorder(self):
-        n = len(self.cards)
+        numberOfCard = len(self.cards)
         cur = self.card.template()['ord']+1
         pos = getOnlyText(
-            _("Enter new card position (1...%s):") % n,
+            _("Enter new card position (1...%s):") % numberOfCard,
             default=str(cur))
         if not pos:
             return
@@ -365,7 +365,7 @@ Please create a new card type first."""))
             pos = int(pos)
         except ValueError:
             return
-        if pos < 1 or pos > n:
+        if pos < 1 or pos > numberOfCard:
             return
         if pos == cur:
             return
@@ -375,12 +375,12 @@ Please create a new card type first."""))
         self.redraw()
 
     def _newCardName(self):
-        n = len(self.cards) + 1
+        cardUserIndex = len(self.cards) + 1
         while 1:
-            name = _("Card %d") % n
+            name = _("Card %d") % cardUserIndex
             if name not in [card.template()['name'] for card in self.cards]:
                 break
-            n += 1
+            cardUserIndex += 1
         return name
 
     def onAddCard(self):

@@ -398,27 +398,27 @@ group by day order by day""" % (self._limit(), lim),
         totd = {}
         alltot = []
         allcnt = 0
-        for (n, col, lab) in spec:
-            totcnt[n] = 0
-            totd[n] = []
+        for (index, col, lab) in spec:
+            totcnt[index] = 0
+            totd[index] = []
         for row in data:
-            for (n, col, lab) in spec:
-                if n not in sep:
-                    sep[n] = []
-                sep[n].append((row[0], row[n]))
-                totcnt[n] += row[n]
-                allcnt += row[n]
-                totd[n].append((row[0], totcnt[n]))
+            for (index, col, lab) in spec:
+                if index not in sep:
+                    sep[index] = []
+                sep[index].append((row[0], row[index]))
+                totcnt[index] += row[index]
+                allcnt += row[index]
+                totd[index].append((row[0], totcnt[index]))
             alltot.append((row[0], allcnt))
         ret = []
-        for (n, col, lab) in spec:
-            if len(totd[n]) and totcnt[n]:
+        for (index, col, lab) in spec:
+            if len(totd[index]) and totcnt[index]:
                 # bars
-                ret.append(dict(data=sep[n], color=col, label=lab))
+                ret.append(dict(data=sep[index], color=col, label=lab))
                 # lines
                 ret.append(dict(
-                    data=totd[n], color=col, label=None, yaxis=2,
-                bars={'show': False}, lines=dict(show=True), stack=-n))
+                    data=totd[index], color=col, label=None, yaxis=2,
+                bars={'show': False}, lines=dict(show=True), stack=-index))
         return (ret, alltot)
 
     def _added(self, num=7, chunk=1):
@@ -558,8 +558,8 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = {QUEUE
                 ease += 5
             elif type == CARD_DUE:
                 ease += 10
-            n = types[type]
-            d[n].append((ease, cnt))
+            index = types[type]
+            d[index].append((ease, cnt))
         ticks = [[1,1],[2,2],[3,3], # [4,4]
                  [6,1],[7,2],[8,3],[9,4],
                  [11, 1],[12,2],[13,3],[14,4]]

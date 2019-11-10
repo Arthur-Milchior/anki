@@ -1052,9 +1052,9 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
         elif o == DYN_LAPSES:
             t = "lapses desc"
         elif o == DYN_ADDED:
-            t = "n.id"
+            t = "note.id"
         elif o == DYN_REVADDED:
-            t = "n.id desc"
+            t = "note.id desc"
         elif o == DYN_DUE:
             t = "card.due"
         elif o == DYN_DUEPRIORITY:

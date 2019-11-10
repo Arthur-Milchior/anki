@@ -229,16 +229,16 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
         self.restoreUserFiles(dir)
 
         # extract
-        for n in zfile.namelist():
-            if n.endswith("/"):
+        for name in zfile.namelist():
+            if name.endswith("/"):
                 # folder; ignore
                 continue
 
-            path = os.path.join(base, n)
+            path = os.path.join(base, name)
             # skip existing user files
-            if os.path.exists(path) and n.startswith("user_files/"):
+            if os.path.exists(path) and name.startswith("user_files/"):
                 continue
-            zfile.extract(n, base)
+            zfile.extract(name, base)
 
     # true on success
     def deleteAddon(self, dir):
@@ -285,16 +285,16 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
         log = []
         errs = []
         self.mw.progress.start(immediate=True)
-        for n in ids:
-            ret = download(self.mw, n)
+        for id in ids:
+            ret = download(self.mw, id)
             if ret[0] == "error":
-                errs.append(_("Error downloading %(id)s: %(error)s") % dict(id=n, error=ret[1]))
+                errs.append(_("Error downloading %(id)s: %(error)s") % dict(id=id, error=ret[1]))
                 continue
             data, fname = ret
             fname = fname.replace("_", " ")
             name = os.path.splitext(fname)[0]
             ret = self.install(io.BytesIO(data),
-                               manifest={"package": str(n), "name": name,
+                               manifest={"package": str(id), "name": name,
                                          "mod": intTime()})
             if ret[0] is False:
                 if ret[1] == "zip":
@@ -304,7 +304,7 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
                 else:
                     msg = "Unknown error: {}".format(ret[1])
                 errs.append(_("Error downloading %(id)s: %(error)s") % dict(
-                    id=n, error=msg))
+                    id=id, error=msg))
             else:
                 log.append(_("Downloaded %(fname)s" % dict(fname=name)))
                 if ret[2]:
@@ -675,7 +675,7 @@ class GetAddons(QDialog):
     def accept(self):
         # get codes
         try:
-            ids = [int(n) for n in self.form.code.text().split()]
+            ids = [int(addonNumber) for addonNumber in self.form.code.text().split()]
         except ValueError:
             showWarning(_("Invalid code."))
             return

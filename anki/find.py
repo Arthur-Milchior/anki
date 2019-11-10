@@ -62,7 +62,7 @@ class Finder:
         else:
             preds = "1"
         sql = """
-select distinct(n.id) from cards card, notes n where card.nid=n.id and """+preds
+select distinct(note.id) from cards card, notes note where card.nid=note.id and """+preds
         try:
             res = self.col.db.list(sql, *args)
         except:
@@ -187,10 +187,10 @@ select distinct(n.id) from cards card, notes n where card.nid=n.id and """+preds
 
     def _query(self, preds, order):
         # can we skip the note table?
-        if "n." not in preds and "n." not in order:
+        if "note." not in preds and "note." not in order:
             sql = "select card.id from cards card where "
         else:
-            sql = "select card.id from cards card, notes n where card.nid=n.id and "
+            sql = "select card.id from cards card, notes note where card.nid=note.id and "
         # combine with preds
         if preds:
             sql += "(" + preds + ")"
@@ -215,11 +215,11 @@ select distinct(n.id) from cards card, notes n where card.nid=n.id and """+preds
         sort = None
         if type.startswith("note"):
             if type == "noteCrt":
-                sort = "n.id, card.ord"
+                sort = "note.id, card.ord"
             elif type == "noteMod":
-                sort = "n.mod, card.ord"
+                sort = "note.mod, card.ord"
             elif type == "noteFld":
-                sort = "n.sfld collate nocase, card.ord"
+                sort = "note.sfld collate nocase, card.ord"
         elif type.startswith("card"):
             if type == "cardMod":
                 sort = "card.mod"
@@ -235,7 +235,7 @@ select distinct(n.id) from cards card, notes n where card.nid=n.id and """+preds
                 sort = "card.ivl"
         if not sort:
             # deck has invalid sort order; revert to noteCrt
-            sort = "n.id, card.ord"
+            sort = "note.id, card.ord"
         return " order by " + sort, self.col.conf['sortBackwards']
 
     # Commands
@@ -244,25 +244,25 @@ select distinct(n.id) from cards card, notes n where card.nid=n.id and """+preds
     def _findTag(self, args):
         (val, args) = args
         if val == "none":
-            return 'n.tags = ""'
+            return 'note.tags = ""'
         val = val.replace("*", "%")
         if not val.startswith("%"):
             val = "% " + val
         if not val.endswith("%") or val.endswith('\\%'):
             val += " %"
         args.append(val)
-        return "n.tags like ? escape '\\'"
+        return "note.tags like ? escape '\\'"
 
     def _findCardState(self, args):
         (val, args) = args
         if val in ("review", "new", "learn"):
             if val == "review":
-                n = CARD_DUE
+                note = CARD_DUE
             elif val == "new":
-                n = CARD_NEW
+                note = CARD_NEW
             else:
                 return f"queue in ({QUEUE_LRN}, {QUEUE_DAY_LRN})"
-            return "type = %d" % n
+            return "type = %d" % note
         elif val == "suspended":
             return f"card.queue = {QUEUE_SUSPENDED}"
         elif val == "buried":
@@ -344,13 +344,13 @@ select distinct(n.id) from cards card, notes n where card.nid=n.id and """+preds
         val = val.replace("*", "%")
         args.append("%"+val+"%")
         args.append("%"+val+"%")
-        return "(n.sfld like ? escape '\\' or n.flds like ? escape '\\')"
+        return "(note.sfld like ? escape '\\' or note.flds like ? escape '\\')"
 
     def _findNids(self, args):
         (val, args) = args
         if re.search("[^0-9,]", val):
             return
-        return "n.id in (%s)" % val
+        return "note.id in (%s)" % val
 
     def _findCids(self, args):
         (val, args) = args
@@ -362,7 +362,7 @@ select distinct(n.id) from cards card, notes n where card.nid=n.id and """+preds
         (val, args) = args
         if re.search("[^0-9]", val):
             return
-        return "n.mid = %s" % val
+        return "note.mid = %s" % val
 
     def _findModel(self, args):
         (val, args) = args
@@ -371,7 +371,7 @@ select distinct(n.id) from cards card, notes n where card.nid=n.id and """+preds
         for m in self.col.models.all():
             if unicodedata.normalize("NFC", m['name'].lower()) == val:
                 ids.append(m['id'])
-        return "n.mid in %s" % ids2str(ids)
+        return "note.mid in %s" % ids2str(ids)
 
     def _findDeck(self, args):
         # if searching for all decks, skip
@@ -422,9 +422,9 @@ select distinct(n.id) from cards card, notes n where card.nid=n.id and """+preds
                         # if the user has asked for a cloze card, we want
                         # to give all ordinals, so we just limit to the
                         # model instead
-                        lims.append("(n.mid = %s)" % m['id'])
+                        lims.append("(note.mid = %s)" % m['id'])
                     else:
-                        lims.append("(n.mid = %s and card.ord = %s)" % (
+                        lims.append("(note.mid = %s and card.ord = %s)" % (
                             m['id'], t['ord']))
         return " or ".join(lims)
 
@@ -458,7 +458,7 @@ where mid in %s and flds like ? escape '\\'""" % (
                 return
         if not nids:
             return "0"
-        return "n.id in %s" % ids2str(nids)
+        return "note.id in %s" % ids2str(nids)
 
     def _findDupes(self, args):
         # caller must call stripHTMLMedia on passed val
@@ -474,7 +474,7 @@ where mid in %s and flds like ? escape '\\'""" % (
                 mid, csum):
             if stripHTMLMedia(splitFields(flds)[0]) == val:
                 nids.append(nid)
-        return "n.id in %s" % ids2str(nids)
+        return "note.id in %s" % ids2str(nids)
 
 # Find and replace
 ##########################################################################

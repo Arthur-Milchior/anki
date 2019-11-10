@@ -115,14 +115,14 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""):
         data = []
         for orig in notes:
             # create a foreign note object
-            n = ForeignNote()
-            n.fields = []
+            note = ForeignNote()
+            note.fields = []
             for f in fields:
                 fld = self._mungeField(orig.get(f, ''))
-                n.fields.append(fld)
-            n.tags = orig['tags']
-            n.cards = orig.get('cards', {})
-            data.append(n)
+                note.fields.append(fld)
+            note.tags = orig['tags']
+            note.cards = orig.get('cards', {})
+            data.append(note)
         # add a basic model
         if not model:
             model = addBasicModel(self.col)
@@ -170,24 +170,25 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""):
         notes = list(notes.values())
         for orig in notes:
             # create a foreign note object
-            n = ForeignNote()
-            n.fields = []
+            note = ForeignNote()
+            note.fields = []
             fld = orig.get("text", "")
             fld = re.sub("\r?\n", "<br>", fld)
-            state = dict(n=1)
+            state = 1
             def repl(match):
                 # pylint: disable=cell-var-from-loop
                 # replace [...] with cloze refs
-                res = ("{{c%d::%s}}" % (state['n'], match.group(1)))
-                state['n'] += 1
+                nonlocal state
+                res = ("{{c%d::%s}}" % (state, match.group(1)))
+                state += 1
                 return res
             fld = re.sub(r"\[(.+?)\]", repl, fld)
             fld = self._mungeField(fld)
-            n.fields.append(fld)
-            n.fields.append("") # extra
-            n.tags = orig['tags']
-            n.cards = orig.get('cards', {})
-            data.append(n)
+            note.fields.append(fld)
+            note.fields.append("") # extra
+            note.tags = orig['tags']
+            note.cards = orig.get('cards', {})
+            data.append(note)
         # add cloze model
         model = addClozeModel(self.col)
         model['name'] = "Mnemosyne-Cloze"

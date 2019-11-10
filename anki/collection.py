@@ -77,8 +77,7 @@ class _Collection:
             self.setMod()
 
     def name(self):
-        n = os.path.splitext(os.path.basename(self.path))[0]
-        return n
+        return os.path.splitext(os.path.basename(self.path))[0]
 
     # Scheduler
     ##########################################################################
@@ -506,8 +505,8 @@ select id from notes where id in %s and id not in (select nid from cards)""" %
     def emptyCardReport(self, cids):
         rep = ""
         for ords, cnt, flds in self.db.all("""
-select group_concat(ord+1), count(), flds from cards card, notes n
-where card.nid = n.id and card.id in %s group by nid""" % ids2str(cids)):
+select group_concat(ord+1), count(), flds from cards card, notes note
+where card.nid = note.id and card.id in %s group by nid""" % ids2str(cids)):
             rep += _("Empty card numbers: %(card)s\nFields: %(f)s\n\n") % dict(
                 card=ords, f=flds.replace("\x1f", " / "))
         return rep
@@ -706,8 +705,8 @@ where card.nid == f.id
             "update cards set queue=type,mod=?,usn=? where queue=-2 and nid=?",
             intTime(), self.usn(), card.nid)
         # and finally, update daily counts
-        n = 1 if card.queue == 3 else card.queue
-        type = ("new", "lrn", "rev")[n]
+        index = 1 if card.queue == 3 else card.queue
+        type = ("new", "lrn", "rev")[index]
         self.sched._updateStats(card, type, -1)
         self.sched.reps -= 1
         return card.id

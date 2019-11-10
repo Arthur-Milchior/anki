@@ -1063,7 +1063,7 @@ by clicking on one on the left."""))
                 for index, tmpl in enumerate(nt['tmpls']):
                     #T: name is a card type name. n it's order in the list of card type.
                     #T: this is shown in browser's filter, when seeing the list of card type of a note type.
-                    name = _("%(n)d: %(name)s") % dict(n=index+1, name=tmpl['name'])
+                    name = _("%(cardNumber)d: %(name)s") % dict(cardNumber=index+1, name=tmpl['name'])
                     subm.addItem(name, self._filterFunc(
                         "note", nt['name'], "card", str(index+1)))
 
@@ -1449,9 +1449,9 @@ where id in %s""" % ids2str(sf))
 
     def _previewStateAndMod(self):
         card = self.card
-        n = card.note()
-        n.load()
-        return (self._previewState, card.id, n.mod)
+        note = card.note()
+        note.load()
+        return (self._previewState, card.id, note.mod)
 
     # Card deletion
     ######################################################################
@@ -1591,11 +1591,11 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
     # Flags & Marking
     ######################################################################
 
-    def onSetFlag(self, n):
+    def onSetFlag(self, flagNumber):
         # flag needs toggling off?
-        if n == self.card.userFlag():
-            n = 0
-        self.col.setUserFlag(n, self.selectedCards())
+        if flagNumber == self.card.userFlag():
+            flagNumber = 0
+        self.col.setUserFlag(flagNumber, self.selectedCards())
         self.model.reset()
 
     def _updateFlagsMenu(self):

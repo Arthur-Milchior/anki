@@ -349,9 +349,9 @@ class AnkiPackageExporter(AnkiExporter):
     def _addDummyCollection(self, zip):
         path = namedtmp("dummy.anki2")
         col = Collection(path)
-        n = col.newNote()
-        n[_('Front')] = "This file requires a newer version of Anki."
-        col.addNote(n)
+        note = col.newNote()
+        note[_('Front')] = "This file requires a newer version of Anki."
+        col.addNote(note)
         col.save()
         col.close()
 

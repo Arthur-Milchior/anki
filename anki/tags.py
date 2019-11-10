@@ -71,7 +71,7 @@ class TagManager:
         self.changed = True
 
     def byDeck(self, did, children=False):
-        basequery = "select n.tags from cards card, notes n WHERE card.nid = n.id"
+        basequery = "select note.tags from cards card, notes note WHERE card.nid = note.id"
         if not children:
             query = basequery + " AND card.did=?"
             res = self.col.db.list(query, did)
@@ -112,10 +112,10 @@ class TagManager:
         nids = []
         def fix(row):
             nids.append(row[0])
-            return {'id': row[0], 't': fn(tags, row[1]), 'n':intTime(),
+            return {'id': row[0], 't': fn(tags, row[1]), 'mod':intTime(),
                 'u':self.col.usn()}
         self.col.db.executemany(
-            "update notes set tags=:t,mod=:n,usn=:u where id = :id",
+            "update notes set tags=:t,mod=:mod,usn=:u where id = :id",
             [fix(row) for row in res])
 
     def bulkRem(self, ids, tags):

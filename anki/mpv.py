@@ -217,7 +217,7 @@ class MPVBase:
         while not self._stop_event.is_set():
             if isWin:
                 try:
-                    (n, b) = win32file.ReadFile(self._sock, 4096)
+                    b = win32file.ReadFile(self._sock, 4096)[1]
                     buf += b
                 except pywintypes.error as err:
                     if err.args[0] == winerror.ERROR_NO_DATA:

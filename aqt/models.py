@@ -127,26 +127,26 @@ class Models(QDialog):
 
     def _tmpNote(self):
         self.mm.setCurrent(self.model)
-        n = self.col.newNote(forDeck=False)
-        for name in list(n.keys()):
-            n[name] = "("+name+")"
+        note = self.col.newNote(forDeck=False)
+        for name in list(note.keys()):
+            note[name] = "("+name+")"
         try:
             if "{{cloze:Text}}" in self.model['tmpls'][0]['qfmt']:
-                n['Text'] = _("This is a {{c1::sample}} cloze deletion.")
+                note['Text'] = _("This is a {{c1::sample}} cloze deletion.")
         except:
             # invalid cloze
             pass
-        return n
+        return note
 
     def onFields(self):
         from aqt.fields import FieldDialog
-        n = self._tmpNote()
-        FieldDialog(self.mw, n, parent=self)
+        note = self._tmpNote()
+        FieldDialog(self.mw, note, parent=self)
 
     def onCards(self):
         from aqt.clayout import CardLayout
-        n = self._tmpNote()
-        CardLayout(self.mw, n, ord=0, parent=self, addMode=True)
+        note = self._tmpNote()
+        CardLayout(self.mw, note, ord=0, parent=self, addMode=True)
 
     # Cleanup
     ##########################################################################

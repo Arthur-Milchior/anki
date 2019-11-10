@@ -120,8 +120,8 @@ def localTranslation():
 def _(str):
     return localTranslation().gettext(str)
 
-def ngettext(single, plural, n):
-    return localTranslation().ngettext(single, plural, n)
+def ngettext(single, plural, number):
+    return localTranslation().ngettext(single, plural, number)
 
 def langDir():
     from anki.utils import isMac

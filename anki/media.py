@@ -170,8 +170,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         base = self.cleanFilename(fname)
         (root, ext) = os.path.splitext(base)
         def repl(match):
-            n = int(match.group(1))
-            return " (%d)" % (n+1)
+            return " (%d)" % (int(match.group(1))+1)
         # find the first available name
         csum = checksum(data)
         while True:

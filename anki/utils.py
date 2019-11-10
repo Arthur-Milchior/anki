@@ -31,21 +31,21 @@ def intTime(scale=1):
     return int(time.time()*scale)
 
 timeTable = {
-    "years": lambda n: ngettext("%s year", "%s years", n),
-    "months": lambda n: ngettext("%s month", "%s months", n),
-    "days": lambda n: ngettext("%s day", "%s days", n),
-    "hours": lambda n: ngettext("%s hour", "%s hours", n),
-    "minutes": lambda n: ngettext("%s minute", "%s minutes", n),
-    "seconds": lambda n: ngettext("%s second", "%s seconds", n),
+    "years": lambda number: ngettext("%s year", "%s years", number),
+    "months": lambda number: ngettext("%s month", "%s months", number),
+    "days": lambda number: ngettext("%s day", "%s days", number),
+    "hours": lambda number: ngettext("%s hour", "%s hours", number),
+    "minutes": lambda number: ngettext("%s minute", "%s minutes", number),
+    "seconds": lambda number: ngettext("%s second", "%s seconds", number),
     }
 
 inTimeTable = {
-    "years": lambda n: ngettext("in %s year", "in %s years", n),
-    "months": lambda n: ngettext("in %s month", "in %s months", n),
-    "days": lambda n: ngettext("in %s day", "in %s days", n),
-    "hours": lambda n: ngettext("in %s hour", "in %s hours", n),
-    "minutes": lambda n: ngettext("in %s minute", "in %s minutes", n),
-    "seconds": lambda n: ngettext("in %s second", "in %s seconds", n),
+    "years": lambda number: ngettext("in %s year", "in %s years", number),
+    "months": lambda number: ngettext("in %s month", "in %s months", number),
+    "days": lambda number: ngettext("in %s day", "in %s days", number),
+    "hours": lambda number: ngettext("in %s hour", "in %s hours", number),
+    "minutes": lambda number: ngettext("in %s minute", "in %s minutes", number),
+    "seconds": lambda number: ngettext("in %s second", "in %s seconds", number),
     }
 
 def shortTimeFmt(type):
@@ -384,10 +384,10 @@ def invalidFilename(str, dirsep=True):
 
 def platDesc():
     # we may get an interrupted system call, so try this in a loop
-    n = 0
+    index = 0
     theos = "unknown"
-    while n < 100:
-        n += 1
+    while index < 100:
+        index += 1
         try:
             system = platform.system()
             if isMac:

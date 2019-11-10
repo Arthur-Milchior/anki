@@ -122,21 +122,21 @@ class NoteImporter(Importer):
         self._emptyNotes = False
         dupeCount = 0
         dupes = []
-        for n in notes:
-            for fieldIndex in range(len(n.fields)):
+        for note in notes:
+            for fieldIndex in range(len(note.fields)):
                 if not self.allowHTML:
-                    n.fields[fieldIndex] = html.escape(n.fields[fieldIndex], quote=False)
-                n.fields[fieldIndex] = n.fields[fieldIndex].strip()
+                    note.fields[fieldIndex] = html.escape(note.fields[fieldIndex], quote=False)
+                note.fields[fieldIndex] = note.fields[fieldIndex].strip()
                 if not self.allowHTML:
-                    n.fields[fieldIndex] = n.fields[fieldIndex].replace("\n", "<br>")
-                n.fields[fieldIndex] = unicodedata.normalize("NFC", n.fields[fieldIndex])
-            n.tags = [unicodedata.normalize("NFC", t) for t in n.tags]
-            fld0 = n.fields[fld0idx]
+                    note.fields[fieldIndex] = note.fields[fieldIndex].replace("\note", "<br>")
+                note.fields[fieldIndex] = unicodedata.normalize("NFC", note.fields[fieldIndex])
+            note.tags = [unicodedata.normalize("NFC", t) for t in note.tags]
+            fld0 = note.fields[fld0idx]
             csum = fieldChecksum(fld0)
             # first field must exist
             if not fld0:
                 self.log.append(_("Empty first field: %s") %
-                                " ".join(n.fields))
+                                " ".join(note.fields))
                 continue
             # earlier in import?
             if fld0 in firsts and self.importMode != addMode:
@@ -157,7 +157,7 @@ class NoteImporter(Importer):
                         # duplicate
                         found = True
                         if self.importMode == updateMode:
-                            data = self.updateData(n, id, sflds)
+                            data = self.updateData(note, id, sflds)
                             if data:
                                 updates.append(data)
                                 updateLog.append(updateLogTxt % fld0)
@@ -175,7 +175,7 @@ class NoteImporter(Importer):
                             found = False
             # newly add
             if not found:
-                data = self.newData(n)
+                data = self.newData(note)
                 if data:
                     new.append(data)
                     # note that we've seen this note once already
@@ -218,37 +218,37 @@ This can happen when you have empty fields or when you have not mapped the \
 content in the text file to the correct fields."""))
         self.total = len(self._ids)
 
-    def newData(self, n):
+    def newData(self, note):
         id = self._nextID
         self._nextID += 1
         self._ids.append(id)
-        if not self.processFields(n):
+        if not self.processFields(note):
             return
         # note id for card updates later
-        for ord, card in list(n.cards.items()):
+        for ord, card in list(note.cards.items()):
             self._cards.append((id, ord, card))
-        self.col.tags.register(n.tags)
+        self.col.tags.register(note.tags)
         return [id, guid64(), self.model['id'],
-                intTime(), self.col.usn(), self.col.tags.join(n.tags),
-                n.fieldsStr, "", "", 0, ""]
+                intTime(), self.col.usn(), self.col.tags.join(note.tags),
+                note.fieldsStr, "", "", 0, ""]
 
     def addNew(self, rows):
         self.col.db.executemany(
             "insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)",
             rows)
 
-    def updateData(self, n, id, sflds):
+    def updateData(self, note, id, sflds):
         self._ids.append(id)
-        if not self.processFields(n, sflds):
+        if not self.processFields(note, sflds):
             return
         if self._tagsMapped:
-            self.col.tags.register(n.tags)
-            tags = self.col.tags.join(n.tags)
-            return [intTime(), self.col.usn(), n.fieldsStr, tags,
-                    id, n.fieldsStr, tags]
+            self.col.tags.register(note.tags)
+            tags = self.col.tags.join(note.tags)
+            return [intTime(), self.col.usn(), note.fieldsStr, tags,
+                    id, note.fieldsStr, tags]
         else:
-            return [intTime(), self.col.usn(), n.fieldsStr,
-                    id, n.fieldsStr]
+            return [intTime(), self.col.usn(), note.fieldsStr,
+                    id, note.fieldsStr]
 
     def addUpdates(self, rows):
         old = self.col.db.totalChanges()
