@@ -72,7 +72,7 @@ class Preferences(QDialog):
     ######################################################################
 
     def setupCollection(self):
-        import anki.consts as c
+        from anki.consts import newCardSchedulingLabels
         f = self.form
         qc = self.mw.col.conf
         self._setupDayCutoff()
@@ -85,7 +85,7 @@ class Preferences(QDialog):
         f.showEstimates.setChecked(qc['estTimes'])
         f.showProgress.setChecked(qc['dueCounts'])
         f.nightMode.setChecked(qc.get("nightMode", False))
-        f.newSpread.addItems(list(c.newCardSchedulingLabels().values()))
+        f.newSpread.addItems(list(newCardSchedulingLabels().values()))
         f.newSpread.setCurrentIndex(qc['newSpread'])
         f.useCurrent.setCurrentIndex(int(not qc.get("addToCur", True)))
         f.dayLearnFirst.setChecked(qc.get("dayLearnFirst", False))

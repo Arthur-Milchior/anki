@@ -331,12 +331,12 @@ class _Recorder:
 
     def postprocess(self, encode=True):
         self.encode = encode
-        for c in processingChain:
-            #print c
-            if not self.encode and c[0] == 'lame':
+        for cmd in processingChain:
+            #print cmd
+            if not self.encode and cmd[0] == 'lame':
                 continue
             try:
-                cmd, env = _packagedCmd(c)
+                cmd, env = _packagedCmd(cmd)
                 ret = retryWait(subprocess.Popen(cmd, startupinfo=si, env=env))
             except:
                 ret = True

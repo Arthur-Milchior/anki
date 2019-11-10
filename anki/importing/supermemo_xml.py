@@ -127,7 +127,7 @@ class SupermemoXmlImporter(NoteImporter):
 
     def _unicode2ascii(self,str):
         "Remove diacritic punctuation from strings (titles)"
-        return "".join([ c for c in unicodedata.normalize('NFKD', str) if not unicodedata.combining(c)])
+        return "".join([ char for char in unicodedata.normalize('NFKD', str) if not unicodedata.combining(char)])
 
     def _decode_htmlescapes(self,s):
         """Unescape HTML code."""

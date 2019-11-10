@@ -275,9 +275,9 @@ and notes.mid = ? and cards.ord = ?""", m['id'], ord)
         m['flds'].remove(field)
         # restore old sort field if possible, or revert to first field
         m['sortf'] = 0
-        for c, f in enumerate(m['flds']):
+        for index, f in enumerate(m['flds']):
             if f['name'] == sortFldName:
-                m['sortf'] = c
+                m['sortf'] = index
                 break
         self._updateFieldOrds(m)
         def delete(fields):
@@ -330,8 +330,8 @@ and notes.mid = ? and cards.ord = ?""", m['id'], ord)
         self.save(m)
 
     def _updateFieldOrds(self, m):
-        for c, f in enumerate(m['flds']):
-            f['ord'] = c
+        for index, f in enumerate(m['flds']):
+            f['ord'] = index
 
     def _transformFields(self, m, fn):
         # model hasn't been added yet?
@@ -367,7 +367,7 @@ and notes.mid = ? and cards.ord = ?""", m['id'], ord)
         # find cards using this template
         ord = m['tmpls'].index(template)
         cids = self.col.db.list("""
-select c.id from cards c, notes f where c.nid=f.id and mid = ? and ord = ?""",
+select card.id from cards card, notes f where card.nid=f.id and mid = ? and ord = ?""",
                                  m['id'], ord)
         # all notes with this template must have at least two cards, or we
         # could end up creating orphaned notes
@@ -392,8 +392,8 @@ update cards set ord = ord - 1, usn = ?, mod = ?
         return True
 
     def _updateTemplOrds(self, m):
-        for c, t in enumerate(m['tmpls']):
-            t['ord'] = c
+        for index, t in enumerate(m['tmpls']):
+            t['ord'] = index
 
     def moveTemplate(self, m, template, idx):
         oldidx = m['tmpls'].index(template)
@@ -441,8 +441,8 @@ select id from notes where mid = ?)""" % " ".join(map),
             for old, new in list(map.items()):
                 newflds[new] = flds[old]
             flds = []
-            for c in range(nfields):
-                flds.append(newflds.get(c, ""))
+            for index in range(nfields):
+                flds.append(newflds.get(index, ""))
             flds = joinFields(flds)
             d.append(dict(nid=nid, flds=flds, mid=newModel['id'],
                       m=intTime(),u=self.col.usn()))
@@ -545,8 +545,8 @@ select id from notes where mid = ?)""" % " ".join(map),
         if m['type'] == MODEL_CLOZE:
             return self._availClozeOrds(m, flds)
         fields = {}
-        for c, f in enumerate(splitFields(flds)):
-            fields[c] = f.strip()
+        for index, f in enumerate(splitFields(flds)):
+            fields[index] = f.strip()
         avail = []
         for ord, type, req in m['req']:
             # unsatisfiable template

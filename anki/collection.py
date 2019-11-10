@@ -423,7 +423,7 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
         if type == 0:
             cms = self.findTemplates(note)
         elif type == 1:
-            cms = [c.template() for c in note.cards()]
+            cms = [card.template() for card in note.cards()]
         else:
             cms = note.model()['tmpls']
         if not cms:
@@ -506,10 +506,10 @@ select id from notes where id in %s and id not in (select nid from cards)""" %
     def emptyCardReport(self, cids):
         rep = ""
         for ords, cnt, flds in self.db.all("""
-select group_concat(ord+1), count(), flds from cards c, notes n
-where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
-            rep += _("Empty card numbers: %(c)s\nFields: %(f)s\n\n") % dict(
-                c=ords, f=flds.replace("\x1f", " / "))
+select group_concat(ord+1), count(), flds from cards card, notes n
+where card.nid = n.id and card.id in %s group by nid""" % ids2str(cids)):
+            rep += _("Empty card numbers: %(card)s\nFields: %(f)s\n\n") % dict(
+                card=ords, f=flds.replace("\x1f", " / "))
         return rep
 
     # Field checksums and sorting fields
@@ -541,7 +541,7 @@ where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
     def renderQA(self, ids=None, type="card"):
         # gather metadata
         if type == "card":
-            where = "and c.id in " + ids2str(ids)
+            where = "and card.id in " + ids2str(ids)
         elif type == "note":
             where = "and f.id in " + ids2str(ids)
         elif type == "model":
@@ -602,9 +602,9 @@ where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
     def _qaData(self, where=""):
         "Return [cid, nid, mid, did, ord, tags, flds, cardFlags] db query"
         return self.db.execute("""
-select c.id, f.id, f.mid, c.did, c.ord, f.tags, f.flds, c.flags
-from cards c, notes f
-where c.nid == f.id
+select card.id, f.id, f.mid, card.did, card.ord, f.tags, f.flds, card.flags
+from cards card, notes f
+where card.nid == f.id
 %s""" % where)
 
     def _flagNameFromCardFlags(self, flags):
@@ -687,30 +687,30 @@ where c.nid == f.id
     def _undoReview(self):
         data = self._undo[2]
         wasLeech = self._undo[3]
-        c = data.pop()
+        card = data.pop()
         if not data:
             self.clearUndo()
         # remove leech tag if it didn't have it before
-        if not wasLeech and c.note().hasTag("leech"):
-            c.note().delTag("leech")
-            c.note().flush()
+        if not wasLeech and card.note().hasTag("leech"):
+            card.note().delTag("leech")
+            card.note().flush()
         # write old data
-        c.flush()
+        card.flush()
         # and delete revlog entry
         last = self.db.scalar(
             "select id from revlog where cid = ? "
-            "order by id desc limit 1", c.id)
+            "order by id desc limit 1", card.id)
         self.db.execute("delete from revlog where id = ?", last)
         # restore any siblings
         self.db.execute(
             "update cards set queue=type,mod=?,usn=? where queue=-2 and nid=?",
-            intTime(), self.usn(), c.nid)
+            intTime(), self.usn(), card.nid)
         # and finally, update daily counts
-        n = 1 if c.queue == 3 else c.queue
+        n = 1 if card.queue == 3 else card.queue
         type = ("new", "lrn", "rev")[n]
-        self.sched._updateStats(c, type, -1)
+        self.sched._updateStats(card, type, -1)
         self.sched.reps -= 1
-        return c.id
+        return card.id
 
     def _markOp(self, name):
         "Call via .save()"

@@ -62,8 +62,8 @@ class NoteImporter(Importer):
     def run(self):
         "Import."
         assert self.mapping
-        c = self.foreignNotes()
-        self.importNotes(c)
+        card = self.foreignNotes()
+        self.importNotes(card)
 
     def fields(self):
         "The number of fields."
@@ -123,13 +123,13 @@ class NoteImporter(Importer):
         dupeCount = 0
         dupes = []
         for n in notes:
-            for c in range(len(n.fields)):
+            for fieldIndex in range(len(n.fields)):
                 if not self.allowHTML:
-                    n.fields[c] = html.escape(n.fields[c], quote=False)
-                n.fields[c] = n.fields[c].strip()
+                    n.fields[fieldIndex] = html.escape(n.fields[fieldIndex], quote=False)
+                n.fields[fieldIndex] = n.fields[fieldIndex].strip()
                 if not self.allowHTML:
-                    n.fields[c] = n.fields[c].replace("\n", "<br>")
-                n.fields[c] = unicodedata.normalize("NFC", n.fields[c])
+                    n.fields[fieldIndex] = n.fields[fieldIndex].replace("\n", "<br>")
+                n.fields[fieldIndex] = unicodedata.normalize("NFC", n.fields[fieldIndex])
             n.tags = [unicodedata.normalize("NFC", t) for t in n.tags]
             fld0 = n.fields[fld0idx]
             csum = fieldChecksum(fld0)
@@ -225,8 +225,8 @@ content in the text file to the correct fields."""))
         if not self.processFields(n):
             return
         # note id for card updates later
-        for ord, c in list(n.cards.items()):
-            self._cards.append((id, ord, c))
+        for ord, card in list(n.cards.items()):
+            self._cards.append((id, ord, card))
         self.col.tags.register(n.tags)
         return [id, guid64(), self.model['id'],
                 intTime(), self.col.usn(), self.col.tags.join(n.tags),
@@ -265,14 +265,14 @@ where id = ? and flds != ?""", rows)
     def processFields(self, note, fields=None):
         if not fields:
             fields = [""]*len(self.model['flds'])
-        for c, f in enumerate(self.mapping):
+        for card, f in enumerate(self.mapping):
             if not f:
                 continue
             elif f == "_tags":
-                note.tags.extend(self.col.tags.split(note.fields[c]))
+                note.tags.extend(self.col.tags.split(note.fields[card]))
             else:
                 sidx = self._fmap[f][0]
-                fields[sidx] = note.fields[c]
+                fields[sidx] = note.fields[card]
         note.fieldsStr = joinFields(fields)
         ords = self.col.models.availOrds(self.model, note.fieldsStr)
         if not ords:
@@ -281,8 +281,8 @@ where id = ? and flds != ?""", rows)
 
     def updateCards(self):
         data = []
-        for nid, ord, c in self._cards:
-            data.append((c.ivl, c.due, c.factor, c.reps, c.lapses, nid, ord))
+        for nid, ord, card in self._cards:
+            data.append((card.ivl, card.due, card.factor, card.reps, card.lapses, nid, ord))
         # we assume any updated cards are reviews
         self.col.db.executemany("""
 update cards set type = 2, queue = 2, ivl = ?, due = ?,

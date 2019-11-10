@@ -372,9 +372,9 @@ devMode = os.getenv("ANKIDEV", "")
 invalidFilenameChars = ":*?\"<>|"
 
 def invalidFilename(str, dirsep=True):
-    for c in invalidFilenameChars:
-        if c in str:
-            return c
+    for char in invalidFilenameChars:
+        if char in str:
+            return char
     if (dirsep or isWin) and "/" in str:
         return "/"
     elif (dirsep or not isWin) and "\\" in str:

@@ -90,9 +90,9 @@ class TextCardExporter(Exporter):
             return self.processText(s)
         out = ""
         for cid in ids:
-            c = self.col.getCard(cid)
-            out += esc(c.q())
-            out += "\t" + esc(c.a()) + "\n"
+            card = self.col.getCard(cid)
+            out += esc(card.q())
+            out += "\t" + esc(card.a()) + "\n"
         file.write(out.encode("utf-8"))
 
 # Notes as TSV
@@ -324,8 +324,8 @@ class AnkiPackageExporter(AnkiExporter):
 
     def _exportMedia(self, z, files, fdir):
         media = {}
-        for c, file in enumerate(files):
-            cStr = str(c)
+        for index, file in enumerate(files):
+            cStr = str(index)
             mpath = os.path.join(fdir, file)
             if os.path.isdir(mpath):
                 continue
@@ -335,7 +335,7 @@ class AnkiPackageExporter(AnkiExporter):
                 else:
                     z.write(mpath, cStr, zipfile.ZIP_STORED)
                 media[cStr] = unicodedata.normalize("NFC", file)
-                runHook("exportedMediaFiles", c)
+                runHook("exportedMediaFiles", index)
 
         return media
 
@@ -348,12 +348,12 @@ class AnkiPackageExporter(AnkiExporter):
     # data they don't understand
     def _addDummyCollection(self, zip):
         path = namedtmp("dummy.anki2")
-        c = Collection(path)
-        n = c.newNote()
+        col = Collection(path)
+        n = col.newNote()
         n[_('Front')] = "This file requires a newer version of Anki."
-        c.addNote(n)
-        c.save()
-        c.close()
+        col.addNote(n)
+        col.save()
+        col.close()
 
         zip.write(path, "collection.anki2")
         os.unlink(path)

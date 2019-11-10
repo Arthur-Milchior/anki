@@ -20,47 +20,47 @@ class CardStats:
         self.card = card
 
     def report(self):
-        c = self.card
+        card = self.card
         # pylint: disable=unnecessary-lambda
         fmt = lambda x, **kwargs: fmtTimeSpan(x, short=True, **kwargs)
         self.txt = "<table width=100%>"
-        self.addLine(_("Added"), self.date(c.id/1000))
+        self.addLine(_("Added"), self.date(card.id/1000))
         first = self.col.db.scalar(
-            "select min(id) from revlog where cid = ?", c.id)
+            "select min(id) from revlog where cid = ?", card.id)
         last = self.col.db.scalar(
-            "select max(id) from revlog where cid = ?", c.id)
+            "select max(id) from revlog where cid = ?", card.id)
         if first:
             self.addLine(_("First Review"), self.date(first/1000))
             self.addLine(_("Latest Review"), self.date(last/1000))
-        if c.type in (CARD_LRN, CARD_DUE):
-            if c.odid or c.queue < 0:
+        if card.type in (CARD_LRN, CARD_DUE):
+            if card.odid or card.queue < 0:
                 next = None
             else:
-                if c.queue in (QUEUE_REV, QUEUE_DAY_LRN):
-                    next = time.time()+((c.due - self.col.sched.today)*86400)
+                if card.queue in (QUEUE_REV, QUEUE_DAY_LRN):
+                    next = time.time()+((card.due - self.col.sched.today)*86400)
                 else:
-                    next = c.due
+                    next = card.due
                 next = self.date(next)
             if next:
                 self.addLine(_("Due"), next)
-            if c.queue == QUEUE_REV:
-                self.addLine(_("Interval"), fmt(c.ivl * 86400))
-            self.addLine(_("Ease"), "%d%%" % (c.factor/10.0))
-            self.addLine(_("Reviews"), "%d" % c.reps)
-            self.addLine(_("Lapses"), "%d" % c.lapses)
+            if card.queue == QUEUE_REV:
+                self.addLine(_("Interval"), fmt(card.ivl * 86400))
+            self.addLine(_("Ease"), "%d%%" % (card.factor/10.0))
+            self.addLine(_("Reviews"), "%d" % card.reps)
+            self.addLine(_("Lapses"), "%d" % card.lapses)
             (cnt, total) = self.col.db.first(
                 "select count(), sum(time)/1000 from revlog where cid = :id",
-                id=c.id)
+                id=card.id)
             if cnt:
                 self.addLine(_("Average Time"), self.time(total / float(cnt)))
                 self.addLine(_("Total Time"), self.time(total))
-        elif c.queue == QUEUE_NEW:
-            self.addLine(_("Position"), c.due)
-        self.addLine(_("Card Type"), c.template()['name'])
-        self.addLine(_("Note Type"), c.model()['name'])
-        self.addLine(_("Deck"), self.col.decks.name(c.did))
-        self.addLine(_("Note ID"), c.nid)
-        self.addLine(_("Card ID"), c.id)
+        elif card.queue == QUEUE_NEW:
+            self.addLine(_("Position"), card.due)
+        self.addLine(_("Card Type"), card.template()['name'])
+        self.addLine(_("Note Type"), card.model()['name'])
+        self.addLine(_("Deck"), self.col.decks.name(card.did))
+        self.addLine(_("Note ID"), card.nid)
+        self.addLine(_("Card ID"), card.id)
         self.txt += "</table>"
         return self.txt
 
@@ -167,16 +167,16 @@ from revlog where id > ? """+lim, (self.col.sched.dayCutoff-86400)*1000)
                     "%0.1f%%" %((1-failed/float(cards))*100))
             # type breakdown
             b += "<br>"
-            b += (_("Learn: %(a)s, Review: %(b)s, Relearn: %(c)s, Filtered: %(d)s")
-                  % dict(a=bold(lrn), b=bold(rev), c=bold(relrn), d=bold(filt)))
+            b += (_("Learn: %(a)s, Review: %(b)s, Relearn: %(relrn)s, Filtered: %(d)s")
+                  % dict(a=bold(lrn), b=bold(rev), relrn=bold(relrn), d=bold(filt)))
             # mature today
             mcnt, msum = self.col.db.first("""
     select count(), sum(case when ease = 1 then 0 else 1 end) from revlog
     where lastIvl >= 21 and id > ?"""+lim, (self.col.sched.dayCutoff-86400)*1000)
             b += "<br>"
             if mcnt:
-                b += _("Correct answers on mature cards: %(a)d/%(b)d (%(c).1f%%)") % dict(
-                    a=msum, b=mcnt, c=(msum / float(mcnt) * 100))
+                b += _("Correct answers on mature cards: %(a)d/%(b)d (%(percent).1f%%)") % dict(
+                    a=msum, b=mcnt, percent=(msum / float(mcnt) * 100))
             else:
                 b += _("No mature cards were studied today.")
         else:
@@ -705,18 +705,18 @@ group by hour having count() > 30 order by hour""" % lim,
         # graph data
         div = self._cards()
         d = []
-        for c, (t, col) in enumerate((
+        for index, (t, col) in enumerate((
             (_("Mature"), colMature),
             (_("Young+Learn"), colYoung),
             (_("Unseen"), colUnseen),
             (_("Suspended+Buried"), colSusp))):
-            d.append(dict(data=div[c], label="%s: %s" % (t, div[c]), color=col))
+            d.append(dict(data=div[index], label="%s: %s" % (t, div[index]), color=col))
         # text data
         i = []
-        (c, f) = self.col.db.first("""
+        (count, f) = self.col.db.first("""
 select count(id), count(distinct nid) from cards
 where did in %s """ % self._limit())
-        self._line(i, _("Total cards"), c)
+        self._line(i, _("Total cards"), count)
         self._line(i, _("Total notes"), f)
         (low, avg, high) = self._factors()
         if low:

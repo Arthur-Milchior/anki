@@ -76,8 +76,8 @@ class Reviewer:
             self.mw.col.startTimebox()
         if self.cardQueue:
             # undone/edited cards to show
-            c = self.cardQueue.pop()
-            c.startTimer()
+            card = self.cardQueue.pop()
+            card.startTimer()
             self.hadCardQueue = True
         else:
             if self.hadCardQueue:
@@ -85,10 +85,10 @@ class Reviewer:
                 # need to reset
                 self.mw.col.reset()
                 self.hadCardQueue = False
-            c = self.mw.col.sched.getCard()
-        self.card = c
+            card = self.mw.col.sched.getCard()
+        self.card = card
         clearAudioQueue()
-        if not c:
+        if not card:
             self.mw.moveToState("overview")
             return
         if self._reps is None or self._reps % 100 == 0:
@@ -102,18 +102,18 @@ class Reviewer:
     def replayAudio(self, previewer=None):
         if previewer:
             state = previewer._previewState
-            c = previewer.card
+            card = previewer.card
         else:
             state = self.state
-            c = self.card
+            card = self.card
         clearAudioQueue()
         if state == "question":
-            playFromText(c.q())
+            playFromText(card.q())
         elif state == "answer":
             txt = ""
-            if self._replayq(c, previewer):
-                txt = c.q()
-            txt += c.a()
+            if self._replayq(card, previewer):
+                txt = card.q()
+            txt += card.a()
             playFromText(txt)
 
     # Initializing the webview
@@ -160,20 +160,20 @@ class Reviewer:
         self._reps += 1
         self.state = "question"
         self.typedAnswer = None
-        c = self.card
+        card = self.card
         # grab the question and play audio
-        if c.isEmpty():
+        if card.isEmpty():
             q = _("""\
 The front of this card is empty. Please run Tools>Empty Cards.""")
         else:
-            q = c.q()
-        if self.autoplay(c):
+            q = card.q()
+        if self.autoplay(card):
             playFromText(q)
         # render & update bottom
         q = self._mungeQA(q)
-        q = runFilter("prepareQA", q, c, "reviewQuestion")
+        q = runFilter("prepareQA", q, card, "reviewQuestion")
 
-        bodyclass = bodyClass(self.mw.col, c)
+        bodyclass = bodyClass(self.mw.col, card)
 
         self.web.eval("_showQuestion(%s,'%s');" % (json.dumps(q), bodyclass))
         self._drawFlag()
@@ -209,14 +209,14 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
             # showing resetRequired screen; ignore space
             return
         self.state = "answer"
-        c = self.card
-        a = c.a()
+        card = self.card
+        a = card.a()
         # play audio?
         clearAudioQueue()
-        if self.autoplay(c):
+        if self.autoplay(card):
             playFromText(a)
         a = self._mungeQA(a)
-        a = runFilter("prepareQA", a, c, "reviewAnswer")
+        a = runFilter("prepareQA", a, card, "reviewAnswer")
         # render and update bottom
         self.web.eval("_showAnswer(%s);" % json.dumps(a))
         self._showEaseButtons()
@@ -666,7 +666,7 @@ time = %(time)d;
     def onSuspend(self):
         self.mw.checkpoint(_("Suspend"))
         self.mw.col.sched.suspendCards(
-            [c.id for c in self.card.note().cards()])
+            [card.id for card in self.card.note().cards()])
         tooltip(_("Note suspended."))
         self.mw.reset()
 

@@ -103,12 +103,12 @@ class DeckManager:
         self.dconf = json.loads(dconf)
         # set limits to within bounds
         found = False
-        for c in list(self.dconf.values()):
+        for conf in list(self.dconf.values()):
             for t in ('rev', 'new'):
                 pd = 'perDay'
-                if c[t][pd] > 999999:
-                    c[t][pd] = 999999
-                    self.save(c)
+                if conf[t][pd] > 999999:
+                    conf[t][pd] = 999999
+                    self.save(conf)
                     found = True
         if not found:
             self.changed = False
@@ -361,15 +361,15 @@ class DeckManager:
         "Create a new configuration and return id."
         if cloneFrom is None:
             cloneFrom = defaultConf
-        c = copy.deepcopy(cloneFrom)
+        conf = copy.deepcopy(cloneFrom)
         while 1:
             id = intTime(1000)
             if str(id) not in self.dconf:
                 break
-        c['id'] = id
-        c['name'] = name
-        self.dconf[str(id)] = c
-        self.save(c)
+        conf['id'] = id
+        conf['name'] = name
+        self.dconf[str(id)] = conf
+        self.save(conf)
         return id
 
     def remConf(self, id):
@@ -429,8 +429,8 @@ class DeckManager:
 
     def maybeAddToActive(self):
         # reselect current deck, or default if current has disappeared
-        c = self.current()
-        self.select(c['id'])
+        deck = self.current()
+        self.select(deck['id'])
 
     def cids(self, did, children=False):
         if not children:
@@ -553,12 +553,12 @@ class DeckManager:
             else:
                 parents.append(parents[-1] + "::" + part)
         # convert to objects
-        for c, p in enumerate(parents):
+        for index, p in enumerate(parents):
             if nameMap:
                 deck = nameMap[p]
             else:
                 deck = self.get(self.id(p))
-            parents[c] = deck
+            parents[index] = deck
         return parents
 
     def parentsByName(self, name):
@@ -586,8 +586,8 @@ class DeckManager:
     def beforeUpload(self):
         for d in self.all():
             d['usn'] = 0
-        for c in self.allConf():
-            c['usn'] = 0
+        for conf in self.allConf():
+            conf['usn'] = 0
         self.save()
 
     # Dynamic decks

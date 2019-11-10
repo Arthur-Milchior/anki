@@ -269,17 +269,17 @@ order by due""" % (self._deckLimit()),
             new = 0
             lrn = 0
             children = []
-            for c in tail:
-                if len(c[0]) == 1:
+            for node in tail:
+                if len(node[0]) == 1:
                     # current node
-                    did = c[1]
-                    rev += c[2]
-                    lrn += c[3]
-                    new += c[4]
+                    did = node[1]
+                    rev += node[2]
+                    lrn += node[3]
+                    new += node[4]
                 else:
                     # set new string to tail
-                    c[0] = c[0][1:]
-                    children.append(c)
+                    node[0] = node[0][1:]
+                    children.append(node)
             children = self._groupChildrenMain(children)
             # tally up children counts
             for ch in children:
@@ -299,36 +299,36 @@ order by due""" % (self._deckLimit()),
     def _getCard(self):
         "Return the next due card id, or None."
         # learning card due?
-        c = self._getLrnCard()
-        if c:
-            return c
+        card = self._getLrnCard()
+        if card:
+            return card
 
         # new first, or time for one?
         if self._timeForNewCard():
-            c = self._getNewCard()
-            if c:
-                return c
+            card = self._getNewCard()
+            if card:
+                return card
 
         # day learning first and card due?
         dayLearnFirst = self.col.conf.get("dayLearnFirst", False)
-        c = dayLearnFirst and self._getLrnDayCard()
-        if c:
-            return c
+        card = dayLearnFirst and self._getLrnDayCard()
+        if card:
+            return card
 
         # card due for review?
-        c = self._getRevCard()
-        if c:
-            return c
+        card = self._getRevCard()
+        if card:
+            return card
 
         # day learning card due?
-        c = not dayLearnFirst and self._getLrnDayCard()
-        if c:
-            return c
+        card = not dayLearnFirst and self._getLrnDayCard()
+        if card:
+            return card
 
         # new cards left?
-        c = self._getNewCard()
-        if c:
-            return c
+        card = self._getNewCard()
+        if card:
+            return card
 
         # collapse or finish
         return self._getLrnCard(collapse=True)
@@ -426,8 +426,8 @@ select count() from
         "Limit for deck without parent limits."
         if deck['dyn']:
             return self.dynReportLimit
-        c = self.col.decks.confForDid(deck['id'])
-        return max(0, c['new']['perDay'] - deck['newToday'][1])
+        conf = self.col.decks.confForDid(deck['id'])
+        return max(0, conf['new']['perDay'] - deck['newToday'][1])
 
     def totalNewForCurrentDeck(self):
         return self.col.db.scalar(
@@ -748,8 +748,8 @@ and due <= ? limit ?)""",
         if d['dyn']:
             return self.dynReportLimit
 
-        c = self.col.decks.confForDid(d['id'])
-        lim = max(0, c['rev']['perDay'] - d['revToday'][1])
+        conf = self.col.decks.confForDid(d['id'])
+        lim = max(0, conf['rev']['perDay'] - d['revToday'][1])
 
         if parentLimit is not None:
             return min(parentLimit, lim)
@@ -1042,7 +1042,7 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
 
     def _dynOrder(self, o, l):
         if o == DYN_OLDEST:
-            t = "(select max(id) from revlog where cid=c.id)"
+            t = "(select max(id) from revlog where cid=card.id)"
         elif o == DYN_RANDOM:
             t = "random()"
         elif o == DYN_SMALLINT:
@@ -1056,12 +1056,12 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
         elif o == DYN_REVADDED:
             t = "n.id desc"
         elif o == DYN_DUE:
-            t = "c.due"
+            t = "card.due"
         elif o == DYN_DUEPRIORITY:
             t = f"(case when queue={QUEUE_REV} and due <= %d then (ivl / cast(%d-due+0.001 as real)) else 100000+due end)" % (self.today, self.today)
         else:
             # if we don't understand the term, default to due order
-            t = "c.due"
+            t = "card.due"
         return t + " limit %d" % l
 
     def _moveToDyn(self, did, ids, start=-100000):
@@ -1528,10 +1528,10 @@ usn=:usn,mod=:mod,factor=:fact where id=:id""",
         due = {}
         if shuffle:
             random.shuffle(nids)
-        for c, nid in enumerate(nids):
-            due[nid] = start+c*step
+        for index, nid in enumerate(nids):
+            due[nid] = start+index*step
         # pylint: disable=undefined-loop-variable
-        high = start+c*step
+        high = start+index*step
         # shift?
         if shift:
             low = self.col.db.scalar(

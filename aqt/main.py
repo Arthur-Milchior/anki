@@ -1137,7 +1137,7 @@ will be lost. Continue?"""))
             b.setAutoDefault(False)
             box.addButton(b, QDialogButtonBox.ActionRole)
             b.clicked.connect(
-                lambda c, u=unused, d=diag: self.deleteUnused(u, d))
+                lambda click, u=unused, d=diag: self.deleteUnused(u, d))
 
         box.rejected.connect(diag.reject)
         diag.setMinimumHeight(400)
@@ -1154,14 +1154,14 @@ will be lost. Continue?"""))
         self.progress.start(immediate=True)
         try:
             lastProgress = 0
-            for c, f in enumerate(unused):
+            for index, f in enumerate(unused):
                 path = os.path.join(mdir, f)
                 if os.path.exists(path):
                     send2trash(path)
 
                 now = time.time()
                 if now - lastProgress >= 0.3:
-                    numberOfRemainingFilesToBeDeleted = len(unused) - c
+                    numberOfRemainingFilesToBeDeleted = len(unused) - index
                     lastProgress = now
                     label = ngettext("%d file remaining...",
                     "%d files remaining...",
@@ -1171,7 +1171,7 @@ will be lost. Continue?"""))
             self.progress.finish()
         # caller must not pass in empty list
         # pylint: disable=undefined-loop-variable
-        numberOfFilesDeleted = c + 1
+        numberOfFilesDeleted = index + 1
         tooltip(ngettext("Deleted %d file.",
         "Deleted %d files.",
         numberOfFilesDeleted) % numberOfFilesDeleted)
@@ -1283,8 +1283,8 @@ will be lost. Continue?"""))
             self._output += traceback.format_exc()
         self._captureOutput(False)
         buf = ""
-        for c, line in enumerate(text.strip().split("\n")):
-            if c == 0:
+        for index, line in enumerate(text.strip().split("\n")):
+            if index == 0:
                 buf += ">>> %s\n" % line
             else:
                 buf += "... %s\n" % line

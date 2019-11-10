@@ -61,16 +61,16 @@ class StudyDeck(QDialog):
     def eventFilter(self, obj, evt):
         if evt.type() == QEvent.KeyPress:
             if evt.key() == Qt.Key_Up:
-                c = self.form.list.count()
+                count = self.form.list.count()
                 row = self.form.list.currentRow() - 1
                 if row < 0:
-                    row = c - 1
+                    row = count - 1
                 self.form.list.setCurrentRow(row)
                 return True
             elif evt.key() == Qt.Key_Down:
-                c = self.form.list.count()
+                count = self.form.list.count()
                 row = self.form.list.currentRow() + 1
-                if row == c:
+                if row == count:
                     row = 0
                 self.form.list.setCurrentRow(row)
                 return True

@@ -31,9 +31,9 @@ class ExportDialog(QDialog):
         # if a deck specified, start with .apkg type selected
         idx = 0
         if did:
-            for c, (k,e) in enumerate(self.exporters):
+            for index, (k,e) in enumerate(self.exporters):
                 if e.ext == ".apkg":
-                    idx = c
+                    idx = index
                     break
         self.frm.format.insertItems(0, [e[0] for e in self.exporters])
         self.frm.format.setCurrentIndex(idx)

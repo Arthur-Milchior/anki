@@ -23,8 +23,8 @@ def Collection(path, lock=True, server=False, log=False):
     create = not os.path.exists(path)
     if create:
         base = os.path.basename(path)
-        for c in ("/", ":", "\\"):
-            assert c not in base
+        for char in ("/", ":", "\\"):
+            assert char not in base
     # connect
     db = DB(path)
     db.setAutocommit(True)
@@ -171,13 +171,13 @@ update cards set left = left + left*1000 where queue = 1""")
                     d['extendNew'] = 10
                     d['extendRev'] = 50
             col.decks.save(d)
-        for c in col.decks.allConf():
-            r = c['rev']
+        for conf in col.decks.allConf():
+            r = conf['rev']
             r['ivlFct'] = r.get("ivlfct", 1)
             if 'ivlfct' in r:
                 del r['ivlfct']
             r['maxIvl'] = 36500
-            col.decks.save(c)
+            col.decks.save(conf)
         for m in col.models.all():
             for t in m['tmpls']:
                 t['bqfmt'] = ''
@@ -304,10 +304,10 @@ def _getColVars(db):
     gc['id'] = 1
     return deck, gc, anki.collection.defaultConf.copy()
 
-def _addColVars(db, deck, gc, c):
+def _addColVars(db, deck, gc, conf):
     db.execute("""
 update col set conf = ?, decks = ?, dconf = ?""",
-                   json.dumps(c),
+                   json.dumps(conf),
                    json.dumps({'1': deck}),
                    json.dumps({'1': gc}))
 

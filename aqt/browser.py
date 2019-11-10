@@ -49,9 +49,9 @@ class DataModel(QAbstractTableModel):
 
     def refreshNote(self, note):
         refresh = False
-        for c in note.cards():
-            if c.id in self.cardObjs:
-                del self.cardObjs[c.id]
+        for card in note.cards():
+            if card.id in self.cardObjs:
+                del self.cardObjs[card.id]
                 refresh = True
         if refresh:
             self.layoutChanged.emit()
@@ -77,8 +77,8 @@ class DataModel(QAbstractTableModel):
                 "question", "answer", "noteFld"):
                 return
             row = index.row()
-            c = self.getCard(index)
-            t = c.template()
+            card = self.getCard(index)
+            t = card.template()
             if not t.get("bfont"):
                 return
             f = QFont()
@@ -231,87 +231,87 @@ class DataModel(QAbstractTableModel):
         row = index.row()
         col = index.column()
         type = self.columnType(col)
-        c = self.getCard(index)
+        card = self.getCard(index)
         if type == "question":
-            return self.question(c)
+            return self.question(card)
         elif type == "answer":
-            return self.answer(c)
+            return self.answer(card)
         elif type == "noteFld":
-            f = c.note()
+            f = card.note()
             return htmlToTextLine(f.fields[self.col.models.sortIdx(f.model())])
         elif type == "template":
-            t = c.template()['name']
-            if c.model()['type'] == MODEL_CLOZE:
-                t += " %d" % (c.ord+1)
+            t = card.template()['name']
+            if card.model()['type'] == MODEL_CLOZE:
+                t += " %d" % (card.ord+1)
             return t
         elif type == "cardDue":
             # catch invalid dates
             try:
-                t = self.nextDue(c, index)
+                t = self.nextDue(card, index)
             except:
                 t = ""
-            if c.queue < 0:#supsended or buried
+            if card.queue < 0:#supsended or buried
                 t = "(" + t + ")"
             return t
         elif type == "noteCrt":
-            return time.strftime("%Y-%m-%d", time.localtime(c.note().id/1000))
+            return time.strftime("%Y-%m-%d", time.localtime(card.note().id/1000))
         elif type == "noteMod":
-            return time.strftime("%Y-%m-%d", time.localtime(c.note().mod))
+            return time.strftime("%Y-%m-%d", time.localtime(card.note().mod))
         elif type == "cardMod":
-            return time.strftime("%Y-%m-%d", time.localtime(c.mod))
+            return time.strftime("%Y-%m-%d", time.localtime(card.mod))
         elif type == "cardReps":
-            return str(c.reps)
+            return str(card.reps)
         elif type == "cardLapses":
-            return str(c.lapses)
+            return str(card.lapses)
         elif type == "noteTags":
-            return " ".join(c.note().tags)
+            return " ".join(card.note().tags)
         elif type == "note":
-            return c.model()['name']
+            return card.model()['name']
         elif type == "cardIvl":
-            if c.type == 0:
+            if card.type == 0:
                 return _("(new)")
-            elif c.type == 1:
+            elif card.type == 1:
                 return _("(learning)")
-            return fmtTimeSpan(c.ivl*86400)
+            return fmtTimeSpan(card.ivl*86400)
         elif type == "cardEase":
-            if c.type == 0:
+            if card.type == 0:
                 return _("(new)")
-            return "%d%%" % (c.factor/10)
+            return "%d%%" % (card.factor/10)
         elif type == "deck":
-            if c.odid:
+            if card.odid:
                 # in a cram deck
                 return "%s (%s)" % (
-                    self.browser.mw.col.decks.name(c.did),
-                    self.browser.mw.col.decks.name(c.odid))
+                    self.browser.mw.col.decks.name(card.did),
+                    self.browser.mw.col.decks.name(card.odid))
             # normal deck
-            return self.browser.mw.col.decks.name(c.did)
+            return self.browser.mw.col.decks.name(card.did)
 
-    def question(self, c):
-        return htmlToTextLine(c.q(browser=True))
+    def question(self, card):
+        return htmlToTextLine(card.q(browser=True))
 
-    def answer(self, c):
-        if c.template().get('bafmt'):
+    def answer(self, card):
+        if card.template().get('bafmt'):
             # they have provided a template, use it verbatim
-            c.q(browser=True)
-            return htmlToTextLine(c.a())
+            card.q(browser=True)
+            return htmlToTextLine(card.a())
         # need to strip question from answer
-        q = self.question(c)
-        a = htmlToTextLine(c.a())
+        q = self.question(card)
+        a = htmlToTextLine(card.a())
         if a.startswith(q):
             return a[len(q):].strip()
         return a
 
-    def nextDue(self, c, index):
-        if c.odid:
+    def nextDue(self, card, index):
+        if card.odid:
             return _("(filtered)")
-        elif c.queue == QUEUE_LRN:
-            date = c.due
-        elif c.queue == QUEUE_NEW or c.type == CARD_NEW:
-            return str(c.due)
-        elif c.queue in (QUEUE_REV, QUEUE_DAY_LRN) or (c.type == CARD_DUE and
-                                                          c.queue < 0#suspended or buried
+        elif card.queue == QUEUE_LRN:
+            date = card.due
+        elif card.queue == QUEUE_NEW or card.type == CARD_NEW:
+            return str(card.due)
+        elif card.queue in (QUEUE_REV, QUEUE_DAY_LRN) or (card.type == CARD_DUE and
+                                                          card.queue < 0#suspended or buried
         ):
-            date = time.time() + ((c.due - self.col.sched.today)*86400)
+            date = time.time() + ((card.due - self.col.sched.today)*86400)
         else:
             return ""
         return time.strftime("%Y-%m-%d", time.localtime(date))
@@ -323,8 +323,8 @@ class DataModel(QAbstractTableModel):
             return False
 
         row = index.row()
-        c = self.getCard(index)
-        nt = c.note().model()
+        card = self.getCard(index)
+        nt = card.note().model()
         return nt['flds'][self.col.models.sortIdx(nt)]['rtl']
 
 # Line painter
@@ -350,7 +350,7 @@ class StatusDelegate(QItemDelegate):
     def paint(self, painter, option, index):
         self.browser.mw.progress.blockUpdates = True
         try:
-            c = self.model.getCard(index)
+            card = self.model.getCard(index)
         except:
             # in the the middle of a reset; return nothing so this row is not
             # rendered until we have a chance to reset the model
@@ -362,11 +362,11 @@ class StatusDelegate(QItemDelegate):
             option.direction = Qt.RightToLeft
 
         col = None
-        if c.userFlag() > 0:
-            col = flagColours[c.userFlag()]
-        elif c.note().hasTag("Marked"):
+        if card.userFlag() > 0:
+            col = flagColours[card.userFlag()]
+        elif card.note().hasTag("Marked"):
             col = COLOUR_MARKED
-        elif c.queue == QUEUE_SUSPENDED:
+        elif card.queue == QUEUE_SUSPENDED:
             col = COLOUR_SUSPENDED
         if col:
             brush = QBrush(QColor(col))
@@ -598,9 +598,9 @@ class Browser(QMainWindow):
     def search(self):
         if "is:current" in self._lastSearchTxt:
             # show current card if there is one
-            c = self.mw.reviewer.card
+            card = self.mw.reviewer.card
             self.card = self.mw.reviewer.card
-            nid = c and c.nid or 0
+            nid = card and card.nid or 0
             self.model.search("nid:%d"%nid)
         else:
             self.model.search(self._lastSearchTxt)
@@ -935,8 +935,8 @@ by clicking on one on the left."""))
         else:
             txt = ""
             items = []
-            for c, a in enumerate(args):
-                if c % 2 == 0:
+            for index, a in enumerate(args):
+                if index % 2 == 0:
                     txt += a + ":"
                 else:
                     txt += a
@@ -1060,12 +1060,12 @@ by clicking on one on the left."""))
                 subm.addSeparator()
 
                 # add templates
-                for c, tmpl in enumerate(nt['tmpls']):
+                for index, tmpl in enumerate(nt['tmpls']):
                     #T: name is a card type name. n it's order in the list of card type.
                     #T: this is shown in browser's filter, when seeing the list of card type of a note type.
-                    name = _("%(n)d: %(name)s") % dict(n=c+1, name=tmpl['name'])
+                    name = _("%(n)d: %(name)s") % dict(n=index+1, name=tmpl['name'])
                     subm.addItem(name, self._filterFunc(
-                        "note", nt['name'], "card", str(c+1)))
+                        "note", nt['name'], "card", str(index+1)))
 
         m.addChild(noteTypes.chunked())
         return m
@@ -1390,9 +1390,9 @@ where id in %s""" % ids2str(sf))
 
         if not self._previewWindow:
             return
-        c = self.card
+        card = self.card
         func = "_showQuestion"
-        if not c or not self.singleCard:
+        if not card or not self.singleCard:
             txt = _("(please select 1 card)")
             bodyclass = ""
             self._lastPreviewState = None
@@ -1408,20 +1408,20 @@ where id in %s""" % ids2str(sf))
                 return
 
             # need to force reload even if answer
-            txt = c.q(reload=True)
+            txt = card.q(reload=True)
 
             questionAudio = []
             if self._previewBothSides:
                 questionAudio = allSounds(txt)
             if self._previewState == "answer":
                 func = "_showAnswer"
-                txt = c.a()
+                txt = card.a()
             txt = re.sub(r"\[\[type:[^]]+\]\]", "", txt)
 
-            bodyclass = bodyClass(self.mw.col, c)
+            bodyclass = bodyClass(self.mw.col, card)
 
             clearAudioQueue()
-            if self.mw.reviewer.autoplay(c):
+            if self.mw.reviewer.autoplay(card):
                 # if we're showing both sides at once, play question audio first
                 for audio in questionAudio:
                     play(audio)
@@ -1431,7 +1431,7 @@ where id in %s""" % ids2str(sf))
                         play(audio)
 
             txt = mungeQA(self.col, txt)
-            txt = runFilter("prepareQA", txt, c,
+            txt = runFilter("prepareQA", txt, card,
                             "preview"+self._previewState.capitalize())
             self._lastPreviewState = self._previewStateAndMod()
         self._updatePreviewButtons()
@@ -1448,10 +1448,10 @@ where id in %s""" % ids2str(sf))
         self._renderPreview()
 
     def _previewStateAndMod(self):
-        c = self.card
-        n = c.note()
+        card = self.card
+        n = card.note()
         n.load()
-        return (self._previewState, c.id, n.mod)
+        return (self._previewState, card.id, n.mod)
 
     # Card deletion
     ######################################################################
@@ -1580,11 +1580,11 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
 
     def _onSuspend(self):
         sus = not self.isSuspended()
-        c = self.selectedCards()
+        card = self.selectedCards()
         if sus:
-            self.col.sched.suspendCards(c)
+            self.col.sched.suspendCards(card)
         else:
-            self.col.sched.unsuspendCards(c)
+            self.col.sched.unsuspendCards(card)
         self.model.reset()
         self.mw.requireReset()
 
@@ -1608,8 +1608,8 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
                        f.actionGreen_Flag,
                        f.actionBlue_Flag]
 
-        for c, act in enumerate(flagActions):
-            act.setChecked(flag == c+1)
+        for index, act in enumerate(flagActions):
+            act.setChecked(flag == index+1)
 
         qtMenuShortcutWorkaround(self.form.menuFlag)
 
@@ -2035,12 +2035,12 @@ class ChangeModel(QDialog):
             # set to 'nothing'
             return
         # find another combo with same index
-        for c in combos:
-            if c == cb:
+        for combo in combos:
+            if combo == cb:
                 continue
-            if c.currentIndex() == i:
+            if combo.currentIndex() == i:
                 self.pauseUpdate = True
-                c.setCurrentIndex(indices[cb])
+                combo.setCurrentIndex(indices[cb])
                 self.pauseUpdate = False
                 break
         indices[cb] = i
@@ -2081,7 +2081,7 @@ class ChangeModel(QDialog):
         # check maps
         fmap = self.getFieldMap()
         cmap = self.getTemplateMap()
-        if any(True for c in list(cmap.values()) if c is None):
+        if any(True for cardType in list(cmap.values()) if cardType is None):
             if not askUser(_("""\
 Any cards mapped to nothing will be deleted. \
 If a note has no remaining cards, it will be lost. \

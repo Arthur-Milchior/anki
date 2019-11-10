@@ -36,8 +36,8 @@ class FieldDialog(QDialog):
     def fillFields(self):
         self.currentIdx = None
         self.form.fieldList.clear()
-        for c, f in enumerate(self.model['flds']):
-            self.form.fieldList.addItem("{}: {}".format(c+1, f['name']))
+        for index, f in enumerate(self.model['flds']):
+            self.form.fieldList.addItem("{}: {}".format(index+1, f['name']))
 
     def setupSignals(self):
         f = self.form
@@ -93,9 +93,9 @@ class FieldDialog(QDialog):
     def onDelete(self):
         if len(self.model['flds']) < 2:
             return showWarning(_("Notes require at least one field."))
-        c = self.mm.useCount(self.model)
-        c = ngettext("%d note", "%d notes", c) % c
-        if not askUser(_("Delete field from %s?") % c):
+        count = self.mm.useCount(self.model)
+        count = ngettext("%d note", "%d notes", count) % count
+        if not askUser(_("Delete field from %s?") % count):
             return
         f = self.model['flds'][self.form.fieldList.currentRow()]
         self.mw.progress.start()

@@ -71,15 +71,15 @@ class TagManager:
         self.changed = True
 
     def byDeck(self, did, children=False):
-        basequery = "select n.tags from cards c, notes n WHERE c.nid = n.id"
+        basequery = "select n.tags from cards card, notes n WHERE card.nid = n.id"
         if not children:
-            query = basequery + " AND c.did=?"
+            query = basequery + " AND card.did=?"
             res = self.col.db.list(query, did)
             return list(set(self.split(" ".join(res))))
         dids = [did]
         for name, id in self.col.decks.children(did):
             dids.append(id)
-        query = basequery + " AND c.did IN " + ids2str(dids)
+        query = basequery + " AND card.did IN " + ids2str(dids)
         res = self.col.db.list(query)
         return list(set(self.split(" ".join(res))))
 
@@ -102,7 +102,7 @@ class TagManager:
             l = "tags "
             fn = self.remFromStr
         lim = " or ".join(
-            [l+"like :_%d" % c for c, t in enumerate(newTags)])
+            [l+"like :_%d" % card for card, t in enumerate(newTags)])
         res = self.col.db.all(
             "select id, tags from notes where id in %s and (%s)" % (
                 ids2str(ids), lim),

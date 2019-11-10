@@ -62,7 +62,7 @@ class Finder:
         else:
             preds = "1"
         sql = """
-select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
+select distinct(n.id) from cards card, notes n where card.nid=n.id and """+preds
         try:
             res = self.col.db.list(sql, *args)
         except:
@@ -77,48 +77,48 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         inQuote = False
         tokens = []
         token = ""
-        for c in query:
+        for char in query:
             # quoted text
-            if c in ("'", '"'):
+            if char in ("'", '"'):
                 if inQuote:
-                    if c == inQuote:
+                    if char == inQuote:
                         inQuote = False
                     else:
-                        token += c
+                        token += char
                 elif token:
                     # quotes are allowed to start directly after a :
                     if token[-1] == ":":
-                        inQuote = c
+                        inQuote = char
                     else:
-                        token += c
+                        token += char
                 else:
-                    inQuote = c
+                    inQuote = char
             # separator (space and ideographic space)
-            elif c in (" ", '\u3000'):
+            elif char in (" ", '\u3000'):
                 if inQuote:
-                    token += c
+                    token += char
                 elif token:
                     # space marks token finished
                     tokens.append(token)
                     token = ""
             # nesting
-            elif c in ("(", ")"):
+            elif char in ("(", ")"):
                 if inQuote:
-                    token += c
+                    token += char
                 else:
-                    if c == ")" and token:
+                    if char == ")" and token:
                         tokens.append(token)
                         token = ""
-                    tokens.append(c)
+                    tokens.append(char)
             # negation
-            elif c == "-":
+            elif char == "-":
                 if token:
-                    token += c
+                    token += char
                 elif not tokens or tokens[-1] != "-":
                     tokens.append("-")
             # normal character
             else:
-                token += c
+                token += char
         # if we finished in a token, add it
         if token:
             tokens.append(token)
@@ -188,9 +188,9 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
     def _query(self, preds, order):
         # can we skip the note table?
         if "n." not in preds and "n." not in order:
-            sql = "select c.id from cards c where "
+            sql = "select card.id from cards card where "
         else:
-            sql = "select c.id from cards c, notes n where c.nid=n.id and "
+            sql = "select card.id from cards card, notes n where card.nid=n.id and "
         # combine with preds
         if preds:
             sql += "(" + preds + ")"
@@ -215,27 +215,27 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         sort = None
         if type.startswith("note"):
             if type == "noteCrt":
-                sort = "n.id, c.ord"
+                sort = "n.id, card.ord"
             elif type == "noteMod":
-                sort = "n.mod, c.ord"
+                sort = "n.mod, card.ord"
             elif type == "noteFld":
-                sort = "n.sfld collate nocase, c.ord"
+                sort = "n.sfld collate nocase, card.ord"
         elif type.startswith("card"):
             if type == "cardMod":
-                sort = "c.mod"
+                sort = "card.mod"
             elif type == "cardReps":
-                sort = "c.reps"
+                sort = "card.reps"
             elif type == "cardDue":
-                sort = "c.type, c.due"
+                sort = "card.type, card.due"
             elif type == "cardEase":
-                sort = "c.type == 0, c.factor"
+                sort = "card.type == 0, card.factor"
             elif type == "cardLapses":
-                sort = "c.lapses"
+                sort = "card.lapses"
             elif type == "cardIvl":
-                sort = "c.ivl"
+                sort = "card.ivl"
         if not sort:
             # deck has invalid sort order; revert to noteCrt
-            sort = "n.id, c.ord"
+            sort = "n.id, card.ord"
         return " order by " + sort, self.col.conf['sortBackwards']
 
     # Commands
@@ -264,13 +264,13 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
                 return f"queue in ({QUEUE_LRN}, {QUEUE_DAY_LRN})"
             return "type = %d" % n
         elif val == "suspended":
-            return f"c.queue = {QUEUE_SUSPENDED}"
+            return f"card.queue = {QUEUE_SUSPENDED}"
         elif val == "buried":
-            return f"c.queue in ({QUEUE_SCHED_BURIED}, {QUEUE_USER_BURIED})"
+            return f"card.queue in ({QUEUE_SCHED_BURIED}, {QUEUE_USER_BURIED})"
         elif val == "due":
             return f"""
-(c.queue in ({QUEUE_REV},{QUEUE_DAY_LRN}) and c.due <= %d) or
-(c.queue = {QUEUE_LRN} and c.due <= %d)""" % (
+(card.queue in ({QUEUE_REV},{QUEUE_DAY_LRN}) and card.due <= %d) or
+(card.queue = {QUEUE_LRN} and card.due <= %d)""" % (
     self.col.sched.today, self.col.sched.dayCutoff)
 
     def _findFlag(self, args):
@@ -279,7 +279,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
             return
         val = int(val)
         mask = 2**3 - 1
-        return "(c.flags & %d) == %d" % (mask, val)
+        return "(card.flags & %d) == %d" % (mask, val)
 
     def _findRated(self, args):
         # days(:optional_ease)
@@ -297,7 +297,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
                 return
             ease = "and ease=%s" % r[1]
         cutoff = (self.col.sched.dayCutoff - 86400*days)*1000
-        return ("c.id in (select cid from revlog where id>%d %s)" %
+        return ("card.id in (select cid from revlog where id>%d %s)" %
                 (cutoff, ease))
 
     def _findAdded(self, args):
@@ -307,7 +307,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         except ValueError:
             return
         cutoff = (self.col.sched.dayCutoff - 86400*days)*1000
-        return "c.id > %d" % cutoff
+        return "card.id > %d" % cutoff
 
     def _findProp(self, args):
         # extract
@@ -333,7 +333,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         if prop == "due":
             val += self.col.sched.today
             # only valid for review/daily learning
-            q.append(f"(c.queue in ({QUEUE_REV},{QUEUE_DAY_LRN}))")
+            q.append(f"(card.queue in ({QUEUE_REV},{QUEUE_DAY_LRN}))")
         elif prop == "ease":
             prop = "factor"
             val = int(val*1000)
@@ -356,7 +356,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         (val, args) = args
         if re.search("[^0-9,]", val):
             return
-        return "c.id in (%s)" % val
+        return "card.id in (%s)" % val
 
     def _findMid(self, args):
         (val, args) = args
@@ -380,7 +380,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
             return "skip"
         # deck types
         elif val == "filtered":
-            return "c.odid"
+            return "card.odid"
         def dids(did):
             if not did:
                 return None
@@ -402,7 +402,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         if not ids:
             return
         sids = ids2str(ids)
-        return "c.did in %s or c.odid in %s" % (sids, sids)
+        return "card.did in %s or card.odid in %s" % (sids, sids)
 
     def _findTemplate(self, args):
         # were we given an ordinal number?
@@ -412,7 +412,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         except:
             num = None
         if num is not None:
-            return "c.ord = %d" % num
+            return "card.ord = %d" % num
         # search for template names
         lims = []
         for m in self.col.models.all():
@@ -424,7 +424,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
                         # model instead
                         lims.append("(n.mid = %s)" % m['id'])
                     else:
-                        lims.append("(n.mid = %s and c.ord = %s)" % (
+                        lims.append("(n.mid = %s and card.ord = %s)" % (
                             m['id'], t['ord']))
         return " or ".join(lims)
 
@@ -514,8 +514,8 @@ def findReplace(col, nids, src, dst, regex=False, field=None, fold=True):
                 # note doesn't have that field
                 continue
         else:
-            for c in range(len(sflds)):
-                sflds[c] = repl(sflds[c])
+            for fieldIndex in range(len(sflds)):
+                sflds[fieldIndex] = repl(sflds[fieldIndex])
         flds = joinFields(sflds)
         if flds != origFlds:
             nids.append(nid)
@@ -563,9 +563,9 @@ def findDupes(col, fieldName, search=""):
     def ordForMid(mid):
         if mid not in fields:
             model = col.models.get(mid)
-            for c, f in enumerate(model['flds']):
+            for fieldIndex, f in enumerate(model['flds']):
                 if f['name'].lower() == fieldName.lower():
-                    fields[mid] = c
+                    fields[mid] = fieldIndex
                     break
         return fields[mid]
     for nid, mid, flds in col.db.all(

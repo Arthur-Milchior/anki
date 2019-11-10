@@ -298,26 +298,26 @@ Please create a new card type first."""))
     def _renderPreview(self):
         self.cancelPreviewTimer()
 
-        c = self.card
+        card = self.card
         ti = self.maybeTextInput
 
-        bodyclass = bodyClass(self.mw.col, c)
+        bodyclass = bodyClass(self.mw.col, card)
 
-        q = ti(mungeQA(self.mw.col, c.q(reload=True)))
-        q = runFilter("prepareQA", q, c, "clayoutQuestion")
+        q = ti(mungeQA(self.mw.col, card.q(reload=True)))
+        q = runFilter("prepareQA", q, card, "clayoutQuestion")
 
-        a = ti(mungeQA(self.mw.col, c.a()), type='a')
-        a = runFilter("prepareQA", a, c, "clayoutAnswer")
+        a = ti(mungeQA(self.mw.col, card.a()), type='a')
+        a = runFilter("prepareQA", a, card, "clayoutAnswer")
 
         # use _showAnswer to avoid the longer delay
         self.pform.frontWeb.eval("_showAnswer(%s,'%s');" % (json.dumps(q), bodyclass))
         self.pform.backWeb.eval("_showAnswer(%s, '%s');" % (json.dumps(a), bodyclass))
 
         clearAudioQueue()
-        if c.id not in self.playedAudio:
-            playFromText(c.q())
-            playFromText(c.a())
-            self.playedAudio[c.id] = True
+        if card.id not in self.playedAudio:
+            playFromText(card.q())
+            playFromText(card.a())
+            self.playedAudio[card.id] = True
 
         self.updateCardNames()
 
@@ -347,8 +347,8 @@ Please create a new card type first."""))
                            default=self.card.template()['name'])
         if not name:
             return
-        if name in [c.template()['name'] for c in self.cards
-                    if c.template()['ord'] != self.ord]:
+        if name in [card.template()['name'] for card in self.cards
+                    if card.template()['ord'] != self.ord]:
             return showWarning(_("That name is already used."))
         self.card.template()['name'] = name
         self.redraw()
@@ -378,7 +378,7 @@ Please create a new card type first."""))
         n = len(self.cards) + 1
         while 1:
             name = _("Card %d") % n
-            if name not in [c.template()['name'] for c in self.cards]:
+            if name not in [card.template()['name'] for card in self.cards]:
                 break
             n += 1
         return name

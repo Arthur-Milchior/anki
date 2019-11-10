@@ -377,10 +377,10 @@ class Editor:
         if not self.note:
             return True
         m = self.note.model()
-        for c, f in enumerate(self.note.fields):
+        for index, f in enumerate(self.note.fields):
             notChangedvalues = {"", "<br>"}
-            if previousNote and m['flds'][c]['sticky']:
-                notChangedvalues.add(previousNote.fields[c])
+            if previousNote and m['flds'][index]['sticky']:
+                notChangedvalues.add(previousNote.fields[index])
             if f not in notChangedvalues:
                 return False
         return True

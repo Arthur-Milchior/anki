@@ -69,18 +69,18 @@ class TagLimit(QDialog):
         # gather yes/no tags
         yes = []
         no = []
-        for c in range(self.dialog.activeList.count()):
+        for index in range(self.dialog.activeList.count()):
             # active
             if self.dialog.activeCheck.isChecked():
-                item = self.dialog.activeList.item(c)
+                item = self.dialog.activeList.item(index)
                 idx = self.dialog.activeList.indexFromItem(item)
                 if self.dialog.activeList.selectionModel().isSelected(idx):
-                    yes.append(self.tags[c])
+                    yes.append(self.tags[index])
             # inactive
-            item = self.dialog.inactiveList.item(c)
+            item = self.dialog.inactiveList.item(index)
             idx = self.dialog.inactiveList.indexFromItem(item)
             if self.dialog.inactiveList.selectionModel().isSelected(idx):
-                no.append(self.tags[c])
+                no.append(self.tags[index])
         # save in the deck for future invocations
         self.deck['activeTags'] = yes
         self.deck['inactiveTags'] = no

@@ -236,15 +236,15 @@ def chooseList(prompt, choices, startrow=0, parent=None):
     d.setLayout(l)
     t = QLabel(prompt)
     l.addWidget(t)
-    c = QListWidget()
-    c.addItems(choices)
-    c.setCurrentRow(startrow)
-    l.addWidget(c)
+    widget = QListWidget()
+    widget.addItems(choices)
+    widget.setCurrentRow(startrow)
+    l.addWidget(widget)
     bb = QDialogButtonBox(QDialogButtonBox.Ok)
     bb.accepted.connect(d.accept)
     l.addWidget(bb)
     d.exec_()
-    return c.currentRow()
+    return widget.currentRow()
 
 def getTag(parent, deck, question, tags="user", **kwargs):
     from aqt.tagedit import TagEdit

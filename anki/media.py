@@ -340,10 +340,10 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
 
     def _normalizeNoteRefs(self, nid):
         note = self.col.getNote(nid)
-        for c, fld in enumerate(note.fields):
+        for index, fld in enumerate(note.fields):
             nfc = unicodedata.normalize("NFC", fld)
             if nfc != fld:
-                note.fields[c] = nfc
+                note.fields[index] = nfc
         note.flush()
 
     # Copying on import
@@ -570,7 +570,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         meta = []
         sz = 0
 
-        for c, (fname, csum) in enumerate(self.db.execute(
+        for index, (fname, csum) in enumerate(self.db.execute(
                         "select fname, csum from media where dirty=1"
                         " limit %d"%SYNC_ZIP_COUNT)):
 
@@ -579,8 +579,8 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
 
             if csum:
                 self.col.log("+media zip", fname)
-                z.write(fname, str(c))
-                meta.append((normname, str(c)))
+                z.write(fname, str(index))
+                meta.append((normname, str(index)))
                 sz += os.path.getsize(fname)
             else:
                 self.col.log("-media zip", fname)

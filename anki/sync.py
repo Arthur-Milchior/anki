@@ -125,8 +125,8 @@ class Syncer:
                 break
         # step 5: sanity check
         runHook("sync", "sanity")
-        c = self.sanityCheck()
-        ret = self.server.sanityCheck2(client=c)
+        check = self.sanityCheck()
+        ret = self.server.sanityCheck2(client=check)
         if ret['status'] != "ok":
             return self._forceFullSync()
         # finalize
