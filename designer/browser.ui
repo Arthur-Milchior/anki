@@ -316,10 +316,22 @@
     <addaction name="separator"/>
     <addaction name="actionDelete"/>
    </widget>
+   <widget class="QMenu" name="menuColumns">
+    <property name="title">
+     <string>&amp;Columns</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menu_Decks">
+    <property name="title">
+     <string>&amp;Decks</string>
+    </property>
+   </widget>
    <addaction name="menuEdit"/>
    <addaction name="menu_Notes"/>
    <addaction name="menu_Cards"/>
    <addaction name="menuJump"/>
+   <addaction name="menuColumns"/>
+   <addaction name="menu_Decks"/>
    <addaction name="menu_Help"/>
   </widget>
   <action name="actionReschedule">
