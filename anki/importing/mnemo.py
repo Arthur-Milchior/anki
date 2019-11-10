@@ -84,8 +84,8 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""):
             rem = int((next - time.time())/86400)
             card.due = self.col.sched.today+rem
             # get ord
-            m = re.search(r".(\d+)$", row[1])
-            ord = int(m.group(1))-1
+            match = re.search(r".(\d+)$", row[1])
+            ord = int(match.group(1))-1
             if 'cards' not in note:
                 note['cards'] = {}
             note['cards'][ord] = card
@@ -137,33 +137,33 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""):
         self.importNotes(data)
 
     def _addFrontBacks(self, notes):
-        m = addBasicModel(self.col)
-        m['name'] = "Mnemosyne-FrontBack"
+        model = addBasicModel(self.col)
+        model['name'] = "Mnemosyne-FrontBack"
         mm = self.col.models
         t = mm.newTemplate("Back")
         t['qfmt'] = "{{Back}}"
         t['afmt'] = t['qfmt'] + "\n\n<hr id=answer>\n\n{{Front}}"
-        mm.addTemplate(m, t)
-        self._addFronts(notes, m)
+        mm.addTemplate(model, t)
+        self._addFronts(notes, model)
 
     def _addVocabulary(self, notes):
         mm = self.col.models
-        m = mm.new("Mnemosyne-Vocabulary")
+        model = mm.new("Mnemosyne-Vocabulary")
         for f in "Expression", "Pronunciation", "Meaning", "Notes":
             fm = mm.newField(f)
-            mm.addField(m, fm)
+            mm.addField(model, fm)
         t = mm.newTemplate("Recognition")
         t['qfmt'] = "{{Expression}}"
         t['afmt'] = t['qfmt'] + """\n\n<hr id=answer>\n\n\
 {{Pronunciation}}<br>\n{{Meaning}}<br>\n{{Notes}}"""
-        mm.addTemplate(m, t)
+        mm.addTemplate(model, t)
         t = mm.newTemplate("Production")
         t['qfmt'] = "{{Meaning}}"
         t['afmt'] = t['qfmt'] + """\n\n<hr id=answer>\n\n\
 {{Expression}}<br>\n{{Pronunciation}}<br>\n{{Notes}}"""
-        mm.addTemplate(m, t)
-        mm.add(m)
-        self._addFronts(notes, m, fields=("f", "p_1", "m_1", "n"))
+        mm.addTemplate(model, t)
+        mm.add(model)
+        self._addFronts(notes, model, fields=("f", "p_1", "m_1", "n"))
 
     def _addCloze(self, notes):
         data = []

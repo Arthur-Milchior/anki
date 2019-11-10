@@ -498,8 +498,8 @@ select id from notes where id in %s and id not in (select nid from cards)""" %
 
     def emptyCids(self):
         rem = []
-        for m in self.models.all():
-            rem += self.genCards(self.models.nids(m))
+        for model in self.models.all():
+            rem += self.genCards(self.models.nids(model))
         return rem
 
     def emptyCardReport(self, cids):
@@ -544,7 +544,7 @@ where card.nid = note.id and card.id in %s group by nid""" % ids2str(cids)):
         elif type == "note":
             where = "and f.id in " + ids2str(ids)
         elif type == "model":
-            where = "and m.id in " + ids2str(ids)
+            where = "and model.id in " + ids2str(ids)
         elif type == "all":
             where = ""
         else:
@@ -739,15 +739,15 @@ select 1 from notes where id not in (select distinct nid from cards)
 or mid not in %s limit 1""" % ids2str(self.models.ids())):
             return
         # invalid ords
-        for m in self.models.all():
+        for model in self.models.all():
             # ignore clozes
-            if m['type'] != MODEL_STD:
+            if model['type'] != MODEL_STD:
                 continue
             if self.db.scalar("""
 select 1 from cards where ord not in %s and nid in (
 select id from notes where mid = ?) limit 1""" %
-                               ids2str([t['ord'] for t in m['tmpls']]),
-                               m['id']):
+                               ids2str([t['ord'] for t in model['tmpls']]),
+                               model['id']):
                 return
         return True
 
@@ -769,23 +769,23 @@ select id from notes where mid not in """ + ids2str(self.models.ids()))
                          % len(ids))
             self.remNotes(ids)
         # for each model
-        for m in self.models.all():
-            for t in m['tmpls']:
+        for model in self.models.all():
+            for t in model['tmpls']:
                 if t['did'] == "None":
                     t['did'] = None
                     problems.append(_("Fixed AnkiDroid deck override bug."))
-                    self.models.save(m)
-            if m['type'] == MODEL_STD:
+                    self.models.save(model)
+            if model['type'] == MODEL_STD:
                 # model with missing req specification
-                if 'req' not in m:
-                    self.models._updateRequired(m)
-                    problems.append(_("Fixed note type: %s") % m['name'])
+                if 'req' not in model:
+                    self.models._updateRequired(model)
+                    problems.append(_("Fixed note type: %s") % model['name'])
                 # cards with invalid ordinal
                 ids = self.db.list("""
 select id from cards where ord not in %s and nid in (
 select id from notes where mid = ?)""" %
-                                   ids2str([t['ord'] for t in m['tmpls']]),
-                                   m['id'])
+                                   ids2str([t['ord'] for t in model['tmpls']]),
+                                   model['id'])
                 if ids:
                     problems.append(
                         ngettext("Deleted %d card with missing template.",
@@ -795,8 +795,8 @@ select id from notes where mid = ?)""" %
             # notes with invalid field count
             ids = []
             for id, flds in self.db.execute(
-                    "select id, flds from notes where mid = ?", m['id']):
-                if (flds.count("\x1f") + 1) != len(m['flds']):
+                    "select id, flds from notes where mid = ?", model['id']):
+                if (flds.count("\x1f") + 1) != len(model['flds']):
                     ids.append(id)
             if ids:
                 problems.append(
@@ -846,8 +846,8 @@ select id from cards where odue > 0 and (type={CARD_LRN} or queue={CARD_DUE}) an
         # tags
         self.tags.registerNotes()
         # field cache
-        for m in self.models.all():
-            self.updateFieldCache(self.models.nids(m))
+        for model in self.models.all():
+            self.updateFieldCache(self.models.nids(model))
         # new cards can't have a due position > 32 bits, so wrap items over
         # 2 million back to 1 million
         curs.execute(f"""

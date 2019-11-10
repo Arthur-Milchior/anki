@@ -309,10 +309,10 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
     def typeAnsQuestionFilter(self, buf):
         self.typeCorrect = None
         clozeIdx = None
-        m = re.search(self.typeAnsPat, buf)
-        if not m:
+        match = re.search(self.typeAnsPat, buf)
+        if not match:
             return buf
-        fld = m.group(1)
+        fld = match.group(1)
         # if it's a cloze, extract data
         if fld.startswith("cloze:"):
             # get field and cloze position
@@ -612,20 +612,20 @@ time = %(time)d;
 
     def showContextMenu(self):
         opts = self._contextMenu()
-        m = QMenu(self.mw)
-        self._addMenuItems(m, opts)
+        menu = QMenu(self.mw)
+        self._addMenuItems(menu, opts)
 
-        runHook("Reviewer.contextMenuEvent", self, m)
-        qtMenuShortcutWorkaround(m)
-        m.exec_(QCursor.pos())
+        runHook("Reviewer.contextMenuEvent", self, menu)
+        qtMenuShortcutWorkaround(menu)
+        menu.exec_(QCursor.pos())
 
-    def _addMenuItems(self, m, rows):
+    def _addMenuItems(self, menu, rows):
         for row in rows:
             if not row:
-                m.addSeparator()
+                menu.addSeparator()
                 continue
             if len(row) == 2:
-                subm = m.addMenu(row[0])
+                subm = menu.addMenu(row[0])
                 self._addMenuItems(subm, row[1])
                 qtMenuShortcutWorkaround(subm)
                 continue
@@ -634,7 +634,7 @@ time = %(time)d;
             else:
                 label, scut, func = row
                 opts = {}
-            a = m.addAction(label)
+            a = menu.addAction(label)
             if scut:
                 a.setShortcut(QKeySequence(scut))
             if opts.get("checked"):

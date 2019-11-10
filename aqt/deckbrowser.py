@@ -209,17 +209,17 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
     ##########################################################################
 
     def _showOptions(self, did):
-        m = QMenu(self.mw)
-        a = m.addAction(_("Rename"))
+        menu = QMenu(self.mw)
+        a = menu.addAction(_("Rename"))
         a.triggered.connect(lambda b, did=did: self._rename(did))
-        a = m.addAction(_("Options"))
+        a = menu.addAction(_("Options"))
         a.triggered.connect(lambda b, did=did: self._options(did))
-        a = m.addAction(_("Export"))
+        a = menu.addAction(_("Export"))
         a.triggered.connect(lambda b, did=did: self._export(did))
-        a = m.addAction(_("Delete"))
+        a = menu.addAction(_("Delete"))
         a.triggered.connect(lambda b, did=did: self._delete(did))
-        runHook("showDeckOptions", m, did)
-        m.exec_(QCursor.pos())
+        runHook("showDeckOptions", menu, did)
+        menu.exec_(QCursor.pos())
 
     def _export(self, did):
         self.mw.onExport(did=did)

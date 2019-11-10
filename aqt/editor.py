@@ -376,10 +376,10 @@ class Editor:
     def fieldsAreBlank(self, previousNote=None):
         if not self.note:
             return True
-        m = self.note.model()
+        model = self.note.model()
         for index, f in enumerate(self.note.fields):
             notChangedvalues = {"", "<br>"}
-            if previousNote and m['flds'][index]['sticky']:
+            if previousNote and model['flds'][index]['sticky']:
                 notChangedvalues.add(previousNote.fields[index])
             if f not in notChangedvalues:
                 return False
@@ -455,9 +455,9 @@ class Editor:
     def saveAddModeVars(self):
         if self.addMode:
             # save tags to model
-            m = self.note.model()
-            m['tags'] = self.note.tags
-            self.mw.col.models.save(m)
+            model = self.note.model()
+            model['tags'] = self.note.tags
+            self.mw.col.models.save(model)
 
     def hideCompleters(self):
         self.tags.hideCompleter()
@@ -503,9 +503,9 @@ to a cloze type first, via Edit>Change Note Type."""))
         # find the highest existing cloze
         highest = 0
         for name, val in list(self.note.items()):
-            m = re.findall(r"\{\{c(\d+)::", val)
-            if m:
-                highest = max(highest, sorted([int(x) for x in m])[-1])
+            match = re.findall(r"\{\{c(\d+)::", val)
+            if match:
+                highest = max(highest, sorted([int(x) for x in match])[-1])
         # reuse last?
         if not self.mw.app.keyboardModifiers() & Qt.AltModifier:
             highest += 1
@@ -722,9 +722,9 @@ to a cloze type first, via Edit>Change Note Type."""))
 
             # in internal pastes, rewrite mediasrv references to relative
             if internal:
-                m = re.match(r"http://127.0.0.1:\d+/(.*)$", src)
-                if m:
-                    tag['src'] = m.group(1)
+                match = re.match(r"http://127.0.0.1:\d+/(.*)$", src)
+                if match:
+                    tag['src'] = match.group(1)
             else:
                 # in external pastes, download remote media
                 if self.isURL(src):
@@ -761,32 +761,32 @@ to a cloze type first, via Edit>Change Note Type."""))
     ######################################################################
 
     def onAdvanced(self):
-        m = QMenu(self.mw)
-        a = m.addAction(_("MathJax inline"))
+        menu = QMenu(self.mw)
+        a = menu.addAction(_("MathJax inline"))
         a.triggered.connect(self.insertMathjaxInline)
-        a.setShortcut(QKeySequence("Ctrl+M, M"))
-        a = m.addAction(_("MathJax block"))
+        a.setShortcut(QKeySequence("Ctrl+MENU, MENU"))
+        a = menu.addAction(_("MathJax block"))
         a.triggered.connect(self.insertMathjaxBlock)
-        a.setShortcut(QKeySequence("Ctrl+M, E"))
-        a = m.addAction(_("MathJax chemistry"))
+        a.setShortcut(QKeySequence("Ctrl+MENU, E"))
+        a = menu.addAction(_("MathJax chemistry"))
         a.triggered.connect(self.insertMathjaxChemistry)
-        a.setShortcut(QKeySequence("Ctrl+M, C"))
-        a = m.addAction(_("LaTeX"))
+        a.setShortcut(QKeySequence("Ctrl+MENU, C"))
+        a = menu.addAction(_("LaTeX"))
         a.triggered.connect(self.insertLatex)
         a.setShortcut(QKeySequence("Ctrl+T, T"))
-        a = m.addAction(_("LaTeX equation"))
+        a = menu.addAction(_("LaTeX equation"))
         a.triggered.connect(self.insertLatexEqn)
         a.setShortcut(QKeySequence("Ctrl+T, E"))
-        a = m.addAction(_("LaTeX math env."))
+        a = menu.addAction(_("LaTeX math env."))
         a.triggered.connect(self.insertLatexMathEnv)
-        a.setShortcut(QKeySequence("Ctrl+T, M"))
-        a = m.addAction(_("Edit HTML"))
+        a.setShortcut(QKeySequence("Ctrl+T, MENU"))
+        a = menu.addAction(_("Edit HTML"))
         a.triggered.connect(self.onHtmlEdit)
         a.setShortcut(QKeySequence("Ctrl+Shift+X"))
 
-        qtMenuShortcutWorkaround(m)
+        qtMenuShortcutWorkaround(menu)
 
-        m.exec_(QCursor.pos())
+        menu.exec_(QCursor.pos())
 
     # LaTeX
     ######################################################################
@@ -1010,15 +1010,15 @@ class EditorWebView(AnkiWebView):
         clip.setMimeData(mime)
 
     def contextMenuEvent(self, evt):
-        m = QMenu(self)
-        a = m.addAction(_("Cut"))
+        menu = QMenu(self)
+        a = menu.addAction(_("Cut"))
         a.triggered.connect(self.onCut)
-        a = m.addAction(_("Copy"))
+        a = menu.addAction(_("Copy"))
         a.triggered.connect(self.onCopy)
-        a = m.addAction(_("Paste"))
+        a = menu.addAction(_("Paste"))
         a.triggered.connect(self.onPaste)
-        runHook("EditorWebView.contextMenuEvent", self, m)
-        m.popup(QCursor.pos())
+        runHook("EditorWebView.contextMenuEvent", self, menu)
+        menu.popup(QCursor.pos())
 
 # QFont returns "Kozuka Gothic Pro L" but WebEngine expects "Kozuka Gothic Pro Light"
 # - there may be other cases like a trailing 'Bold' that need fixing, but will

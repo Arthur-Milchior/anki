@@ -163,11 +163,11 @@ class AnkiWebView(QWebEngineView):
         self.triggerPageAction(QWebEnginePage.SelectAll)
 
     def contextMenuEvent(self, evt):
-        m = QMenu(self)
-        a = m.addAction(_("Copy"))
+        menu = QMenu(self)
+        a = menu.addAction(_("Copy"))
         a.triggered.connect(self.onCopy)
-        runHook("AnkiWebView.contextMenuEvent", self, m)
-        m.popup(QCursor.pos())
+        runHook("AnkiWebView.contextMenuEvent", self, menu)
+        menu.popup(QCursor.pos())
 
     def dropEvent(self, evt):
         pass

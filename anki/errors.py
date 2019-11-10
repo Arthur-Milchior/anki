@@ -8,10 +8,10 @@ class AnkiError(Exception):
         self.type = type
         self.data = data
     def __str__(self):
-        m = self.type
+        type = self.type
         if self.data:
-            m += ": %s" % repr(self.data)
-        return m
+            type += ": %s" % repr(self.data)
+        return type
 
 class DeckRenameError(Exception):
     def __init__(self, description):

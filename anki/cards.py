@@ -127,8 +127,8 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
 
     def _getQA(self, reload=False, browser=False):
         if not self._qa or reload:
-            f = self.note(reload); m = self.model(); t = self.template()
-            data = [self.id, f.id, m['id'], self.odid or self.did, self.ord,
+            f = self.note(reload); model = self.model(); t = self.template()
+            data = [self.id, f.id, model['id'], self.odid or self.did, self.ord,
                     f.stringTags(), f.joinedFields(), self.flags]
             if browser:
                 args = (t.get('bqfmt'), t.get('bafmt'))
@@ -146,8 +146,8 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
         return self.col.models.get(self.note().mid)
 
     def template(self):
-        m = self.model()
-        if m['type'] == MODEL_STD:
+        model = self.model()
+        if model['type'] == MODEL_STD:
             return self.model()['tmpls'][self.ord]
         else:
             return self.model()['tmpls'][0]

@@ -203,8 +203,8 @@ class Syncer:
             if usn == -1:
                 return "tag had usn = -1"
         found = False
-        for m in self.col.models.all():
-            if m['usn'] == -1:
+        for model in self.col.models.all():
+            if model['usn'] == -1:
                 return "model had usn = -1"
         if found:
             self.col.models.save()
@@ -331,9 +331,9 @@ from notes where %s""" % d)
     ##########################################################################
 
     def getModels(self):
-        mods = [m for m in self.col.models.all() if m['usn'] == -1]
-        for m in mods:
-            m['usn'] = self.maxUsn
+        mods = [model for model in self.col.models.all() if model['usn'] == -1]
+        for model in mods:
+            model['usn'] = self.maxUsn
         self.col.models.save()
         return mods
 

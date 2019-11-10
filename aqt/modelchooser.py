@@ -71,10 +71,10 @@ class ModelChooser(QHBoxLayout):
             buttons=[edit], cancel=True, geomKey="selectModel")
         if not ret.name:
             return
-        m = self.deck.models.byName(ret.name)
-        self.deck.conf['curModel'] = m['id']
+        model = self.deck.models.byName(ret.name)
+        self.deck.conf['curModel'] = model['id']
         cdeck = self.deck.decks.current()
-        cdeck['mid'] = m['id']
+        cdeck['mid'] = model['id']
         self.deck.decks.save(cdeck)
         runHook("currentModelChanged")
         self.mw.reset()

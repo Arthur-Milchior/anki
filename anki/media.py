@@ -85,8 +85,8 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             try:
                 self.db.execute("""
     insert into media
-     select m.fname, csum, mod, ifnull((select 1 from log l2 where l2.fname=m.fname), 0) as dirty
-     from old.media m
+     select media.fname, csum, mod, ifnull((select 1 from log l2 where l2.fname=oldMedia.fname), 0) as dirty
+     from old.media oldMedia
      left outer join old.log l using (fname)
      union
      select fname, null, 0, 1 from old.log where type=1;""")
@@ -221,13 +221,13 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         ords = set(re.findall(r"{{c(\d+)::.+?}}", string))
         strings = []
         from anki.template.template import clozeReg
-        def qrepl(m):
-            if m.group(4):
-                return "[%s]" % m.group(4)
+        def qrepl(match):
+            if match.group(4):
+                return "[%s]" % match.group(4)
             else:
                 return "[...]"
-        def arepl(m):
-            return m.group(2)
+        def arepl(match):
+            return match.group(2)
         for ord in ords:
             s = re.sub(clozeReg%ord, qrepl, string)
             s = re.sub(clozeReg%".+?", "\\2", s)

@@ -472,23 +472,23 @@ class Browser(QMainWindow):
         self.form.tableView.customContextMenuRequested.connect(self.onContextMenu)
 
     def onContextMenu(self, _point):
-        m = QMenu()
+        menu = QMenu()
         for act in self.form.menu_Cards.actions():
-            m.addAction(act)
-        m.addSeparator()
+            menu.addAction(act)
+        menu.addSeparator()
         for act in self.form.menu_Notes.actions():
-            m.addAction(act)
-        runHook("browser.onContextMenu", self, m)
+            menu.addAction(act)
+        runHook("browser.onContextMenu", self, menu)
 
-        qtMenuShortcutWorkaround(m)
-        m.exec_(QCursor.pos())
+        qtMenuShortcutWorkaround(menu)
+        menu.exec_(QCursor.pos())
 
     def updateFont(self):
         # we can't choose different line heights efficiently, so we need
         # to pick a line height big enough for any card template
         curmax = 16
-        for m in self.col.models.all():
-            for t in m['tmpls']:
+        for model in self.col.models.all():
+            for t in model['tmpls']:
                 bsize = t.get("bsize", 0)
                 if bsize > curmax:
                     curmax = bsize
@@ -751,13 +751,13 @@ by clicking on one on the left."""))
 
     def onHeaderContext(self, pos):
         gpos = self.form.tableView.mapToGlobal(pos)
-        m = QMenu()
+        menu = QMenu()
         for type, name in self.columns:
-            a = m.addAction(name)
+            a = menu.addAction(name)
             a.setCheckable(True)
             a.setChecked(type in self.model.activeCols)
             a.toggled.connect(lambda b, t=type: self.toggleField(t))
-        m.exec_(gpos)
+        menu.exec_(gpos)
 
     def toggleField(self, type):
         self.editor.saveNow(lambda: self._toggleField(type))
@@ -901,9 +901,9 @@ by clicking on one on the left."""))
         fillGroups(root, grps)
 
     def _modelTree(self, root):
-        for m in sorted(self.col.models.all(), key=itemgetter("name")):
+        for model in sorted(self.col.models.all(), key=itemgetter("name")):
             mitem = self.CallbackItem(
-                root, m['name'], lambda m=m: self.setFilter("note", m['name']))
+                root, model['name'], lambda model=model: self.setFilter("note", model['name']))
             mitem.setIcon(0, QIcon(":/icons/notetype.svg"))
 
     # Filter tree
@@ -1007,17 +1007,17 @@ by clicking on one on the left."""))
         return subm
 
     def _tagFilters(self):
-        m = SubMenu(_("Tags"))
+        menu = SubMenu(_("Tags"))
 
-        m.addItem(_("Clear Unused"), self.clearUnusedTags)
-        m.addSeparator()
+        menu.addItem(_("Clear Unused"), self.clearUnusedTags)
+        menu.addSeparator()
 
         tagList = MenuList()
         for t in sorted(self.col.tags.all(), key=lambda s: s.lower()):
             tagList.addItem(t, self._filterFunc("tag", t))
 
-        m.addChild(tagList.chunked())
-        return m
+        menu.addChild(tagList.chunked())
+        return menu
 
     def _deckFilters(self):
         def addDecks(parent, decks):
@@ -1043,10 +1043,10 @@ by clicking on one on the left."""))
         return root
 
     def _noteTypeFilters(self):
-        m = SubMenu(_("Note Types"))
+        menu = SubMenu(_("Note Types"))
 
-        m.addItem(_("Manage..."), self.mw.onNoteTypes)
-        m.addSeparator()
+        menu.addItem(_("Manage..."), self.mw.onNoteTypes)
+        menu.addSeparator()
 
         noteTypes = MenuList()
         for nt in sorted(self.col.models.all(), key=lambda nt: nt['name'].lower()):
@@ -1067,8 +1067,8 @@ by clicking on one on the left."""))
                     subm.addItem(name, self._filterFunc(
                         "note", nt['name'], "card", str(index+1)))
 
-        m.addChild(noteTypes.chunked())
-        return m
+        menu.addChild(noteTypes.chunked())
+        return menu
 
     # Favourites
     ######################################################################
@@ -1154,7 +1154,7 @@ by clicking on one on the left."""))
         from anki.stats import CardStats
         cs = CardStats(self.col, self.card)
         rep = cs.report()
-        m = self.card.model()
+        model = self.card.model()
         rep = """
 <div style='width: 400px; margin: 0 auto 0;
 border: 1px solid #000; padding: 3px; '>%s</div>""" % rep

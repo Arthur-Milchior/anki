@@ -87,13 +87,13 @@ class Template:
 
             # check for cloze
             val = None
-            m = re.match(r"c[qa]:(\d+):(.+)", section_name)
-            if m:
+            match = re.match(r"c[qa]:(\d+):(.+)", section_name)
+            if match:
                 # get full field text
-                txt = get_or_attr(context, m.group(2), None)
-                m = re.search(clozeReg%m.group(1), txt)
-                if m:
-                    val = m.group(1)
+                txt = get_or_attr(context, match.group(2), None)
+                match = re.search(clozeReg%match.group(1), txt)
+                if match:
+                    val = match.group(1)
             else:
                 val = get_or_attr(context, section_name, None)
 
@@ -198,17 +198,17 @@ class Template:
         if not re.search(reg%ord, txt):
             return ""
         txt = self._removeFormattingFromMathjax(txt, ord)
-        def repl(m):
+        def repl(match):
             # replace chosen cloze with type
             if type == "q":
-                if m.group(4):
-                    buf = "[%s]" % m.group(4)
+                if match.group(4):
+                    buf = "[%s]" % match.group(4)
                 else:
                     buf = "[...]"
             else:
-                buf = m.group(2)
+                buf = match.group(2)
             # uppercase = no formatting
-            if m.group(1) == "c":
+            if match.group(1) == "c":
                 buf = "<span class=cloze>%s</span>" % buf
             return buf
         txt = re.sub(reg%ord, repl, txt)
@@ -222,18 +222,18 @@ class Template:
         # flags in middle of expression deprecated
         creg = clozeReg.replace("(?si)", "")
         regex = r"(?si)(\\[([])(.*?)"+(creg%ord)+r"(.*?)(\\[\])])"
-        def repl(m):
+        def repl(match):
             enclosed = True
             for s in closing:
-                if s in m.group(1):
+                if s in match.group(1):
                     enclosed = False
             for s in opening:
-                if s in m.group(7):
+                if s in match.group(7):
                     enclosed = False
             if not enclosed:
-                return m.group(0)
+                return match.group(0)
             # remove formatting
-            return m.group(0).replace("{{c", "{{C")
+            return match.group(0).replace("{{c", "{{C")
         txt = re.sub(regex, repl, txt)
         return txt
 

@@ -68,10 +68,10 @@ class Models(QDialog):
         self.models = self.col.models.all()
         self.models.sort(key=itemgetter("name"))
         self.form.modelsList.clear()
-        for m in self.models:
-            mUse = self.mm.useCount(m)
+        for model in self.models:
+            mUse = self.mm.useCount(model)
             mUse = ngettext("%d note", "%d notes", mUse) % mUse
-            item = QListWidgetItem("%s [%s]" % (m['name'], mUse))
+            item = QListWidgetItem("%s [%s]" % (model['name'], mUse))
             self.form.modelsList.addItem(item)
         self.form.modelsList.setCurrentRow(row)
 
@@ -82,13 +82,13 @@ class Models(QDialog):
         self.model = self.models[idx]
 
     def onAdd(self):
-        m = AddModel(self.mw, self).get()
-        if m:
-            txt = getText(_("Name:"), default=m['name'])[0]
+        model = AddModel(self.mw, self).get()
+        if model:
+            txt = getText(_("Name:"), default=model['name'])[0]
             if txt:
-                m['name'] = txt
-            self.mm.ensureNameUnique(m)
-            self.mm.save(m)
+                model['name'] = txt
+            self.mm.ensureNameUnique(model)
+            self.mm.save(model)
             self.updateModelsList()
 
     def onDelete(self):
@@ -178,10 +178,10 @@ class AddModel(QDialog):
             self.dialog.models.addItem(item)
             self.models.append((True, func))
         # add copies
-        for m in sorted(self.col.models.all(), key=itemgetter("name")):
-            item = QListWidgetItem(_("Clone: %s") % m['name'])
+        for model in sorted(self.col.models.all(), key=itemgetter("name")):
+            item = QListWidgetItem(_("Clone: %s") % model['name'])
             self.dialog.models.addItem(item)
-            self.models.append((False, m))
+            self.models.append((False, model))
         self.dialog.models.setCurrentRow(0)
         # the list widget will swallow the enter key
         s = QShortcut(QKeySequence("Return"), self)

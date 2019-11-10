@@ -138,20 +138,20 @@ class AddCards(QDialog):
         self.historyButton.setEnabled(True)
 
     def onHistory(self):
-        m = QMenu(self)
+        menu = QMenu(self)
         for nid in self.history:
             if self.mw.col.findNotes("nid:%s" % nid):
                 fields = self.mw.col.getNote(nid).fields
                 txt = htmlToTextLine(", ".join(fields))
                 if len(txt) > 30:
                     txt = txt[:30] + "..."
-                a = m.addAction(_("Edit \"%s\"") % txt)
+                a = menu.addAction(_("Edit \"%s\"") % txt)
                 a.triggered.connect(lambda b, nid=nid: self.editHistory(nid))
             else:
-                a = m.addAction(_("(Note deleted)"))
+                a = menu.addAction(_("(Note deleted)"))
                 a.setEnabled(False)
-        runHook("AddCards.onHistory", self, m)
-        m.exec_(self.historyButton.mapToGlobal(QPoint(0,0)))
+        runHook("AddCards.onHistory", self, menu)
+        menu.exec_(self.historyButton.mapToGlobal(QPoint(0,0)))
 
     def editHistory(self, nid):
         browser = aqt.dialogs.open("Browser", self.mw)

@@ -448,8 +448,8 @@ from the profile screen."))
         backups = []
         for file in os.listdir(dir):
             # only look for new-style format
-            m = re.match(r"backup-\d{4}-\d{2}-.+.colpkg", file)
-            if not m:
+            match = re.match(r"backup-\d{4}-\d{2}-.+.colpkg", file)
+            if not match:
                 continue
             backups.append(file)
         backups.sort()
@@ -937,25 +937,25 @@ QTreeWidget {
     ##########################################################################
 
     def setupMenus(self):
-        m = self.form
-        m.actionSwitchProfile.triggered.connect(
+        menu = self.form
+        menu.actionSwitchProfile.triggered.connect(
             self.unloadProfileAndShowProfileManager)
-        m.actionImport.triggered.connect(self.onImport)
-        m.actionExport.triggered.connect(self.onExport)
-        m.actionExit.triggered.connect(self.close)
-        m.actionPreferences.triggered.connect(self.onPrefs)
-        m.actionAbout.triggered.connect(self.onAbout)
-        m.actionUndo.triggered.connect(self.onUndo)
+        menu.actionImport.triggered.connect(self.onImport)
+        menu.actionExport.triggered.connect(self.onExport)
+        menu.actionExit.triggered.connect(self.close)
+        menu.actionPreferences.triggered.connect(self.onPrefs)
+        menu.actionAbout.triggered.connect(self.onAbout)
+        menu.actionUndo.triggered.connect(self.onUndo)
         if qtminor < 11:
-            m.actionUndo.setShortcut(QKeySequence(_("Ctrl+Alt+Z")))
-        m.actionFullDatabaseCheck.triggered.connect(self.onCheckDB)
-        m.actionCheckMediaDatabase.triggered.connect(self.onCheckMediaDB)
-        m.actionDocumentation.triggered.connect(self.onDocumentation)
-        m.actionDonate.triggered.connect(self.onDonate)
-        m.actionStudyDeck.triggered.connect(self.onStudyDeck)
-        m.actionCreateFiltered.triggered.connect(self.onCram)
-        m.actionEmptyCards.triggered.connect(self.onEmptyCards)
-        m.actionNoteTypes.triggered.connect(self.onNoteTypes)
+            menu.actionUndo.setShortcut(QKeySequence(_("Ctrl+Alt+Z")))
+        menu.actionFullDatabaseCheck.triggered.connect(self.onCheckDB)
+        menu.actionCheckMediaDatabase.triggered.connect(self.onCheckMediaDB)
+        menu.actionDocumentation.triggered.connect(self.onDocumentation)
+        menu.actionDonate.triggered.connect(self.onDonate)
+        menu.actionStudyDeck.triggered.connect(self.onStudyDeck)
+        menu.actionCreateFiltered.triggered.connect(self.onCram)
+        menu.actionEmptyCards.triggered.connect(self.onEmptyCards)
+        menu.actionNoteTypes.triggered.connect(self.onNoteTypes)
 
     def updateTitleBar(self):
         self.setWindowTitle("Anki")
@@ -1318,9 +1318,9 @@ will be lost. Continue?"""))
         tgt = tgt or self
         for action in tgt.findChildren(QAction):
             txt = str(action.text())
-            m = re.match(r"^(.+)\(&.+\)(.+)?", txt)
-            if m:
-                action.setText(m.group(1) + (m.group(2) or ""))
+            match = re.match(r"^(.+)\(&.+\)(.+)?", txt)
+            if match:
+                action.setText(match.group(1) + (match.group(2) or ""))
 
     def hideStatusTips(self):
         for action in self.findChildren(QAction):

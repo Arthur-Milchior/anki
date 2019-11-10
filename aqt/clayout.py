@@ -118,18 +118,18 @@ class CardLayout(QDialog):
         matches = re.findall("{{[^#/}]+?}}", fmt)
         charsAllowed = 30
         result = collections.OrderedDict()
-        for m in matches:
+        for match in matches:
             # strip off mustache
-            m = re.sub(r"[{}]", "", m)
+            match = re.sub(r"[{}]", "", match)
             # strip off modifiers
-            m = m.split(":")[-1]
+            match = match.split(":")[-1]
             # don't show 'FrontSide'
-            if m == "FrontSide":
+            if match == "FrontSide":
                 continue
 
-            if m not in result:
-                result[m] = True
-                charsAllowed -= len(m)
+            if match not in result:
+                result[match] = True
+                charsAllowed -= len(match)
                 if charsAllowed <= 0:
                     break
 
@@ -404,46 +404,46 @@ Please create a new card type first."""))
         self.redraw()
 
     def _flipQA(self, src, dst):
-        m = re.match("(?s)(.+)<hr id=answer>(.+)", src['afmt'])
-        if not m:
+        match = re.match("(?s)(.+)<hr id=answer>(.+)", src['afmt'])
+        if not match:
             showInfo(_("""\
 Anki couldn't find the line between the question and answer. Please \
 adjust the template manually to switch the question and answer."""))
             return
         dst['afmt'] = "{{FrontSide}}\n\n<hr id=answer>\n\n%s" % src['qfmt']
-        dst['qfmt'] = m.group(2).strip()
+        dst['qfmt'] = match.group(2).strip()
         return True
 
     def onMore(self):
-        m = QMenu(self)
+        menu = QMenu(self)
 
         if not self._isCloze():
-            a = m.addAction(_("Add Card Type..."))
+            a = menu.addAction(_("Add Card Type..."))
             a.triggered.connect(self.onAddCard)
 
-            a = m.addAction(_("Remove Card Type..."))
+            a = menu.addAction(_("Remove Card Type..."))
             a.triggered.connect(self.onRemove)
 
-            a = m.addAction(_("Rename Card Type..."))
+            a = menu.addAction(_("Rename Card Type..."))
             a.triggered.connect(self.onRename)
 
-            a = m.addAction(_("Reposition Card Type..."))
+            a = menu.addAction(_("Reposition Card Type..."))
             a.triggered.connect(self.onReorder)
 
-            m.addSeparator()
+            menu.addSeparator()
 
             t = self.card.template()
             if t['did']:
                 s = _(" (on)")
             else:
                 s = _(" (off)")
-            a = m.addAction(_("Deck Override...") + s)
+            a = menu.addAction(_("Deck Override...") + s)
             a.triggered.connect(self.onTargetDeck)
 
-        a = m.addAction(_("Browser Appearance..."))
+        a = menu.addAction(_("Browser Appearance..."))
         a.triggered.connect(self.onBrowserDisplay)
 
-        m.exec_(self.topAreaForm.templateOptions.mapToGlobal(QPoint(0,0)))
+        menu.exec_(self.topAreaForm.templateOptions.mapToGlobal(QPoint(0,0)))
 
     def onBrowserDisplay(self):
         d = QDialog()

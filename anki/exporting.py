@@ -199,9 +199,9 @@ class AnkiExporter(Exporter):
             self.dst.sched.resetCards(cids)
         # models - start with zero
         self.dst.models.models = {}
-        for m in self.src.models.all():
-            if int(m['id']) in mids:
-                self.dst.models.update(m)
+        for model in self.src.models.all():
+            if int(model['id']) in mids:
+                self.dst.models.update(model)
         # decks
         if not self.did:
             dids = []
@@ -245,9 +245,9 @@ class AnkiExporter(Exporter):
                         continue
                     if fname.startswith("_"):
                         # Scan all models in mids for reference to fname
-                        for m in self.src.models.all():
-                            if int(m['id']) in mids:
-                                if self._modelHasMedia(m, fname):
+                        for model in self.src.models.all():
+                            if int(model['id']) in mids:
+                                if self._modelHasMedia(model, fname):
                                     media[fname] = True
                                     break
         self.mediaFiles = list(media.keys())

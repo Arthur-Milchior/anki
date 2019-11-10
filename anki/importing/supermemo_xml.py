@@ -83,9 +83,9 @@ class SupermemoXmlImporter(NoteImporter):
         """Initialize internal varables.
         Pameters to be exposed to GUI are stored in self.META"""
         NoteImporter.__init__(self, *args)
-        m = addBasicModel(self.col)
-        m['name'] = "Supermemo"
-        self.col.models.save(m)
+        model = addBasicModel(self.col)
+        model['name'] = "Supermemo"
+        self.col.models.save(model)
         self.initMapping()
 
         self.lines = None

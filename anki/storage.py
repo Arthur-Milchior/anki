@@ -94,14 +94,14 @@ def _upgrade(col, ver):
     if ver < 4:
         col.modSchema(check=False)
         clozes = []
-        for m in col.models.all():
-            if not "{{cloze:" in m['tmpls'][0]['qfmt']:
-                m['type'] = MODEL_STD
-                col.models.save(m)
+        for model in col.models.all():
+            if not "{{cloze:" in model['tmpls'][0]['qfmt']:
+                model['type'] = MODEL_STD
+                col.models.save(model)
             else:
-                clozes.append(m)
-        for m in clozes:
-            _upgradeClozeModel(col, m)
+                clozes.append(model)
+        for model in clozes:
+            _upgradeClozeModel(col, model)
         col.db.execute("update col set ver = 4")
     if ver < 5:
         col.db.execute("update cards set odue = 0 where queue = 2")
@@ -109,16 +109,16 @@ def _upgrade(col, ver):
     if ver < 6:
         col.modSchema(check=False)
         import anki.models
-        for m in col.models.all():
-            m['css'] = anki.models.defaultModel['css']
-            for t in m['tmpls']:
+        for model in col.models.all():
+            model['css'] = anki.models.defaultModel['css']
+            for t in model['tmpls']:
                 if 'css' not in t:
                     # ankidroid didn't bump version
                     continue
-                m['css'] += "\n" + t['css'].replace(
+                model['css'] += "\n" + t['css'].replace(
                     ".card ", ".card%d "%(t['ord']+1))
                 del t['css']
-            col.models.save(m)
+            col.models.save(model)
         col.db.execute("update col set ver = 6")
     if ver < 7:
         col.modSchema(check=False)
@@ -178,30 +178,30 @@ update cards set left = left + left*1000 where queue = 1""")
                 del r['ivlfct']
             r['maxIvl'] = 36500
             col.decks.save(conf)
-        for m in col.models.all():
-            for t in m['tmpls']:
+        for model in col.models.all():
+            for t in model['tmpls']:
                 t['bqfmt'] = ''
                 t['bafmt'] = ''
-            col.models.save(m)
+            col.models.save(model)
         col.db.execute("update col set ver = 11")
 
-def _upgradeClozeModel(col, m):
-    m['type'] = MODEL_CLOZE
+def _upgradeClozeModel(col, model):
+    model['type'] = MODEL_CLOZE
     # convert first template
-    t = m['tmpls'][0]
+    t = model['tmpls'][0]
     for type in 'qfmt', 'afmt':
         t[type] = re.sub("{{cloze:1:(.+?)}}", r"{{cloze:\1}}", t[type])
     t['name'] = _("Cloze")
     # delete non-cloze cards for the model
     rem = []
-    for t in m['tmpls'][1:]:
+    for t in model['tmpls'][1:]:
         if "{{cloze:" not in t['qfmt']:
             rem.append(t)
     for r in rem:
-        col.models.remTemplate(m, r)
-    del m['tmpls'][1:]
-    col.models._updateTemplOrds(m)
-    col.models.save(m)
+        col.models.remTemplate(model, r)
+    del model['tmpls'][1:]
+    col.models._updateTemplOrds(model)
+    col.models.save(model)
 
 # Creating a new collection
 ######################################################################

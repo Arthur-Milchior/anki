@@ -312,10 +312,10 @@ select distinct(note.id) from cards card, notes note where card.nid=note.id and 
     def _findProp(self, args):
         # extract
         (val, args) = args
-        m = re.match("(^.+?)(<=|>=|!=|=|<|>)(.+?$)", val)
-        if not m:
+        match = re.match("(^.+?)(<=|>=|!=|=|<|>)(.+?$)", val)
+        if not match:
             return
-        prop, cmp, val = m.groups()
+        prop, cmp, val = match.groups()
         prop = prop.lower()
         # is val valid?
         try:
@@ -368,9 +368,9 @@ select distinct(note.id) from cards card, notes note where card.nid=note.id and 
         (val, args) = args
         ids = []
         val = val.lower()
-        for m in self.col.models.all():
-            if unicodedata.normalize("NFC", m['name'].lower()) == val:
-                ids.append(m['id'])
+        for model in self.col.models.all():
+            if unicodedata.normalize("NFC", model['name'].lower()) == val:
+                ids.append(model['id'])
         return "note.mid in %s" % ids2str(ids)
 
     def _findDeck(self, args):
@@ -415,17 +415,17 @@ select distinct(note.id) from cards card, notes note where card.nid=note.id and 
             return "card.ord = %d" % num
         # search for template names
         lims = []
-        for m in self.col.models.all():
-            for t in m['tmpls']:
+        for model in self.col.models.all():
+            for t in model['tmpls']:
                 if unicodedata.normalize("NFC", t['name'].lower()) == val.lower():
-                    if m['type'] == MODEL_CLOZE:
+                    if model['type'] == MODEL_CLOZE:
                         # if the user has asked for a cloze card, we want
                         # to give all ordinals, so we just limit to the
                         # model instead
-                        lims.append("(note.mid = %s)" % m['id'])
+                        lims.append("(note.mid = %s)" % model['id'])
                     else:
                         lims.append("(note.mid = %s and card.ord = %s)" % (
-                            m['id'], t['ord']))
+                            model['id'], t['ord']))
         return " or ".join(lims)
 
     def _findField(self, field, val):
@@ -433,10 +433,10 @@ select distinct(note.id) from cards card, notes note where card.nid=note.id and 
         val = val.replace("*", "%")
         # find models that have that field
         mods = {}
-        for m in self.col.models.all():
-            for f in m['flds']:
+        for model in self.col.models.all():
+            for f in model['flds']:
                 if unicodedata.normalize("NFC", f['name'].lower()) == field:
-                    mods[str(m['id'])] = (m, f['ord'])
+                    mods[str(model['id'])] = (model, f['ord'])
         if not mods:
             # nothing has that field
             return
@@ -483,10 +483,10 @@ def findReplace(col, nids, src, dst, regex=False, field=None, fold=True):
     "Find and replace fields in a note."
     mmap = {}
     if field:
-        for m in col.models.all():
-            for f in m['flds']:
+        for model in col.models.all():
+            for f in model['flds']:
                 if f['name'].lower() == field.lower():
-                    mmap[str(m['id'])] = f['ord']
+                    mmap[str(model['id'])] = f['ord']
         if not mmap:
             return 0
     # find and gather replacements
@@ -519,20 +519,20 @@ def findReplace(col, nids, src, dst, regex=False, field=None, fold=True):
         flds = joinFields(sflds)
         if flds != origFlds:
             nids.append(nid)
-            d.append(dict(nid=nid,flds=flds,u=col.usn(),m=intTime()))
+            d.append(dict(nid=nid,flds=flds,u=col.usn(),mod=intTime()))
     if not d:
         return 0
     # replace
     col.db.executemany(
-        "update notes set flds=:flds,mod=:m,usn=:u where id=:nid", d)
+        "update notes set flds=:flds,mod=:mod,usn=:u where id=:nid", d)
     col.updateFieldCache(nids)
     col.genCards(nids)
     return len(d)
 
 def fieldNames(col, downcase=True):
     fields = set()
-    for m in col.models.all():
-        for f in m['flds']:
+    for model in col.models.all():
+        for f in model['flds']:
             name=f['name'].lower() if downcase else f['name']
             if name not in fields: #slower w/o
                 fields.add(name)

@@ -67,18 +67,18 @@ class DeckConf(QDialog):
         self.onConfChange(startOn)
 
     def confOpts(self):
-        m = QMenu(self.mw)
-        a = m.addAction(_("Add"))
+        menu = QMenu(self.mw)
+        a = menu.addAction(_("Add"))
         a.triggered.connect(self.addGroup)
-        a = m.addAction(_("Delete"))
+        a = menu.addAction(_("Delete"))
         a.triggered.connect(self.remGroup)
-        a = m.addAction(_("Rename"))
+        a = menu.addAction(_("Rename"))
         a.triggered.connect(self.renameGroup)
-        a = m.addAction(_("Set for all subdecks"))
+        a = menu.addAction(_("Set for all subdecks"))
         a.triggered.connect(self.setChildren)
         if not self.childDids:
             a.setEnabled(False)
-        m.exec_(QCursor.pos())
+        menu.exec_(QCursor.pos())
 
     def onConfChange(self, idx):
         if self.ignoreConfChange:

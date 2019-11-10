@@ -103,23 +103,23 @@ automatically."""))
             self._didFullUp = False
             self._checkFailed()
         elif evt == "sync":
-            m = None; t = args[0]
+            message = None; t = args[0]
             if t == "login":
-                m = _("Syncing...")
+                message = _("Syncing...")
             elif t == "upload":
                 self._didFullUp = True
-                m = _("Uploading to AnkiWeb...")
+                message = _("Uploading to AnkiWeb...")
             elif t == "download":
-                m = _("Downloading from AnkiWeb...")
+                message = _("Downloading from AnkiWeb...")
             elif t == "sanity":
-                m = _("Checking...")
+                message = _("Checking...")
             elif t == "findMedia":
-                m = _("Checking media...")
+                message = _("Checking media...")
             elif t == "upgradeRequired":
                 showText(_("""\
 Please visit AnkiWeb, upgrade your deck, then try again."""))
-            if m:
-                self.label = m
+            if message:
+                self.label = message
                 self._updateLabel()
         elif evt == "syncMsg":
             self.label = args[0]

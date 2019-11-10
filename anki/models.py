@@ -84,14 +84,14 @@ class ModelManager:
         self.changed = False
         self.models = json.loads(json_)
 
-    def save(self, m=None, templates=False):
-        "Mark M modified if provided, and schedule registry flush."
-        if m and m['id']:
-            m['mod'] = intTime()
-            m['usn'] = self.col.usn()
-            self._updateRequired(m)
+    def save(self, model=None, templates=False):
+        "Mark MODEL modified if provided, and schedule registry flush."
+        if model and model['id']:
+            model['mod'] = intTime()
+            model['usn'] = self.col.usn()
+            self._updateRequired(model)
             if templates:
-                self._syncTemplates(m)
+                self._syncTemplates(model)
         self.changed = True
         runHook("newModel")
 
@@ -114,13 +114,13 @@ class ModelManager:
 
     def current(self, forDeck=True):
         "Get current model."
-        m = self.get(self.col.decks.current().get('mid'))
-        if not forDeck or not m:
-            m = self.get(self.col.conf['curModel'])
-        return m or list(self.models.values())[0]
+        model = self.get(self.col.decks.current().get('mid'))
+        if not forDeck or not model:
+            model = self.get(self.col.conf['curModel'])
+        return model or list(self.models.values())[0]
 
-    def setCurrent(self, m):
-        self.col.conf['curModel'] = m['id']
+    def setCurrent(self, model):
+        self.col.conf['curModel'] = model['id']
         self.col.setMod()
 
     def get(self, id):
@@ -134,66 +134,66 @@ class ModelManager:
         return list(self.models.values())
 
     def allNames(self):
-        return [m['name'] for m in self.all()]
+        return [model['name'] for model in self.all()]
 
     def byName(self, name):
         "Get model with NAME."
-        for m in list(self.models.values()):
-            if m['name'] == name:
-                return m
+        for model in list(self.models.values()):
+            if model['name'] == name:
+                return model
 
     def new(self, name):
         "Create a new model, save it in the registry, and return it."
         # caller should call save() after modifying
-        m = defaultModel.copy()
-        m['name'] = name
-        m['mod'] = intTime()
-        m['flds'] = []
-        m['tmpls'] = []
-        m['tags'] = []
-        m['id'] = None
-        return m
+        model = defaultModel.copy()
+        model['name'] = name
+        model['mod'] = intTime()
+        model['flds'] = []
+        model['tmpls'] = []
+        model['tags'] = []
+        model['id'] = None
+        return model
 
-    def rem(self, m):
+    def rem(self, model):
         "Delete model, and all its cards/notes."
         self.col.modSchema(check=True)
-        current = self.current()['id'] == m['id']
+        current = self.current()['id'] == model['id']
         # delete notes/cards
         self.col.remCards(self.col.db.list("""
 select id from cards where nid in (select id from notes where mid = ?)""",
-                                      m['id']))
+                                      model['id']))
         # then the model
-        del self.models[str(m['id'])]
+        del self.models[str(model['id'])]
         self.save()
         # GUI should ensure last model is not deleted
         if current:
             self.setCurrent(list(self.models.values())[0])
 
-    def add(self, m):
-        self._setID(m)
-        self.update(m)
-        self.setCurrent(m)
-        self.save(m)
+    def add(self, model):
+        self._setID(model)
+        self.update(model)
+        self.setCurrent(model)
+        self.save(model)
 
-    def ensureNameUnique(self, m):
+    def ensureNameUnique(self, model):
         for mcur in self.all():
-            if (mcur['name'] == m['name'] and mcur['id'] != m['id']):
-                m['name'] += "-" + checksum(str(time.time()))[:5]
+            if (mcur['name'] == model['name'] and mcur['id'] != model['id']):
+                model['name'] += "-" + checksum(str(time.time()))[:5]
                 break
 
-    def update(self, m):
+    def update(self, model):
         "Add or update an existing model. Used for syncing and merging."
-        self.ensureNameUnique(m)
-        self.models[str(m['id'])] = m
+        self.ensureNameUnique(model)
+        self.models[str(model['id'])] = model
         # mark registry changed, but don't bump mod time
         self.save()
 
-    def _setID(self, m):
+    def _setID(self, model):
         while 1:
             id = str(intTime(1000))
             if id not in self.models:
                 break
-        m['id'] = id
+        model['id'] = id
 
     def have(self, id):
         return str(id) in self.models
@@ -204,27 +204,27 @@ select id from cards where nid in (select id from notes where mid = ?)""",
     # Tools
     ##################################################
 
-    def nids(self, m):
-        "Note ids for M."
+    def nids(self, model):
+        "Note ids for MODEL."
         return self.col.db.list(
-            "select id from notes where mid = ?", m['id'])
+            "select id from notes where mid = ?", model['id'])
 
-    def useCount(self, m):
-        "Number of note using M."
+    def useCount(self, model):
+        "Number of note using MODEL."
         return self.col.db.scalar(
-            "select count() from notes where mid = ?", m['id'])
+            "select count() from notes where mid = ?", model['id'])
 
-    def tmplUseCount(self, m, ord):
+    def tmplUseCount(self, model, ord):
         return self.col.db.scalar("""
 select count() from cards, notes where cards.nid = notes.id
-and notes.mid = ? and cards.ord = ?""", m['id'], ord)
+and notes.mid = ? and cards.ord = ?""", model['id'], ord)
 
     # Copying
     ##################################################
 
-    def copy(self, m):
+    def copy(self, model):
         "Copy, save and return."
-        m2 = copy.deepcopy(m)
+        m2 = copy.deepcopy(model)
         m2['name'] = _("%s copy") % m2['name']
         self.add(m2)
         return m2
@@ -238,87 +238,87 @@ and notes.mid = ? and cards.ord = ?""", m['id'], ord)
         f['name'] = name
         return f
 
-    def fieldMap(self, m):
+    def fieldMap(self, model):
         "Mapping of field name -> (ord, field)."
-        return dict((f['name'], (f['ord'], f)) for f in m['flds'])
+        return dict((f['name'], (f['ord'], f)) for f in model['flds'])
 
-    def fieldNames(self, m):
-        return [f['name'] for f in m['flds']]
+    def fieldNames(self, model):
+        return [f['name'] for f in model['flds']]
 
-    def sortIdx(self, m):
-        return m['sortf']
+    def sortIdx(self, model):
+        return model['sortf']
 
-    def setSortIdx(self, m, idx):
-        assert 0 <= idx < len(m['flds'])
+    def setSortIdx(self, model, idx):
+        assert 0 <= idx < len(model['flds'])
         self.col.modSchema(check=True)
-        m['sortf'] = idx
-        self.col.updateFieldCache(self.nids(m))
-        self.save(m)
+        model['sortf'] = idx
+        self.col.updateFieldCache(self.nids(model))
+        self.save(model)
 
-    def addField(self, m, field):
+    def addField(self, model, field):
         # only mod schema if model isn't new
-        if m['id']:
+        if model['id']:
             self.col.modSchema(check=True)
-        m['flds'].append(field)
-        self._updateFieldOrds(m)
-        self.save(m)
+        model['flds'].append(field)
+        self._updateFieldOrds(model)
+        self.save(model)
         def add(fields):
             fields.append("")
             return fields
-        self._transformFields(m, add)
+        self._transformFields(model, add)
 
-    def remField(self, m, field):
+    def remField(self, model, field):
         self.col.modSchema(check=True)
         # save old sort field
-        sortFldName = m['flds'][m['sortf']]['name']
-        idx = m['flds'].index(field)
-        m['flds'].remove(field)
+        sortFldName = model['flds'][model['sortf']]['name']
+        idx = model['flds'].index(field)
+        model['flds'].remove(field)
         # restore old sort field if possible, or revert to first field
-        m['sortf'] = 0
-        for index, f in enumerate(m['flds']):
+        model['sortf'] = 0
+        for index, f in enumerate(model['flds']):
             if f['name'] == sortFldName:
-                m['sortf'] = index
+                model['sortf'] = index
                 break
-        self._updateFieldOrds(m)
+        self._updateFieldOrds(model)
         def delete(fields):
             del fields[idx]
             return fields
-        self._transformFields(m, delete)
-        if m['flds'][m['sortf']]['name'] != sortFldName:
+        self._transformFields(model, delete)
+        if model['flds'][model['sortf']]['name'] != sortFldName:
             # need to rebuild sort field
-            self.col.updateFieldCache(self.nids(m))
+            self.col.updateFieldCache(self.nids(model))
         # saves
-        self.renameField(m, field, None)
+        self.renameField(model, field, None)
 
-    def moveField(self, m, field, idx):
+    def moveField(self, model, field, idx):
         self.col.modSchema(check=True)
-        oldidx = m['flds'].index(field)
+        oldidx = model['flds'].index(field)
         if oldidx == idx:
             return
         # remember old sort field
-        sortf = m['flds'][m['sortf']]
+        sortf = model['flds'][model['sortf']]
         # move
-        m['flds'].remove(field)
-        m['flds'].insert(idx, field)
+        model['flds'].remove(field)
+        model['flds'].insert(idx, field)
         # restore sort field
-        m['sortf'] = m['flds'].index(sortf)
-        self._updateFieldOrds(m)
-        self.save(m)
+        model['sortf'] = model['flds'].index(sortf)
+        self._updateFieldOrds(model)
+        self.save(model)
         def move(fields, oldidx=oldidx):
             val = fields[oldidx]
             del fields[oldidx]
             fields.insert(idx, val)
             return fields
-        self._transformFields(m, move)
+        self._transformFields(model, move)
 
-    def renameField(self, m, field, newName):
+    def renameField(self, model, field, newName):
         self.col.modSchema(check=True)
         pat = r'{{([^{}]*)([:#^/]|[^:#/^}][^:}]*?:|)%s}}'
         def wrap(txt):
             def repl(match):
                 return '{{' + match.group(1) + match.group(2) + txt +  '}}'
             return repl
-        for t in m['tmpls']:
+        for t in model['tmpls']:
             for fmt in ('qfmt', 'afmt'):
                 if newName:
                     t[fmt] = re.sub(
@@ -327,19 +327,19 @@ and notes.mid = ? and cards.ord = ?""", m['id'], ord)
                     t[fmt] = re.sub(
                         pat  % re.escape(field['name']), "", t[fmt])
         field['name'] = newName
-        self.save(m)
+        self.save(model)
 
-    def _updateFieldOrds(self, m):
-        for index, f in enumerate(m['flds']):
+    def _updateFieldOrds(self, model):
+        for index, f in enumerate(model['flds']):
             f['ord'] = index
 
-    def _transformFields(self, m, fn):
+    def _transformFields(self, model, fn):
         # model hasn't been added yet?
-        if not m['id']:
+        if not model['id']:
             return
         r = []
         for (id, flds) in self.col.db.execute(
-            "select id, flds from notes where mid = ?", m['id']):
+            "select id, flds from notes where mid = ?", model['id']):
             r.append((joinFields(fn(splitFields(flds))),
                       intTime(), self.col.usn(), id))
         self.col.db.executemany(
@@ -353,22 +353,22 @@ and notes.mid = ? and cards.ord = ?""", m['id'], ord)
         t['name'] = name
         return t
 
-    def addTemplate(self, m, template):
+    def addTemplate(self, model, template):
         "Note: should col.genCards() afterwards."
-        if m['id']:
+        if model['id']:
             self.col.modSchema(check=True)
-        m['tmpls'].append(template)
-        self._updateTemplOrds(m)
-        self.save(m)
+        model['tmpls'].append(template)
+        self._updateTemplOrds(model)
+        self.save(model)
 
-    def remTemplate(self, m, template):
+    def remTemplate(self, model, template):
         "False if removing template would leave orphan notes."
-        assert len(m['tmpls']) > 1
+        assert len(model['tmpls']) > 1
         # find cards using this template
-        ord = m['tmpls'].index(template)
+        ord = model['tmpls'].index(template)
         cids = self.col.db.list("""
 select card.id from cards card, notes f where card.nid=f.id and mid = ? and ord = ?""",
-                                 m['id'], ord)
+                                 model['id'], ord)
         # all notes with this template must have at least two cards, or we
         # could end up creating orphaned notes
         if self.col.db.scalar("""
@@ -385,50 +385,50 @@ limit 1""" % ids2str(cids)):
         self.col.db.execute("""
 update cards set ord = ord - 1, usn = ?, mod = ?
  where nid in (select id from notes where mid = ?) and ord > ?""",
-                             self.col.usn(), intTime(), m['id'], ord)
-        m['tmpls'].remove(template)
-        self._updateTemplOrds(m)
-        self.save(m)
+                             self.col.usn(), intTime(), model['id'], ord)
+        model['tmpls'].remove(template)
+        self._updateTemplOrds(model)
+        self.save(model)
         return True
 
-    def _updateTemplOrds(self, m):
-        for index, t in enumerate(m['tmpls']):
+    def _updateTemplOrds(self, model):
+        for index, t in enumerate(model['tmpls']):
             t['ord'] = index
 
-    def moveTemplate(self, m, template, idx):
-        oldidx = m['tmpls'].index(template)
+    def moveTemplate(self, model, template, idx):
+        oldidx = model['tmpls'].index(template)
         if oldidx == idx:
             return
-        oldidxs = dict((id(t), t['ord']) for t in m['tmpls'])
-        m['tmpls'].remove(template)
-        m['tmpls'].insert(idx, template)
-        self._updateTemplOrds(m)
+        oldidxs = dict((id(t), t['ord']) for t in model['tmpls'])
+        model['tmpls'].remove(template)
+        model['tmpls'].insert(idx, template)
+        self._updateTemplOrds(model)
         # generate change map
         map = []
-        for t in m['tmpls']:
+        for t in model['tmpls']:
             map.append("when ord = %d then %d" % (oldidxs[id(t)], t['ord']))
         # apply
-        self.save(m)
+        self.save(model)
         self.col.db.execute("""
 update cards set ord = (case %s end),usn=?,mod=? where nid in (
 select id from notes where mid = ?)""" % " ".join(map),
-                             self.col.usn(), intTime(), m['id'])
+                             self.col.usn(), intTime(), model['id'])
 
-    def _syncTemplates(self, m):
-        rem = self.col.genCards(self.nids(m))
+    def _syncTemplates(self, model):
+        rem = self.col.genCards(self.nids(model))
 
     # Model changing
     ##########################################################################
     # - maps are ord->ord, and there should not be duplicate targets
     # - newModel should be self if model is not changing
 
-    def change(self, m, nids, newModel, fmap, cmap):
+    def change(self, model, nids, newModel, fmap, cmap):
         self.col.modSchema(check=True)
-        assert newModel['id'] == m['id'] or (fmap and cmap)
+        assert newModel['id'] == model['id'] or (fmap and cmap)
         if fmap:
             self._changeNotes(nids, newModel, fmap)
         if cmap:
-            self._changeCards(nids, m, newModel, cmap)
+            self._changeCards(nids, model, newModel, cmap)
         self.col.genCards(nids)
 
     def _changeNotes(self, nids, newModel, map):
@@ -445,9 +445,9 @@ select id from notes where mid = ?)""" % " ".join(map),
                 flds.append(newflds.get(index, ""))
             flds = joinFields(flds)
             d.append(dict(nid=nid, flds=flds, mid=newModel['id'],
-                      m=intTime(),u=self.col.usn()))
+                      mod=intTime(),u=self.col.usn()))
         self.col.db.executemany(
-            "update notes set flds=:flds,mid=:mid,mod=:m,usn=:u where id = :nid", d)
+            "update notes set flds=:flds,mid=:mid,mod=:mod,usn=:u where id = :nid", d)
         self.col.updateFieldCache(nids)
 
     def _changeCards(self, nids, oldModel, newModel, map):
@@ -469,49 +469,49 @@ select id from notes where mid = ?)""" % " ".join(map),
                 new = map[ord]
             if new is not None:
                 d.append(dict(
-                    cid=cid,new=new,u=self.col.usn(),m=intTime()))
+                    cid=cid,new=new,u=self.col.usn(),mod=intTime()))
             else:
                 deleted.append(cid)
         self.col.db.executemany(
-            "update cards set ord=:new,usn=:u,mod=:m where id=:cid",
+            "update cards set ord=:new,usn=:u,mod=:mod where id=:cid",
             d)
         self.col.remCards(deleted)
 
     # Schema hash
     ##########################################################################
 
-    def scmhash(self, m):
+    def scmhash(self, model):
         "Return a hash of the schema, to see if models are compatible."
         s = ""
-        for f in m['flds']:
+        for f in model['flds']:
             s += f['name']
-        for t in m['tmpls']:
+        for t in model['tmpls']:
             s += t['name']
         return checksum(s)
 
     # Required field/text cache
     ##########################################################################
 
-    def _updateRequired(self, m):
-        if m['type'] == MODEL_CLOZE:
+    def _updateRequired(self, model):
+        if model['type'] == MODEL_CLOZE:
             # nothing to do
             return
         req = []
-        flds = [f['name'] for f in m['flds']]
-        for t in m['tmpls']:
-            ret = self._reqForTemplate(m, flds, t)
+        flds = [f['name'] for f in model['flds']]
+        for t in model['tmpls']:
+            ret = self._reqForTemplate(model, flds, t)
             req.append((t['ord'], ret[0], ret[1]))
-        m['req'] = req
+        model['req'] = req
 
-    def _reqForTemplate(self, m, flds, t):
+    def _reqForTemplate(self, model, flds, t):
         a = []
         b = []
         for f in flds:
             a.append("ankiflag")
             b.append("")
-        data = [1, 1, m['id'], 1, t['ord'], "", joinFields(a), 0]
+        data = [1, 1, model['id'], 1, t['ord'], "", joinFields(a), 0]
         full = self.col._renderQA(data)['q']
-        data = [1, 1, m['id'], 1, t['ord'], "", joinFields(b), 0]
+        data = [1, 1, model['id'], 1, t['ord'], "", joinFields(b), 0]
         empty = self.col._renderQA(data)['q']
         # if full and empty are the same, the template is invalid and there is
         # no way to satisfy it
@@ -540,15 +540,15 @@ select id from notes where mid = ?)""" % " ".join(map),
                 req.append(i)
         return type, req
 
-    def availOrds(self, m, flds):
+    def availOrds(self, model, flds):
         "Given a joined field string, return available template ordinals."
-        if m['type'] == MODEL_CLOZE:
-            return self._availClozeOrds(m, flds)
+        if model['type'] == MODEL_CLOZE:
+            return self._availClozeOrds(model, flds)
         fields = {}
         for index, f in enumerate(splitFields(flds)):
             fields[index] = f.strip()
         avail = []
-        for ord, type, req in m['req']:
+        for ord, type, req in model['req']:
             # unsatisfiable template
             if type == "none":
                 continue
@@ -574,17 +574,17 @@ select id from notes where mid = ?)""" % " ".join(map),
             avail.append(ord)
         return avail
 
-    def _availClozeOrds(self, m, flds, allowEmpty=True):
+    def _availClozeOrds(self, model, flds, allowEmpty=True):
         sflds = splitFields(flds)
-        map = self.fieldMap(m)
+        map = self.fieldMap(model)
         ords = set()
-        matches = re.findall("{{[^}]*?cloze:(?:[^}]?:)*(.+?)}}", m['tmpls'][0]['qfmt'])
-        matches += re.findall("<%cloze:(.+?)%>", m['tmpls'][0]['qfmt'])
+        matches = re.findall("{{[^}]*?cloze:(?:[^}]?:)*(.+?)}}", model['tmpls'][0]['qfmt'])
+        matches += re.findall("<%cloze:(.+?)%>", model['tmpls'][0]['qfmt'])
         for fname in matches:
             if fname not in map:
                 continue
             ord = map[fname][0]
-            ords.update([int(m)-1 for m in re.findall(
+            ords.update([int(match)-1 for match in re.findall(
                 r"(?s){{c(\d+)::.+?}}", sflds[ord])])
         if -1 in ords:
             ords.remove(-1)
@@ -597,6 +597,6 @@ select id from notes where mid = ?)""" % " ".join(map),
     ##########################################################################
 
     def beforeUpload(self):
-        for m in self.all():
-            m['usn'] = 0
+        for model in self.all():
+            model['usn'] = 0
         self.save()
