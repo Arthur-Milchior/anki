@@ -58,50 +58,50 @@ class Syncer:
             # don't abort, but if 'msg' is not blank, gui should show 'msg'
             # after sync finishes and wait for confirmation before hiding
             pass
-        rscm = serverMeta['scm']
-        rts = serverMeta['ts']
-        self.rmod = serverMeta['mod']
+        serverScm = serverMeta['scm']
+        serverTs = serverMeta['ts']
+        serverMod = serverMeta['mod']
         self.maxUsn = serverMeta['usn']
         self.uname = serverMeta.get("uname", "")
         self.hostNum = serverMeta.get("hostNum")
         localMeta = self.meta()
         self.col.log("lmeta", localMeta)
-        self.lmod = localMeta['mod']
+        localMod = localMeta['mod']
         self.minUsn = localMeta['usn']
-        lscm = localMeta['scm']
-        lts = localMeta['ts']
-        if abs(rts - lts) > 300:
+        localScm = localMeta['scm']
+        localTs = localMeta['ts']
+        if abs(serverTs - localTs) > 300:
             self.col.log("clock off")
             return "clockOff"
-        if self.lmod == self.rmod:
+        if localMod == serverMod:
             self.col.log("no changes")
             return "noChanges"
-        elif lscm != rscm:
+        elif localScm != serverScm:
             self.col.log("schema diff")
             return "fullSync"
-        self.lnewer = self.lmod > self.rmod
+        self.localNewer = localMod > serverMod
         # step 1.5: check collection is valid
         if not self.col.basicCheck():
             self.col.log("basic check")
             return "basicCheckFailed"
         # step 2: startup and deletions
         runHook("sync", "meta")
-        rrem = self.server.start(minUsn=self.minUsn, lnewer=self.lnewer)
+        serverRem = self.server.start(minUsn=self.minUsn, lnewer=self.localNewer)
 
         # apply deletions to server
-        lgraves = self.removed()
-        while lgraves:
-            gchunk, lgraves = self._gravesChunk(lgraves)
+        localGraves = self.removed()
+        while localGraves:
+            gchunk, localGraves = self._gravesChunk(localGraves)
             self.server.applyGraves(chunk=gchunk)
 
         # then apply server deletions here
-        self.remove(rrem)
+        self.remove(serverRem)
 
         # ...and small objects
-        lchg = self.changes()
-        rchg = self.server.applyChanges(changes=lchg)
+        localChange = self.changes()
+        serverChange = self.server.applyChanges(changes=localChange)
         try:
-            self.mergeChanges(lchg, rchg)
+            self.mergeChanges(localChange, serverChange)
         except UnexpectedSchemaChange:
             self.server.abort()
             return self._forceFullSync()
@@ -172,21 +172,21 @@ class Syncer:
         d = dict(models=self.getModels(),
                  decks=self.getDecks(),
                  tags=self.getTags())
-        if self.lnewer:
+        if self.localNewer:
             d['conf'] = self.getConf()
             d['crt'] = self.col.crt
         return d
 
-    def mergeChanges(self, lchg, rchg):
+    def mergeChanges(self, localChange, serverChange):
         # then the other objects
-        self.mergeModels(rchg['models'])
-        self.mergeDecks(rchg['decks'])
-        self.mergeTags(rchg['tags'])
-        if 'conf' in rchg:
-            self.mergeConf(rchg['conf'])
+        self.mergeModels(serverChange['models'])
+        self.mergeDecks(serverChange['decks'])
+        self.mergeTags(serverChange['tags'])
+        if 'conf' in serverChange:
+            self.mergeConf(serverChange['conf'])
         # this was left out of earlier betas
-        if 'crt' in rchg:
-            self.col.crt = rchg['crt']
+        if 'crt' in serverChange:
+            self.col.crt = serverChange['crt']
         self.prepareToChunk()
 
     def sanityCheck(self):
@@ -337,20 +337,20 @@ from notes where %s""" % d)
         self.col.models.save()
         return mods
 
-    def mergeModels(self, rchg):
-        for r in rchg:
-            l = self.col.models.get(r['id'])
+    def mergeModels(self, serverChanges):
+        for serverModel in serverChanges:
+            localModel = self.col.models.get(serverModel['id'])
             # if missing locally or server is newer, update
-            if not l or r['mod'] > l['mod']:
+            if not localModel or serverModel['mod'] > localModel['mod']:
                 # This is a hack to detect when the note type has been altered
                 # in an import without a full sync being forced. A future
                 # syncing algorithm should handle this in a better way.
-                if l:
-                    if len(l['flds']) != len(r['flds']):
+                if localModel:
+                    if len(localModel['flds']) != len(serverModel['flds']):
                         raise UnexpectedSchemaChange()
-                    if len(l['tmpls']) != len(r['tmpls']):
+                    if len(localModel['tmpls']) != len(serverModel['tmpls']):
                         raise UnexpectedSchemaChange()
-                self.col.models.update(r)
+                self.col.models.update(serverModel)
 
     # Decks
     ##########################################################################
@@ -365,24 +365,24 @@ from notes where %s""" % d)
         self.col.decks.save()
         return [decks, dconf]
 
-    def mergeDecks(self, rchg):
-        for r in rchg[0]:
-            l = self.col.decks.get(r['id'], False)
+    def mergeDecks(self, serverChanges):
+        for serverDeck in serverChanges[0]:
+            localDeck = self.col.decks.get(serverDeck['id'], False)
             # work around mod time being stored as string
-            if l and not isinstance(l['mod'], int):
-                l['mod'] = int(l['mod'])
+            if localDeck and not isinstance(localDeck['mod'], int):
+                localDeck['mod'] = int(localDeck['mod'])
 
             # if missing locally or server is newer, update
-            if not l or r['mod'] > l['mod']:
-                self.col.decks.update(r)
-        for r in rchg[1]:
+            if not localDeck or serverDeck['mod'] > localDeck['mod']:
+                self.col.decks.update(serverDeck)
+        for serverDeckOption in serverChanges[1]:
             try:
-                l = self.col.decks.getConf(r['id'])
+                localDeckOption = self.col.decks.getConf(serverDeckOption['id'])
             except KeyError:
-                l = None
+                localDeckOption = None
             # if missing locally or server is newer, update
-            if not l or r['mod'] > l['mod']:
-                self.col.decks.updateConf(r)
+            if not localDeckOption or serverDeckOption['mod'] > localDeckOption['mod']:
+                self.col.decks.updateConf(serverDeckOption)
 
     # Tags
     ##########################################################################
@@ -408,16 +408,16 @@ from notes where %s""" % d)
             logs)
 
     def newerRows(self, data, table, modIdx):
-        ids = (r[0] for r in data)
+        ids = (datum[0] for datum in data)
         lmods = {}
         for id, mod in self.col.db.execute(
             "select id, mod from %s where id in %s and %s" % (
                 table, ids2str(ids), self.usnLim())):
             lmods[id] = mod
         update = []
-        for r in data:
-            if r[0] not in lmods or lmods[r[0]] < r[modIdx]:
-                update.append(r)
+        for datum in data:
+            if datum[0] not in lmods or lmods[datum[0]] < datum[modIdx]:
+                update.append(datum)
         self.col.log(table, data)
         return update
 
