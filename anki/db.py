@@ -37,14 +37,14 @@ class DB:
                 print(a, ka)
         return res
 
-    def executemany(self, sql, l):
+    def executemany(self, sql, queryParams):
         self.mod = True
         startTime = time.time()
-        self._db.executemany(sql, l)
+        self._db.executemany(sql, queryParams)
         if self.echo:
             print(sql, "%0.3fms" % ((time.time() - startTime)*1000))
             if self.echo == "2":
-                print(l)
+                print(queryParams)
 
     def commit(self):
         startTime = time.time()

@@ -180,11 +180,11 @@ class GetTextDialog(QDialog):
         v.addWidget(self.qlabel)
         if not edit:
             edit = QLineEdit()
-        self.l = edit
+        self.edit = edit
         if default:
-            self.l.setText(default)
-            self.l.selectAll()
-        v.addWidget(self.l)
+            self.edit.setText(default)
+            self.edit.selectAll()
+        v.addWidget(self.edit)
         buts = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
         if help:
             buts |= QDialogButtonBox.Help
@@ -217,7 +217,7 @@ def getText(prompt, parent=None, help=None, edit=None, default="",
     ret = dialog.exec_()
     if geomKey and ret:
         saveGeom(dialog, geomKey)
-    return (str(dialog.l.text()), ret)
+    return (str(dialog.edit.text()), ret)
 
 def getOnlyText(*args, **kwargs):
     (s, r) = getText(*args, **kwargs)
@@ -232,17 +232,17 @@ def chooseList(prompt, choices, startrow=0, parent=None):
         parent = aqt.mw.app.activeWindow()
     dialog = QDialog(parent)
     dialog.setWindowModality(Qt.WindowModal)
-    l = QVBoxLayout()
-    dialog.setLayout(l)
+    layout = QVBoxLayout()
+    dialog.setLayout(layout)
     label = QLabel(prompt)
-    l.addWidget(label)
+    layout.addWidget(label)
     widget = QListWidget()
     widget.addItems(choices)
     widget.setCurrentRow(startrow)
-    l.addWidget(widget)
+    layout.addWidget(widget)
     bb = QDialogButtonBox(QDialogButtonBox.Ok)
     bb.accepted.connect(dialog.accept)
-    l.addWidget(bb)
+    layout.addWidget(bb)
     dialog.exec_()
     return widget.currentRow()
 

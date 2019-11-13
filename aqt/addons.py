@@ -50,16 +50,16 @@ class AddonManager:
         sys.path.insert(0, self.addonsFolder())
 
     def allAddons(self):
-        l = []
+        addonFolders = []
         for addonFolder in os.listdir(self.addonsFolder()):
             path = self.addonsFolder(addonFolder)
             if not os.path.exists(os.path.join(path, "__init__.py")):
                 continue
-            l.append(addonFolder)
-        l.sort()
+            addonFolders.append(addonFolder)
+        addonFolders.sort()
         if os.getenv("ANKIREVADDONS", ""):
-            l = reversed(l)
-        return l
+            addonFolders = reversed(addonFolders)
+        return addonFolders
 
     def managedAddons(self):
         return [addonFolderName for addonFolderName in self.allAddons()

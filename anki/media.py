@@ -196,7 +196,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     ##########################################################################
 
     def filesInStr(self, mid, string, includeRemote=False):
-        l = []
+        filesInStr = []
         model = self.col.models.get(mid)
         strings = []
         if model['type'] == MODEL_CLOZE and "{{c" in string:
@@ -214,8 +214,8 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
                     fname = match.group("fname")
                     isLocal = not re.match("(https?|ftp)://", fname.lower())
                     if isLocal or includeRemote:
-                        l.append(fname)
-        return l
+                        filesInStr.append(fname)
+        return filesInStr
 
     def _expandClozes(self, string):
         ords = set(re.findall(r"{{c(\d+)::.+?}}", string))

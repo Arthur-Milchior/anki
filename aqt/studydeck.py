@@ -80,15 +80,15 @@ class StudyDeck(QDialog):
         self.filt = filt
         self.focus = focus
         self.names = [name for name in self.origNames if self._matches(name, filt)]
-        l = self.form.list
-        l.clear()
-        l.addItems(self.names)
+        listDeckNames = self.form.list
+        listDeckNames.clear()
+        listDeckNames.addItems(self.names)
         if focus in self.names:
             idx = self.names.index(focus)
         else:
             idx = 0
-        l.setCurrentRow(idx)
-        l.scrollToItem(l.item(idx), QAbstractItemView.PositionAtCenter)
+        listDeckNames.setCurrentRow(idx)
+        listDeckNames.scrollToItem(listDeckNames.item(idx), QAbstractItemView.PositionAtCenter)
 
     def _matches(self, name, filt):
         name = name.lower()

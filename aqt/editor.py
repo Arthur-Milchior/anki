@@ -60,11 +60,11 @@ class Editor:
     ############################################################
 
     def setupOuter(self):
-        l = QVBoxLayout()
-        l.setContentsMargins(0,0,0,0)
-        l.setSpacing(0)
-        self.widget.setLayout(l)
-        self.outerLayout = l
+        layout = QVBoxLayout()
+        layout.setContentsMargins(0,0,0,0)
+        layout.setSpacing(0)
+        self.widget.setLayout(layout)
+        self.outerLayout = layout
 
     def setupWeb(self):
         self.web = EditorWebView(self.widget, self)
@@ -424,8 +424,8 @@ class Editor:
         tb.setSpacing(12)
         tb.setContentsMargins(6,6,6,6)
         # tags
-        l = QLabel(_("Tags"))
-        tb.addWidget(l, 1, 0)
+        label = QLabel(_("Tags"))
+        tb.addWidget(label, 1, 0)
         self.tags = aqt.tagedit.TagEdit(self.widget)
         self.tags.lostFocus.connect(self.saveTags)
         self.tags.setToolTip(shortcut(_("Jump to tags with Ctrl+Shift+T")))
@@ -607,9 +607,9 @@ to a cloze type first, via Edit>Change Note Type."""))
             return '[sound:%s]' % fname
 
     def urlToFile(self, url):
-        l = url.lower()
+        urlLower = url.lower()
         for suffix in pics+audio:
-            if l.endswith("." + suffix):
+            if urlLower.endswith("." + suffix):
                 return self._retrieveURL(url)
         # not a supported type
         return

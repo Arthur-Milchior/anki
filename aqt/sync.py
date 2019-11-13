@@ -201,23 +201,23 @@ AnkiWeb is too busy at the moment. Please try again in a few minutes.""")
         dialog.setWindowTitle("Anki")
         dialog.setWindowModality(Qt.WindowModal)
         vbox = QVBoxLayout()
-        l = QLabel(_("""\
+        accountRequiredLabel = QLabel(_("""\
 <h1>Account Required</h1>
 A free account is required to keep your collection synchronized. Please \
 <a href="%s">sign up</a> for an account, then \
 enter your details below.""") %
                    "https://ankiweb.net/account/login")
-        l.setOpenExternalLinks(True)
-        l.setWordWrap(True)
-        vbox.addWidget(l)
+        accountRequiredLabel.setOpenExternalLinks(True)
+        accountRequiredLabel.setWordWrap(True)
+        vbox.addWidget(accountRequiredLabel)
         vbox.addSpacing(20)
         gridLayout = QGridLayout()
-        l1 = QLabel(_("AnkiWeb ID:"))
-        gridLayout.addWidget(l1, 0, 0)
+        ankiwebIdLabel = QLabel(_("AnkiWeb ID:"))
+        gridLayout.addWidget(ankiwebIdLabel, 0, 0)
         user = QLineEdit()
         gridLayout.addWidget(user, 0, 1)
-        l2 = QLabel(_("Password:"))
-        gridLayout.addWidget(l2, 1, 0)
+        passwordLabel = QLabel(_("Password:"))
+        gridLayout.addWidget(passwordLabel, 1, 0)
         passwd = QLineEdit()
         passwd.setEchoMode(QLineEdit.Password)
         gridLayout.addWidget(passwd, 1, 1)

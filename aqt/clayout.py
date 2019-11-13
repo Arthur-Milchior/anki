@@ -143,9 +143,9 @@ class CardLayout(QDialog):
 
     def setupMainArea(self):
         w = self.mainArea = QWidget()
-        l = QHBoxLayout()
-        l.setContentsMargins(0,0,0,0)
-        l.setSpacing(3)
+        layout = QHBoxLayout()
+        layout.setContentsMargins(0,0,0,0)
+        layout.setSpacing(3)
         left = QWidget()
         # template area
         tform = self.tform = aqt.forms.template.Ui_Form()
@@ -164,7 +164,7 @@ class CardLayout(QDialog):
         tform.front.textChanged.connect(self.saveCard)
         tform.css.textChanged.connect(self.saveCard)
         tform.back.textChanged.connect(self.saveCard)
-        l.addWidget(left, 5)
+        layout.addWidget(left, 5)
         # preview area
         right = QWidget()
         pform = self.pform = aqt.forms.preview.Ui_Form()
@@ -176,8 +176,8 @@ class CardLayout(QDialog):
 
         self.setupWebviews()
 
-        l.addWidget(right, 5)
-        w.setLayout(l)
+        layout.addWidget(right, 5)
+        w.setLayout(layout)
 
     def setupWebviews(self):
         pform = self.pform
@@ -222,25 +222,25 @@ Please create a new card type first."""))
     ##########################################################################
 
     def setupButtons(self):
-        l = self.buttons = QHBoxLayout()
+        layout = self.buttons = QHBoxLayout()
         help = QPushButton(_("Help"))
         help.setAutoDefault(False)
-        l.addWidget(help)
+        layout.addWidget(help)
         help.clicked.connect(self.onHelp)
-        l.addStretch()
+        layout.addStretch()
         addField = QPushButton(_("Add Field"))
         addField.setAutoDefault(False)
-        l.addWidget(addField)
+        layout.addWidget(addField)
         addField.clicked.connect(self.onAddField)
         if not self._isCloze():
             flip = QPushButton(_("Flip"))
             flip.setAutoDefault(False)
-            l.addWidget(flip)
+            layout.addWidget(flip)
             flip.clicked.connect(self.onFlip)
-        l.addStretch()
+        layout.addStretch()
         close = QPushButton(_("Close"))
         close.setAutoDefault(False)
-        l.addWidget(close)
+        layout.addWidget(close)
         close.clicked.connect(self.accept)
 
     # Cards
@@ -477,22 +477,22 @@ adjust the template manually to switch the question and answer."""))
         dialog = QDialog(self)
         dialog.setWindowTitle("Anki")
         dialog.setMinimumWidth(400)
-        l = QVBoxLayout()
+        layout = QVBoxLayout()
         lab = QLabel(_("""\
 Enter deck to place new %s cards in, or leave blank:""") %
                            self.card.template()['name'])
         lab.setWordWrap(True)
-        l.addWidget(lab)
+        layout.addWidget(lab)
         te = TagEdit(dialog, type=1)
         te.setCol(self.col)
-        l.addWidget(te)
+        layout.addWidget(te)
         if template['did']:
             te.setText(self.col.decks.get(template['did'])['name'])
             te.selectAll()
         bb = QDialogButtonBox(QDialogButtonBox.Close)
         bb.rejected.connect(dialog.close)
-        l.addWidget(bb)
-        dialog.setLayout(l)
+        layout.addWidget(bb)
+        dialog.setLayout(layout)
         dialog.exec_()
         if not te.text().strip():
             template['did'] = None

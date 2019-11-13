@@ -973,7 +973,7 @@ due = odue, odue = 0, odid = 0, usn = ? where %s""" % (lim),
     def remFromDyn(self, cids):
         self.emptyDyn(None, "id in %s and odid" % ids2str(cids))
 
-    def _dynOrder(self, o, l):
+    def _dynOrder(self, o, limit):
         if o == DYN_OLDEST:
             ord = "(select max(id) from revlog where cid=card.id)"
         elif o == DYN_RANDOM:
@@ -995,7 +995,7 @@ due = odue, odue = 0, odid = 0, usn = ? where %s""" % (lim),
         else:
             # if we don't understand the term, default to due order
             ord = "card.due"
-        return ord + " limit %d" % l
+        return ord + " limit %d" % limit
 
     def _moveToDyn(self, did, ids):
         deck = self.col.decks.get(did)

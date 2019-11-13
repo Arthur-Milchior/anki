@@ -146,8 +146,8 @@ class DeckConf(QDialog):
     # Loading
     ##################################################
 
-    def listToUser(self, l):
-        return " ".join([str(x) for x in l])
+    def listToUser(self, delays):
+        return " ".join([str(x) for x in delays])
 
     def parentLimText(self, type="new"):
         # top level?

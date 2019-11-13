@@ -96,13 +96,13 @@ class TagManager:
             self.register(newTags)
         # find notes missing the tags
         if add:
-            l = "tags not "
+            tagsRequirement = "tags not "
             fn = self.addToStr
         else:
-            l = "tags "
+            tagsRequirement = "tags "
             fn = self.remFromStr
         lim = " or ".join(
-            [l+"like :_%d" % card for card, tag in enumerate(newTags)])
+            [tagsRequirement+"like :_%d" % card for card, tag in enumerate(newTags)])
         res = self.col.db.all(
             "select id, tags from notes where id in %s and (%s)" % (
                 ids2str(ids), lim),

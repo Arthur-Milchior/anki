@@ -28,10 +28,10 @@ class TagEdit(QLineEdit):
         "Set the current col, updating list of available tags."
         self.col = col
         if self.type == 0:
-            l = sorted(self.col.tags.all())
+            tags = sorted(self.col.tags.all())
         else:
-            l = sorted(self.col.decks.allNames())
-        self.model.setStringList(l)
+            tags = sorted(self.col.decks.allNames())
+        self.model.setStringList(tags)
 
     def focusInEvent(self, evt):
         QLineEdit.focusInEvent(self, evt)

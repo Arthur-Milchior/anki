@@ -130,8 +130,8 @@ it?""")):
     # Step load/save - fixme: share with std options screen
     ########################################################
 
-    def listToUser(self, l):
-        return " ".join([str(x) for x in l])
+    def listToUser(self, delays):
+        return " ".join([str(x) for x in delays])
 
     def userToList(self, w, minSize=1):
         items = str(w.text()).split(" ")

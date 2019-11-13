@@ -105,15 +105,15 @@ class FieldDialog(QDialog):
 
     def onPosition(self, delta=-1):
         idx = self.currentIdx
-        l = len(self.model['flds'])
-        txt = getOnlyText(_("New position (1...%d):") % l, default=str(idx+1))
+        nbFields = len(self.model['flds'])
+        txt = getOnlyText(_("New position (1...%d):") % nbFields, default=str(idx+1))
         if not txt:
             return
         try:
             pos = int(txt)
         except ValueError:
             return
-        if not 0 < pos <= l:
+        if not 0 < pos <= nbFields:
             return
         self.saveField()
         fldType = self.model['flds'][self.currentIdx]
