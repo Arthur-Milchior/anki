@@ -208,8 +208,8 @@ class CardLayout(QDialog):
         idx = self.ord
         cards = self.mm.tmplUseCount(self.model, idx)
         cards = ngettext("%d card", "%d cards", cards) % cards
-        msg = (_("Delete the '%(a)s' card type, and its %(b)s?") %
-            dict(a=self.model['tmpls'][idx]['name'], b=cards))
+        msg = (_("Delete the '%(a)s' card type, and its %(cards)s?") %
+            dict(a=self.model['tmpls'][idx]['name'], cards=cards))
         if not askUser(msg):
             return
         if not self.mm.remTemplate(self.model, self.cards[idx].template()):

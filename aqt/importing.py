@@ -83,8 +83,8 @@ class ImportDialog(QDialog):
         self.frm.allowHTML.setChecked(self.mw.pm.profile.get('allowHTML', True))
         self.frm.importMode.setCurrentIndex(self.mw.pm.profile.get('importMode', 1))
         # import button
-        b = QPushButton(_("Import"))
-        self.frm.buttonBox.addButton(b, QDialogButtonBox.AcceptRole)
+        importButton = QPushButton(_("Import"))
+        self.frm.buttonBox.addButton(importButton, QDialogButtonBox.AcceptRole)
         self.exec_()
 
     def setupOptions(self):

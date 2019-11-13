@@ -54,12 +54,12 @@ def showInfo(text, parent=False, help="", type="info", title="Anki", textFormat=
     mb.setText(text)
     mb.setIcon(icon)
     mb.setWindowTitle(title)
-    b = mb.addButton(QMessageBox.Ok)
-    b.setDefault(True)
+    okButton = mb.addButton(QMessageBox.Ok)
+    okButton.setDefault(True)
     if help:
-        b = mb.addButton(QMessageBox.Help)
-        b.clicked.connect(lambda: openHelp(help))
-        b.setAutoDefault(False)
+        okButton = mb.addButton(QMessageBox.Help)
+        okButton.clicked.connect(lambda: openHelp(help))
+        okButton.setAutoDefault(False)
     return mb.exec_()
 
 def showText(txt, parent=None, type="text", run=True, geomKey=None, \
@@ -139,9 +139,9 @@ class ButtonedDialog(QMessageBox):
         # v.addWidget(QLabel(text))
         # box = QDialogButtonBox()
         # v.addWidget(box)
-        for b in buttons:
+        for button in buttons:
             self.buttons.append(
-                self.addButton(b, QMessageBox.AcceptRole))
+                self.addButton(button, QMessageBox.AcceptRole))
         if help:
             self.addButton(_("Help"), QMessageBox.HelpRole)
             buttons.append(_("Help"))
@@ -188,13 +188,13 @@ class GetTextDialog(QDialog):
         buts = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
         if help:
             buts |= QDialogButtonBox.Help
-        b = QDialogButtonBox(buts)
-        v.addWidget(b)
+        button = QDialogButtonBox(buts)
+        v.addWidget(button)
         self.setLayout(v)
-        b.button(QDialogButtonBox.Ok).clicked.connect(self.accept)
-        b.button(QDialogButtonBox.Cancel).clicked.connect(self.reject)
+        button.button(QDialogButtonBox.Ok).clicked.connect(self.accept)
+        button.button(QDialogButtonBox.Cancel).clicked.connect(self.reject)
         if help:
-            b.button(QDialogButtonBox.Help).clicked.connect(self.helpRequested)
+            button.button(QDialogButtonBox.Help).clicked.connect(self.helpRequested)
 
     def accept(self):
         return QDialog.accept(self)
@@ -410,9 +410,9 @@ def shortcut(key):
 
 def maybeHideClose(bbox):
     if isMac:
-        b = bbox.button(QDialogButtonBox.Close)
-        if b:
-            bbox.removeButton(b)
+        button = bbox.button(QDialogButtonBox.Close)
+        if button:
+            bbox.removeButton(button)
 
 def addCloseShortcut(widg):
     if not isMac:

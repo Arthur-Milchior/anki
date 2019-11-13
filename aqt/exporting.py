@@ -43,8 +43,8 @@ class ExportDialog(QDialog):
         self.decks = [_("All Decks")] + sorted(self.col.decks.allNames())
         self.frm.deck.addItems(self.decks)
         # save button
-        b = QPushButton(_("Export..."))
-        self.frm.buttonBox.addButton(b, QDialogButtonBox.AcceptRole)
+        exportButton = QPushButton(_("Export..."))
+        self.frm.buttonBox.addButton(exportButton, QDialogButtonBox.AcceptRole)
         # set default option if accessed through deck button
         if did:
             name = self.mw.col.decks.get(did)['name']

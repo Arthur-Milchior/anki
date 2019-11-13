@@ -77,7 +77,7 @@ def fmtTimeSpan(time, pad=0, point=0, short=False, inTime=False, unit=99):
             fmt = inTimeTable[type](_pluralCount(time, point))
         else:
             fmt = timeTable[type](_pluralCount(time, point))
-    timestr = "%%%(a)d.%(b)df" % {'a': pad, 'b': point}
+    timestr = "%%%(a)d.%(point)df" % {'a': pad, 'point': point}
     return locale.format_string(fmt % timestr, time)
 
 def optimalPeriod(time, point, unit):
@@ -123,12 +123,12 @@ def _pluralCount(time, point):
 
 def fmtPercentage(float_value, point=1):
     "Return float with percentage sign"
-    fmt = '%' + "0.%(b)df" % {'b': point}
+    fmt = '%' + "0.%(point)df" % {'point': point}
     return locale.format_string(fmt, float_value) + "%"
 
 def fmtFloat(float_value, point=1):
     "Return a string with decimal separator according to current locale"
-    fmt = '%' + "0.%(b)df" % {'b': point}
+    fmt = '%' + "0.%(point)df" % {'point': point}
     return locale.format_string(fmt, float_value)
 
 # HTML

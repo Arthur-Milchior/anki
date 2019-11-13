@@ -505,10 +505,10 @@ select id from notes where mid = ?)""" % " ".join(map),
 
     def _reqForTemplate(self, model, flds, template):
         a = ["ankiflag"] * len(flds)
-        b = [""] * len(flds)
+        emptyFlds = [""] * len(flds)
         data = [1, 1, model['id'], 1, template['ord'], "", joinFields(a), 0]
         full = self.col._renderQA(data)['q']
-        data = [1, 1, model['id'], 1, template['ord'], "", joinFields(b), 0]
+        data = [1, 1, model['id'], 1, template['ord'], "", joinFields(emptyFlds), 0]
         empty = self.col._renderQA(data)['q']
         # if full and empty are the same, the template is invalid and there is
         # no way to satisfy it
@@ -529,7 +529,7 @@ select id from notes where mid = ?)""" % " ".join(map),
         type = 'any'
         req = []
         for i in range(len(flds)):
-            tmp = b[:]
+            tmp = emptyFlds[:]
             tmp[i] = "1"
             data[6] = joinFields(tmp)
             # if not the same as empty, this field can make the card non-blank

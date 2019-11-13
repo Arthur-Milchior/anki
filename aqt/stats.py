@@ -28,10 +28,10 @@ class DeckStats(QDialog):
         self.setMinimumWidth(700)
         self.form.setupUi(self)
         restoreGeom(self, self.name)
-        b = self.form.buttonBox.addButton(_("Save PDF"),
+        saveButton = self.form.buttonBox.addButton(_("Save PDF"),
                                           QDialogButtonBox.ActionRole)
-        b.clicked.connect(self.saveImage)
-        b.setAutoDefault(False)
+        saveButton.clicked.connect(self.saveImage)
+        saveButton.setAutoDefault(False)
         self.form.groups.clicked.connect(lambda: self.changeScope("deck"))
         self.form.groups.setShortcut("g")
         self.form.all.clicked.connect(lambda: self.changeScope("collection"))

@@ -441,8 +441,7 @@ from the profile screen."))
         newpath = os.path.join(dir, fname)
         with open(path, "rb") as file:
             data = file.read()
-        b = self.BackupThread(newpath, data)
-        b.start()
+        self.BackupThread(newpath, data).start()
 
         # find existing backups
         backups = []
@@ -566,14 +565,14 @@ from the profile screen."))
         self.web.resetHandlers()
         self.web.onBridgeCmd = lambda url: self.delayedMaybeReset()
         i = _("Waiting for editing to finish.")
-        b = self.button("refresh", _("Resume Now"), id="resume")
+        refreshButton = self.button("refresh", _("Resume Now"), id="resume")
         self.web.stdHtml("""
 <center><div style="height: 100%%">
 <div style="position:relative; vertical-align: middle;">
 %s<br><br>
 %s</div></div></center>
 <script>$('#resume').focus()</script>
-""" % (i, b))
+""" % (i, refreshButton))
         self.bottomWeb.hide()
         self.web.setFocus()
 
@@ -1133,10 +1132,10 @@ will be lost. Continue?"""))
         box = QDialogButtonBox(QDialogButtonBox.Close)
         layout.addWidget(box)
         if unused:
-            b = QPushButton(_("Delete Unused Files"))
-            b.setAutoDefault(False)
-            box.addButton(b, QDialogButtonBox.ActionRole)
-            b.clicked.connect(
+            deleteButton = QPushButton(_("Delete Unused Files"))
+            deleteButton.setAutoDefault(False)
+            box.addButton(deleteButton, QDialogButtonBox.ActionRole)
+            deleteButton.clicked.connect(
                 lambda click, u=unused, d=diag: self.deleteUnused(u, d))
 
         box.rejected.connect(diag.reject)

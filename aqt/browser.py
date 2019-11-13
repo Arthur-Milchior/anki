@@ -754,7 +754,7 @@ by clicking on one on the left."""))
             a = menu.addAction(name)
             a.setCheckable(True)
             a.setChecked(type in self.model.activeCols)
-            a.toggled.connect(lambda b, type=type: self.toggleField(type))
+            a.toggled.connect(lambda button, type=type: self.toggleField(type))
         menu.exec_(gpos)
 
     def toggleField(self, type):
@@ -1778,10 +1778,10 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
             self.model.endReset()
             self.mw.progress.finish()
         showInfo(ngettext(
-            "%(a)d of %(b)d note updated",
-            "%(a)d of %(b)d notes updated", len(sf)) % {
+            "%(a)d of %(lenSf)d note updated",
+            "%(a)d of %(lenSf)d notes updated", len(sf)) % {
                 'a': changed,
-                'b': len(sf),
+                'lenSf': len(sf),
             }, parent=self)
 
     def onFindReplaceHelp(self):
@@ -1820,15 +1820,15 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         self.mw.progress.start()
         res = self.mw.col.findDupes(fname, search)
         if not self._dupesButton:
-            self._dupesButton = b = frm.buttonBox.addButton(
+            self._dupesButton = frm.buttonBox.addButton(
                 _("Tag Duplicates"), QDialogButtonBox.ActionRole)
-            b.clicked.connect(lambda: self._onTagDupes(res))
+            self._dupesButton.clicked.connect(lambda: self._onTagDupes(res))
         html = "<html><body>"
         groups = len(res)
         notes = sum(len(r[1]) for r in res)
         part1 = ngettext("%d group", "%d groups", groups) % groups
         part2 = ngettext("%d note", "%d notes", notes) % notes
-        html += _("Found %(a)s across %(b)s.") % dict(a=part1, b=part2)
+        html += _("Found %(a)s across %(part2)s.") % dict(a=part1, part2=part2)
         html += "<p><ol>"
         for val, nids in res:
             html += '''<li><a href=# onclick="pycmd('%s');return false;">%s</a>: %s</a>''' % (
@@ -2085,16 +2085,14 @@ If a note has no remaining cards, it will be lost. \
 Are you sure you want to continue?""")):
                 return
         self.browser.mw.checkpoint(_("Change Note Type"))
-        b = self.browser
-        b.mw.col.modSchema(check=True)
-        b.mw.progress.start()
-        b.model.beginReset()
-        mm = b.mw.col.models
-        mm.change(self.oldModel, self.nids, self.targetModel, fmap, cmap)
-        b.search()
-        b.model.endReset()
-        b.mw.progress.finish()
-        b.mw.reset()
+        self.browser.mw.col.modSchema(check=True)
+        self.browser.mw.progress.start()
+        self.browser.model.beginReset()
+        self.browser.mw.col.models.change(self.oldModel, self.nids, self.targetModel, fmap, cmap)
+        self.browser.search()
+        self.browser.model.endReset()
+        self.browser.mw.progress.finish()
+        self.browser.mw.reset()
         self.cleanup()
         QDialog.accept(self)
 

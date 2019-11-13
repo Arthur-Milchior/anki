@@ -214,11 +214,11 @@ to their original deck.""")
         if self.mw.col.sched.haveBuried():
             links.append(["U", "unbury", _("Unbury")])
         buf = ""
-        for b in links:
-            if b[0]:
-                b[0] = _("Shortcut key: %s") % shortcut(b[0])
+        for link in links:
+            if link[0]:
+                link[0] = _("Shortcut key: %s") % shortcut(link[0])
             buf += """
-<button title="%s" onclick='pycmd("%s")'>%s</button>""" % tuple(b)
+<button title="%s" onclick='pycmd("%s")'>%s</button>""" % tuple(link)
         self.bottom.draw(buf)
         self.bottom.web.onBridgeCmd = self._linkHandler
 

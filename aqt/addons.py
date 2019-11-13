@@ -661,9 +661,9 @@ class GetAddons(QDialog):
         self.mw = self.mgr.mw
         self.form = aqt.forms.getaddons.Ui_Dialog()
         self.form.setupUi(self)
-        b = self.form.buttonBox.addButton(
+        button = self.form.buttonBox.addButton(
             _("Browse Add-ons"), QDialogButtonBox.ActionRole)
-        b.clicked.connect(self.onBrowse)
+        button.clicked.connect(self.onBrowse)
         restoreGeom(self, "getaddons", adjustSize=True)
         self.exec_()
         saveGeom(self, "getaddons")

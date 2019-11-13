@@ -131,7 +131,7 @@ body {background-image: url(data:image/png;base64,%s); }
     ######################################################################
 
     def todayStats(self):
-        b = self._title(_("Today"))
+        html = self._title(_("Today"))
         # studied today
         lim = self._revlogLimit()
         if lim:
@@ -156,32 +156,32 @@ from revlog where id > ? """+lim, (self.col.sched.dayCutoff-86400)*1000)
             return "<b>"+str(s)+"</b>"
         msgp1 = ngettext("<!--studied-->%d card", "<!--studied-->%d cards", cards) % cards
         if cards:
-            b += _("Studied %(a)s %(b)s today (%(secs).1fs/card)") % dict(
-                a=bold(msgp1), b=bold(fmtTimeSpan(thetime, unit=1, inTime=True)),
+            html += _("Studied %(a)s %(howManyTime)s today (%(secs).1fs/card)") % dict(
+                a=bold(msgp1), howManyTime=bold(fmtTimeSpan(thetime, unit=1, inTime=True)),
                 secs=thetime/cards
             )
             # again/pass count
-            b += "<br>" + _("Again count: %s") % bold(failed)
+            html += "<br>" + _("Again count: %s") % bold(failed)
             if cards:
-                b += " " + _("(%s correct)") % bold(
+                html += " " + _("(%s correct)") % bold(
                     "%0.1f%%" %((1-failed/float(cards))*100))
             # type breakdown
-            b += "<br>"
-            b += (_("Learn: %(a)s, Review: %(b)s, Relearn: %(relrn)s, Filtered: %(d)s")
-                  % dict(a=bold(lrn), b=bold(rev), relrn=bold(relrn), d=bold(filt)))
+            html += "<br>"
+            html += (_("Learn: %(a)s, Review: %(nbRev)s, Relearn: %(relrn)s, Filtered: %(d)s")
+                  % dict(a=bold(lrn), nbRev=bold(rev), relrn=bold(relrn), d=bold(filt)))
             # mature today
             mcnt, msum = self.col.db.first("""
     select count(), sum(case when ease = 1 then 0 else 1 end) from revlog
     where lastIvl >= 21 and id > ?"""+lim, (self.col.sched.dayCutoff-86400)*1000)
-            b += "<br>"
+            html += "<br>"
             if mcnt:
-                b += _("Correct answers on mature cards: %(a)d/%(b)d (%(percent).1f%%)") % dict(
-                    a=msum, b=mcnt, percent=(msum / float(mcnt) * 100))
+                html += _("Correct answers on mature cards: %(a)d/%(mcnt)d (%(percent).1f%%)") % dict(
+                    a=msum, mcnt=mcnt, percent=(msum / float(mcnt) * 100))
             else:
-                b += _("No mature cards were studied today.")
+                html += _("No mature cards were studied today.")
         else:
-            b += _("No cards have been studied today.")
-        return b
+            html += _("No cards have been studied today.")
+        return html
 
     # Due and cumulative due
     ######################################################################
@@ -389,7 +389,7 @@ group by day order by day""" % (self._limit(), lim),
                 text = _("%.01f cards/minute") % perMin
             self._line(
                 i, _("Average answer time"),
-                _("%(a)0.1fs (%(b)s)") % dict(a=(tot*60)/total, b=text))
+                _("%(a)0.1fs (%(text)s)") % dict(a=(tot*60)/total, text=text))
         return self._lineTbl(i), int(tot)
 
     def _splitRepData(self, data, spec):
@@ -735,13 +735,13 @@ when you answer "good" on a review.''')
             info)
         return txt
 
-    def _line(self, i, a, b, bold=True):
+    def _line(self, i, a, value, bold=True):
         #T: Symbols separating first and second column in a statistics table. Eg in "Total:    3 reviews".
         colon = _(":")
         if bold:
-            i.append(("<tr><td width=200 align=right>%s%s</td><td><b>%s</b></td></tr>") % (a,colon,b))
+            i.append(("<tr><td width=200 align=right>%s%s</td><td><b>%s</b></td></tr>") % (a,colon,value))
         else:
-            i.append(("<tr><td width=200 align=right>%s%s</td><td>%s</td></tr>") % (a,colon,b))
+            i.append(("<tr><td width=200 align=right>%s%s</td><td>%s</td></tr>") % (a,colon,value))
 
     def _lineTbl(self, i):
         return "<table width=400>" + "".join(i) + "</table>"
@@ -767,21 +767,21 @@ from cards where did in %s""" % self._limit())
     ######################################################################
 
     def footer(self):
-        b = "<br><br><font size=1>"
-        b += _("Generated on %s") % time.asctime(time.localtime(time.time()))
-        b += "<br>"
+        html = "<br><br><font size=1>"
+        html += _("Generated on %s") % time.asctime(time.localtime(time.time()))
+        html += "<br>"
         if self.wholeCollection:
             deck = _("whole collection")
         else:
             deck = self.col.decks.current()['name']
-        b += _("Scope: %s") % deck
-        b += "<br>"
-        b += _("Period: %s") % [
+        html += _("Scope: %s") % deck
+        html += "<br>"
+        html += _("Period: %s") % [
             _("1 month"),
             _("1 year"),
             _("deck life")
             ][self.type]
-        return b
+        return html
 
     # Tools
     ######################################################################
@@ -927,7 +927,7 @@ $(function () {
     def _avgDay(self, tot, num, unit):
         vals = []
         try:
-            vals.append(_("%(a)0.1f %(b)s/day") % dict(a=tot/float(num), b=unit))
+            vals.append(_("%(a)0.1f %(unit)s/day") % dict(a=tot/float(num), unit=unit))
             return ", ".join(vals)
         except ZeroDivisionError:
             return ""

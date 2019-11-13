@@ -114,8 +114,8 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         cards = cards or 0
         thetime = thetime or 0
         msgp1 = ngettext("<!--studied-->%d card", "<!--studied-->%d cards", cards) % cards
-        buf = _("Studied %(a)s %(b)s today.") % dict(a=msgp1,
-                                                     b=fmtTimeSpan(thetime, unit=1, inTime=True))
+        buf = _("Studied %(a)s %(theTime)s today.") % dict(a=msgp1,
+                                                     theTime=fmtTimeSpan(thetime, unit=1, inTime=True))
         return buf
 
     def _countWarn(self):
@@ -123,10 +123,10 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
                 self.mw.pm.profile.get("hideDeckLotsMsg")):
             return ""
         return "<br><div style='width:50%;border: 1px solid #000;padding:5px;'>"+(
-            _("You have a lot of decks. Please see %(a)s. %(b)s") % dict(
+            _("You have a lot of decks. Please see %(a)s. %(hide)s") % dict(
                 a=("<a href=# onclick=\"return pycmd('lots')\">%s</a>" % _(
                     "this page")),
-                b=("<br><small><a href=# onclick='return pycmd(\"hidelots\")'>("
+                hide=("<br><small><a href=# onclick='return pycmd(\"hidelots\")'>("
                    "%s)</a></small>" % (_("hide"))+
                     "</div>")))
 
@@ -211,13 +211,13 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
     def _showOptions(self, did):
         menu = QMenu(self.mw)
         a = menu.addAction(_("Rename"))
-        a.triggered.connect(lambda b, did=did: self._rename(did))
+        a.triggered.connect(lambda button, did=did: self._rename(did))
         a = menu.addAction(_("Options"))
-        a.triggered.connect(lambda b, did=did: self._options(did))
+        a.triggered.connect(lambda button, did=did: self._options(did))
         a = menu.addAction(_("Export"))
-        a.triggered.connect(lambda b, did=did: self._export(did))
+        a.triggered.connect(lambda button, did=did: self._export(did))
         a = menu.addAction(_("Delete"))
-        a.triggered.connect(lambda b, did=did: self._delete(did))
+        a.triggered.connect(lambda button, did=did: self._delete(did))
         runHook("showDeckOptions", menu, did)
         menu.exec_(QCursor.pos())
 
@@ -290,11 +290,11 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
     def _drawButtons(self):
         buf = ""
         drawLinks = deepcopy(self.drawLinks)
-        for b in drawLinks:
-            if b[0]:
-                b[0] = _("Shortcut key: %s") % shortcut(b[0])
+        for drawLink in drawLinks:
+            if drawLink[0]:
+                drawLink[0] = _("Shortcut key: %s") % shortcut(drawLink[0])
             buf += """
-<button title='%s' onclick='pycmd(\"%s\");'>%s</button>""" % tuple(b)
+<button title='%s' onclick='pycmd(\"%s\");'>%s</button>""" % tuple(drawLink)
         self.bottom.draw(buf)
         self.bottom.web.onBridgeCmd = self._linkHandler
 
