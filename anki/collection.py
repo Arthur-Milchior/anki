@@ -466,9 +466,9 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
         else:
             # random mode; seed with note ts so all cards of this note get the
             # same random number
-            r = random.Random()
-            r.seed(due)
-            return r.randrange(1, max(due, 1000))
+            rand = random.Random()
+            rand.seed(due)
+            return rand.randrange(1, max(due, 1000))
 
     # Cards
     ##########################################################################
@@ -521,18 +521,18 @@ where card.nid = note.id and card.id in %s group by nid""" % ids2str(cids)):
     def updateFieldCache(self, nids):
         "Update field checksums and sort cache, after find&replace, etc."
         snids = ids2str(nids)
-        r = []
+        notesUpdates = []
         for (nid, mid, flds) in self._fieldData(snids):
             fields = splitFields(flds)
             model = self.models.get(mid)
             if not model:
                 # note points to invalid model
                 continue
-            r.append((stripHTMLMedia(fields[self.models.sortIdx(model)]),
+            notesUpdates.append((stripHTMLMedia(fields[self.models.sortIdx(model)]),
                       fieldChecksum(fields[0]),
                       nid))
         # apply, relying on calling code to bump usn+mod
-        self.db.executemany("update notes set sfld=?, csum=? where id=?", r)
+        self.db.executemany("update notes set sfld=?, csum=? where id=?", notesUpdates)
 
     # Q/A generation
     ##########################################################################

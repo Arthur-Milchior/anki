@@ -491,9 +491,9 @@ did = ? and queue = {QUEUE_DAY_LRN} and due <= ? limit ?""",
                                     did, self.today, self.queueLimit)
             if self._lrnDayQueue:
                 # order
-                r = random.Random()
-                r.seed(self.today)
-                r.shuffle(self._lrnDayQueue)
+                rand = random.Random()
+                rand.seed(self.today)
+                rand.shuffle(self._lrnDayQueue)
                 # is the current did empty?
                 if len(self._lrnDayQueue) < self.queueLimit:
                     self._lrnDids.pop(0)
@@ -759,9 +759,9 @@ did = ? and queue = {QUEUE_REV} and due <= ? limit ?""",
                         self._revQueue.reverse()
                     else:
                         # random order for regular reviews
-                        r = random.Random()
-                        r.seed(self.today)
-                        r.shuffle(self._revQueue)
+                        rand = random.Random()
+                        rand.seed(self.today)
+                        rand.shuffle(self._revQueue)
                     # is the current did empty?
                     if len(self._revQueue) < lim:
                         self._revDids.pop(0)
@@ -1342,8 +1342,8 @@ and (queue={QUEUE_NEW} or (queue={QUEUE_REV} and due<=?))""",
         today = self.today
         mod = intTime()
         for id in ids:
-            r = random.randint(imin, imax)
-            cardData.append(dict(id=id, due=r+today, ivl=max(1, r), mod=mod,
+            randValue = random.randint(imin, imax)
+            cardData.append(dict(id=id, due=randValue+today, ivl=max(1, randValue), mod=mod,
                           usn=self.col.usn(), fact=STARTING_FACTOR))
         self.remFromDyn(ids)
         self.col.db.executemany(f"""

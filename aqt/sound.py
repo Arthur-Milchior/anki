@@ -18,7 +18,7 @@ def getAudio(parent, encode=True):
         showWarning("pyaudio not installed")
         return
 
-    r = Recorder()
+    recorder = Recorder()
     mb = QMessageBox(parent)
     restoreGeom(mb, "audioRecorder")
     mb.setWindowTitle("Anki")
@@ -30,8 +30,8 @@ def getAudio(parent, encode=True):
     mb.addButton(but, QMessageBox.RejectRole)
     mb.setEscapeButton(but)
     startTime = time.time()
-    r.start()
-    time.sleep(r.startupDelay)
+    recorder.start()
+    time.sleep(recorder.startupDelay)
     QApplication.instance().processEvents()
     while not mb.clickedButton():
         txt =_("Recording...<br>Time: %0.1f")
@@ -39,14 +39,14 @@ def getAudio(parent, encode=True):
         mb.show()
         QApplication.instance().processEvents()
     if mb.clickedButton() == mb.escapeButton():
-        r.stop()
-        r.cleanup()
+        recorder.stop()
+        recorder.cleanup()
         return
     saveGeom(mb, "audioRecorder")
     # ensure at least a second captured
     while time.time() - startTime < 1:
         time.sleep(0.1)
-    r.stop()
+    recorder.stop()
     # process
-    r.postprocess(encode)
-    return r.file()
+    recorder.postprocess(encode)
+    return recorder.file()

@@ -672,12 +672,12 @@ to a cloze type first, via Edit>Change Note Type."""))
             else:
                 reqs = AnkiRequestsClient()
                 reqs.timeout = 30
-                r = reqs.get(url)
-                if r.status_code != 200:
-                    showWarning(_("Unexpected response code: %s") % r.status_code)
+                req = reqs.get(url)
+                if req.status_code != 200:
+                    showWarning(_("Unexpected response code: %s") % req.status_code)
                     return
-                filecontents = r.content
-                ct = r.headers.get("content-type")
+                filecontents = req.content
+                ct = req.headers.get("content-type")
         except urllib.error.URLError as e:
             showWarning(_("An error occurred while opening %s") % e)
             return

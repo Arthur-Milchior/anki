@@ -337,13 +337,13 @@ and notes.mid = ? and cards.ord = ?""", model['id'], ord)
         # model hasn't been added yet?
         if not model['id']:
             return
-        r = []
+        notesUpdates = []
         for (id, flds) in self.col.db.execute(
             "select id, flds from notes where mid = ?", model['id']):
-            r.append((joinFields(fn(splitFields(flds))),
+            notesUpdates.append((joinFields(fn(splitFields(flds))),
                       intTime(), self.col.usn(), id))
         self.col.db.executemany(
-            "update notes set flds=?,mod=?,usn=? where id = ?", r)
+            "update notes set flds=?,mod=?,usn=? where id = ?", notesUpdates)
 
     # Templates
     ##################################################

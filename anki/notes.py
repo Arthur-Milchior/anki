@@ -117,12 +117,12 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
         self.tags = self.col.tags.split(str)
 
     def delTag(self, tag):
-        rem = []
+        rems = []
         for tag in self.tags:
             if tag.lower() == tag.lower():
-                rem.append(tag)
-        for r in rem:
-            self.tags.remove(r)
+                rems.append(tag)
+        for rem in rems:
+            self.tags.remove(rem)
 
     def addTag(self, tag):
         # duplicates will be stripped on save

@@ -172,11 +172,11 @@ update cards set left = left + left*1000 where queue = 1""")
                     deck['extendRev'] = 50
             col.decks.save(deck)
         for conf in col.decks.allConf():
-            r = conf['rev']
-            r['ivlFct'] = r.get("ivlfct", 1)
-            if 'ivlfct' in r:
-                del r['ivlfct']
-            r['maxIvl'] = 36500
+            rev = conf['rev']
+            rev['ivlFct'] = rev.get("ivlfct", 1)
+            if 'ivlfct' in rev:
+                del rev['ivlfct']
+            rev['maxIvl'] = 36500
             col.decks.save(conf)
         for model in col.models.all():
             for template in model['tmpls']:
@@ -193,12 +193,12 @@ def _upgradeClozeModel(col, model):
         template[type] = re.sub("{{cloze:1:(.+?)}}", r"{{cloze:\1}}", template[type])
     template['name'] = _("Cloze")
     # delete non-cloze cards for the model
-    rem = []
+    rems = []
     for template in model['tmpls'][1:]:
         if "{{cloze:" not in template['qfmt']:
-            rem.append(template)
-    for r in rem:
-        col.models.remTemplate(model, r)
+            rems.append(template)
+    for rem in rems:
+        col.models.remTemplate(model, rem)
     del model['tmpls'][1:]
     col.models._updateTemplOrds(model)
     col.models.save(model)

@@ -1539,10 +1539,10 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         if prompt is None:
             prompt = _("Enter tags to add:")
         if tags is None:
-            (tags, r) = getTag(self, self.col, prompt)
+            (tags, retValue) = getTag(self, self.col, prompt)
         else:
-            r = True
-        if not r:
+            retValue = True
+        if not retValue:
             return
         if func is None:
             func = self.col.tags.bulkAdd
@@ -1750,9 +1750,9 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         frm.field.addItems([_("All Fields")] + fields)
         frm.buttonBox.helpRequested.connect(self.onFindReplaceHelp)
         restoreGeom(dialog, "findreplace")
-        r = dialog.exec_()
+        retValue = dialog.exec_()
         saveGeom(dialog, "findreplace")
-        if not r:
+        if not retValue:
             return
         if frm.field.currentIndex() == 0:
             field = None

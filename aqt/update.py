@@ -37,9 +37,9 @@ class LatestVersionFinder(QThread):
         data['proto'] = 1
 
         try:
-            r = requests.post(aqt.appUpdate, data=data)
-            r.raise_for_status()
-            resp = r.json()
+            req = requests.post(aqt.appUpdate, data=data)
+            req.raise_for_status()
+            resp = req.json()
         except:
             # behind proxy, corrupt message, etc
             print("update check failed")

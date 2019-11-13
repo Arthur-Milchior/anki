@@ -572,12 +572,12 @@ Content-Type: application/octet-stream\r\n\r\n""")
     def req(self, method, fobj=None, comp=6, badAuthRaises=True):
         headers, body = self._buildPostData(fobj, comp)
 
-        r = self.client.post(self.syncURL()+method, data=body, headers=headers)
-        if not badAuthRaises and r.status_code == 403:
+        req = self.client.post(self.syncURL()+method, data=body, headers=headers)
+        if not badAuthRaises and req.status_code == 403:
             return False
-        self.assertOk(r)
+        self.assertOk(req)
 
-        buf = self.client.streamContent(r)
+        buf = self.client.streamContent(req)
         return buf
 
 # Incremental sync over HTTP

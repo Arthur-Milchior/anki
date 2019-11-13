@@ -283,19 +283,19 @@ select distinct(note.id) from cards card, notes note where card.nid=note.id and 
 
     def _findRated(self, args):
         # days(:optional_ease)
-        (val, args) = args
-        r = val.split(":")
+        (vals, args) = args
+        vals = vals.split(":")
         try:
-            days = int(r[0])
+            days = int(vals[0])
         except ValueError:
             return
         days = min(days, 31)
         # ease
         ease = ""
-        if len(r) > 1:
-            if r[1] not in ("1", "2", "3", "4"):
+        if len(vals) > 1:
+            if vals[1] not in ("1", "2", "3", "4"):
                 return
-            ease = "and ease=%s" % r[1]
+            ease = "and ease=%s" % vals[1]
         cutoff = (self.col.sched.dayCutoff - 86400*days)*1000
         return ("card.id in (select cid from revlog where id>%d %s)" %
                 (cutoff, ease))
