@@ -163,19 +163,19 @@ class Reviewer:
         card = self.card
         # grab the question and play audio
         if card.isEmpty():
-            q = _("""\
+            questionHtml = _("""\
 The front of this card is empty. Please run Tools>Empty Cards.""")
         else:
-            q = card.q()
+            questionHtml = card.q()
         if self.autoplay(card):
-            playFromText(q)
+            playFromText(questionHtml)
         # render & update bottom
-        q = self._mungeQA(q)
-        q = runFilter("prepareQA", q, card, "reviewQuestion")
+        questionHtml = self._mungeQA(questionHtml)
+        questionHtml = runFilter("prepareQA", questionHtml, card, "reviewQuestion")
 
         bodyclass = bodyClass(self.mw.col, card)
 
-        self.web.eval("_showQuestion(%s,'%s');" % (json.dumps(q), bodyclass))
+        self.web.eval("_showQuestion(%s,'%s');" % (json.dumps(questionHtml), bodyclass))
         self._drawFlag()
         self._drawMark()
         self._showAnswerButton()
@@ -210,15 +210,15 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
             return
         self.state = "answer"
         card = self.card
-        a = card.a()
+        answerHtml = card.a()
         # play audio?
         clearAudioQueue()
         if self.autoplay(card):
-            playFromText(a)
-        a = self._mungeQA(a)
-        a = runFilter("prepareQA", a, card, "reviewAnswer")
+            playFromText(answerHtml)
+        answerHtml = self._mungeQA(answerHtml)
+        answerHtml = runFilter("prepareQA", answerHtml, card, "reviewAnswer")
         # render and update bottom
-        self.web.eval("_showAnswer(%s);" % json.dumps(a))
+        self.web.eval("_showAnswer(%s);" % json.dumps(answerHtml))
         self._showEaseButtons()
         # user hook
         runHook('showAnswer')

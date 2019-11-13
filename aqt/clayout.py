@@ -303,15 +303,15 @@ Please create a new card type first."""))
 
         bodyclass = bodyClass(self.mw.col, card)
 
-        q = ti(mungeQA(self.mw.col, card.q(reload=True)))
-        q = runFilter("prepareQA", q, card, "clayoutQuestion")
+        questionHtmlPreview = ti(mungeQA(self.mw.col, card.q(reload=True)))
+        questionHtmlPreview = runFilter("prepareQA", questionHtmlPreview, card, "clayoutQuestion")
 
-        a = ti(mungeQA(self.mw.col, card.a()), type='a')
-        a = runFilter("prepareQA", a, card, "clayoutAnswer")
+        answerHtmlPreview = ti(mungeQA(self.mw.col, card.a()), type='a')
+        answerHtmlPreview = runFilter("prepareQA", answerHtmlPreview, card, "clayoutAnswer")
 
         # use _showAnswer to avoid the longer delay
-        self.pform.frontWeb.eval("_showAnswer(%s,'%s');" % (json.dumps(q), bodyclass))
-        self.pform.backWeb.eval("_showAnswer(%s, '%s');" % (json.dumps(a), bodyclass))
+        self.pform.frontWeb.eval("_showAnswer(%s,'%s');" % (json.dumps(questionHtmlPreview), bodyclass))
+        self.pform.backWeb.eval("_showAnswer(%s, '%s');" % (json.dumps(answerHtmlPreview), bodyclass))
 
         clearAudioQueue()
         if card.id not in self.playedAudio:
