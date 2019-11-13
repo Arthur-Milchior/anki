@@ -396,13 +396,13 @@ class Editor:
         self.saveNow(lambda: self._onHtmlEdit(field))
 
     def _onHtmlEdit(self, field):
-        d = QDialog(self.widget)
+        dialog = QDialog(self.widget)
         form = aqt.forms.edithtml.Ui_Dialog()
-        form.setupUi(d)
+        form.setupUi(dialog)
         form.buttonBox.helpRequested.connect(lambda: openHelp("editor"))
         form.textEdit.setPlainText(self.note.fields[field])
         form.textEdit.moveCursor(QTextCursor.End)
-        d.exec_()
+        dialog.exec_()
         html = form.textEdit.toPlainText()
         # filter html through beautifulsoup so we can strip out things like a
         # leading </div>

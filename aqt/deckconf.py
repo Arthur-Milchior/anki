@@ -17,7 +17,7 @@ class DeckConf(QDialog):
         self.mw = mw
         self.deck = deck
         self.childDids = [
-            d[1] for d in self.mw.col.decks.children(self.deck['id'])]
+            deck[1] for deck in self.mw.col.decks.children(self.deck['id'])]
         self._origNewOrder = None
         self.form = aqt.forms.dconf.Ui_Dialog()
         self.form.setupUi(self)
@@ -88,10 +88,10 @@ class DeckConf(QDialog):
         self.deck['conf'] = conf['id']
         self.loadConf()
         cnt = 0
-        for d in self.mw.col.decks.all():
-            if d['dyn']:
+        for deck in self.mw.col.decks.all():
+            if deck['dyn']:
                 continue
-            if d['conf'] == conf['id']:
+            if deck['conf'] == conf['id']:
                 cnt += 1
         if cnt > 1:
             txt = _("Your changes will affect multiple decks. If you wish to "
@@ -154,8 +154,8 @@ class DeckConf(QDialog):
         if "::" not in self.deck['name']:
             return ""
         lim = -1
-        for d in self.mw.col.decks.parents(self.deck['id']):
-            conf = self.mw.col.decks.confForDid(d['id'])
+        for deck in self.mw.col.decks.parents(self.deck['id']):
+            conf = self.mw.col.decks.confForDid(deck['id'])
             x = conf[type]['perDay']
             if lim == -1:
                 lim = x

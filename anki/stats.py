@@ -167,8 +167,8 @@ from revlog where id > ? """+lim, (self.col.sched.dayCutoff-86400)*1000)
                     "%0.1f%%" %((1-failed/float(cards))*100))
             # type breakdown
             html += "<br>"
-            html += (_("Learn: %(a)s, Review: %(nbRev)s, Relearn: %(relrn)s, Filtered: %(d)s")
-                  % dict(a=bold(lrn), nbRev=bold(rev), relrn=bold(relrn), d=bold(filt)))
+            html += (_("Learn: %(a)s, Review: %(nbRev)s, Relearn: %(relrn)s, Filtered: %(filt)s")
+                  % dict(a=bold(lrn), nbRev=bold(rev), relrn=bold(relrn), filt=bold(filt)))
             # mature today
             mcnt, msum = self.col.db.first("""
     select count(), sum(case when ease = 1 then 0 else 1 end) from revlog
@@ -204,12 +204,12 @@ from revlog where id > ? """+lim, (self.col.sched.dayCutoff-86400)*1000)
 
     def dueGraph(self):
         start, end, chunk = self.get_start_end_chunk()
-        d = self._due(start, end, chunk)
+        due = self._due(start, end, chunk)
         yng = []
         mtr = []
         tot = 0
         totd = []
-        for day in d:
+        for day in due:
             yng.append((day[0], day[1]))
             mtr.append((day[0], day[2]))
             tot += day[1]+day[2]
@@ -550,7 +550,7 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = {QUEUE
         # 3 + 4 + 4 + spaces on sides and middle = 15
         # yng starts at 1+3+1 = 5
         # mtr starts at 5+4+1 = 10
-        d = {'lrn':[], 'yng':[], 'mtr':[]}
+        dic = {'lrn':[], 'yng':[], 'mtr':[]}
         types = ("lrn", "yng", "mtr")
         eases = self._eases()
         for (type, ease, cnt) in eases:
@@ -559,7 +559,7 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = {QUEUE
             elif type == CARD_DUE:
                 ease += 10
             index = types[type]
-            d[index].append((ease, cnt))
+            dic[index].append((ease, cnt))
         ticks = [[1,1],[2,2],[3,3], # [4,4]
                  [6,1],[7,2],[8,3],[9,4],
                  [11, 1],[12,2],[13,3],[14,4]]
@@ -568,9 +568,9 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = {QUEUE
         txt = self._title(_("Answer Buttons"),
                           _("The number of times you have pressed each button."))
         txt += self._graph(id="ease", data=[
-            dict(data=d['lrn'], color=colLearn, label=_("Learning")),
-            dict(data=d['yng'], color=colYoung, label=_("Young")),
-            dict(data=d['mtr'], color=colMature, label=_("Mature")),
+            dict(data=dic['lrn'], color=colLearn, label=_("Learning")),
+            dict(data=dic['yng'], color=colYoung, label=_("Young")),
+            dict(data=dic['mtr'], color=colMature, label=_("Mature")),
             ], type="bars", conf=dict(
                 xaxis=dict(ticks=ticks, min=0, max=15)),
             ylabel=_("Answers"))
@@ -638,15 +638,15 @@ order by thetype, ease""" % (ease4repl, lim))
         mcount = 0
         trend = []
         peak = 0
-        for d in data:
-            hour = (d[0] - 4) % 24
-            pct = d[1]
+        for datum in data:
+            hour = (datum[0] - 4) % 24
+            pct = datum[1]
             if pct > peak:
                 peak = pct
             shifted.append((hour, pct))
-            counts.append((hour, d[2]))
-            if d[2] > mcount:
-                mcount = d[2]
+            counts.append((hour, datum[2]))
+            if datum[2] > mcount:
+                mcount = datum[2]
         shifted.sort()
         counts.sort()
         if len(counts) < 4:
@@ -704,13 +704,13 @@ group by hour having count() > 30 order by hour""" % lim,
     def cardGraph(self):
         # graph data
         div = self._cards()
-        d = []
+        nameColor = []
         for index, (kindOfCard, col) in enumerate((
             (_("Mature"), colMature),
             (_("Young+Learn"), colYoung),
             (_("Unseen"), colUnseen),
             (_("Suspended+Buried"), colSusp))):
-            d.append(dict(data=div[index], label="%s: %s" % (kindOfCard, div[index]), color=col))
+            nameColor.append(dict(data=div[index], label="%s: %s" % (kindOfCard, div[index]), color=col))
         # text data
         i = []
         (countCard, countNote) = self.col.db.first("""
@@ -731,7 +731,7 @@ when you answer "good" on a review.''')
                           _("The division of cards in your deck(s)."))
         txt += "<table width=%d><tr><td>%s</td><td>%s</td></table>" % (
             self.width,
-            self._graph(id="cards", data=d, type="pie"),
+            self._graph(id="cards", data=nameColor, type="pie"),
             info)
         return txt
 
@@ -805,12 +805,12 @@ from cards where did in %s""" % self._limit())
             conf['timeTicks'] = False
         else:
             #T: abbreviation of day
-            d = _("d")
+            day = _("d")
             #T: abbreviation of week
             w = _("w")
             #T: abbreviation of month
             mo = _("mo")
-            conf['timeTicks'] = {1: d, 7: w, 31: mo}[xunit]
+            conf['timeTicks'] = {1: day, 7: w, 31: mo}[xunit]
         # types
         width = self.width
         height = self.height
@@ -890,7 +890,7 @@ $(function () {
 
     def _limit(self):
         if self.wholeCollection:
-            return ids2str([d['id'] for d in self.col.decks.all()])
+            return ids2str([deck['id'] for deck in self.col.decks.all()])
         return self.col.sched._deckLimit()
 
     def _revlogLimit(self):

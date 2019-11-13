@@ -32,7 +32,7 @@ def show(mw):
     ######################################################################
     def onCopy():
         addmgr = mw.addonManager
-        addons = "\n".join(addmgr.annotatedName(d) for d in addmgr.allAddons())
+        addons = "\n".join(addmgr.annotatedName(addon) for addon in addmgr.allAddons())
         info = "\n".join((supportText(), "Add-ons:\n\n{}".format(addons)))
         QApplication.clipboard().setText(info)
         tooltip(_("Copied to clipboard"), parent=dialog)

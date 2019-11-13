@@ -396,9 +396,9 @@ select distinct(note.id) from cards card, notes note where card.nid=note.id and 
             # wildcard
             ids = set()
             val = re.escape(val).replace(r"\*", ".*")
-            for d in self.col.decks.all():
-                if re.match("(?i)"+val, unicodedata.normalize("NFC", d['name'])):
-                    ids.update(dids(d['id']))
+            for deck in self.col.decks.all():
+                if re.match("(?i)"+val, unicodedata.normalize("NFC", deck['name'])):
+                    ids.update(dids(deck['id']))
         if not ids:
             return
         sids = ids2str(ids)
@@ -498,7 +498,7 @@ def findReplace(col, nids, src, dst, regex=False, field=None, fold=True):
     regex = re.compile(src)
     def repl(str):
         return re.sub(regex, dst, str)
-    d = []
+    noteData = []
     snids = ids2str(nids)
     nids = []
     for nid, mid, flds in col.db.execute(
@@ -519,15 +519,15 @@ def findReplace(col, nids, src, dst, regex=False, field=None, fold=True):
         flds = joinFields(sflds)
         if flds != origFlds:
             nids.append(nid)
-            d.append(dict(nid=nid,flds=flds,u=col.usn(),mod=intTime()))
-    if not d:
+            noteData.append(dict(nid=nid,flds=flds,u=col.usn(),mod=intTime()))
+    if not noteData:
         return 0
     # replace
     col.db.executemany(
-        "update notes set flds=:flds,mod=:mod,usn=:u where id=:nid", d)
+        "update notes set flds=:flds,mod=:mod,usn=:u where id=:nid", noteData)
     col.updateFieldCache(nids)
     col.genCards(nids)
-    return len(d)
+    return len(noteData)
 
 def fieldNames(col, downcase=True):
     fields = set()

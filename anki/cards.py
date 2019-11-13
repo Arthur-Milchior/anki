@@ -176,13 +176,13 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
             return True
 
     def __repr__(self):
-        d = dict(self.__dict__)
+        values = dict(self.__dict__)
         # remove non-useful elements
-        del d['_note']
-        del d['_qa']
-        del d['col']
-        del d['timerStarted']
-        return pprint.pformat(d, width=300)
+        del values['_note']
+        del values['_qa']
+        del values['col']
+        del values['timerStarted']
+        return pprint.pformat(values, width=300)
 
     def userFlag(self):
         return self.flags & 0b111

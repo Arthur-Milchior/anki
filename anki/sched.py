@@ -113,10 +113,10 @@ group by due
 order by due""" % (self._deckLimit()),
                             self.today,
                             self.today+days-1))
-        for d in range(days):
-            d = self.today+d
-            if d not in daysd:
-                daysd[d] = 0
+        for day in range(days):
+            day = self.today+day
+            if day not in daysd:
+                daysd[day] = 0
         # return in sorted order
         ret = [x[1] for x in sorted(daysd.items())]
         return ret
@@ -709,11 +709,11 @@ and due <= ? limit ?)""" ,
     def _deckRevLimit(self, did):
         return self._deckNewLimit(did, self._deckRevLimitSingle)
 
-    def _deckRevLimitSingle(self, d):
-        if d['dyn']:
+    def _deckRevLimitSingle(self, deck):
+        if deck['dyn']:
             return self.reportLimit
-        conf = self.col.decks.confForDid(d['id'])
-        return max(0, conf['rev']['perDay'] - d['revToday'][1])
+        conf = self.col.decks.confForDid(deck['id'])
+        return max(0, conf['rev']['perDay'] - deck['revToday'][1])
 
     def _revForDeck(self, did, lim):
         lim = min(lim, self.reportLimit)
@@ -1338,18 +1338,18 @@ and (queue={QUEUE_NEW} or (queue={QUEUE_REV} and due<=?))""",
 
     def reschedCards(self, ids, imin, imax):
         "Put cards in review queue with a new interval in days (min, max)."
-        d = []
+        cardData = []
         today = self.today
         mod = intTime()
         for id in ids:
             r = random.randint(imin, imax)
-            d.append(dict(id=id, due=r+today, ivl=max(1, r), mod=mod,
+            cardData.append(dict(id=id, due=r+today, ivl=max(1, r), mod=mod,
                           usn=self.col.usn(), fact=STARTING_FACTOR))
         self.remFromDyn(ids)
         self.col.db.executemany(f"""
 update cards set type={CARD_DUE},queue={QUEUE_REV},ivl=:ivl,due=:due,odue=0,
 usn=:usn,mod=:mod,factor=:fact where id=:id""",
-                                d)
+                                cardData)
         self.col.log(ids)
 
     def resetCards(self, ids):
@@ -1404,12 +1404,12 @@ usn=:usn,mod=:mod,factor=:fact where id=:id""",
 update cards set mod=?, usn=?, due=due+? where id not in %s
 and due >= ? and queue = {QUEUE_NEW}""" % (scids), now, self.col.usn(), shiftby, low)
         # reorder cards
-        d = []
+        cardData = []
         for id, nid in self.col.db.execute(
             (f"select id, nid from cards where type = {CARD_NEW} and id in ")+scids):
-            d.append(dict(now=now, due=due[nid], usn=self.col.usn(), cid=id))
+            cardData.append(dict(now=now, due=due[nid], usn=self.col.usn(), cid=id))
         self.col.db.executemany(
-            "update cards set due=:due,mod=:now,usn=:usn where id = :cid", d)
+            "update cards set due=:due,mod=:now,usn=:usn where id = :cid", cardData)
 
     def randomizeCards(self, did):
         cids = self.col.db.list("select id from cards where did = ?", did)

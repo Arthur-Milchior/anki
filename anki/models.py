@@ -432,7 +432,7 @@ select id from notes where mid = ?)""" % " ".join(map),
         self.col.genCards(nids)
 
     def _changeNotes(self, nids, newModel, map):
-        d = []
+        noteData = []
         nfields = len(newModel['flds'])
         for (nid, flds) in self.col.db.execute(
             "select id, flds from notes where id in "+ids2str(nids)):
@@ -444,14 +444,14 @@ select id from notes where mid = ?)""" % " ".join(map),
             for index in range(nfields):
                 flds.append(newflds.get(index, ""))
             flds = joinFields(flds)
-            d.append(dict(nid=nid, flds=flds, mid=newModel['id'],
+            noteData.append(dict(nid=nid, flds=flds, mid=newModel['id'],
                       mod=intTime(),u=self.col.usn()))
         self.col.db.executemany(
-            "update notes set flds=:flds,mid=:mid,mod=:mod,usn=:u where id = :nid", d)
+            "update notes set flds=:flds,mid=:mid,mod=:mod,usn=:u where id = :nid", noteData)
         self.col.updateFieldCache(nids)
 
     def _changeCards(self, nids, oldModel, newModel, map):
-        d = []
+        cardData = []
         deleted = []
         for (cid, ord) in self.col.db.execute(
             "select id, ord from cards where nid in "+ids2str(nids)):
@@ -468,13 +468,13 @@ select id from notes where mid = ?)""" % " ".join(map),
                 # mapping from a regular note, so the map should be valid
                 new = map[ord]
             if new is not None:
-                d.append(dict(
+                cardData.append(dict(
                     cid=cid,new=new,u=self.col.usn(),mod=intTime()))
             else:
                 deleted.append(cid)
         self.col.db.executemany(
             "update cards set ord=:new,usn=:u,mod=:mod where id=:cid",
-            d)
+            cardData)
         self.col.remCards(deleted)
 
     # Schema hash

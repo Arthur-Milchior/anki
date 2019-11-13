@@ -578,14 +578,14 @@ class DeckManager:
         return parents
 
     def nameMap(self):
-        return dict((d['name'], d) for d in self.decks.values())
+        return dict((deck['name'], deck) for deck in self.decks.values())
 
     # Sync handling
     ##########################################################################
 
     def beforeUpload(self):
-        for d in self.all():
-            d['usn'] = 0
+        for deck in self.all():
+            deck['usn'] = 0
         for conf in self.allConf():
             conf['usn'] = 0
         self.save()

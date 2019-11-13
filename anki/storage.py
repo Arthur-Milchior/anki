@@ -87,10 +87,10 @@ id, guid, mid, mod, usn, tags, flds, sfld, csum, flags, data from notes2""")
 def _upgrade(col, ver):
     if ver < 3:
         # new deck properties
-        for d in col.decks.all():
-            d['dyn'] = DECK_STD
-            d['collapsed'] = False
-            col.decks.save(d)
+        for deck in col.decks.all():
+            deck['dyn'] = DECK_STD
+            deck['collapsed'] = False
+            col.decks.save(deck)
     if ver < 4:
         col.modSchema(check=False)
         clozes = []
@@ -154,23 +154,23 @@ update cards set left = left + left*1000 where queue = 1""")
         col.db.execute("update col set ver = 10")
     if ver < 11:
         col.modSchema(check=False)
-        for d in col.decks.all():
-            if d['dyn']:
-                order = d['order']
+        for deck in col.decks.all():
+            if deck['dyn']:
+                order = deck['order']
                 # failed order was removed
                 if order >= 5:
                     order -= 1
-                d['terms'] = [[d['search'], d['limit'], order]]
-                del d['search']
-                del d['limit']
-                del d['order']
-                d['resched'] = True
-                d['return'] = True
+                deck['terms'] = [[deck['search'], deck['limit'], order]]
+                del deck['search']
+                del deck['limit']
+                del deck['order']
+                deck['resched'] = True
+                deck['return'] = True
             else:
-                if 'extendNew' not in d:
-                    d['extendNew'] = 10
-                    d['extendRev'] = 50
-            col.decks.save(d)
+                if 'extendNew' not in deck:
+                    deck['extendNew'] = 10
+                    deck['extendRev'] = 50
+            col.decks.save(deck)
         for conf in col.decks.allConf():
             r = conf['rev']
             r['ivlFct'] = r.get("ivlfct", 1)

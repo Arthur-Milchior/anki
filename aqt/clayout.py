@@ -446,9 +446,9 @@ adjust the template manually to switch the question and answer."""))
         menu.exec_(self.topAreaForm.templateOptions.mapToGlobal(QPoint(0,0)))
 
     def onBrowserDisplay(self):
-        d = QDialog()
+        dialog = QDialog()
         dialog = aqt.forms.browserdisp.Ui_Dialog()
-        dialog.setupUi(d)
+        dialog.setupUi(dialog)
         template = self.card.template()
         dialog.qfmt.setText(template.get('bqfmt', ""))
         dialog.afmt.setText(template.get('bafmt', ""))
@@ -457,7 +457,7 @@ adjust the template manually to switch the question and answer."""))
         dialog.font.setCurrentFont(QFont(template.get('bfont', "Arial")))
         dialog.fontSize.setValue(template.get('bsize', 12))
         dialog.buttonBox.accepted.connect(lambda: self.onBrowserDisplayOk(dialog))
-        d.exec_()
+        dialog.exec_()
 
     def onBrowserDisplayOk(self, form):
         template = self.card.template()
@@ -474,26 +474,26 @@ adjust the template manually to switch the question and answer."""))
     def onTargetDeck(self):
         from aqt.tagedit import TagEdit
         template = self.card.template()
-        d = QDialog(self)
-        d.setWindowTitle("Anki")
-        d.setMinimumWidth(400)
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Anki")
+        dialog.setMinimumWidth(400)
         l = QVBoxLayout()
         lab = QLabel(_("""\
 Enter deck to place new %s cards in, or leave blank:""") %
                            self.card.template()['name'])
         lab.setWordWrap(True)
         l.addWidget(lab)
-        te = TagEdit(d, type=1)
+        te = TagEdit(dialog, type=1)
         te.setCol(self.col)
         l.addWidget(te)
         if template['did']:
             te.setText(self.col.decks.get(template['did'])['name'])
             te.selectAll()
         bb = QDialogButtonBox(QDialogButtonBox.Close)
-        bb.rejected.connect(d.close)
+        bb.rejected.connect(dialog.close)
         l.addWidget(bb)
-        d.setLayout(l)
-        d.exec_()
+        dialog.setLayout(l)
+        dialog.exec_()
         if not te.text().strip():
             template['did'] = None
         else:

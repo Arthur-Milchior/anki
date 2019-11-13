@@ -209,15 +209,15 @@ def getText(prompt, parent=None, help=None, edit=None, default="",
             title="Anki", geomKey=None, **kwargs):
     if not parent:
         parent = aqt.mw.app.activeWindow() or aqt.mw
-    d = GetTextDialog(parent, prompt, help=help, edit=edit,
+    dialog = GetTextDialog(parent, prompt, help=help, edit=edit,
                       default=default, title=title, **kwargs)
-    d.setWindowModality(Qt.WindowModal)
+    dialog.setWindowModality(Qt.WindowModal)
     if geomKey:
-        restoreGeom(d, geomKey)
-    ret = d.exec_()
+        restoreGeom(dialog, geomKey)
+    ret = dialog.exec_()
     if geomKey and ret:
-        saveGeom(d, geomKey)
-    return (str(d.l.text()), ret)
+        saveGeom(dialog, geomKey)
+    return (str(dialog.l.text()), ret)
 
 def getOnlyText(*args, **kwargs):
     (s, r) = getText(*args, **kwargs)
@@ -230,10 +230,10 @@ def getOnlyText(*args, **kwargs):
 def chooseList(prompt, choices, startrow=0, parent=None):
     if not parent:
         parent = aqt.mw.app.activeWindow()
-    d = QDialog(parent)
-    d.setWindowModality(Qt.WindowModal)
+    dialog = QDialog(parent)
+    dialog.setWindowModality(Qt.WindowModal)
     l = QVBoxLayout()
-    d.setLayout(l)
+    dialog.setLayout(l)
     label = QLabel(prompt)
     l.addWidget(label)
     widget = QListWidget()
@@ -241,9 +241,9 @@ def chooseList(prompt, choices, startrow=0, parent=None):
     widget.setCurrentRow(startrow)
     l.addWidget(widget)
     bb = QDialogButtonBox(QDialogButtonBox.Ok)
-    bb.accepted.connect(d.accept)
+    bb.accepted.connect(dialog.accept)
     l.addWidget(bb)
-    d.exec_()
+    dialog.exec_()
     return widget.currentRow()
 
 def getTag(parent, deck, question, tags="user", **kwargs):
@@ -266,16 +266,16 @@ def getFile(parent, title, cb, filter="*.*", dir=None, key=None, multi=False):
         dir = aqt.mw.pm.profile.get(dirkey, "")
     else:
         dirkey = None
-    d = QFileDialog(parent)
+    dialog = QFileDialog(parent)
     mode = QFileDialog.ExistingFiles if multi else QFileDialog.ExistingFile
-    d.setFileMode(mode)
+    dialog.setFileMode(mode)
     if os.path.exists(dir):
-        d.setDirectory(dir)
-    d.setWindowTitle(title)
-    d.setNameFilter(filter)
+        dialog.setDirectory(dir)
+    dialog.setWindowTitle(title)
+    dialog.setNameFilter(filter)
     ret = []
     def accept():
-        files = list(d.selectedFiles())
+        files = list(dialog.selectedFiles())
         if dirkey:
             dir = os.path.dirname(files[0])
             aqt.mw.pm.profile[dirkey] = dir
@@ -283,12 +283,12 @@ def getFile(parent, title, cb, filter="*.*", dir=None, key=None, multi=False):
         if cb:
             cb(result)
         ret.append(result)
-    d.accepted.connect(accept)
+    dialog.accepted.connect(accept)
     if key:
-        restoreState(d, key)
-    d.exec_()
+        restoreState(dialog, key)
+    dialog.exec_()
     if key:
-        saveState(d, key)
+        saveState(dialog, key)
     return ret and ret[0]
 
 def getSaveFile(parent, title, dir_description, key, ext, fname=None):

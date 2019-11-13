@@ -197,9 +197,9 @@ AnkiWeb is too busy at the moment. Please try again in a few minutes.""")
         return err
 
     def _getUserPass(self):
-        d = QDialog(self.mw)
-        d.setWindowTitle("Anki")
-        d.setWindowModality(Qt.WindowModal)
+        dialog = QDialog(self.mw)
+        dialog.setWindowTitle("Anki")
+        dialog.setWindowModality(Qt.WindowModal)
         vbox = QVBoxLayout()
         l = QLabel(_("""\
 <h1>Account Required</h1>
@@ -224,12 +224,12 @@ enter your details below.""") %
         vbox.addLayout(gridLayout)
         bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
         bb.button(QDialogButtonBox.Ok).setAutoDefault(True)
-        bb.accepted.connect(d.accept)
-        bb.rejected.connect(d.reject)
+        bb.accepted.connect(dialog.accept)
+        bb.rejected.connect(dialog.reject)
         vbox.addWidget(bb)
-        d.setLayout(vbox)
-        d.show()
-        accepted = d.exec_()
+        dialog.setLayout(vbox)
+        dialog.show()
+        accepted = dialog.exec_()
         u = user.text()
         p = passwd.text()
         if not accepted or not u or not p:

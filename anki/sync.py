@@ -169,13 +169,13 @@ class Syncer:
 
     def changes(self):
         "Bundle up small objects."
-        d = dict(models=self.getModels(),
+        bundle = dict(models=self.getModels(),
                  decks=self.getDecks(),
                  tags=self.getTags())
         if self.localNewer:
-            d['conf'] = self.getConf()
-            d['crt'] = self.col.crt
-        return d
+            bundle['conf'] = self.getConf()
+            bundle['crt'] = self.col.crt
+        return bundle
 
     def mergeChanges(self, localChange, serverChange):
         # then the other objects
@@ -244,19 +244,18 @@ class Syncer:
     def cursorForTable(self, table):
         lim = self.usnLim()
         x = self.col.db.execute
-        d = (self.maxUsn, lim)
         if table == "revlog":
             return x("""
 select id, cid, %d, ease, ivl, lastIvl, factor, time, type
-from revlog where %s""" % d)
+from revlog where %s""" % (self.maxUsn, lim))
         elif table == "cards":
             return x("""
 select id, nid, did, ord, mod, %d, type, queue, due, ivl, factor, reps,
-lapses, left, odue, odid, flags, data from cards where %s""" % d)
+lapses, left, odue, odid, flags, data from cards where %s""" % (self.maxUsn, lim))
         else:
             return x("""
 select id, guid, mid, mod, %d, tags, flds, '', '', flags, data
-from notes where %s""" % d)
+from notes where %s""" % (self.maxUsn, lim))
 
     def chunk(self):
         buf = dict(done=False)
@@ -667,10 +666,10 @@ class FullSyncer(HttpSyncer):
             return
         open(tpath, "wb").write(cont)
         # check the received file is ok
-        d = DB(tpath)
-        assert d.scalar("pragma integrity_check") == "ok"
-        remoteEmpty = not d.scalar("select 1 from cards")
-        d.close()
+        db = DB(tpath)
+        assert db.scalar("pragma integrity_check") == "ok"
+        remoteEmpty = not db.scalar("select 1 from cards")
+        db.close()
         # accidental clobber?
         if localNotEmpty and remoteEmpty:
             os.unlink(tpath)

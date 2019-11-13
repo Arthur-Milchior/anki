@@ -24,21 +24,20 @@ class LatestVersionFinder(QThread):
         self.config = main.pm.meta
 
     def _data(self):
-        d = {"ver": versionWithBuild(),
-             "os": platDesc(),
-             "id": self.config['id'],
-             "lm": self.config['lastMsg'],
-             "crt": self.config['created']}
-        return d
+        return {"ver": versionWithBuild(),
+                "os": platDesc(),
+                "id": self.config['id'],
+                "lm": self.config['lastMsg'],
+                "crt": self.config['created']}
 
     def run(self):
         if not self.config['updates']:
             return
-        d = self._data()
-        d['proto'] = 1
+        data = self._data()
+        data['proto'] = 1
 
         try:
-            r = requests.post(aqt.appUpdate, data=d)
+            r = requests.post(aqt.appUpdate, data=data)
             r.raise_for_status()
             resp = r.json()
         except:

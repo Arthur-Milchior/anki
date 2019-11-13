@@ -1133,7 +1133,7 @@ by clicking on one on the left."""))
             def reject(self):
                 saveGeom(self, "revlog")
                 return QDialog.reject(self)
-        d = CardInfoDialog(self)
+        dialog = CardInfoDialog(self)
         l = QVBoxLayout()
         l.setContentsMargins(0,0,0,0)
         w = AnkiWebView()
@@ -1141,12 +1141,12 @@ by clicking on one on the left."""))
         w.stdHtml(info + "<p>" + reps)
         bb = QDialogButtonBox(QDialogButtonBox.Close)
         l.addWidget(bb)
-        bb.rejected.connect(d.reject)
-        d.setLayout(l)
-        d.setWindowModality(Qt.WindowModal)
-        d.resize(500, 400)
-        restoreGeom(d, "revlog")
-        d.show()
+        bb.rejected.connect(dialog.reject)
+        dialog.setLayout(l)
+        dialog.setWindowModality(Qt.WindowModal)
+        dialog.resize(500, 400)
+        restoreGeom(dialog, "revlog")
+        dialog.show()
 
     def _cardInfoData(self):
         from anki.stats import CardStats
@@ -1633,10 +1633,10 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
             f"select id from cards where type = {CARD_NEW} and id in " + ids2str(cids))
         if not cids2:
             return showInfo(_("Only new cards can be repositioned."))
-        d = QDialog(self)
-        d.setWindowModality(Qt.WindowModal)
+        dialog = QDialog(self)
+        dialog.setWindowModality(Qt.WindowModal)
         frm = aqt.forms.reposition.Ui_Dialog()
-        frm.setupUi(d)
+        frm.setupUi(dialog)
         (pmin, pmax) = self.col.db.first(
             f"select min(due), max(due) from cards where type={CARD_NEW} and odid=0")
         pmin = pmin or 0
@@ -1644,7 +1644,7 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         txt = _("Queue top: %d") % pmin
         txt += "\n" + _("Queue bottom: %d") % pmax
         frm.label.setText(txt)
-        if not d.exec_():
+        if not dialog.exec_():
             return
         self.model.beginReset()
         self.mw.checkpoint(_("Reposition"))
@@ -1662,11 +1662,11 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         self.editor.saveNow(self._reschedule)
 
     def _reschedule(self):
-        d = QDialog(self)
-        d.setWindowModality(Qt.WindowModal)
+        dialog = QDialog(self)
+        dialog.setWindowModality(Qt.WindowModal)
         frm = aqt.forms.reschedule.Ui_Dialog()
-        frm.setupUi(d)
-        if not d.exec_():
+        frm.setupUi(dialog)
+        if not dialog.exec_():
             return
         self.model.beginReset()
         self.mw.checkpoint(_("Reschedule"))
@@ -1743,15 +1743,15 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
             return
         import anki.find
         fields = anki.find.fieldNamesForNotes(self.mw.col, sf)
-        d = QDialog(self)
+        dialog = QDialog(self)
         frm = aqt.forms.findreplace.Ui_Dialog()
-        frm.setupUi(d)
-        d.setWindowModality(Qt.WindowModal)
+        frm.setupUi(dialog)
+        dialog.setWindowModality(Qt.WindowModal)
         frm.field.addItems([_("All Fields")] + fields)
         frm.buttonBox.helpRequested.connect(self.onFindReplaceHelp)
-        restoreGeom(d, "findreplace")
-        r = d.exec_()
-        saveGeom(d, "findreplace")
+        restoreGeom(dialog, "findreplace")
+        r = dialog.exec_()
+        saveGeom(dialog, "findreplace")
         if not r:
             return
         if frm.field.currentIndex() == 0:
@@ -1794,11 +1794,11 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         self.editor.saveNow(self._onFindDupes)
 
     def _onFindDupes(self):
-        d = QDialog(self)
-        self.mw.setupDialogGC(d)
+        dialog = QDialog(self)
+        self.mw.setupDialogGC(dialog)
         frm = aqt.forms.finddupes.Ui_Dialog()
-        frm.setupUi(d)
-        restoreGeom(d, "findDupes")
+        frm.setupUi(dialog)
+        restoreGeom(dialog, "findDupes")
         fields = sorted(anki.find.fieldNames(self.col, downcase=False),
                         key=lambda x: x.lower())
         frm.fields.addItems(fields)
@@ -1806,15 +1806,15 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         # links
         frm.webView.onBridgeCmd = self.dupeLinkClicked
         def onFin(code):
-            saveGeom(d, "findDupes")
-        d.finished.connect(onFin)
+            saveGeom(dialog, "findDupes")
+        dialog.finished.connect(onFin)
         def onClick():
             field = fields[frm.fields.currentIndex()]
             self.duplicatesReport(frm.webView, field, frm.search.text(), frm)
         search = frm.buttonBox.addButton(
             _("Search"), QDialogButtonBox.ActionRole)
         search.clicked.connect(onClick)
-        d.show()
+        dialog.show()
 
     def duplicatesReport(self, web, fname, search, frm):
         self.mw.progress.start()

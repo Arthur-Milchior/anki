@@ -139,26 +139,26 @@ class AnkiQt(QMainWindow):
     def showProfileManager(self):
         self.pm.profile = None
         self.state = "profileManager"
-        d = self.profileDiag = self.ProfileManager()
+        self.profileDiag = self.ProfileManager()
         profileForm = self.profileForm = aqt.forms.profiles.Ui_MainWindow()
-        profileForm.setupUi(d)
+        profileForm.setupUi(self.profileDiag)
         profileForm.login.clicked.connect(self.onOpenProfile)
         profileForm.profiles.itemDoubleClicked.connect(self.onOpenProfile)
         profileForm.openBackup.clicked.connect(self.onOpenBackup)
-        profileForm.quit.clicked.connect(d.close)
-        d.onClose.connect(self.cleanupAndExit)
+        profileForm.quit.clicked.connect(self.profileDiag.close)
+        self.profileDiag.onClose.connect(self.cleanupAndExit)
         profileForm.add.clicked.connect(self.onAddProfile)
         profileForm.rename.clicked.connect(self.onRenameProfile)
         profileForm.delete_2.clicked.connect(self.onRemProfile)
         profileForm.profiles.currentRowChanged.connect(self.onProfileRowChange)
         profileForm.statusbar.setVisible(False)
         # enter key opens profile
-        QShortcut(QKeySequence("Return"), d, activated=self.onOpenProfile)
+        QShortcut(QKeySequence("Return"), self.profileDiag, activated=self.onOpenProfile)
         self.refreshProfilesList()
         # raise first, for osx testing
-        d.show()
-        d.activateWindow()
-        d.raise_()
+        self.profileDiag.show()
+        self.profileDiag.activateWindow()
+        self.profileDiag.raise_()
 
     def refreshProfilesList(self):
         profileForm = self.profileForm
@@ -1136,7 +1136,7 @@ will be lost. Continue?"""))
             deleteButton.setAutoDefault(False)
             box.addButton(deleteButton, QDialogButtonBox.ActionRole)
             deleteButton.clicked.connect(
-                lambda click, u=unused, d=diag: self.deleteUnused(u, d))
+                lambda click, u=unused, diag=diag: self.deleteUnused(u, diag))
 
         box.rejected.connect(diag.reject)
         diag.setMinimumHeight(400)
@@ -1213,24 +1213,24 @@ will be lost. Continue?"""))
     ######################################################################
 
     def onDebug(self):
-        d = self.debugDiag = QDialog()
-        d.silentlyClose = True
+        self.debugDiag = QDialog()
+        self.debugDiag.silentlyClose = True
         frm = aqt.forms.debug.Ui_Dialog()
-        frm.setupUi(d)
+        frm.setupUi(self.debugDiag)
         font = QFontDatabase.systemFont(QFontDatabase.FixedFont)
         font.setPointSize(frm.text.font().pointSize() + 1)
         frm.text.setFont(font)
         frm.log.setFont(font)
-        s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+return"), d)
+        s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+return"), self.debugDiag)
         s.activated.connect(lambda: self.onDebugRet(frm))
         s = self.debugDiagShort = QShortcut(
-            QKeySequence("ctrl+shift+return"), d)
+            QKeySequence("ctrl+shift+return"), self.debugDiag)
         s.activated.connect(lambda: self.onDebugPrint(frm))
-        s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+l"), d)
+        s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+l"), self.debugDiag)
         s.activated.connect(frm.log.clear)
-        s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+shift+l"), d)
+        s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+shift+l"), self.debugDiag)
         s.activated.connect(frm.text.clear)
-        d.show()
+        self.debugDiag.show()
 
     def _captureOutput(self, on):
         mw = self

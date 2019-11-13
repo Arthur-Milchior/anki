@@ -129,22 +129,22 @@ you can enter it here. Use \\t to represent tab."""),
         if not self.importer.needDelimiter:
             return
         if self.importer.delimiter:
-            d = self.importer.delimiter
+            delimiter = self.importer.delimiter
         else:
-            d = self.importer.dialect.delimiter
-        if d == "\t":
-            d = _("Tab")
-        elif d == ",":
-            d = _("Comma")
-        elif d == " ":
-            d = _("Space")
-        elif d == ";":
-            d = _("Semicolon")
-        elif d == ":":
-            d = _("Colon")
+            delimiter = self.importer.dialect.delimiter
+        if delimiter == "\t":
+            delimiter = _("Tab")
+        elif delimiter == ",":
+            delimiter = _("Comma")
+        elif delimiter == " ":
+            delimiter = _("Space")
+        elif delimiter == ";":
+            delimiter = _("Semicolon")
+        elif delimiter == ":":
+            delimiter = _("Colon")
         else:
-            d = repr(d)
-        txt = _("Fields separated by: %s") % d
+            delimiter = repr(delimiter)
+        txt = _("Fields separated by: %s") % delimiter
         self.frm.autoDetect.setText(txt)
 
     def accept(self):
@@ -415,13 +415,13 @@ def _replaceWithApkg(mw, file, backup):
     # data and rely on them running a media db check to get rid of any
     # unwanted media. in the future we might also want to deduplicate this
     # step
-    d = os.path.join(mw.pm.profileFolder(), "collection.media")
+    mediaFolder = os.path.join(mw.pm.profileFolder(), "collection.media")
     for index, (cStr, file) in enumerate(
             json.loads(z.read("media").decode("utf8")).items()):
         mw.progress.update(ngettext("Processed %d media file",
                                     "Processed %d media files", index) % index)
         size = z.getinfo(cStr).file_size
-        dest = os.path.join(d, unicodedata.normalize("NFC", file))
+        dest = os.path.join(mediaFolder, unicodedata.normalize("NFC", file))
         # if we have a matching file size
         if os.path.exists(dest) and size == os.stat(dest).st_size:
             continue

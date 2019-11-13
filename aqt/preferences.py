@@ -93,7 +93,6 @@ class Preferences(QDialog):
             self.form.newSched.setChecked(True)
 
     def updateCollection(self):
-        d = self.mw.col
 
         if not isMac:
             wasAccel = self.mw.pm.glMode() != "software"
@@ -105,7 +104,7 @@ class Preferences(QDialog):
                     self.mw.pm.setGlMode("software")
                 showInfo(_("Changes will take effect when you restart Anki."))
 
-        qc = d.conf
+        qc = self.mw.col.conf
         qc['dueCounts'] = self.form.showProgress.isChecked()
         qc['estTimes'] = self.form.showEstimates.isChecked()
         qc['newSpread'] = self.form.newSpread.currentIndex()
@@ -116,7 +115,7 @@ class Preferences(QDialog):
         qc['dayLearnFirst'] = self.form.dayLearnFirst.isChecked()
         self._updateDayCutoff()
         self._updateSchedVer(self.form.newSched.isChecked())
-        d.setMod()
+        self.mw.col.setMod()
 
     # Scheduler version
     ######################################################################

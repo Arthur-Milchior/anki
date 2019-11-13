@@ -366,11 +366,11 @@ please see:
         class NoCloseDiag(QDialog):
             def reject(self):
                 pass
-        d = self.langDiag = NoCloseDiag()
+        self.langDiag = NoCloseDiag()
         self.langForm = aqt.forms.setlang.Ui_Dialog()
-        self.langForm.setupUi(d)
-        d.accepted.connect(self._onLangSelected)
-        d.rejected.connect(lambda: True)
+        self.langForm.setupUi(self.langDiag)
+        self.langDiag.accepted.connect(self._onLangSelected)
+        self.langDiag.rejected.connect(lambda: True)
         # default to the system language
         try:
             (lang, enc) = locale.getdefaultlocale()
@@ -391,7 +391,7 @@ please see:
         # update list
         self.langForm.lang.addItems([x[0] for x in anki.lang.langs])
         self.langForm.lang.setCurrentRow(idx)
-        d.exec_()
+        self.langDiag.exec_()
 
     def _onLangSelected(self):
         obj = anki.lang.langs[self.langForm.lang.currentRow()]
