@@ -112,9 +112,9 @@ a flash drive.""" % self.base)
             from aqt.winpaths import get_personal
             return os.path.join(get_personal(), "Anki")
         else:
-            p = os.path.expanduser("~/Anki")
-            if os.path.isdir(p):
-                return p
+            oldAnkiPath = os.path.expanduser("~/Anki")
+            if os.path.isdir(oldAnkiPath):
+                return oldAnkiPath
             return os.path.expanduser("~/Documents/Anki")
 
     def maybeMigrateFolder(self):
@@ -192,16 +192,16 @@ details have been forgotten."""))
         self.db.commit()
 
     def remove(self, name):
-        p = self.profileFolder()
-        if os.path.exists(p):
-            send2trash(p)
+        profileFolder = self.profileFolder()
+        if os.path.exists(profileFolder):
+            send2trash(profileFolder)
         self.db.execute("delete from profiles where name = ?", name)
         self.db.commit()
 
     def trashCollection(self):
-        p = self.collectionPath()
-        if os.path.exists(p):
-            send2trash(p)
+        collectionPath = self.collectionPath()
+        if os.path.exists(collectionPath):
+            send2trash(collectionPath)
 
     def rename(self, name):
         oldName = self.name
@@ -348,8 +348,8 @@ create table if not exists profiles
     def _ensureProfile(self):
         "Create a new profile if none exists."
         self.create(_("User 1"))
-        p = os.path.join(self.base, "README.txt")
-        open(p, "w", encoding="utf8").write(_("""\
+        ReadmePath = os.path.join(self.base, "README.txt")
+        open(ReadmePath, "w", encoding="utf8").write(_("""\
 This folder stores all of your Anki data in a single location,
 to make backups easy. To tell Anki to use a different location,
 please see:

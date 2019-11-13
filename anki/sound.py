@@ -360,12 +360,12 @@ class PyAudioThreadedRecorder(threading.Thread):
 
     def run(self):
         chunk = 1024
-        p = pyaudio.PyAudio()
+        pa = pyaudio.PyAudio()
 
-        rate = int(p.get_default_input_device_info()['defaultSampleRate'])
+        rate = int(pa.get_default_input_device_info()['defaultSampleRate'])
         wait = int(rate * self.startupDelay)
 
-        stream = p.open(format=PYAU_FORMAT,
+        stream = pa.open(format=PYAU_FORMAT,
                         channels=PYAU_CHANNELS,
                         rate=rate,
                         input=True,
@@ -378,10 +378,10 @@ class PyAudioThreadedRecorder(threading.Thread):
         while not self.finish:
             data += stream.read(chunk, exception_on_overflow=False)
         stream.close()
-        p.terminate()
+        pa.terminate()
         wf = wave.open(processingSrc, 'wb')
         wf.setnchannels(PYAU_CHANNELS)
-        wf.setsampwidth(p.get_sample_size(PYAU_FORMAT))
+        wf.setsampwidth(pa.get_sample_size(PYAU_FORMAT))
         wf.setframerate(rate)
         wf.writeframes(data)
         wf.close()

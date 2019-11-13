@@ -743,9 +743,9 @@ QTreeWidget {
         buf = runFilter("setupStyle", buf)
 
         # allow users to extend styling
-        p = os.path.join(aqt.mw.pm.base, "style.css")
-        if os.path.exists(p):
-            buf += open(p).read()
+        stylePath = os.path.join(aqt.mw.pm.base, "style.css")
+        if os.path.exists(stylePath):
+            buf += open(stylePath).read()
 
         self.app.setStyleSheet(buf)
 
@@ -1390,8 +1390,8 @@ Please ensure a profile is open and Anki is not busy, then try again."""),
     ##########################################################################
 
     def setupCrashLog(self):
-        p = os.path.join(self.pm.base, "crash.log")
-        self._crashLog = open(p, "ab", 0)
+        crashPath = os.path.join(self.pm.base, "crash.log")
+        self._crashLog = open(crashPath, "ab", 0)
         faulthandler.enable(self._crashLog)
 
     # Media server

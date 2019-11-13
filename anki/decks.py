@@ -261,8 +261,8 @@ class DeckManager:
         if self.byName(newName):
             raise DeckRenameError(_("That deck already exists."))
         # make sure we're not nesting under a filtered deck
-        for p in self.parentsByName(newName):
-            if p['dyn']:
+        for ancestor in self.parentsByName(newName):
+            if ancestor['dyn']:
                 raise DeckRenameError(_("A filtered deck cannot have subdecks."))
         # ensure we have parents
         newName = self._ensureParents(newName)
@@ -321,11 +321,11 @@ class DeckManager:
         path = self._path(name)
         if len(path) < 2:
             return name
-        for p in path[:-1]:
+        for pathPiece in path[:-1]:
             if not s:
-                s += p
+                s += pathPiece
             else:
-                s += "::" + p
+                s += "::" + pathPiece
             # fetch or create
             did = self.id(s)
             # get original case
@@ -553,11 +553,11 @@ class DeckManager:
             else:
                 parents.append(parents[-1] + "::" + part)
         # convert to objects
-        for index, p in enumerate(parents):
+        for index, ancestor in enumerate(parents):
             if nameMap:
-                deck = nameMap[p]
+                deck = nameMap[ancestor]
             else:
-                deck = self.get(self.id(p))
+                deck = self.get(self.id(ancestor))
             parents[index] = deck
         return parents
 

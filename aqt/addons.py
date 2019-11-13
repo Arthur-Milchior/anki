@@ -423,17 +423,17 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
         return os.path.join(self.addonsFolder(), "files_backup")
 
     def backupUserFiles(self, sid):
-        p = self._userFilesPath(sid)
-        if os.path.exists(p):
-            os.rename(p, self._userFilesBackupPath())
+        userFilePath = self._userFilesPath(sid)
+        if os.path.exists(userFilePath):
+            os.rename(userFilePath, self._userFilesBackupPath())
 
     def restoreUserFiles(self, sid):
-        p = self._userFilesPath(sid)
+        userFilePath = self._userFilesPath(sid)
         bp = self._userFilesBackupPath()
         # did we back up userFiles?
         if not os.path.exists(bp):
             return
-        os.rename(bp, p)
+        os.rename(bp, userFilePath)
     
     # Web Exports
     ######################################################################

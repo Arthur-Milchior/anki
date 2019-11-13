@@ -382,8 +382,8 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             return fname
 
         # deal with things like con/prn/etc
-        p = pathlib.WindowsPath(fname)
-        if p.is_reserved():
+        path = pathlib.WindowsPath(fname)
+        if path.is_reserved():
             fname = "renamed" + fname
             assert not pathlib.WindowsPath(fname).is_reserved()
 

@@ -188,17 +188,17 @@ order by due""" % (self._deckLimit()),
                 continue
             # check the parents
             parents = self.col.decks.parents(did, nameMap)
-            for p in parents:
+            for ancestor in parents:
                 # add if missing
-                if p['id'] not in pcounts:
-                    pcounts[p['id']] = limFn(p)
+                if ancestor['id'] not in pcounts:
+                    pcounts[ancestor['id']] = limFn(ancestor)
                 # take minimum of child and parent
-                lim = min(pcounts[p['id']], lim)
+                lim = min(pcounts[ancestor['id']], lim)
             # see how many cards we actually have
             cnt = cntFn(did, lim)
             # if non-zero, decrement from parent counts
-            for p in parents:
-                pcounts[p['id']] -= cnt
+            for ancestor in parents:
+                pcounts[ancestor['id']] -= cnt
             # we may also be a parent
             pcounts[did] = lim - cnt
             # and add to running total
@@ -224,17 +224,17 @@ order by due""" % (self._deckLimit()),
             return "::".join(parts)
         childMap = self.col.decks.childMap()
         for deck in decks:
-            p = parent(deck['name'])
+            parentName = parent(deck['name'])
             # new
             nlim = self._deckNewLimitSingle(deck)
-            if p:
-                nlim = min(nlim, lims[p][0])
+            if parentName:
+                nlim = min(nlim, lims[parentName][0])
             new = self._newForDeck(deck['id'], nlim)
             # learning
             lrn = self._lrnForDeck(deck['id'])
             # reviews
-            if p:
-                plim = lims[p][1]
+            if parentName:
+                plim = lims[parentName][1]
             else:
                 plim = None
             rlim = self._deckRevLimitSingle(deck, parentLimit=plim)
