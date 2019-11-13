@@ -887,15 +887,15 @@ by clicking on one on the left."""))
     def _decksTree(self, root):
         grps = self.col.sched.deckDueTree()
         def fillGroups(root, grps, head=""):
-            for g in grps:
+            for grp in grps:
                 item = self.CallbackItem(
-                    root, g[0],
-                    lambda g=g: self.setFilter("deck", head+g[0]),
-                    lambda g=g: self.mw.col.decks.collapseBrowser(g[1]),
-                    not self.mw.col.decks.get(g[1]).get('browserCollapsed', False))
+                    root, grp[0],
+                    lambda grp=grp: self.setFilter("deck", head+grp[0]),
+                    lambda grp=grp: self.mw.col.decks.collapseBrowser(grp[1]),
+                    not self.mw.col.decks.get(grp[1]).get('browserCollapsed', False))
                 item.setIcon(0, QIcon(":/icons/deck.svg"))
-                newhead = head + g[0]+"::"
-                fillGroups(item, g[5], newhead)
+                newhead = head + grp[0]+"::"
+                fillGroups(item, grp[5], newhead)
         fillGroups(root, grps)
 
     def _modelTree(self, root):

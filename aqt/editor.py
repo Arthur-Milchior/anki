@@ -418,8 +418,8 @@ class Editor:
 
     def setupTags(self):
         import aqt.tagedit
-        g = QGroupBox(self.widget)
-        g.setFlat(True)
+        group = QGroupBox(self.widget)
+        group.setFlat(True)
         tb = QGridLayout()
         tb.setSpacing(12)
         tb.setContentsMargins(6,6,6,6)
@@ -430,8 +430,8 @@ class Editor:
         self.tags.lostFocus.connect(self.saveTags)
         self.tags.setToolTip(shortcut(_("Jump to tags with Ctrl+Shift+T")))
         tb.addWidget(self.tags, 1, 1)
-        g.setLayout(tb)
-        self.outerLayout.addWidget(g)
+        group.setLayout(tb)
+        self.outerLayout.addWidget(group)
 
     def updateTags(self):
         if self.tags.col != self.mw.col:
