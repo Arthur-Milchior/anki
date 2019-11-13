@@ -260,10 +260,10 @@ class Anki2Importer(Importer):
                 name += "::" + tmpname
         # manually create any parents so we can pull in descriptions
         head = ""
-        for parent in name.split("::")[:-1]:
+        for parentPiece in name.split("::")[:-1]:
             if head:
                 head += "::"
-            head += parent
+            head += parentPiece
             idInSrc = self.src.decks.id(head)
             self._did(idInSrc)
         # if target is a filtered deck, we'll need a new deck name

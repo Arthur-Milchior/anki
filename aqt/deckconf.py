@@ -154,8 +154,8 @@ class DeckConf(QDialog):
         if "::" not in self.deck['name']:
             return ""
         lim = -1
-        for deck in self.mw.col.decks.parents(self.deck['id']):
-            conf = self.mw.col.decks.confForDid(deck['id'])
+        for ancestor in self.mw.col.decks.parents(self.deck['id']):
+            conf = self.mw.col.decks.confForDid(ancestor['id'])
             x = conf[type]['perDay']
             if lim == -1:
                 lim = x

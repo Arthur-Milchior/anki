@@ -162,18 +162,18 @@ order by due""" % (self._deckLimit()),
 
     def _updateStats(self, card, type, cnt=1):
         key = type+"Today"
-        for deck in ([self.col.decks.get(card.did)] +
+        for ancestor in ([self.col.decks.get(card.did)] +
                   self.col.decks.parents(card.did)):
             # add
-            deck[key][1] += cnt
-            self.col.decks.save(deck)
+            ancestor[key][1] += cnt
+            self.col.decks.save(ancestor)
 
     def extendLimits(self, new, rev):
         cur = self.col.decks.current()
-        parents = self.col.decks.parents(cur['id'])
+        ancestors = self.col.decks.parents(cur['id'])
         children = [self.col.decks.get(did) for (name, did) in
                     self.col.decks.children(cur['id'])]
-        for deck in [cur] + parents + children:
+        for deck in [cur] + ancestors + children:
             # add
             deck['newToday'][1] -= new
             deck['revToday'][1] -= rev
@@ -192,8 +192,8 @@ order by due""" % (self._deckLimit()),
             if not lim:
                 continue
             # check the parents
-            parents = self.col.decks.parents(did, nameMap)
-            for ancestor in parents:
+            ancestors = self.col.decks.parents(did, nameMap)
+            for ancestor in ancestors:
                 # add if missing
                 if ancestor['id'] not in pcounts:
                     pcounts[ancestor['id']] = limFn(ancestor)
@@ -202,7 +202,7 @@ order by due""" % (self._deckLimit()),
             # see how many cards we actually have
             cnt = cntFn(did, lim)
             # if non-zero, decrement from parent counts
-            for ancestor in parents:
+            for ancestor in ancestors:
                 pcounts[ancestor['id']] -= cnt
             # we may also be a parent
             pcounts[did] = lim - cnt
@@ -398,8 +398,8 @@ did = ? and queue = {QUEUE_NEW} limit ?)""", did, lim)
         sel = self.col.decks.get(did)
         lim = -1
         # for the deck and each of its parents
-        for deck in [sel] + self.col.decks.parents(did):
-            rem = fn(deck)
+        for ancestor in [sel] + self.col.decks.parents(did):
+            rem = fn(ancestor)
             if lim == -1:
                 lim = rem
             else:

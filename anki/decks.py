@@ -546,20 +546,20 @@ class DeckManager:
     def parents(self, did, nameMap=None):
         "All parents of did."
         # get parent and grandparent names
-        parents = []
+        ancestorsNames = []
         for part in self.get(did)['name'].split("::")[:-1]:
-            if not parents:
-                parents.append(part)
+            if not ancestorsNames:
+                ancestorsNames.append(part)
             else:
-                parents.append(parents[-1] + "::" + part)
+                ancestorsNames.append(ancestorsNames[-1] + "::" + part)
         # convert to objects
-        for index, ancestor in enumerate(parents):
+        for index, ancestor in enumerate(ancestorsNames):
             if nameMap:
                 deck = nameMap[ancestor]
             else:
                 deck = self.get(self.id(ancestor))
-            parents[index] = deck
-        return parents
+            ancestorsNames[index] = deck
+        return ancestorsNames
 
     def parentsByName(self, name):
         "All existing parents of name"
@@ -567,15 +567,15 @@ class DeckManager:
             return []
         names = name.split("::")[:-1]
         head = []
-        parents = []
+        ancestorsNames = []
 
         while names:
             head.append(names.pop(0))
             deck = self.byName("::".join(head))
             if deck:
-                parents.append(deck)
+                ancestorsNames.append(deck)
 
-        return parents
+        return ancestorsNames
 
     def nameMap(self):
         return dict((deck['name'], deck) for deck in self.decks.values())

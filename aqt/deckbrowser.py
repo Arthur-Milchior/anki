@@ -156,8 +156,8 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             if not self.mw.col.db.scalar("select 1 from cards where did = 1"):
                 return ""
         # parent toggled for collapsing
-        for parent in self.mw.col.decks.parents(did, nameMap):
-            if parent['collapsed']:
+        for ancestor in self.mw.col.decks.parents(did, nameMap):
+            if ancestor['collapsed']:
                 buff = ""
                 return buff
         prefix = "-"
