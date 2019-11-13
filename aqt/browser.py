@@ -210,9 +210,9 @@ class DataModel(QAbstractTableModel):
             if count != len(self.selectedCards):
                 # we save and then restore the horizontal scroll position because
                 # scrollTo() also scrolls horizontally which is confusing
-                h = tv.horizontalScrollBar().value()
+                horizontalScroll = tv.horizontalScrollBar().value()
                 tv.scrollTo(idx, tv.PositionAtCenter)
-                tv.horizontalScrollBar().setValue(h)
+                tv.horizontalScrollBar().setValue(horizontalScroll)
             if count < 500:
                 # discard large selections; they're too slow
                 sm.select(items, QItemSelectionModel.SelectCurrent |

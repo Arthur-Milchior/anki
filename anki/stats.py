@@ -851,7 +851,7 @@ font-weight: bold;
 
 <td>
 <center><div id=%(id)sLegend></div></center>
-<div id="%(id)s" style="width:%(w)spx; height:%(h)spx;"></div>
+<div id="%(id)s" style="width:%(w)spx; height:%(height)spx;"></div>
 </td>
 
 <td><div style="width: 150px; text-align: center; position:absolute;
@@ -884,7 +884,7 @@ $(function () {
     $.plot($("#%(id)s"), %(data)s, conf);
 });
 </script>""" % dict(
-    id=id, w=width, h=height,
+    id=id, w=width, height=height,
     ylab=ylabel, ylab2=ylabel2,
     data=json.dumps(data), conf=json.dumps(conf)))
 
