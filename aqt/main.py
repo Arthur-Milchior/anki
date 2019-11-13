@@ -623,10 +623,10 @@ title="%s" %s>%s</button>''' % (
 
         # force webengine processes to load before cwd is changed
         if isWin:
-            for o in self.web, self.bottomWeb:
-                o.requiresCol = False
-                o._domReady = False
-                o._page.setContent(bytes("", "ascii"))
+            for webWidget in self.web, self.bottomWeb:
+                webWidget.requiresCol = False
+                webWidget._domReady = False
+                webWidget._page.setContent(bytes("", "ascii"))
 
     def closeAllWindows(self, onsuccess):
         aqt.dialogs.closeAll(onsuccess)

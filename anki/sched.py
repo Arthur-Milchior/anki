@@ -973,24 +973,24 @@ due = odue, odue = 0, odid = 0, usn = ? where %s""" % (lim),
     def remFromDyn(self, cids):
         self.emptyDyn(None, "id in %s and odid" % ids2str(cids))
 
-    def _dynOrder(self, o, limit):
-        if o == DYN_OLDEST:
+    def _dynOrder(self, order, limit):
+        if order == DYN_OLDEST:
             ord = "(select max(id) from revlog where cid=card.id)"
-        elif o == DYN_RANDOM:
+        elif order == DYN_RANDOM:
             ord = "random()"
-        elif o == DYN_SMALLINT:
+        elif order == DYN_SMALLINT:
             ord = "ivl"
-        elif o == DYN_BIGINT:
+        elif order == DYN_BIGINT:
             ord = "ivl desc"
-        elif o == DYN_LAPSES:
+        elif order == DYN_LAPSES:
             ord = "lapses desc"
-        elif o == DYN_ADDED:
+        elif order == DYN_ADDED:
             ord = "note.id"
-        elif o == DYN_REVADDED:
+        elif order == DYN_REVADDED:
             ord = "note.id desc"
-        elif o == DYN_DUE:
+        elif order == DYN_DUE:
             ord = "card.due"
-        elif o == DYN_DUEPRIORITY:
+        elif order == DYN_DUEPRIORITY:
             ord = f"(case when queue={QUEUE_REV} and due <= %d then (ivl / cast(%d-due+0.001 as real)) else 100000+due end)" % (self.today, self.today)
         else:
             # if we don't understand the term, default to due order
