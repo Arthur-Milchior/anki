@@ -329,16 +329,16 @@ select distinct(note.id) from cards card, notes note where card.nid=note.id and 
         if prop not in ("due", "ivl", "reps", "lapses", "ease"):
             return
         # query
-        q = []
+        queries = []
         if prop == "due":
             val += self.col.sched.today
             # only valid for review/daily learning
-            q.append(f"(card.queue in ({QUEUE_REV},{QUEUE_DAY_LRN}))")
+            queries.append(f"(card.queue in ({QUEUE_REV},{QUEUE_DAY_LRN}))")
         elif prop == "ease":
             prop = "factor"
             val = int(val*1000)
-        q.append("(%s %s %s)" % (prop, cmp, val))
-        return " and ".join(q)
+        queries.append("(%s %s %s)" % (prop, cmp, val))
+        return " and ".join(queries)
 
     def _findText(self, val, args):
         val = val.replace("*", "%")
