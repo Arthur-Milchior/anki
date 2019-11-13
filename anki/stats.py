@@ -64,12 +64,12 @@ class CardStats:
         self.txt += "</table>"
         return self.txt
 
-    def addLine(self, k, v):
-        self.txt += self.makeLine(k, v)
+    def addLine(self, key, v):
+        self.txt += self.makeLine(key, v)
 
-    def makeLine(self, k, v):
+    def makeLine(self, key, v):
         txt = "<tr><td align=left style='padding-right: 3px;'>"
-        txt += "<b>%s</b></td><td>%s</td></tr>" % (k, v)
+        txt += "<b>%s</b></td><td>%s</td></tr>" % (key, v)
         return txt
 
     def date(self, tm):

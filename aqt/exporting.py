@@ -31,7 +31,7 @@ class ExportDialog(QDialog):
         # if a deck specified, start with .apkg type selected
         idx = 0
         if did:
-            for index, (k,e) in enumerate(self.exporters):
+            for index, (exporterString,e) in enumerate(self.exporters):
                 if e.ext == ".apkg":
                     idx = index
                     break
