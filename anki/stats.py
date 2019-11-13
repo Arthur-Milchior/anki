@@ -239,16 +239,16 @@ from revlog where id > ? """+lim, (self.col.sched.dayCutoff-86400)*1000)
         return txt
 
     def _dueInfo(self, tot, num):
-        i = []
-        self._line(i, _("Total"), ngettext("%d review", "%d reviews", tot) % tot)
-        self._line(i, _("Average"), self._avgDay(
+        tableLines = []
+        self._line(tableLines, _("Total"), ngettext("%d review", "%d reviews", tot) % tot)
+        self._line(tableLines, _("Average"), self._avgDay(
             tot, num, _("reviews")))
         tomorrow = self.col.db.scalar(f"""
 select count() from cards where did in %s and queue in ({QUEUE_REV}, {QUEUE_DAY_LRN})
 and due = ?""" % self._limit(), self.col.sched.today+1)
         tomorrow = ngettext("%d card", "%d cards", tomorrow) % tomorrow
-        self._line(i, _("Due tomorrow"), tomorrow)
-        return self._lineTbl(i)
+        self._line(tableLines, _("Due tomorrow"), tomorrow)
+        return self._lineTbl(tableLines)
 
     def _due(self, start=None, end=None, chunk=1):
         lim = ""
@@ -290,15 +290,15 @@ group by day order by day""" % (self._limit(), lim),
             _("Added"), _("The number of new cards you have added."))
         txt += plot("intro", repdata, ylabel=_("Cards"), ylabel2=_("Cumulative Cards"))
         # total and per day average
-        tot = sum([i[1] for i in data])
+        tot = sum([tableLines[1] for tableLines in data])
         period = self._periodDays()
         if not period:
             # base off date of earliest added card
             period = self._deckAge('add')
-        i = []
-        self._line(i, _("Total"), ngettext("%d card", "%d cards", tot) % tot)
-        self._line(i, _("Average"), self._avgDay(tot, period, _("cards")))
-        txt += self._lineTbl(i)
+        tableLines = []
+        self._line(tableLines, _("Total"), ngettext("%d card", "%d cards", tot) % tot)
+        self._line(tableLines, _("Average"), self._avgDay(tot, period, _("cards")))
+        txt += self._lineTbl(tableLines)
 
         return txt
 
@@ -358,8 +358,8 @@ group by day order by day""" % (self._limit(), lim),
         if not period:
             # base off earliest repetition date
             period = self._deckAge('review')
-        i = []
-        self._line(i, _("Days studied"),
+        tableLines = []
+        self._line(tableLines, _("Days studied"),
                    _("<b>%(pct)d%%</b> (%(x)s of %(y)s)") % dict(
                        x=studied, y=period, pct=studied/float(period)*100),
                    bold=False)
@@ -368,16 +368,16 @@ group by day order by day""" % (self._limit(), lim),
         else:
             tunit = unit
         #T: unit: can be hours, minutes, reviews... tot: the number of unit.
-        self._line(i, _("Total"), _("%(tot)s %(unit)s") % dict(
+        self._line(tableLines, _("Total"), _("%(tot)s %(unit)s") % dict(
             unit=tunit, tot=int(tot)))
         if convHours:
             # convert to minutes
             tot *= 60
-        self._line(i, _("Average for days studied"), self._avgDay(
+        self._line(tableLines, _("Average for days studied"), self._avgDay(
             tot, studied, unit))
         if studied != period:
             # don't display if you did study every day
-            self._line(i, _("If you studied every day"), self._avgDay(
+            self._line(tableLines, _("If you studied every day"), self._avgDay(
                 tot, period, unit))
         if total and tot:
             perMin = total / float(tot)
@@ -388,9 +388,9 @@ group by day order by day""" % (self._limit(), lim),
             else:
                 text = _("%.01f cards/minute") % perMin
             self._line(
-                i, _("Average answer time"),
+                tableLines, _("Average answer time"),
                 _("%(a)0.1fs (%(text)s)") % dict(a=(tot*60)/total, text=text))
-        return self._lineTbl(i), int(tot)
+        return self._lineTbl(tableLines), int(tot)
 
     def _splitRepData(self, data, spec):
         sep = {}
@@ -526,10 +526,10 @@ group by day order by day)""" % lim,
             ], conf=dict(
                 xaxis=dict(min=-0.5, max=ivlmax+0.5),
                 yaxes=[dict(), dict(position="right", max=105)]))
-        i = []
-        self._line(i, _("Average interval"), fmtTimeSpan(avg*86400))
-        self._line(i, _("Longest interval"), fmtTimeSpan(max_*86400))
-        return txt + self._lineTbl(i)
+        tableLines = []
+        self._line(tableLines, _("Average interval"), fmtTimeSpan(avg*86400))
+        self._line(tableLines, _("Longest interval"), fmtTimeSpan(max_*86400))
+        return txt + self._lineTbl(tableLines)
 
     def _ivls(self):
         start, end, chunk = self.get_start_end_chunk()
@@ -584,7 +584,7 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = {QUEUE
                 types[type][0] += cnt
             else:
                 types[type][1] += cnt
-        i = []
+        tableLines = []
         for type in range(3):
             (bad, good) = types[type]
             tot = bad + good
@@ -592,12 +592,12 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = {QUEUE
                 pct = good / float(tot) * 100
             except:
                 pct = 0
-            i.append(_(
+            tableLines.append(_(
                 "Correct: <b>%(pct)0.2f%%</b><br>(%(good)d of %(tot)d)") % dict(
                 pct=pct, good=good, tot=tot))
         return ("""
 <center><table width=%dpx><tr><td width=50></td><td align=center>""" % self.width +
-                "</td><td align=center>".join(i) +
+                "</td><td align=center>".join(tableLines) +
                 "</td></tr></table></center>")
 
     def _eases(self):
@@ -712,18 +712,18 @@ group by hour having count() > 30 order by hour""" % lim,
             (_("Suspended+Buried"), colSusp))):
             nameColor.append(dict(data=div[index], label="%s: %s" % (kindOfCard, div[index]), color=col))
         # text data
-        i = []
+        tableLines = []
         (countCard, countNote) = self.col.db.first("""
 select count(id), count(distinct nid) from cards
 where did in %s """ % self._limit())
-        self._line(i, _("Total cards"), countCard)
-        self._line(i, _("Total notes"), countNote)
+        self._line(tableLines, _("Total cards"), countCard)
+        self._line(tableLines, _("Total notes"), countNote)
         (low, avg, high) = self._factors()
         if low:
-            self._line(i, _("Lowest ease"), "%d%%" % low)
-            self._line(i, _("Average ease"), "%d%%" % avg)
-            self._line(i, _("Highest ease"), "%d%%" % high)
-        info = "<table width=100%>" + "".join(i) + "</table><p>"
+            self._line(tableLines, _("Lowest ease"), "%d%%" % low)
+            self._line(tableLines, _("Average ease"), "%d%%" % avg)
+            self._line(tableLines, _("Highest ease"), "%d%%" % high)
+        info = "<table width=100%>" + "".join(tableLines) + "</table><p>"
         info += _('''\
 A card's <i>ease</i> is the size of the next interval \
 when you answer "good" on a review.''')
@@ -735,16 +735,16 @@ when you answer "good" on a review.''')
             info)
         return txt
 
-    def _line(self, i, a, value, bold=True):
+    def _line(self, tableLines, a, value, bold=True):
         #T: Symbols separating first and second column in a statistics table. Eg in "Total:    3 reviews".
         colon = _(":")
         if bold:
-            i.append(("<tr><td width=200 align=right>%s%s</td><td><b>%s</b></td></tr>") % (a,colon,value))
+            tableLines.append(("<tr><td width=200 align=right>%s%s</td><td><b>%s</b></td></tr>") % (a,colon,value))
         else:
-            i.append(("<tr><td width=200 align=right>%s%s</td><td>%s</td></tr>") % (a,colon,value))
+            tableLines.append(("<tr><td width=200 align=right>%s%s</td><td>%s</td></tr>") % (a,colon,value))
 
-    def _lineTbl(self, i):
-        return "<table width=400>" + "".join(i) + "</table>"
+    def _lineTbl(self, tableLines):
+        return "<table width=400>" + "".join(tableLines) + "</table>"
 
     def _factors(self):
         return self.col.db.first(f"""

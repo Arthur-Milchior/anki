@@ -564,7 +564,7 @@ from the profile screen."))
             return
         self.web.resetHandlers()
         self.web.onBridgeCmd = lambda url: self.delayedMaybeReset()
-        i = _("Waiting for editing to finish.")
+        waitEditMessage = _("Waiting for editing to finish.")
         refreshButton = self.button("refresh", _("Resume Now"), id="resume")
         self.web.stdHtml("""
 <center><div style="height: 100%%">
@@ -572,7 +572,7 @@ from the profile screen."))
 %s<br><br>
 %s</div></div></center>
 <script>$('#resume').focus()</script>
-""" % (i, refreshButton))
+""" % (waitEditMessage, refreshButton))
         self.bottomWeb.hide()
         self.web.setFocus()
 

@@ -1468,11 +1468,11 @@ where id in %s""" % ids2str(sf))
         self.model.beginReset()
         # figure out where to place the cursor after the deletion
         curRow = self.form.tableView.selectionModel().currentIndex().row()
-        selectedRows = [i.row() for i in
+        selectedRows = [selectedRow.row() for selectedRow in
                 self.form.tableView.selectionModel().selectedRows()]
         if min(selectedRows) < curRow < max(selectedRows):
             # last selection in middle; place one below last selected item
-            move = sum(1 for i in selectedRows if i > curRow)
+            move = sum(1 for selectedRowIndex in selectedRows if selectedRowIndex > curRow)
             newRow = curRow - move
         elif max(selectedRows) <= curRow:
             # last selection at bottom; place one below bottommost selection

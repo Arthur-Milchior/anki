@@ -104,20 +104,20 @@ class CustomStudy(QDialog):
         self.radioIdx = idx
 
     def accept(self):
-        i = self.radioIdx; spin = self.form.spin.value()
-        if i == RADIO_NEW:
+        spin = self.form.spin.value()
+        if self.radioIdx == RADIO_NEW:
             self.deck['extendNew'] = spin
             self.mw.col.decks.save(self.deck)
             self.mw.col.sched.extendLimits(spin, 0)
             self.mw.reset()
             return QDialog.accept(self)
-        elif i == RADIO_REV:
+        elif self.radioIdx == RADIO_REV:
             self.deck['extendRev'] = spin
             self.mw.col.decks.save(self.deck)
             self.mw.col.sched.extendLimits(0, spin)
             self.mw.reset()
             return QDialog.accept(self)
-        elif i == RADIO_CRAM:
+        elif self.radioIdx == RADIO_CRAM:
             tags = self._getTags()
         # the rest create a filtered deck
         cur = self.mw.col.decks.byName(_("Custom Study Session"))
@@ -135,16 +135,16 @@ class CustomStudy(QDialog):
             did = self.mw.col.decks.newDyn(_("Custom Study Session"))
             dyn = self.mw.col.decks.get(did)
         # and then set various options
-        if i == RADIO_FORGOT:
+        if self.radioIdx == RADIO_FORGOT:
             dyn['terms'][0] = ['rated:%d:1' % spin, DYN_MAX_SIZE, DYN_RANDOM]
             dyn['resched'] = False
-        elif i == RADIO_AHEAD:
+        elif self.radioIdx == RADIO_AHEAD:
             dyn['terms'][0] = ['prop:due<=%d' % spin, DYN_MAX_SIZE, DYN_DUE]
             dyn['resched'] = True
-        elif i == RADIO_PREVIEW:
+        elif self.radioIdx == RADIO_PREVIEW:
             dyn['terms'][0] = ['is:new added:%s'%spin, DYN_MAX_SIZE, DYN_OLDEST]
             dyn['resched'] = False
-        elif i == RADIO_CRAM:
+        elif self.radioIdx == RADIO_CRAM:
             type = self.form.cardType.currentRow()
             if type == TYPE_NEW:
                 terms = "is:new "

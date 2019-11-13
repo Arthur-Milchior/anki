@@ -215,7 +215,7 @@ def dehexifyID(id):
 
 def ids2str(ids):
     """Given a list of integers, return a string '(int1,int2,...)'."""
-    return "(%s)" % ",".join(str(i) for i in ids)
+    return "(%s)" % ",".join(str(id) for id in ids)
 
 def timestampID(db, table):
     "Return a non-conflicting timestamp for table."
@@ -238,8 +238,8 @@ def base62(num, extra=""):
     s = string; table = s.ascii_letters + s.digits + extra
     buf = ""
     while num:
-        num, i = divmod(num, len(table))
-        buf = table[i] + buf
+        num, mod = divmod(num, len(table))
+        buf = table[mod] + buf
     return buf
 
 _base91_extra_chars = "!#$%&()*+,-./:;<=>?@[]^_`{|}~"

@@ -136,15 +136,15 @@ it?""")):
     def userToList(self, w, minSize=1):
         items = str(w.text()).split(" ")
         ret = []
-        for i in items:
-            if not i:
+        for item in items:
+            if not item:
                 continue
             try:
-                i = float(i)
-                assert i > 0
-                if i == int(i):
-                    i = int(i)
-                ret.append(i)
+                item = float(item)
+                assert item > 0
+                if item == int(item):
+                    item = int(item)
+                ret.append(item)
             except:
                 # invalid, don't update
                 showWarning(_("Steps must be numbers."))

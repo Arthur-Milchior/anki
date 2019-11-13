@@ -601,14 +601,14 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         meta = json.loads(z.read("_meta").decode("utf8"))
         # then loop through all files
         cnt = 0
-        for i in z.infolist():
-            if i.filename == "_meta":
+        for info in z.infolist():
+            if info.filename == "_meta":
                 # ignore previously-retrieved meta
                 continue
             else:
-                data = z.read(i)
+                data = z.read(info)
                 csum = checksum(data)
-                name = meta[i.filename]
+                name = meta[info.filename]
                 # normalize name
                 name = unicodedata.normalize("NFC", name)
                 # save file
