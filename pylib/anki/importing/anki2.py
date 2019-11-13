@@ -262,10 +262,10 @@ class Anki2Importer(Importer):
                 name += "::" + tmpname
         # manually create any parents so we can pull in descriptions
         head = ""
-        for parent in DeckManager.immediate_parent_path(name):
+        for parentPiece in DeckManager.immediate_parent_path(name):
             if head:
                 head += "::"
-            head += parent
+            head += parentPiece
             idInSrc = self.src.decks.id(head)
             self._did(idInSrc)
         # if target is a filtered deck, we'll need a new deck name

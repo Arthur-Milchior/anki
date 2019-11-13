@@ -364,8 +364,8 @@ order by due"""
         sel = self.col.decks.get(did)
         lim = -1
         # for the deck and each of its parents
-        for deck in [sel] + self.col.decks.parents(did):
-            rem = fn(deck)
+        for ancestor in [sel] + self.col.decks.parents(did):
+            rem = fn(ancestor)
             if lim == -1:
                 lim = rem
             else:
@@ -792,9 +792,9 @@ and due <= ? limit ?)""",
         if parentLimit is not None:
             lim = min(parentLimit, lim)
         elif "::" in deck["name"]:
-            for parent in self.col.decks.parents(deck["id"]):
+            for ancestor in self.col.decks.parents(deck["id"]):
                 # pass in dummy parentLimit so we don't do parent lookup again
-                lim = min(lim, self._deckRevLimitSingle(parent, parentLimit=lim))
+                lim = min(lim, self._deckRevLimitSingle(ancestor, parentLimit=lim))
         return hooks.scheduler_review_limit_for_single_deck(lim, deck)
 
     def _revForDeck(self, did: int, lim: int, childMap: Dict[int, Any]) -> Any:
