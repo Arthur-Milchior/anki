@@ -326,8 +326,8 @@ def importFile(mw, file):
         # if it's an apkg/zip, first test it's a valid file
         if importer.__class__.__name__ == "AnkiPackageImporter":
             try:
-                z = zipfile.ZipFile(importer.file)
-                z.getinfo("collection.anki2")
+                zip = zipfile.ZipFile(importer.file)
+                zip.getinfo("collection.anki2")
             except:
                 showWarning(invalidZipMsg())
                 return
@@ -394,17 +394,17 @@ def replaceWithApkg(mw, file, backup):
 def _replaceWithApkg(mw, file, backup):
     mw.progress.start(immediate=True)
 
-    z = zipfile.ZipFile(file)
+    zip = zipfile.ZipFile(file)
 
     # v2 scheduler?
     colname = "collection.anki21"
     try:
-        z.getinfo(colname)
+        zip.getinfo(colname)
     except KeyError:
         colname = "collection.anki2"
 
     try:
-        with z.open(colname) as source, \
+        with zip.open(colname) as source, \
                 open(mw.pm.collectionPath(), "wb") as target:
             shutil.copyfileobj(source, target)
     except:
@@ -417,17 +417,17 @@ def _replaceWithApkg(mw, file, backup):
     # step
     mediaFolder = os.path.join(mw.pm.profileFolder(), "collection.media")
     for index, (cStr, file) in enumerate(
-            json.loads(z.read("media").decode("utf8")).items()):
+            json.loads(zip.read("media").decode("utf8")).items()):
         mw.progress.update(ngettext("Processed %d media file",
                                     "Processed %d media files", index) % index)
-        size = z.getinfo(cStr).file_size
+        size = zip.getinfo(cStr).file_size
         dest = os.path.join(mediaFolder, unicodedata.normalize("NFC", file))
         # if we have a matching file size
         if os.path.exists(dest) and size == os.stat(dest).st_size:
             continue
-        data = z.read(cStr)
+        data = zip.read(cStr)
         open(dest, "wb").write(data)
-    z.close()
+    zip.close()
     # reload
     if not mw.loadCollection():
         mw.progress.finish()

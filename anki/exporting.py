@@ -288,30 +288,30 @@ class AnkiPackageExporter(AnkiExporter):
 
     def exportInto(self, path):
         # open a zip file
-        z = zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED, allowZip64=True)
-        media = self.doExport(z, path)
+        zip = zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED, allowZip64=True)
+        media = self.doExport(zip, path)
         # media map
-        z.writestr("media", json.dumps(media))
-        z.close()
+        zip.writestr("media", json.dumps(media))
+        zip.close()
 
-    def doExport(self, z, path):
+    def doExport(self, zip, path):
         # export into the anki2 file
         colfile = path.replace(".apkg", ".anki2")
         AnkiExporter.exportInto(self, colfile)
         if not self._v2sched:
-            z.write(colfile, "collection.anki2")
+            zip.write(colfile, "collection.anki2")
         else:
             # fixme: remove in the future
             raise Exception("Please switch to the normal scheduler before exporting a single deck with scheduling information.")
 
             # prevent older clients from accessing
             # pylint: disable=unreachable
-            self._addDummyCollection(z)
-            z.write(colfile, "collection.anki21")
+            self._addDummyCollection(zip)
+            zip.write(colfile, "collection.anki21")
 
         # and media
         self.prepareMedia()
-        media = self._exportMedia(z, self.mediaFiles, self.mediaDir)
+        media = self._exportMedia(zip, self.mediaFiles, self.mediaDir)
         # tidy up intermediate files
         os.unlink(colfile)
         oldPath = path.replace(".apkg", ".media.db2")
@@ -321,7 +321,7 @@ class AnkiPackageExporter(AnkiExporter):
         shutil.rmtree(path.replace(".apkg", ".media"))
         return media
 
-    def _exportMedia(self, z, files, fdir):
+    def _exportMedia(self, zip, files, fdir):
         media = {}
         for index, file in enumerate(files):
             cStr = str(index)
@@ -330,9 +330,9 @@ class AnkiPackageExporter(AnkiExporter):
                 continue
             if os.path.exists(mpath):
                 if re.search(r'\.svg$', file, re.IGNORECASE):
-                    z.write(mpath, cStr, zipfile.ZIP_DEFLATED)
+                    zip.write(mpath, cStr, zipfile.ZIP_DEFLATED)
                 else:
-                    z.write(mpath, cStr, zipfile.ZIP_STORED)
+                    zip.write(mpath, cStr, zipfile.ZIP_STORED)
                 media[cStr] = unicodedata.normalize("NFC", file)
                 runHook("exportedMediaFiles", index)
 
@@ -370,22 +370,22 @@ class AnkiCollectionPackageExporter(AnkiPackageExporter):
     def __init__(self, col):
         AnkiPackageExporter.__init__(self, col)
 
-    def doExport(self, z, path):
+    def doExport(self, zip, path):
         # close our deck & write it into the zip file, and reopen
         self.count = self.col.cardCount()
         v2 = self.col.schedVer() != 1
         self.col.close()
         if not v2:
-            z.write(self.col.path, "collection.anki2")
+            zip.write(self.col.path, "collection.anki2")
         else:
-            self._addDummyCollection(z)
-            z.write(self.col.path, "collection.anki21")
+            self._addDummyCollection(zip)
+            zip.write(self.col.path, "collection.anki21")
         self.col.reopen()
         # copy all media
         if not self.includeMedia:
             return {}
         mdir = self.col.media.dir()
-        return self._exportMedia(z, os.listdir(mdir), mdir)
+        return self._exportMedia(zip, os.listdir(mdir), mdir)
 
 # Export modules
 ##########################################################################

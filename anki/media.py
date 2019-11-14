@@ -561,7 +561,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
 
     def mediaChangesZip(self):
         zipFile = io.BytesIO()
-        z = zipfile.ZipFile(zipFile, "w", compression=zipfile.ZIP_DEFLATED)
+        zip = zipfile.ZipFile(zipFile, "w", compression=zipfile.ZIP_DEFLATED)
 
         fnames = []
         # meta is list of (fname, zipname), where zipname of None
@@ -578,7 +578,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
 
             if csum:
                 self.col.log("+media zip", fname)
-                z.write(fname, str(index))
+                zip.write(fname, str(index))
                 meta.append((normname, str(index)))
                 sz += os.path.getsize(fname)
             else:
@@ -588,25 +588,25 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             if sz >= SYNC_ZIP_SIZE:
                 break
 
-        z.writestr("_meta", json.dumps(meta))
-        z.close()
+        zip.writestr("_meta", json.dumps(meta))
+        zip.close()
         return zipFile.getvalue(), fnames
 
     def addFilesFromZip(self, zipData):
         "Extract zip data; true if finished."
         zipFile = io.BytesIO(zipData)
-        z = zipfile.ZipFile(zipFile, "r")
+        zip = zipfile.ZipFile(zipFile, "r")
         media = []
         # get meta info first
-        meta = json.loads(z.read("_meta").decode("utf8"))
+        meta = json.loads(zip.read("_meta").decode("utf8"))
         # then loop through all files
         cnt = 0
-        for info in z.infolist():
+        for info in zip.infolist():
             if info.filename == "_meta":
                 # ignore previously-retrieved meta
                 continue
             else:
-                data = z.read(info)
+                data = zip.read(info)
                 csum = checksum(data)
                 name = meta[info.filename]
                 # normalize name
