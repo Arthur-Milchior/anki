@@ -208,7 +208,7 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
             self._install(package, zfile)
         
         schema = self._manifest_schema["properties"]
-        manifest_meta = {k: v for k, v in manifest.items()
+        manifest_meta = {k: value for k, value in manifest.items()
                          if k in schema and schema[k]["meta"]}
         meta.update(manifest_meta)
         self.writeAddonMeta(package, meta)

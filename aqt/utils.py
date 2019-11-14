@@ -135,17 +135,17 @@ class ButtonedDialog(QMessageBox):
         self.help = help
         self.setIcon(QMessageBox.Warning)
         self.setText(text)
-        # v = QVBoxLayout()
-        # v.addWidget(QLabel(text))
+        # layout = QVBoxLayout()
+        # layout.addWidget(QLabel(text))
         # box = QDialogButtonBox()
-        # v.addWidget(box)
+        # layout.addWidget(box)
         for button in buttons:
             self.buttons.append(
                 self.addButton(button, QMessageBox.AcceptRole))
         if help:
             self.addButton(_("Help"), QMessageBox.HelpRole)
             buttons.append(_("Help"))
-        #self.setLayout(v)
+        #self.setLayout(layout)
 
     def run(self):
         self.exec_()
@@ -176,21 +176,21 @@ class GetTextDialog(QDialog):
         self.help = help
         self.qlabel = QLabel(question)
         self.setMinimumWidth(minWidth)
-        v = QVBoxLayout()
-        v.addWidget(self.qlabel)
+        layout = QVBoxLayout()
+        layout.addWidget(self.qlabel)
         if not edit:
             edit = QLineEdit()
         self.edit = edit
         if default:
             self.edit.setText(default)
             self.edit.selectAll()
-        v.addWidget(self.edit)
+        layout.addWidget(self.edit)
         buts = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
         if help:
             buts |= QDialogButtonBox.Help
         button = QDialogButtonBox(buts)
-        v.addWidget(button)
-        self.setLayout(v)
+        layout.addWidget(button)
+        self.setLayout(layout)
         button.button(QDialogButtonBox.Ok).clicked.connect(self.accept)
         button.button(QDialogButtonBox.Cancel).clicked.connect(self.reject)
         if help:

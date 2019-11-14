@@ -509,8 +509,8 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
                     # mark as used
                     self.cache[normname][2] = True
         # look for any entries in the cache that no longer exist on disk
-        for (normname, v) in list(self.cache.items()):
-            if not v[2]:
+        for (normname, value) in list(self.cache.items()):
+            if not value[2]:
                 removed.append(normname)
         return added, removed
 

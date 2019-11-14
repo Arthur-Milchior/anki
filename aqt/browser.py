@@ -1114,8 +1114,8 @@ by clicking on one on the left."""))
     # returns name if found
     def _currentFilterIsSaved(self):
         filt = self.form.searchEdit.lineEdit().text()
-        for filterName,v in self.col.conf['savedFilters'].items():
-            if filt == v:
+        for filterName,filter in self.col.conf['savedFilters'].items():
+            if filt == filter:
                 return filterName
         return None
 
