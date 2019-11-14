@@ -445,9 +445,9 @@ select id from notes where mid = ?)""" % " ".join(map),
                 flds.append(newflds.get(index, ""))
             flds = joinFields(flds)
             noteData.append(dict(nid=nid, flds=flds, mid=newModel['id'],
-                      mod=intTime(),u=self.col.usn()))
+                      mod=intTime(),usn=self.col.usn()))
         self.col.db.executemany(
-            "update notes set flds=:flds,mid=:mid,mod=:mod,usn=:u where id = :nid", noteData)
+            "update notes set flds=:flds,mid=:mid,mod=:mod,usn=:usn where id = :nid", noteData)
         self.col.updateFieldCache(nids)
 
     def _changeCards(self, nids, oldModel, newModel, map):
@@ -469,11 +469,11 @@ select id from notes where mid = ?)""" % " ".join(map),
                 new = map[ord]
             if new is not None:
                 cardData.append(dict(
-                    cid=cid,new=new,u=self.col.usn(),mod=intTime()))
+                    cid=cid,new=new,usn=self.col.usn(),mod=intTime()))
             else:
                 deleted.append(cid)
         self.col.db.executemany(
-            "update cards set ord=:new,usn=:u,mod=:mod where id=:cid",
+            "update cards set ord=:new,usn=:usn,mod=:mod where id=:cid",
             cardData)
         self.col.remCards(deleted)
 

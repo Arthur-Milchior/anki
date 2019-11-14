@@ -1136,7 +1136,7 @@ will be lost. Continue?"""))
             deleteButton.setAutoDefault(False)
             box.addButton(deleteButton, QDialogButtonBox.ActionRole)
             deleteButton.clicked.connect(
-                lambda click, u=unused, diag=diag: self.deleteUnused(u, diag))
+                lambda click, unused=unused, diag=diag: self.deleteUnused(unused, diag))
 
         box.rejected.connect(diag.reject)
         diag.setMinimumHeight(400)

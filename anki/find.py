@@ -519,12 +519,12 @@ def findReplace(col, nids, src, dst, regex=False, field=None, fold=True):
         flds = joinFields(sflds)
         if flds != origFlds:
             nids.append(nid)
-            noteData.append(dict(nid=nid,flds=flds,u=col.usn(),mod=intTime()))
+            noteData.append(dict(nid=nid,flds=flds,usn=col.usn(),mod=intTime()))
     if not noteData:
         return 0
     # replace
     col.db.executemany(
-        "update notes set flds=:flds,mod=:mod,usn=:u where id=:nid", noteData)
+        "update notes set flds=:flds,mod=:mod,usn=:usn where id=:nid", noteData)
     col.updateFieldCache(nids)
     col.genCards(nids)
     return len(noteData)

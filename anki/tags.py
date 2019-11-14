@@ -113,9 +113,9 @@ class TagManager:
         def fix(row):
             nids.append(row[0])
             return {'id': row[0], 'tags': fn(tags, row[1]), 'mod':intTime(),
-                'u':self.col.usn()}
+                'usn':self.col.usn()}
         self.col.db.executemany(
-            "update notes set tags=:tags,mod=:mod,usn=:u where id = :id",
+            "update notes set tags=:tags,mod=:mod,usn=:usn where id = :id",
             [fix(row) for row in res])
 
     def bulkRem(self, ids, tags):

@@ -230,11 +230,11 @@ enter your details below.""") %
         dialog.setLayout(vbox)
         dialog.show()
         accepted = dialog.exec_()
-        u = user.text()
+        user = user.text()
         pw = passwd.text()
-        if not accepted or not u or not pw:
+        if not accepted or not user or not pw:
             return
-        return (u, pw)
+        return (user, pw)
 
     def _confirmFullSync(self):
         self.mw.progress.finish()

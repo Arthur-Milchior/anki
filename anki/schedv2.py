@@ -1067,10 +1067,10 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
     def _moveToDyn(self, did, ids, start=-100000):
         deck = self.col.decks.get(did)
         data = []
-        u = self.col.usn()
+        usn = self.col.usn()
         due = start
         for id in ids:
-            data.append((did, due, u, id))
+            data.append((did, due, usn, id))
             due += 1
 
         queue = ""
