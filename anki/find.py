@@ -129,47 +129,47 @@ select distinct(note.id) from cards card, notes note where card.nid=note.id and 
 
     def _where(self, tokens):
         # state and query
-        s = dict(isnot=False, isor=False, join=False, q="", bad=False)
+        state = dict(isnot=False, isor=False, join=False, q="", bad=False)
         args = []
         def add(txt, wrap=True):
             # failed command?
             if not txt:
                 # if it was to be negated then we can just ignore it
-                if s['isnot']:
-                    s['isnot'] = False
+                if state['isnot']:
+                    state['isnot'] = False
                     return
                 else:
-                    s['bad'] = True
+                    state['bad'] = True
                     return
             elif txt == "skip":
                 return
             # do we need a conjunction?
-            if s['join']:
-                if s['isor']:
-                    s['q'] += " or "
-                    s['isor'] = False
+            if state['join']:
+                if state['isor']:
+                    state['q'] += " or "
+                    state['isor'] = False
                 else:
-                    s['q'] += " and "
-            if s['isnot']:
-                s['q'] += " not "
-                s['isnot'] = False
+                    state['q'] += " and "
+            if state['isnot']:
+                state['q'] += " not "
+                state['isnot'] = False
             if wrap:
                 txt = "(" + txt + ")"
-            s['q'] += txt
-            s['join'] = True
+            state['q'] += txt
+            state['join'] = True
         for token in tokens:
-            if s['bad']:
+            if state['bad']:
                 return None, None
             # special tokens
             if token == "-":
-                s['isnot'] = True
+                state['isnot'] = True
             elif token.lower() == "or":
-                s['isor'] = True
+                state['isor'] = True
             elif token == "(":
                 add(token, wrap=False)
-                s['join'] = False
+                state['join'] = False
             elif token == ")":
-                s['q'] += ")"
+                state['q'] += ")"
             # commands
             elif ":" in token:
                 cmd, val = token.split(":", 1)
@@ -181,9 +181,9 @@ select distinct(note.id) from cards card, notes note where card.nid=note.id and 
             # normal text search
             else:
                 add(self._findText(token, args))
-        if s['bad']:
+        if state['bad']:
             return None, None
-        return s['q'], args
+        return state['q'], args
 
     def _query(self, preds, order):
         # can we skip the note table?

@@ -229,9 +229,9 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         def arepl(match):
             return match.group(2)
         for ord in ords:
-            s = re.sub(clozeReg%ord, qrepl, string)
-            s = re.sub(clozeReg%".+?", "\\2", s)
-            strings.append(s)
+            stringThisOrd = re.sub(clozeReg%ord, qrepl, string)
+            stringThisOrd = re.sub(clozeReg%".+?", "\\2", stringThisOrd)
+            strings.append(stringThisOrd)
         strings.append(re.sub(clozeReg%".+?", arepl, string))
         return strings
 

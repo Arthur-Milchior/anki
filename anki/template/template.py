@@ -217,18 +217,18 @@ class Template:
 
     # look for clozes wrapped in mathjax, and change {{cx to {{Cx
     def _removeFormattingFromMathjax(self, txt, ord):
-        opening = ["\\(", "\\["]
-        closing = ["\\)", "\\]"]
+        openings = ["\\(", "\\["]
+        closings = ["\\)", "\\]"]
         # flags in middle of expression deprecated
         creg = clozeReg.replace("(?si)", "")
         regex = r"(?si)(\\[([])(.*?)"+(creg%ord)+r"(.*?)(\\[\])])"
         def repl(match):
             enclosed = True
-            for s in closing:
-                if s in match.group(1):
+            for closing in closings:
+                if closing in match.group(1):
                     enclosed = False
-            for s in opening:
-                if s in match.group(7):
+            for opening in openings:
+                if opening in match.group(7):
                     enclosed = False
             if not enclosed:
                 return match.group(0)

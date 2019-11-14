@@ -152,8 +152,8 @@ from revlog where id > ? """+lim, (self.col.sched.dayCutoff-86400)*1000)
         relrn = relrn or 0
         filt = filt or 0
         # studied
-        def bold(s):
-            return "<b>"+str(s)+"</b>"
+        def bold(text):
+            return "<b>"+str(text)+"</b>"
         msgp1 = ngettext("<!--studied-->%d card", "<!--studied-->%d cards", cards) % cards
         if cards:
             html += _("Studied %(a)s %(howManyTime)s today (%(secs).1fs/card)") % dict(

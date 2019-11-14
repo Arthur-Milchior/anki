@@ -166,11 +166,11 @@ class TagManager:
         "Strip duplicates, adjust case to match existing tags, and sort."
         strippedTags = []
         for tag in tagList:
-            s = re.sub("[\"']", "", tag)
+            tag = re.sub("[\"']", "", tag)
             for existingTag in self.tags:
-                if s.lower() == existingTag.lower():
-                    s = existingTag
-            strippedTags.append(s)
+                if tag.lower() == existingTag.lower():
+                    tag = existingTag
+            strippedTags.append(tag)
         return sorted(set(strippedTags))
 
     def inList(self, tag, tags):

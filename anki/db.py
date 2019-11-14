@@ -18,10 +18,10 @@ class DB:
         self.mod = False
 
     def execute(self, sql, *a, **ka):
-        s = sql.strip().lower()
+        normalizedSql = sql.strip().lower()
         # mark modified?
         for stmt in "insert", "update", "delete":
-            if s.startswith(stmt):
+            if normalizedSql.startswith(stmt):
                 self.mod = True
         startTime = time.time()
         if ka:

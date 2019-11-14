@@ -53,13 +53,12 @@ class Exporter:
 
     def stripHTML(self, text):
         # very basic conversion to text
-        s = text
-        s = re.sub(r"(?i)<(br ?/?|div|p)>", " ", s)
-        s = re.sub(r"\[sound:[^]]+\]", "", s)
-        s = stripHTML(s)
-        s = re.sub(r"[ \n\t]+", " ", s)
-        s = s.strip()
-        return s
+        text = re.sub(r"(?i)<(br ?/?|div|p)>", " ", text)
+        text = re.sub(r"\[sound:[^]]+\]", "", text)
+        text = stripHTML(text)
+        text = re.sub(r"[ \n\t]+", " ", text)
+        text = text.strip()
+        return text
 
     def cardIds(self):
         if not self.did:
@@ -84,10 +83,10 @@ class TextCardExporter(Exporter):
     def doExport(self, file):
         ids = sorted(self.cardIds())
         strids = ids2str(ids)
-        def esc(s):
+        def esc(cardContent):
             # strip off the repeated question in answer if exists
-            s = re.sub("(?si)^.*<hr id=answer>\n*", "", s)
-            return self.processText(s)
+            cardContent = re.sub("(?si)^.*<hr id=answer>\n*", "", cardContent)
+            return self.processText(cardContent)
         out = ""
         for cid in ids:
             card = self.col.getCard(cid)

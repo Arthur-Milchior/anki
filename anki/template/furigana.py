@@ -19,8 +19,8 @@ def noSound(repl):
             return re.sub(r, repl, match.group(0))
     return func
 
-def _munge(s):
-    return s.replace("&nbsp;", " ")
+def _munge(text):
+    return text.replace("&nbsp;", " ")
 
 def kanji(txt, *args):
     return re.sub(r, noSound(r'\1'), _munge(txt))

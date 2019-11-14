@@ -317,20 +317,20 @@ class DeckManager:
 
     def _ensureParents(self, name):
         "Ensure parents exist, and return name with case matching parents."
-        s = ""
+        ancestorName = ""
         path = self._path(name)
         if len(path) < 2:
             return name
         for pathPiece in path[:-1]:
-            if not s:
-                s += pathPiece
+            if not ancestorName:
+                ancestorName += pathPiece
             else:
-                s += "::" + pathPiece
+                ancestorName += "::" + pathPiece
             # fetch or create
-            did = self.id(s)
+            did = self.id(ancestorName)
             # get original case
-            s = self.name(did)
-        name = s + "::" + path[-1]
+            ancestorName = self.name(did)
+        name = ancestorName + "::" + path[-1]
         return name
 
     # Deck configurations

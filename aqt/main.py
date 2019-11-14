@@ -1221,15 +1221,15 @@ will be lost. Continue?"""))
         font.setPointSize(frm.text.font().pointSize() + 1)
         frm.text.setFont(font)
         frm.log.setFont(font)
-        s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+return"), self.debugDiag)
-        s.activated.connect(lambda: self.onDebugRet(frm))
-        s = self.debugDiagShort = QShortcut(
+        self.debugDiagShort = QShortcut(QKeySequence("ctrl+return"), self.debugDiag)
+        self.debugDiagShort.activated.connect(lambda: self.onDebugRet(frm))
+        self.debugDiagShort = QShortcut(
             QKeySequence("ctrl+shift+return"), self.debugDiag)
-        s.activated.connect(lambda: self.onDebugPrint(frm))
-        s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+l"), self.debugDiag)
-        s.activated.connect(frm.log.clear)
-        s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+shift+l"), self.debugDiag)
-        s.activated.connect(frm.text.clear)
+        self.debugDiagShort.activated.connect(lambda: self.onDebugPrint(frm))
+        self.debugDiagShort = QShortcut(QKeySequence("ctrl+l"), self.debugDiag)
+        self.debugDiagShort.activated.connect(frm.log.clear)
+        self.debugDiagShort = QShortcut(QKeySequence("ctrl+shift+l"), self.debugDiag)
+        self.debugDiagShort.activated.connect(frm.text.clear)
         self.debugDiag.show()
 
     def _captureOutput(self, on):
@@ -1241,9 +1241,9 @@ will be lost. Continue?"""))
             self._output = ""
             self._oldStderr = sys.stderr
             self._oldStdout = sys.stdout
-            s = Stream()
-            sys.stderr = s
-            sys.stdout = s
+            stream = Stream()
+            sys.stderr = stream
+            sys.stdout = stream
         else:
             sys.stderr = self._oldStderr
             sys.stdout = self._oldStdout

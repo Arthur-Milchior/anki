@@ -220,9 +220,9 @@ def getText(prompt, parent=None, help=None, edit=None, default="",
     return (str(dialog.edit.text()), ret)
 
 def getOnlyText(*args, **kwargs):
-    (s, returnValue) = getText(*args, **kwargs)
+    (text, returnValue) = getText(*args, **kwargs)
     if returnValue:
-        return s
+        return text
     else:
         return ""
 
@@ -332,8 +332,8 @@ def restoreGeom(widget, key, offset=None, adjustSize=False):
         if isMac and offset:
             if qtminor > 6:
                 # bug in osx toolkit
-                s = widget.size()
-                widget.resize(s.width(), s.height()+offset*2)
+                size = widget.size()
+                widget.resize(size.width(), size.height()+offset*2)
         ensureWidgetInScreenBoundaries(widget)
     else:
         if adjustSize:

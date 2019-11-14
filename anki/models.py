@@ -482,12 +482,12 @@ select id from notes where mid = ?)""" % " ".join(map),
 
     def scmhash(self, model):
         "Return a hash of the schema, to see if models are compatible."
-        s = ""
+        scm = ""
         for fieldType in model['flds']:
-            s += fieldType['name']
+            scm += fieldType['name']
         for template in model['tmpls']:
-            s += template['name']
-        return checksum(s)
+            scm += template['name']
+        return checksum(scm)
 
     # Required field/text cache
     ##########################################################################

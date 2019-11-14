@@ -30,7 +30,7 @@ class ModelChooser(QHBoxLayout):
         self.models = QPushButton()
         #self.models.setStyleSheet("* { text-align: left; }")
         self.models.setToolTip(shortcut(_("Change Note Type (Ctrl+N)")))
-        s = QShortcut(QKeySequence(_("Ctrl+N")), self.widget, activated=self.onModelChange)
+        QShortcut(QKeySequence(_("Ctrl+N")), self.widget, activated=self.onModelChange)
         self.models.setAutoDefault(False)
         self.addWidget(self.models)
         self.models.clicked.connect(self.onModelChange)

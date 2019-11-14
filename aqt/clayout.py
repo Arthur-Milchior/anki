@@ -434,10 +434,10 @@ adjust the template manually to switch the question and answer."""))
 
             template = self.card.template()
             if template['did']:
-                s = _(" (on)")
+                toggle = _(" (on)")
             else:
-                s = _(" (off)")
-            a = menu.addAction(_("Deck Override...") + s)
+                toggle = _(" (off)")
+            a = menu.addAction(_("Deck Override...") + toggle)
             a.triggered.connect(self.onTargetDeck)
 
         a = menu.addAction(_("Browser Appearance..."))

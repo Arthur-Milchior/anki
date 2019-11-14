@@ -184,8 +184,8 @@ class AddModel(QDialog):
             self.models.append((False, model))
         self.dialog.models.setCurrentRow(0)
         # the list widget will swallow the enter key
-        s = QShortcut(QKeySequence("Return"), self)
-        s.activated.connect(self.accept)
+        shortcut = QShortcut(QKeySequence("Return"), self)
+        shortcut.activated.connect(self.accept)
         # help
         self.dialog.buttonBox.helpRequested.connect(self.onHelp)
 

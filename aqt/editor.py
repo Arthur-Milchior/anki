@@ -614,12 +614,12 @@ to a cloze type first, via Edit>Change Note Type."""))
         # not a supported type
         return
 
-    def isURL(self, s):
-        s = s.lower()
-        return (s.startswith("http://")
-            or s.startswith("https://")
-            or s.startswith("ftp://")
-            or s.startswith("file://"))
+    def isURL(self, text):
+        text = text.lower()
+        return (text.startswith("http://")
+            or text.startswith("https://")
+            or text.startswith("ftp://")
+            or text.startswith("file://"))
 
     def inlinedImageToFilename(self, txt):
         prefix = "data:image/"

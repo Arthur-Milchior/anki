@@ -287,8 +287,8 @@ create table if not exists graves (
 );
 
 insert or ignore into col
-values(1,0,0,%(s)s,%(v)s,0,0,0,'','{}','','','{}');
-""" % ({'v':SCHEMA_VERSION, 's':intTime(1000)}))
+values(1,0,0,%(second)s,%(v)s,0,0,0,'','{}','','','{}');
+""" % ({'v':SCHEMA_VERSION, 'second':intTime(1000)}))
     if setColConf:
         _addColVars(db, *_getColVars(db))
 

@@ -1208,10 +1208,10 @@ To study outside of the normal schedule, click the Custom Study button below."""
         ivl = self.nextIvl(card, ease)
         if not ivl:
             return _("(end)")
-        s = fmtTimeSpan(ivl, short=short)
+        ivlStr = fmtTimeSpan(ivl, short=short)
         if ivl < self.col.conf['collapseTime']:
-            s = "<"+s
-        return s
+            ivlStr = "<"+ivlStr
+        return ivlStr
 
     def nextIvl(self, card, ease):
         "Return the next interval for CARD, in seconds."

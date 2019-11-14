@@ -190,9 +190,9 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
             card.odid or card.did)['autoplay']
 
     def _replayq(self, card, previewer=None):
-        s = previewer if previewer else self
-        return s.mw.col.decks.confForDid(
-            s.card.odid or s.card.did).get('replayq', True)
+        cardOwner = previewer if previewer else self
+        return cardOwner.mw.col.decks.confForDid(
+            cardOwner.card.odid or cardOwner.card.did).get('replayq', True)
 
     def _drawFlag(self):
         self.web.eval("_drawFlag(%s);" % self.card.userFlag())
@@ -370,14 +370,14 @@ Please run Tools>Empty Cards""")
         def repl(match):
             # can't pass a string in directly, and can't use re.escape as it
             # escapes too much
-            s = """
+            html = """
 <span style="font-family: '%s'; font-size: %spx">%s</span>""" % (
                 self.typeFont, self.typeSize, res)
             if hadHR:
                 # a hack to ensure the q/a separator falls before the answer
                 # comparison when user is using {{FrontSide}}
-                s = "<hr id=answer>" + s
-            return s
+                html = "<hr id=answer>" + html
+            return html
         return re.sub(self.typeAnsPat, repl, buf)
 
     def _contentForCloze(self, txt, idx):
@@ -400,7 +400,7 @@ Please run Tools>Empty Cards""")
         # compare in NFC form so accents appear correct
         given = ucd.normalize("NFC", given)
         correct = ucd.normalize("NFC", correct)
-        s = difflib.SequenceMatcher(None, given, correct, autojunk=False)
+        matcher = difflib.SequenceMatcher(None, given, correct, autojunk=False)
         givenElems = []
         correctElems = []
         givenPoint = 0
@@ -412,7 +412,7 @@ Please run Tools>Empty Cards""")
         def logGood(start, cnt, str, array):
             if cnt:
                 array.append((True, str[start:start+cnt]))
-        for x, y, cnt in s.get_matching_blocks():
+        for x, y, cnt in matcher.get_matching_blocks():
             # if anything was missed in correct, pad given
             if cnt and y-offby > x:
                 givenElems.append((False, "-"*(y-x-offby)))
@@ -430,12 +430,12 @@ Please run Tools>Empty Cards""")
     def correct(self, given, correct, showBad=True):
         "Diff-corrects the typed-in answer."
         givenElems, correctElems = self.tokenizeComparison(given, correct)
-        def good(s):
-            return "<span class=typeGood>"+html.escape(s)+"</span>"
-        def bad(s):
-            return "<span class=typeBad>"+html.escape(s)+"</span>"
-        def missed(s):
-            return "<span class=typeMissed>"+html.escape(s)+"</span>"
+        def good(html):
+            return "<span class=typeGood>"+html.escape(html)+"</span>"
+        def bad(html):
+            return "<span class=typeBad>"+html.escape(html)+"</span>"
+        def missed(html):
+            return "<span class=typeMissed>"+html.escape(html)+"</span>"
         if given == correct:
             res = good(given)
         else:
@@ -574,10 +574,10 @@ time = %(time)d;
 
     def onLeech(self, card):
         # for now
-        s = _("Card was a leech.")
+        text = _("Card was a leech.")
         if card.queue < 0:
-            s += " " + _("It has been suspended.")
-        tooltip(s)
+            text += " " + _("It has been suspended.")
+        tooltip(text)
 
     # Context menu
     ##########################################################################

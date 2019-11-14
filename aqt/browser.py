@@ -875,7 +875,7 @@ by clicking on one on the left."""))
     def _favTree(self, root):
         saved = self.col.conf.get('savedFilters', {})
         for name, filt in sorted(saved.items()):
-            item = self.CallbackItem(root, name, lambda s=filt: self.setFilter(s))
+            item = self.CallbackItem(root, name, lambda filt=filt: self.setFilter(filt))
             item.setIcon(0, QIcon(":/icons/heart.svg"))
 
     def _userTagTree(self, root):
@@ -1011,7 +1011,7 @@ by clicking on one on the left."""))
         menu.addSeparator()
 
         tagList = MenuList()
-        for tag in sorted(self.col.tags.all(), key=lambda s: s.lower()):
+        for tag in sorted(self.col.tags.all(), key=lambda tag: tag.lower()):
             tagList.addItem(tag, self._filterFunc("tag", tag))
 
         menu.addChild(tagList.chunked())
@@ -1164,13 +1164,13 @@ border: 1px solid #000; padding: 3px; '>%s</div>""" % rep
             "from revlog where cid = ?", self.card.id)
         if not entries:
             return ""
-        s = "<table width=100%%><tr><th align=left>%s</th>" % _("Date")
-        s += ("<th align=right>%s</th>" * 5) % (
+        html = "<table width=100%%><tr><th align=left>%s</th>" % _("Date")
+        html += ("<th align=right>%s</th>" * 5) % (
             _("Type"), _("Rating"), _("Interval"), _("Ease"), _("Time"))
         cnt = 0
         for (date, ease, ivl, factor, taken, type) in reversed(entries):
             cnt += 1
-            s += "<tr><td>%s</td>" % time.strftime(_("<b>%Y-%m-%d</b> @ %H:%M"),
+            html += "<tr><td>%s</td>" % time.strftime(_("<b>%Y-%m-%d</b> @ %H:%M"),
                                                    time.localtime(date))
             tstr = [_("Learn"), _("Review"), _("Relearn"), _("Filtered"),
                     _("Resched")][type]
@@ -1194,17 +1194,17 @@ border: 1px solid #000; padding: 3px; '>%s</div>""" % rep
                 ivl = fmtTimeSpan(ivl*86400, short=True)
             else:
                 ivl = cs.time(-ivl)
-            s += ("<td align=right>%s</td>" * 5) % (
+            html += ("<td align=right>%s</td>" * 5) % (
                 tstr,
                 ease, ivl,
                 "%d%%" % (factor/10) if factor else "",
                 cs.time(taken)) + "</tr>"
-        s += "</table>"
+        html += "</table>"
         if cnt < self.card.reps:
-            s += _("""\
+            html += _("""\
 Note: Some of the history is missing. For more information, \
 please see the browser documentation.""")
-        return s
+        return html
 
     # Menu helpers
     ######################################################################
@@ -1223,7 +1223,7 @@ where id in %s""" % ids2str(
     def selectedNotesAsCards(self):
         return self.col.db.list(
             "select id from cards where nid in (%s)" %
-            ",".join([str(s) for s in self.selectedNotes()]))
+            ",".join([str(nid) for nid in self.selectedNotes()]))
 
     def oneModelNotes(self):
         sf = self.selectedNotes()
