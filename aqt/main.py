@@ -90,12 +90,12 @@ class AnkiQt(QMainWindow):
         self.setupReviewer()
 
     def setupProfileAfterWebviewsLoaded(self):
-        for w in (self.web, self.bottomWeb):
-            if not w._domDone:
+        for webWidget in (self.web, self.bottomWeb):
+            if not webWidget._domDone:
                 self.progress.timer(10, self.setupProfileAfterWebviewsLoaded, False, requiresCollection=False)
                 return
             else:
-                w.requiresCol = True
+                webWidget.requiresCol = True
 
         self.setupProfile()
 
@@ -300,13 +300,13 @@ close the profile or restart Anki."""))
         self.maybeAutoSync()
 
     def _checkForUnclosedWidgets(self):
-        for w in self.app.topLevelWidgets():
-            if w.isVisible():
+        for topLevelWidget in self.app.topLevelWidgets():
+            if topLevelWidget.isVisible():
                 # windows with this property are safe to close immediately
-                if getattr(w, "silentlyClose", None):
-                    w.close()
+                if getattr(topLevelWidget, "silentlyClose", None):
+                    topLevelWidget.close()
                 else:
-                    print("Window should have been closed: {}".format(w))
+                    print("Window should have been closed: {}".format(topLevelWidget))
 
     def unloadProfileAndExit(self):
         self.unloadProfile(self.cleanupAndExit)
@@ -1038,10 +1038,9 @@ and if the problem comes up again, please ask on the support site."""))
         self._activeWindowOnPlay = self.app.activeWindow() or self._activeWindowOnPlay
 
     def onMpvIdle(self):
-        w = self._activeWindowOnPlay
-        if not self.app.activeWindow() and w and not sip.isdeleted(w) and w.isVisible():
-            w.activateWindow()
-            w.raise_()
+        if not self.app.activeWindow() and self._activeWindowOnPlay and not sip.isdeleted(self._activeWindowOnPlay) and self._activeWindowOnPlay.isVisible():
+            self._activeWindowOnPlay.activateWindow()
+            self._activeWindowOnPlay.raise_()
         self._activeWindowOnPlay = None
 
     # Log note deletion

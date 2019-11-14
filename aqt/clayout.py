@@ -142,7 +142,7 @@ class CardLayout(QDialog):
         return self.model['type'] == MODEL_CLOZE
 
     def setupMainArea(self):
-        w = self.mainArea = QWidget()
+        self.mainArea = QWidget()
         layout = QHBoxLayout()
         layout.setContentsMargins(0,0,0,0)
         layout.setSpacing(3)
@@ -177,7 +177,7 @@ class CardLayout(QDialog):
         self.setupWebviews()
 
         layout.addWidget(right, 5)
-        w.setLayout(layout)
+        self.mainArea.setLayout(layout)
 
     def setupWebviews(self):
         pform = self.pform

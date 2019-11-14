@@ -225,8 +225,8 @@ class DeckConf(QDialog):
     # Saving
     ##################################################
 
-    def updateList(self, conf, key, w, minSize=1):
-        items = str(w.text()).split(" ")
+    def updateList(self, conf, key, steps, minSize=1):
+        items = str(steps.text()).split(" ")
         ret = []
         for item in items:
             if not item:

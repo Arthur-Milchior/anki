@@ -134,18 +134,18 @@ class AnkiWebView(QWebEngineView):
         return False
 
     def onEsc(self):
-        w = self.parent()
-        while w:
-            if isinstance(w, QDialog) or isinstance(w, QMainWindow):
+        parent = self.parent()
+        while parent:
+            if isinstance(parent, QDialog) or isinstance(parent, QMainWindow):
                 from aqt import mw
                 # esc in a child window closes the window
-                if w != mw:
-                    w.close()
+                if parent != mw:
+                    parent.close()
                 else:
                     # in the main window, removes focus from type in area
                     self.parent().setFocus()
                 break
-            w = w.parent()
+            parent = parent.parent()
 
     def onCopy(self):
         self.triggerPageAction(QWebEnginePage.Copy)

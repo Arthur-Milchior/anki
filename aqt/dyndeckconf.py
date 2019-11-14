@@ -133,8 +133,8 @@ it?""")):
     def listToUser(self, delays):
         return " ".join([str(x) for x in delays])
 
-    def userToList(self, w, minSize=1):
-        items = str(w.text()).split(" ")
+    def userToList(self, steps, minSize=1):
+        items = str(steps.text()).split(" ")
         ret = []
         for item in items:
             if not item:

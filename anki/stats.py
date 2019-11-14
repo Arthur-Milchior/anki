@@ -807,10 +807,10 @@ from cards where did in %s""" % self._limit())
             #T: abbreviation of day
             day = _("d")
             #T: abbreviation of week
-            w = _("w")
+            week = _("w")
             #T: abbreviation of month
             mo = _("mo")
-            conf['timeTicks'] = {1: day, 7: w, 31: mo}[xunit]
+            conf['timeTicks'] = {1: day, 7: week, 31: mo}[xunit]
         # types
         width = self.width
         height = self.height
@@ -851,7 +851,7 @@ font-weight: bold;
 
 <td>
 <center><div id=%(id)sLegend></div></center>
-<div id="%(id)s" style="width:%(w)spx; height:%(height)spx;"></div>
+<div id="%(id)s" style="width:%(width)spx; height:%(height)spx;"></div>
 </td>
 
 <td><div style="width: 150px; text-align: center; position:absolute;
@@ -884,7 +884,7 @@ $(function () {
     $.plot($("#%(id)s"), %(data)s, conf);
 });
 </script>""" % dict(
-    id=id, w=width, height=height,
+    id=id, width=width, height=height,
     ylab=ylabel, ylab2=ylabel2,
     data=json.dumps(data), conf=json.dumps(conf)))
 
