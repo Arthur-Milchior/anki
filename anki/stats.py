@@ -22,7 +22,7 @@ class CardStats:
     def report(self):
         card = self.card
         # pylint: disable=unnecessary-lambda
-        fmt = lambda x, **kwargs: fmtTimeSpan(x, short=True, **kwargs)
+        fmt = lambda time, **kwargs: fmtTimeSpan(time, short=True, **kwargs)
         self.txt = "<table width=100%>"
         self.addLine(_("Added"), self.date(card.id/1000))
         first = self.col.db.scalar(
@@ -360,8 +360,8 @@ group by day order by day""" % (self._limit(), lim),
             period = self._deckAge('review')
         tableLines = []
         self._line(tableLines, _("Days studied"),
-                   _("<b>%(pct)d%%</b> (%(x)s of %(y)s)") % dict(
-                       x=studied, y=period, pct=studied/float(period)*100),
+                   _("<b>%(pct)d%%</b> (%(studied)s of %(y)s)") % dict(
+                       studied=studied, y=period, pct=studied/float(period)*100),
                    bold=False)
         if convHours:
             tunit = _("hours")

@@ -77,7 +77,7 @@ class DB:
         return res
 
     def list(self, *a, **kw):
-        return [x[0] for x in self.execute(*a, **kw)]
+        return [returnedVector[0] for returnedVector in self.execute(*a, **kw)]
 
     def close(self):
         self._db.text_factory = None

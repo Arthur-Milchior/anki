@@ -131,7 +131,7 @@ it?""")):
     ########################################################
 
     def listToUser(self, delays):
-        return " ".join([str(x) for x in delays])
+        return " ".join([str(delay) for delay in delays])
 
     def userToList(self, steps, minSize=1):
         items = str(steps.text()).split(" ")

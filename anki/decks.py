@@ -210,9 +210,9 @@ class DeckManager:
     def allNames(self, dyn=True):
         "An unsorted list of all deck names."
         if dyn:
-            return [x['name'] for x in list(self.decks.values())]
+            return [deck['name'] for deck in list(self.decks.values())]
         else:
-            return [x['name'] for x in list(self.decks.values()) if not x['dyn']]
+            return [deck['name'] for deck in list(self.decks.values()) if not deck['dyn']]
 
     def all(self):
         "A list of all decks."

@@ -243,17 +243,16 @@ class Syncer:
 
     def cursorForTable(self, table):
         lim = self.usnLim()
-        x = self.col.db.execute
         if table == "revlog":
-            return x("""
+            return self.col.db.execute("""
 select id, cid, %d, ease, ivl, lastIvl, factor, time, type
 from revlog where %s""" % (self.maxUsn, lim))
         elif table == "cards":
-            return x("""
+            return self.col.db.execute("""
 select id, nid, did, ord, mod, %d, type, queue, due, ivl, factor, reps,
 lapses, left, odue, odid, flags, data from cards where %s""" % (self.maxUsn, lim))
         else:
-            return x("""
+            return self.col.db.execute("""
 select id, guid, mid, mod, %d, tags, flds, '', '', flags, data
 from notes where %s""" % (self.maxUsn, lim))
 

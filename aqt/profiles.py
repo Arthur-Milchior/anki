@@ -389,7 +389,7 @@ please see:
         if idx is None:
             idx = en
         # update list
-        self.langForm.lang.addItems([x[0] for x in anki.lang.langs])
+        self.langForm.lang.addItems([lang for (lang, lang_shorcut) in anki.lang.langs])
         self.langForm.lang.setCurrentRow(idx)
         self.langDiag.exec_()
 

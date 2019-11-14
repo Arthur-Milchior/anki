@@ -1691,7 +1691,7 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
     def _selectNotes(self):
         nids = self.selectedNotes()
         # bypass search history
-        self._lastSearchTxt = "nid:"+",".join([str(x) for x in nids])
+        self._lastSearchTxt = "nid:"+",".join([str(nid) for nid in nids])
         self.form.searchEdit.lineEdit().setText(self._lastSearchTxt)
         # clear the selection so we don't waste energy preserving it
         tv = self.form.tableView
@@ -1800,7 +1800,7 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         frm.setupUi(dialog)
         restoreGeom(dialog, "findDupes")
         fields = sorted(anki.find.fieldNames(self.col, downcase=False),
-                        key=lambda x: x.lower())
+                        key=lambda fieldName: fieldName.lower())
         frm.fields.addItems(fields)
         self._dupesButton = None
         # links
@@ -1999,10 +1999,10 @@ class ChangeModel(QDialog):
         map = QWidget()
         layout = QGridLayout()
         combos = []
-        targets = [x['name'] for x in dst] + [_("Nothing")]
+        targets = [entry['name'] for entry in dst] + [_("Nothing")]
         indices = {}
-        for i, x in enumerate(src):
-            layout.addWidget(QLabel(_("Change %s to:") % x['name']), i, 0)
+        for i, entry in enumerate(src):
+            layout.addWidget(QLabel(_("Change %s to:") % entry['name']), i, 0)
             cb = QComboBox()
             cb.addItems(targets)
             idx = min(i, len(targets)-1)

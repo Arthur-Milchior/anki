@@ -138,7 +138,7 @@ order by due""" % (self._deckLimit()),
             if day not in daysd:
                 daysd[day] = 0
         # return in sorted order
-        ret = [x[1] for x in sorted(daysd.items())]
+        ret = [count for (due, count) in sorted(daysd.items())]
         return ret
 
     def countIdx(self, card):

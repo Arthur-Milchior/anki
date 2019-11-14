@@ -206,7 +206,7 @@ class AnkiExporter(Exporter):
             dids = []
         else:
             dids = [self.did] + [
-                x[1] for x in self.src.decks.children(self.did)]
+                descendant[1] for descendant in self.src.decks.children(self.did)]
         dconfs = {}
         for deck in self.src.decks.all():
             if str(deck['id']) == "1":

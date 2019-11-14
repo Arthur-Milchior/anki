@@ -325,7 +325,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         # to make sure the renamed files are not marked as unused
         if renamedFiles:
             return self.check(local=local)
-        nohave = [x for x in allRefs if not x.startswith("_")]
+        nohave = [ref for ref in allRefs if not ref.startswith("_")]
         # make sure the media DB is valid
         try:
             self.findChanges()

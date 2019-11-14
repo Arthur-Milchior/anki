@@ -526,7 +526,7 @@ class AddonsDialog(QDialog):
                                          self.mgr.configAction(addon)))
 
     def selectedAddons(self):
-        idxs = [x.row() for x in self.form.addonList.selectedIndexes()]
+        idxs = [selectedIndex.row() for selectedIndex in self.form.addonList.selectedIndexes()]
         return [self.addons[idx][1] for idx in idxs]
 
     def onlyOneSelected(self):

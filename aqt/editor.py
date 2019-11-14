@@ -501,9 +501,9 @@ to a cloze type first, via Edit>Change Note Type."""))
         # find the highest existing cloze
         highest = 0
         for name, val in list(self.note.items()):
-            match = re.findall(r"\{\{c(\d+)::", val)
-            if match:
-                highest = max(highest, sorted([int(x) for x in match])[-1])
+            matches = re.findall(r"\{\{c(\d+)::", val)
+            if matches:
+                highest = max(highest, sorted([int(match) for match in matches])[-1])
         # reuse last?
         if not self.mw.app.keyboardModifiers() & Qt.AltModifier:
             highest += 1

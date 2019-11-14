@@ -268,7 +268,7 @@ def showUnicodeWarning():
 
 
 def onImport(mw):
-    filt = ";;".join([x[0] for x in importing.Importers])
+    filt = ";;".join([importerName for (importerName, importer) in importing.Importers])
     file = getFile(mw, _("Import"), None, key="import",
                    filter=filt)
     if not file:
