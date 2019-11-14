@@ -106,8 +106,8 @@ class TagManager:
         res = self.col.db.all(
             "select id, tags from notes where id in %s and (%s)" % (
                 ids2str(ids), lim),
-            **dict([("_%d" % tagIndex, '%% %s %%' % y.replace('*', '%'))
-                    for tagIndex, y in enumerate(newTags)]))
+            **dict([("_%d" % tagIndex, '%% %s %%' % tag.replace('*', '%'))
+                    for tagIndex, tag in enumerate(newTags)]))
         # update tags
         nids = []
         def fix(row):

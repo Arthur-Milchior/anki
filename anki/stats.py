@@ -360,8 +360,8 @@ group by day order by day""" % (self._limit(), lim),
             period = self._deckAge('review')
         tableLines = []
         self._line(tableLines, _("Days studied"),
-                   _("<b>%(pct)d%%</b> (%(studied)s of %(y)s)") % dict(
-                       studied=studied, y=period, pct=studied/float(period)*100),
+                   _("<b>%(pct)d%%</b> (%(studied)s of %(period)s)") % dict(
+                       studied=studied, period=period, pct=studied/float(period)*100),
                    bold=False)
         if convHours:
             tunit = _("hours")
