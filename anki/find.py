@@ -39,6 +39,21 @@ class Finder:
         self.search['is'] = self._findCardState
         runHook("search", self.search)
 
+    def _find(self, query, select, order, ifInvalid):
+        tokens = self._tokenize(query)
+        preds, args = self._where(tokens)
+        if preds is None:
+            return ifInvalid()
+        order = self._order(order)
+        _from = self._from([select, preds, order])
+        sql = select + _from + preds + order
+        try:
+            return self.col.db.list(sql, *args)
+        except Exception as e:
+            # invalid grouping
+            print(f"On query «{query}», sql «{sql}» return empty because of {e}")
+            return []
+
     def findCards(self, query, order=False):
         """Return a list of card ids for QUERY.
 
@@ -48,37 +63,16 @@ class Finder:
         * one of the order key means to use this key
         * otherwise, order is already the sql value
         """
-        tokens = self._tokenize(query)
-        preds, args = self._where(tokens)
-        if preds is None:
+        def ifInvalid():
             raise Exception("invalidSearch")
-        order = self._order(order)
         select = "select card.id "
-        _from = Finder._from([select, preds, order])
-        sql = select + _from + preds + order
-        try:
-            res = self.col.db.list(sql, *args)
-        except Exception as e:
-            # invalid grouping
-            print(f"On query «{query}», sql «{sql}» return empty because of {e}")
-            return []
-        return res
+        return self._find(query, select, order, ifInvalid)
 
     def findNotes(self, query):
-        tokens = self._tokenize(query)
-        preds, args = self._where(tokens)
-        if preds is None:
+        def ifInvalid():
             return []
         select = "select distinct(note.id) "
-        _from = self._from([select, preds])
-        sql = select + _from + preds
-        try:
-            res = self.col.db.list(sql, *args)
-        except Exception as e:
-            # invalid grouping
-            print(f"On query «{query}», sql «{sql}» return empty because of {e}")
-            return []
-        return res
+        return self._find(query, select, False, ifInvalid)
 
     # Tokenizing
     ######################################################################
