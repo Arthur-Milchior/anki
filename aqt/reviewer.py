@@ -634,13 +634,13 @@ time = %(time)d;
             else:
                 label, scut, func = row
                 opts = {}
-            a = menu.addAction(label)
+            action = menu.addAction(label)
             if scut:
-                a.setShortcut(QKeySequence(scut))
+                action.setShortcut(QKeySequence(scut))
             if opts.get("checked"):
-                a.setCheckable(True)
-                a.setChecked(True)
-            a.triggered.connect(func)
+                action.setCheckable(True)
+                action.setChecked(True)
+            action.triggered.connect(func)
 
     def onOptions(self):
         self.mw.onDeckConf(self.mw.col.decks.get(

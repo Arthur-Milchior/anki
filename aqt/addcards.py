@@ -145,11 +145,11 @@ class AddCards(QDialog):
                 txt = htmlToTextLine(", ".join(fields))
                 if len(txt) > 30:
                     txt = txt[:30] + "..."
-                a = menu.addAction(_("Edit \"%s\"") % txt)
-                a.triggered.connect(lambda button, nid=nid: self.editHistory(nid))
+                action = menu.addAction(_("Edit \"%s\"") % txt)
+                action.triggered.connect(lambda button, nid=nid: self.editHistory(nid))
             else:
-                a = menu.addAction(_("(Note deleted)"))
-                a.setEnabled(False)
+                action = menu.addAction(_("(Note deleted)"))
+                action.setEnabled(False)
         runHook("AddCards.onHistory", self, menu)
         menu.exec_(self.historyButton.mapToGlobal(QPoint(0,0)))
 

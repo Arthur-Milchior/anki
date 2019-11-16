@@ -114,7 +114,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         cards = cards or 0
         thetime = thetime or 0
         msgp1 = ngettext("<!--studied-->%d card", "<!--studied-->%d cards", cards) % cards
-        buf = _("Studied %(a)s %(theTime)s today.") % dict(a=msgp1,
+        buf = _("Studied %(mspg1)s %(theTime)s today.") % dict(mspg1=msgp1,
                                                      theTime=fmtTimeSpan(thetime, unit=1, inTime=True))
         return buf
 
@@ -123,8 +123,8 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
                 self.mw.pm.profile.get("hideDeckLotsMsg")):
             return ""
         return "<br><div style='width:50%;border: 1px solid #000;padding:5px;'>"+(
-            _("You have a lot of decks. Please see %(a)s. %(hide)s") % dict(
-                a=("<a href=# onclick=\"return pycmd('lots')\">%s</a>" % _(
+            _("You have aButton lot of decks. Please see %(aButton)s. %(hide)s") % dict(
+                aButton=("<a href=# onclick=\"return pycmd('lots')\">%s</a>" % _(
                     "this page")),
                 hide=("<br><small><a href=# onclick='return pycmd(\"hidelots\")'>("
                    "%s)</a></small>" % (_("hide"))+
@@ -210,14 +210,14 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
 
     def _showOptions(self, did):
         menu = QMenu(self.mw)
-        a = menu.addAction(_("Rename"))
-        a.triggered.connect(lambda button, did=did: self._rename(did))
-        a = menu.addAction(_("Options"))
-        a.triggered.connect(lambda button, did=did: self._options(did))
-        a = menu.addAction(_("Export"))
-        a.triggered.connect(lambda button, did=did: self._export(did))
-        a = menu.addAction(_("Delete"))
-        a.triggered.connect(lambda button, did=did: self._delete(did))
+        action = menu.addAction(_("Rename"))
+        action.triggered.connect(lambda button, did=did: self._rename(did))
+        action = menu.addAction(_("Options"))
+        action.triggered.connect(lambda button, did=did: self._options(did))
+        action = menu.addAction(_("Export"))
+        action.triggered.connect(lambda button, did=did: self._export(did))
+        action = menu.addAction(_("Delete"))
+        action.triggered.connect(lambda button, did=did: self._delete(did))
         runHook("showDeckOptions", menu, did)
         menu.exec_(QCursor.pos())
 

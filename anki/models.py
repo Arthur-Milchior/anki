@@ -504,9 +504,9 @@ select id from notes where mid = ?)""" % " ".join(map),
         model['req'] = req
 
     def _reqForTemplate(self, model, flds, template):
-        a = ["ankiflag"] * len(flds)
+        ankiflagFlds = ["ankiflag"] * len(flds)
         emptyFlds = [""] * len(flds)
-        data = [1, 1, model['id'], 1, template['ord'], "", joinFields(a), 0]
+        data = [1, 1, model['id'], 1, template['ord'], "", joinFields(ankiflagFlds), 0]
         full = self.col._renderQA(data)['q']
         data = [1, 1, model['id'], 1, template['ord'], "", joinFields(emptyFlds), 0]
         empty = self.col._renderQA(data)['q']
@@ -517,7 +517,7 @@ select id from notes where mid = ?)""" % " ".join(map),
         type = 'all'
         req = []
         for i in range(len(flds)):
-            tmp = a[:]
+            tmp = ankiflagFlds[:]
             tmp[i] = ""
             data[6] = joinFields(tmp)
             # if no field content appeared, field is required

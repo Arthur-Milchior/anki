@@ -208,8 +208,8 @@ class CardLayout(QDialog):
         idx = self.ord
         cards = self.mm.tmplUseCount(self.model, idx)
         cards = ngettext("%d card", "%d cards", cards) % cards
-        msg = (_("Delete the '%(a)s' card type, and its %(cards)s?") %
-            dict(a=self.model['tmpls'][idx]['name'], cards=cards))
+        msg = (_("Delete the '%(modelName)s' card type, and its %(cards)s?") %
+            dict(modelName=self.model['tmpls'][idx]['name'], cards=cards))
         if not askUser(msg):
             return
         if not self.mm.remTemplate(self.model, self.cards[idx].template()):
@@ -418,17 +418,17 @@ adjust the template manually to switch the question and answer."""))
         menu = QMenu(self)
 
         if not self._isCloze():
-            a = menu.addAction(_("Add Card Type..."))
-            a.triggered.connect(self.onAddCard)
+            action = menu.addAction(_("Add Card Type..."))
+            action.triggered.connect(self.onAddCard)
 
-            a = menu.addAction(_("Remove Card Type..."))
-            a.triggered.connect(self.onRemove)
+            action = menu.addAction(_("Remove Card Type..."))
+            action.triggered.connect(self.onRemove)
 
-            a = menu.addAction(_("Rename Card Type..."))
-            a.triggered.connect(self.onRename)
+            action = menu.addAction(_("Rename Card Type..."))
+            action.triggered.connect(self.onRename)
 
-            a = menu.addAction(_("Reposition Card Type..."))
-            a.triggered.connect(self.onReorder)
+            action = menu.addAction(_("Reposition Card Type..."))
+            action.triggered.connect(self.onReorder)
 
             menu.addSeparator()
 
@@ -437,11 +437,11 @@ adjust the template manually to switch the question and answer."""))
                 toggle = _(" (on)")
             else:
                 toggle = _(" (off)")
-            a = menu.addAction(_("Deck Override...") + toggle)
-            a.triggered.connect(self.onTargetDeck)
+            action = menu.addAction(_("Deck Override...") + toggle)
+            action.triggered.connect(self.onTargetDeck)
 
-        a = menu.addAction(_("Browser Appearance..."))
-        a.triggered.connect(self.onBrowserDisplay)
+        action = menu.addAction(_("Browser Appearance..."))
+        action.triggered.connect(self.onBrowserDisplay)
 
         menu.exec_(self.topAreaForm.templateOptions.mapToGlobal(QPoint(0,0)))
 

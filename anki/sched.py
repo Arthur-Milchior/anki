@@ -1041,8 +1041,8 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?""" % queue, data)
             note.addTag("leech")
             note.flush()
             # handle
-            a = conf['leechAction']
-            if a == LEECH_SUSPEND:
+            leechAction = conf['leechAction']
+            if leechAction == LEECH_SUSPEND:
                 # if it has an old due, remove it from cram/relearning
                 if card.odue:
                     card.due = card.odue

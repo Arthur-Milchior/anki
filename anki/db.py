@@ -17,7 +17,7 @@ class DB:
         self.echo = os.environ.get("DBECHO")
         self.mod = False
 
-    def execute(self, sql, *a, **ka):
+    def execute(self, sql, *args, **ka):
         normalizedSql = sql.strip().lower()
         # mark modified?
         for stmt in "insert", "update", "delete":
@@ -29,12 +29,12 @@ class DB:
             res = self._db.execute(sql, ka)
         else:
             # execute("...where id = ?", 5)
-            res = self._db.execute(sql, a)
+            res = self._db.execute(sql, args)
         if self.echo:
-            #print a, ka
+            #print args, ka
             print(sql, "%0.3fms" % ((time.time() - startTime)*1000))
             if self.echo == "2":
-                print(a, ka)
+                print(args, ka)
         return res
 
     def executemany(self, sql, queryParams):
@@ -61,23 +61,23 @@ class DB:
     def rollback(self):
         self._db.rollback()
 
-    def scalar(self, *a, **kw):
-        res = self.execute(*a, **kw).fetchone()
+    def scalar(self, *args, **kw):
+        res = self.execute(*args, **kw).fetchone()
         if res:
             return res[0]
         return None
 
-    def all(self, *a, **kw):
-        return self.execute(*a, **kw).fetchall()
+    def all(self, *args, **kw):
+        return self.execute(*args, **kw).fetchall()
 
-    def first(self, *a, **kw):
-        cursor = self.execute(*a, **kw)
+    def first(self, *args, **kw):
+        cursor = self.execute(*args, **kw)
         res = cursor.fetchone()
         cursor.close()
         return res
 
-    def list(self, *a, **kw):
-        return [returnedVector[0] for returnedVector in self.execute(*a, **kw)]
+    def list(self, *args, **kw):
+        return [returnedVector[0] for returnedVector in self.execute(*args, **kw)]
 
     def close(self):
         self._db.text_factory = None

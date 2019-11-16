@@ -25,14 +25,14 @@ class SmartDict(dict):
     x.get('first_name').
     """
 
-    def __init__(self, *a, **kw):
-        if a:
-            if isinstance(type(a[0]), dict):
-                kw.update(a[0])
-            elif isinstance(type(a[0]), object):
-                kw.update(a[0].__dict__)
-            elif hasattr(a[0], '__class__') and a[0].__class__.__name__=='SmartDict':
-                kw.update(a[0].__dict__)
+    def __init__(self, *args, **kw):
+        if args:
+            if isinstance(type(args[0]), dict):
+                kw.update(args[0])
+            elif isinstance(type(args[0]), object):
+                kw.update(args[0].__dict__)
+            elif hasattr(args[0], '__class__') and args[0].__class__.__name__=='SmartDict':
+                kw.update(args[0].__dict__)
 
         dict.__init__(self, **kw)
         self.__dict__ = self
@@ -40,8 +40,8 @@ class SmartDict(dict):
 class SuperMemoElement(SmartDict):
     "SmartDict wrapper to store SM Element data"
 
-    def __init__(self, *a, **kw):
-        SmartDict.__init__(self, *a, **kw)
+    def __init__(self, *args, **kw):
+        SmartDict.__init__(self, *args, **kw)
         #default content
         self.__dict__['lTitle'] = None
         self.__dict__['Title'] = None

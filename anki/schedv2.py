@@ -1124,8 +1124,8 @@ where id = ?
             note.addTag("leech")
             note.flush()
             # handle
-            a = conf['leechAction']
-            if a == LEECH_SUSPEND:
+            leechAction = conf['leechAction']
+            if leechAction == LEECH_SUSPEND:
                 card.queue = QUEUE_SUSPENDED
             # notify UI
             runHook("leech", card)

@@ -295,10 +295,10 @@ class DataModel(QAbstractTableModel):
             return htmlToTextLine(card.a())
         # need to strip question from answer
         questionHtml = self.question(card)
-        a = htmlToTextLine(card.a())
-        if a.startswith(questionHtml):
-            return a[len(questionHtml):].strip()
-        return a
+        answerLine = htmlToTextLine(card.a())
+        if answerLine.startswith(questionHtml):
+            return answerLine[len(questionHtml):].strip()
+        return answerLine
 
     def nextDue(self, card, index):
         if card.odid:
@@ -751,10 +751,10 @@ by clicking on one on the left."""))
         gpos = self.form.tableView.mapToGlobal(pos)
         menu = QMenu()
         for type, name in self.columns:
-            a = menu.addAction(name)
-            a.setCheckable(True)
-            a.setChecked(type in self.model.activeCols)
-            a.toggled.connect(lambda button, type=type: self.toggleField(type))
+            action = menu.addAction(name)
+            action.setCheckable(True)
+            action.setChecked(type in self.model.activeCols)
+            action.toggled.connect(lambda button, type=type: self.toggleField(type))
         menu.exec_(gpos)
 
     def toggleField(self, type):
@@ -933,11 +933,11 @@ by clicking on one on the left."""))
         else:
             txt = ""
             items = []
-            for index, a in enumerate(args):
+            for index, arg in enumerate(args):
                 if index % 2 == 0:
-                    txt += a + ":"
+                    txt += arg + ":"
                 else:
-                    txt += a
+                    txt += arg
                     for chr in " 　()":
                         if chr in txt:
                             txt = '"%s"' % txt
@@ -1778,9 +1778,9 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
             self.model.endReset()
             self.mw.progress.finish()
         showInfo(ngettext(
-            "%(a)d of %(lenSf)d note updated",
-            "%(a)d of %(lenSf)d notes updated", len(sf)) % {
-                'a': changed,
+            "%(changed)d of %(lenSf)d note updated",
+            "%(changed)d of %(lenSf)d notes updated", len(sf)) % {
+                'changed': changed,
                 'lenSf': len(sf),
             }, parent=self)
 
@@ -1828,7 +1828,7 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         notes = sum(len(r[1]) for r in res)
         part1 = ngettext("%d group", "%d groups", groups) % groups
         part2 = ngettext("%d note", "%d notes", notes) % notes
-        html += _("Found %(a)s across %(part2)s.") % dict(a=part1, part2=part2)
+        html += _("Found %(part1)s across %(part2)s.") % dict(part1=part1, part2=part2)
         html += "<p><ol>"
         for val, nids in res:
             html += '''<li><a href=# onclick="pycmd('%s');return false;">%s</a>: %s</a>''' % (

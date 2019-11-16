@@ -156,8 +156,8 @@ from revlog where id > ? """+lim, (self.col.sched.dayCutoff-86400)*1000)
             return "<b>"+str(text)+"</b>"
         msgp1 = ngettext("<!--studied-->%d card", "<!--studied-->%d cards", cards) % cards
         if cards:
-            html += _("Studied %(a)s %(howManyTime)s today (%(secs).1fs/card)") % dict(
-                a=bold(msgp1), howManyTime=bold(fmtTimeSpan(thetime, unit=1, inTime=True)),
+            html += _("Studied %(msgp1)s %(howManyTime)s today (%(secs).1fs/card)") % dict(
+                msgp1=bold(msgp1), howManyTime=bold(fmtTimeSpan(thetime, unit=1, inTime=True)),
                 secs=thetime/cards
             )
             # again/pass count
@@ -167,16 +167,16 @@ from revlog where id > ? """+lim, (self.col.sched.dayCutoff-86400)*1000)
                     "%0.1f%%" %((1-failed/float(cards))*100))
             # type breakdown
             html += "<br>"
-            html += (_("Learn: %(a)s, Review: %(nbRev)s, Relearn: %(relrn)s, Filtered: %(filt)s")
-                  % dict(a=bold(lrn), nbRev=bold(rev), relrn=bold(relrn), filt=bold(filt)))
+            html += (_("Learn: %(lrn)s, Review: %(nbRev)s, Relearn: %(relrn)s, Filtered: %(filt)s")
+                  % dict(lrn=bold(lrn), nbRev=bold(rev), relrn=bold(relrn), filt=bold(filt)))
             # mature today
             mcnt, msum = self.col.db.first("""
     select count(), sum(case when ease = 1 then 0 else 1 end) from revlog
     where lastIvl >= 21 and id > ?"""+lim, (self.col.sched.dayCutoff-86400)*1000)
             html += "<br>"
             if mcnt:
-                html += _("Correct answers on mature cards: %(a)d/%(mcnt)d (%(percent).1f%%)") % dict(
-                    a=msum, mcnt=mcnt, percent=(msum / float(mcnt) * 100))
+                html += _("Correct answers on mature cards: %(msum)d/%(mcnt)d (%(percent).1f%%)") % dict(
+                    msum=msum, mcnt=mcnt, percent=(msum / float(mcnt) * 100))
             else:
                 html += _("No mature cards were studied today.")
         else:
@@ -389,7 +389,7 @@ group by day order by day""" % (self._limit(), lim),
                 text = _("%.01f cards/minute") % perMin
             self._line(
                 tableLines, _("Average answer time"),
-                _("%(a)0.1fs (%(text)s)") % dict(a=(tot*60)/total, text=text))
+                _("%(tot)0.1fs (%(text)s)") % dict(tot=(tot*60)/total, text=text))
         return self._lineTbl(tableLines), int(tot)
 
     def _splitRepData(self, data, spec):
@@ -735,13 +735,13 @@ when you answer "good" on a review.''')
             info)
         return txt
 
-    def _line(self, tableLines, a, value, bold=True):
+    def _line(self, tableLines, name, value, bold=True):
         #T: Symbols separating first and second column in a statistics table. Eg in "Total:    3 reviews".
         colon = _(":")
         if bold:
-            tableLines.append(("<tr><td width=200 align=right>%s%s</td><td><b>%s</b></td></tr>") % (a,colon,value))
+            tableLines.append(("<tr><td width=200 align=right>%s%s</td><td><b>%s</b></td></tr>") % (name,colon,value))
         else:
-            tableLines.append(("<tr><td width=200 align=right>%s%s</td><td>%s</td></tr>") % (a,colon,value))
+            tableLines.append(("<tr><td width=200 align=right>%s%s</td><td>%s</td></tr>") % (name,colon,value))
 
     def _lineTbl(self, tableLines):
         return "<table width=400>" + "".join(tableLines) + "</table>"
@@ -927,7 +927,7 @@ $(function () {
     def _avgDay(self, tot, num, unit):
         vals = []
         try:
-            vals.append(_("%(a)0.1f %(unit)s/day") % dict(a=tot/float(num), unit=unit))
+            vals.append(_("%(nb)0.1f %(unit)s/day") % dict(nb=tot/float(num), unit=unit))
             return ", ".join(vals)
         except ZeroDivisionError:
             return ""

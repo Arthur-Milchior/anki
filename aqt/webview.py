@@ -64,7 +64,7 @@ class AnkiWebPage(QWebEnginePage):
     def javaScriptConsoleMessage(self, lvl, msg, line, srcID):
         # not translated because console usually not visible,
         # and may only accept ascii text
-        buf = "JS error on line %(a)d: %(msg)s" % dict(a=line, msg=msg+"\n")
+        buf = "JS error on line %(line)d: %(msg)s" % dict(line=line, msg=msg+"\n")
         # ensure we don't try to write characters the terminal can't handle
         buf = buf.encode(sys.stdout.encoding, "backslashreplace").decode(sys.stdout.encoding)
         sys.stdout.write(buf)
@@ -164,8 +164,8 @@ class AnkiWebView(QWebEngineView):
 
     def contextMenuEvent(self, evt):
         menu = QMenu(self)
-        a = menu.addAction(_("Copy"))
-        a.triggered.connect(self.onCopy)
+        action = menu.addAction(_("Copy"))
+        action.triggered.connect(self.onCopy)
         runHook("AnkiWebView.contextMenuEvent", self, menu)
         menu.popup(QCursor.pos())
 

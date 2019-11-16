@@ -561,8 +561,8 @@ class MenuItem:
         self.func = func
 
     def renderTo(self, qmenu):
-        a = qmenu.addAction(self.title)
-        a.triggered.connect(self.func)
+        action = qmenu.addAction(self.title)
+        action.triggered.connect(self.func)
 
 def qtMenuShortcutWorkaround(qmenu):
     if qtminor < 10:
