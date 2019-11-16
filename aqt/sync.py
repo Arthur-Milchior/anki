@@ -107,7 +107,7 @@ automatically."""))
             tooltip(_("Syncing failed; internet offline."))
         elif evt == "upbad":
             self._didFullUp = False
-            self._checkFailed()
+            self._checkFailed("upbad")
         elif evt == "sync":
             message = None; type = args[0]
             if type == "login":
@@ -137,7 +137,7 @@ Please visit AnkiWeb, upgrade your deck, then try again."""))
         elif evt == "clockOff":
             self._clockOff()
         elif evt == "checkFailed":
-            self._checkFailed()
+            self._checkFailed(f"checkFailed during step {args[0]}")
         elif evt == "mediaSanity":
             showWarning(_("""\
 A problem occurred while syncing media. Please use Tools>Check Media, then \
@@ -300,12 +300,14 @@ automatically."""),
 Syncing requires the clock on your computer to be set correctly. Please \
 fix the clock and try again."""))
 
-    def _checkFailed(self):
+    def _checkFailed(self, event="unknown event"):
         """State to check database before syncing. (Actually, it's totally
 useless if the database is downloaded the current will be deleted.)"""
-        showWarning(_("""\
+        showWarning("\n".join([_("""\
 Your collection is in an inconsistent state. Please run Tools>\
-Check Database, then sync again."""))
+Check Database, then sync again."""),
+                               _("""This is due to the following event during sync:"""),
+                               event]))
 
 # Sync thread
 ######################################################################
@@ -422,8 +424,10 @@ class SyncThread(QThread):
             return self.fireEvent("badAuth")
         elif ret == "clockOff":
             return self.fireEvent("clockOff")
-        elif ret == "basicCheckFailed" or ret == "sanityCheckFailed":
-            return self.fireEvent("checkFailed")
+        elif ret == "sanityCheckFailed":
+            return self.fireEvent("checkFailed", "sanity")
+        elif ret == "basicCheckFailed":
+            return self.fireEvent("checkFailed", "basic :"+self.client.errorMessages)
         # full sync?
         if ret == "fullSync":
             return self._fullSync()
