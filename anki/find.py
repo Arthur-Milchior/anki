@@ -53,7 +53,9 @@ class Finder:
         if preds is None:
             raise Exception("invalidSearch")
         order = self._order(order)
-        sql = self._query(preds, order)
+        select = "select card.id "
+        _from = Finder._from([select, preds, order])
+        sql = select + _from + preds + order
         try:
             res = self.col.db.list(sql, *args)
         except Exception as e:
@@ -198,12 +200,6 @@ class Finder:
         else:
             state['q'] = f"({state['q']})"
         return state['q'], args
-
-    @staticmethod
-    def _query(preds, order):
-        select = "select card.id "
-        _from = Finder._from([select, preds, order])
-        return select + _from + preds + order
 
     @staticmethod
     def _from(queries):
