@@ -39,14 +39,14 @@ class Finder:
         self.search['is'] = self._findCardState
         runHook("search", self.search)
 
-    def _find(self, query, select, order, ifInvalid, tuples=False):
+    def _find(self, query, select, order, ifInvalid, tuples=False, groupBy=""):
         tokens = self._tokenize(query)
         preds, args = self._where(tokens)
         if preds is None:
             return ifInvalid()
         order = self._order(order)
         _from = self._from([select, preds, order])
-        sql = select + _from + preds + order
+        sql = select + _from + preds + groupBy + order
         try:
             if tuples:
                 return self.col.db.all(sql, *args)
@@ -57,7 +57,7 @@ class Finder:
             print(f"On query «{query}», sql «{sql}» return empty because of {e}")
             return []
 
-    def findCards(self, query, order=False, withNids=False):
+    def findCards(self, query, order=False, withNids=False, oneByNote=False):
         """Return a list of card ids for QUERY.
 
         order --
@@ -68,10 +68,15 @@ class Finder:
         """
         def ifInvalid():
             raise Exception("invalidSearch")
-        select = "select card.id "
+        select = "select "
+        if oneByNote:
+            select += "min(card.id) "
+        else:
+            select += "card.id "
         if withNids:
             select += ", card.nid "
-        return self._find(query, select, order, ifInvalid, withNids)
+        groupBy = "card.nid" if oneByNote else ""
+        return self._find(query, select, order, ifInvalid, withNids, groupBy)
 
     def findNotes(self, query):
         def ifInvalid():
