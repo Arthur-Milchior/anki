@@ -40,12 +40,19 @@ class Finder:
         runHook("search", self.search)
 
     def findCards(self, query, order=False):
-        "Return a list of card ids for QUERY."
+        """Return a list of card ids for QUERY.
+
+        order --
+        * False means not ordering
+        * True means using default order
+        * one of the order key means to use this key
+        * otherwise, order is already the sql value
+        """
         tokens = self._tokenize(query)
         preds, args = self._where(tokens)
         if preds is None:
             raise Exception("invalidSearch")
-        order, rev = self._order(order)
+        order = self._order(order)
         sql = self._query(preds, order)
         try:
             res = self.col.db.list(sql, *args)
@@ -53,8 +60,6 @@ class Finder:
             # invalid grouping
             print(f"On query «{query}», sql «{sql}» return empty because of {e}")
             return []
-        if rev:
-            res.reverse()
         return res
 
     def findNotes(self, query):
@@ -202,47 +207,57 @@ select distinct(note.id) from cards card, notes note where card.nid=note.id and 
             sql += "(" + preds + ")"
         else:
             sql += "1"
-        # order
-        if order:
-            sql += " " + order
+        sql += order
         return sql
 
     # Ordering
     ######################################################################
 
     def _order(self, order):
-        if not order:
-            return "", False
-        elif order is not True:
+        """sql to order the result of the queries
+
+        order --
+        * False means not ordering
+        * True means using default order
+        * one of the order key means to use this key
+        * otherwise, order is already the sql value
+        """
+        if order is False:
+            return ""
+        if isinstance(order, str) and order not in {"noteCrt", "noteMod", "noteFld", "cardMod", "cardReps", "cardDue", "cardEase", "cardLapses", "cardIvl"}:
             # custom order string provided
-            return " order by " + order, False
-        # use deck default
-        type = self.col.conf['sortType']
+            return " order by " + order
+        if order is True:
+            # use deck default
+            type = self.col.conf['sortType']
+        else: # order is str, one of the key
+            type = order
+        sc = "DESC" if self.col.conf['sortBackwards'] else "ASC"
         sort = None
         if type.startswith("note"):
             if type == "noteCrt":
-                sort = "note.id, card.ord"
+                sort = f"note.id {sc}, card.ord {sc}"
             elif type == "noteMod":
-                sort = "note.mod, card.ord"
+                sort = f"note.mod {sc}, card.ord {sc}"
             elif type == "noteFld":
-                sort = "note.sfld collate nocase, card.ord"
+                sort = f"note.sfld collate nocase {sc}, card.ord {sc}"
         elif type.startswith("card"):
             if type == "cardMod":
-                sort = "card.mod"
+                sort =  f"card.mod {sc}"
             elif type == "cardReps":
-                sort = "card.reps"
+                sort = f"card.reps {sc}"
             elif type == "cardDue":
-                sort = "card.type, card.due"
+                sort = f"card.type {sc}, card.due {sc}"
             elif type == "cardEase":
-                sort = "card.type == 0, card.factor"
+                sort = f"(card.type == 0) {sc}, card.factor {sc}"
             elif type == "cardLapses":
-                sort = "card.lapses"
+                sort = f"card.lapses {sc}"
             elif type == "cardIvl":
-                sort = "card.ivl"
-        if not sort:
+                sort = f"card.ivl {sc}"
+        if sort is None:
             # deck has invalid sort order; revert to noteCrt
-            sort = "note.id, card.ord"
-        return " order by " + sort, self.col.conf['sortBackwards']
+            sort = "note.id {sc}, card.ord {sc}"
+        return " order by " + sort
 
     # Commands
     ######################################################################
