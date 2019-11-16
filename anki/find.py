@@ -67,10 +67,6 @@ class Finder:
         preds, args = self._where(tokens)
         if preds is None:
             return []
-        if preds:
-            preds = "(" + preds + ")"
-        else:
-            preds = "1"
         select = "select distinct(note.id) "
         _from = self._from([select, preds])
         sql = select + _from + preds
@@ -140,6 +136,8 @@ class Finder:
     ######################################################################
 
     def _where(self, tokens):
+        """A sql condition to decide which card/notes are used and TODO.
+        Or None, None in case of problems"""
         # state and query
         state = dict(isnot=False, isor=False, join=False, q="", bad=False)
         args = []
@@ -195,17 +193,16 @@ class Finder:
                 add(self._findText(token, args))
         if state['bad']:
             return None, None
+        if state['q'] == "":
+            state['q'] = "1"
+        else:
+            state['q'] = f"({state['q']})"
         return state['q'], args
 
     @staticmethod
     def _query(preds, order):
         select = "select card.id "
         _from = Finder._from([select, preds, order])
-        # combine with preds
-        if preds:
-            preds = "(" + preds + ")"
-        else:
-            preds = "1"
         return select + _from + preds + order
 
     @staticmethod
