@@ -52,6 +52,7 @@ class Syncer:
         #It is not clear what is done if server is None. But it never occurs in this code
         self.col = col
         self.server = server
+        self.errorMessages = None
 
     def sync(self):
         """
@@ -112,8 +113,8 @@ class Syncer:
             return "fullSync"
         self.localNewer = localMod > serverMod
         # step 1.5: check collection is valid
-        if not self.col.basicCheck():
-            self.col.log("basic check")
+        if not self.col.basicCheck(self):
+            self.col.log(f"basic check: {self.errorMessages}")
             return "basicCheckFailed"
         # step 2: startup and deletions
         runHook("sync", "meta")
@@ -254,7 +255,7 @@ class Syncer:
         numbel of decks,
         number of deck's options.]
         """
-        if not self.col.basicCheck():
+        if not self.col.basicCheck(self):
             return "failed basic check"
         for type in "cards", "notes", "revlog", "graves":
             if self.col.db.scalar(
