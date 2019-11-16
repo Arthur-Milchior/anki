@@ -49,8 +49,9 @@ class Finder:
         sql = self._query(preds, order)
         try:
             res = self.col.db.list(sql, *args)
-        except:
+        except Exception as e:
             # invalid grouping
+            print(f"On query «{query}», sql «{sql}» return empty because of {e}")
             return []
         if rev:
             res.reverse()
@@ -69,8 +70,9 @@ class Finder:
 select distinct(note.id) from cards card, notes note where card.nid=note.id and """+preds
         try:
             res = self.col.db.list(sql, *args)
-        except:
+        except Exception as e:
             # invalid grouping
+            print(f"On query «{query}», sql «{sql}» return empty because of {e}")
             return []
         return res
 
