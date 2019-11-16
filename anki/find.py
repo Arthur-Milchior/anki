@@ -71,8 +71,9 @@ class Finder:
             preds = "(" + preds + ")"
         else:
             preds = "1"
-        sql = """
-select distinct(note.id) from cards card, notes note where card.nid=note.id and """+preds
+        select = "select distinct(note.id) "
+        _from = self._from([select, preds])
+        sql = select + _from + preds
         try:
             res = self.col.db.list(sql, *args)
         except Exception as e:
@@ -196,19 +197,26 @@ select distinct(note.id) from cards card, notes note where card.nid=note.id and 
             return None, None
         return state['q'], args
 
-    def _query(self, preds, order):
-        # can we skip the note table?
-        if "note." not in preds and "note." not in order:
-            sql = "select card.id from cards card where "
-        else:
-            sql = "select card.id from cards card, notes note where card.nid=note.id and "
+    @staticmethod
+    def _query(preds, order):
+        select = "select card.id "
+        _from = Finder._from([select, preds, order])
         # combine with preds
         if preds:
-            sql += "(" + preds + ")"
+            preds = "(" + preds + ")"
         else:
-            sql += "1"
-        sql += order
-        return sql
+            preds = "1"
+        return select + _from + preds + order
+
+    @staticmethod
+    def _from(queries):
+        """Return the from part of a statement, allowing to use the
+        queries. Next part of the query must be a boolean statement."""
+        # can we skip the note table?
+        for query in queries:
+            if "note." in query:
+                return "from cards card, notes note where card.nid=note.id and "
+        return "from cards card where "
 
     # Ordering
     ######################################################################
