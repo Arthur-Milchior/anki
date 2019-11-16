@@ -811,19 +811,19 @@ where card.nid == note.id
     # Finding cards
     ##########################################################################
 
-    def findCards(self, query, order=False):
+    def findCards(self, *args, **kwargs):
         "Return a list of cards satisfying query, sorted by order. See finder.FindCards for more details."
-        return anki.find.Finder(self).findCards(query, order)
+        return anki.find.Finder(self).findCards(*args, **kwargs)
 
-    def findNotes(self, query):
+    def findNotes(self, *args, **kwargs):
         "Return a list of notes ids for QUERY. See finder.findNotes for more details"
-        return anki.find.Finder(self).findNotes(query)
+        return anki.find.Finder(self).findNotes(*args, **kwargs)
 
-    def findReplace(self, nids, src, dst, regex=None, field=None, fold=True):
-        return anki.find.findReplace(self, nids, src, dst, regex, field, fold)
+    def findReplace(self, *args, **kwargs):
+        return anki.find.findReplace(self, *args, **kwargs)
 
-    def findDupes(self, fieldName, search=""):
-        return anki.find.findDupes(self, fieldName, search)
+    def findDupes(self, *args, **kwargs):
+        return anki.find.findDupes(self, *args, **kwargs)
 
     # Stats
     ##########################################################################
