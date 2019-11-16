@@ -84,6 +84,11 @@ class Finder:
         select = "select distinct(note.id) "
         return self._find(query, select, False, ifInvalid)
 
+    def findNotesWithOneCard(self, query, order=False):
+        """
+        Pairs (cid, nid), with nid unique.
+        """
+        return self.findCards(query, order, True, True)
     # Tokenizing
     ######################################################################
 
