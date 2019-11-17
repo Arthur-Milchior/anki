@@ -85,6 +85,8 @@ class Exporter:
         else:
             cids = self.col.decks.get(self.did).getCids(children=True)
         self.count = len(cids)
+        if self.col.conf.get("exportSiblings", False):
+            cids = self.col.siblings(cids)
         return cids
 
 # Cards as TSV
