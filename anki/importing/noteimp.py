@@ -98,7 +98,7 @@ class NoteImporter(Importer):
 
     def mappingOk(self):
         """Whether something is mapped to the first field"""
-        return self.model['flds'][0].getName() in self.mapping
+        return self.model['flds'][0].getName() in self.mapping or (self.col.conf.get("allowEmptyFirstField", False))
 
     def foreignNotes(self):
         "Return a list of foreign notes for importing."
