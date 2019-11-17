@@ -1,0 +1,2 @@
+rm exportFromBrowser.zip
+zip exportFromBrowser.zip *py README.md LICENSE config* zipping --exclude \*~
