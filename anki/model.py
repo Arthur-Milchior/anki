@@ -383,16 +383,23 @@ select id from cards where nid in (select id from notes where mid = ?)""",
     ##########################################################################
 
     def _updateRequired(self):
-        """Entirely recompute the model's req value"""
+        """Entirely recompute the model's req value
+
+        Return positions idx such that the card type is new or has its
+        question changed if its a standard model
+        """
         if self.isCloze():
             # nothing to do
             return
         req = []
+        changedOrNewReq = set()
         flds = [fieldType.getName() for fieldType in self['flds']]
         for idx, template in enumerate(self['tmpls']):
             ret = template._req(flds)
-            req.append((template['ord'], ret[0], ret[1]))
+            req.append((idx, ret[0], ret[1]))
+            changedOrNewReq.add(idx)
         self['req'] = req
+        return changedOrNewReq
 
     # Required field/text cache
     ##########################################################################
