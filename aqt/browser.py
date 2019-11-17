@@ -709,12 +709,15 @@ class Browser(QMainWindow):
 
     # Searching
     ######################################################################
+    @staticmethod
+    def _defaultPrompt():
+        return _("<type here to search; hit enter to show current deck>")
 
     def setupSearch(self, search=None, focusedCard=None, selectedCards=None):
         self.form.searchButton.clicked.connect(self.onSearchActivated)
         self.form.searchEdit.lineEdit().returnPressed.connect(self.onSearchActivated)
         self.form.searchEdit.setCompleter(None)
-        self._searchPrompt = _("<type here to search; hit enter to show current deck>")
+        self._searchPrompt = self._defaultPrompt()
         self.form.searchEdit.addItems([search or self._searchPrompt] + self.mw.pm.profile['searchHistory'])
         self._lastSearchTxt = search or "is:current"
         self.card = focusedCard
@@ -731,7 +734,7 @@ class Browser(QMainWindow):
 
     def _onSearchActivated(self):
         # convert guide text before we save history
-        if self.form.searchEdit.lineEdit().text() == self._searchPrompt:
+        if self.form.searchEdit.lineEdit().text() == self._defaultPrompt():
             self.form.searchEdit.lineEdit().setText("deck:current ")
 
         # grab search text and normalize
@@ -1140,7 +1143,7 @@ by clicking on one on the left."""))
             txt = "-"+txt
         if self.mw.app.keyboardModifiers() & Qt.ControlModifier:
             cur = str(self.form.searchEdit.lineEdit().text())
-            if cur and cur != self._searchPrompt:
+            if cur and cur != self._defaultPrompt():
                 txt = cur + " " + txt
         elif self.mw.app.keyboardModifiers() & Qt.ShiftModifier:
             cur = str(self.form.searchEdit.lineEdit().text())
