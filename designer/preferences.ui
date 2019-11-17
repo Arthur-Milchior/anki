@@ -492,6 +492,20 @@
          </property>
         </widget>
        </item>
+        <item>
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Configure the different action you can take to edit cards</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="newLineInBatchEdit">
+          <property name="text">
+           <string>Add new line when batch editing fields</string>
+          </property>
+         </widget>
+        </item>
        <item>
         <spacer name="verticalSpacer_5">
          <property name="orientation">
