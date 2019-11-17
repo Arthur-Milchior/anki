@@ -1355,16 +1355,16 @@ where id in %s""" % ids2str(
             ",".join([str(nid) for nid in self.selectedNotes()]))
 
     def oneModelNotes(self):
-        sf = self.selectedNotes()
-        if not sf:
+        sn = self.selectedNotes()
+        if not sn:
             return
         mods = self.col.db.scalar("""
 select count(distinct mid) from notes
-where id in %s""" % ids2str(sf))
+where id in %s""" % ids2str(sn))
         if mods > 1:
             showInfo(_("Please select cards from only one note type."))
             return
-        return sf
+        return sn
 
     def onHelp(self):
         openHelp("browser")
@@ -1880,11 +1880,11 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         self.editor.saveNow(self._onFindReplace)
 
     def _onFindReplace(self):
-        sf = self.selectedNotes()
-        if not sf:
+        sn = self.selectedNotes()
+        if not sn:
             return
         import anki.find
-        fields = anki.find.fieldNamesForNotes(self.mw.col, sf)
+        fields = anki.find.fieldNamesForNotes(self.mw.col, sn)
         dialog = QDialog(self)
         frm = aqt.forms.findreplace.Ui_Dialog()
         frm.setupUi(dialog)
@@ -1904,7 +1904,7 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         self.mw.progress.start()
         self.model.beginReset()
         try:
-            changed = self.col.findReplace(sf,
+            changed = self.col.findReplace(sn,
                                             str(frm.find.text()),
                                             str(frm.replace.text()),
                                             frm.re.isChecked(),
@@ -1921,9 +1921,9 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
             self.mw.progress.finish()
         showInfo(ngettext(
             "%(changed)d of %(lenSf)d note updated",
-            "%(changed)d of %(lenSf)d notes updated", len(sf)) % {
+            "%(changed)d of %(lenSf)d notes updated", len(sn)) % {
                 'changed': changed,
-                'lenSf': len(sf),
+                'lenSf': len(sn),
             }, parent=self)
 
     def onFindReplaceHelp(self):
