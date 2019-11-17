@@ -395,9 +395,17 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         changedOrNewReq = set()
         flds = [fieldType.getName() for fieldType in self['flds']]
         for idx, template in enumerate(self['tmpls']):
-            ret = template._req(flds)
-            req.append((idx, ret[0], ret[1]))
-            changedOrNewReq.add(idx)
+            if (hasattr(template, 'old_req') and
+                hasattr(template, 'old_type') and
+                hasattr(template, 'old_qfmt') and
+                template.old_qfmt == template['qfmt']):
+                req.append((idx, template.old_type, template.old_req))
+                if getattr(template, "is_new", True):
+                    changedOrNewReq.add(idx)
+            else:
+                ret = template._req(flds)
+                req.append((idx, ret[0], ret[1]))
+                changedOrNewReq.add(idx)
         self['req'] = req
         return changedOrNewReq
 
