@@ -566,6 +566,7 @@ class Browser(QMainWindow):
         self.form.actionSelectNotes.triggered.connect(self.selectNotes)
         if not isMac:
             self.form.actionClose.setVisible(False)
+        self.form.actionRefresh.triggered.connect(self.onSearchActivated)
         # notes
         self.form.actionAdd.triggered.connect(self.mw.onAddCard)
         self.form.actionAdd_Tags.triggered.connect(lambda: self.addTags())

@@ -249,6 +249,7 @@
     <addaction name="actionSelectNotes"/>
     <addaction name="actionInvertSelection"/>
     <addaction name="separator"/>
+    <addaction name="separator"/>
     <addaction name="actionClose"/>
    </widget>
    <widget class="QMenu" name="menuJump">
@@ -315,6 +316,13 @@
     <addaction name="actionManage_Note_Types"/>
     <addaction name="separator"/>
     <addaction name="actionDelete"/>
+    <addaction name="separator"/>
+   </widget>
+   <widget class="QMenu" name="menuColumns">
+    <property name="title">
+     <string>&amp;Columns</string>
+    </property>
+    <addaction name="actionRefresh"/>
    </widget>
    <widget class="QMenu" name="menuColumns">
     <property name="title">
@@ -609,6 +617,14 @@
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+K</string>
+   </property>
+  </action>
+  <action name="actionRefresh">
+   <property name="text">
+    <string>Refresh</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F5</string>
    </property>
   </action>
  </widget>
