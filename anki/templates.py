@@ -93,8 +93,19 @@ update cards set ord = ord - 1, usn = ?, mod = ?
         # apply
         self.model.save(recomputeReq=False)
         self.model.manager.col.db.execute("""
-update cards set ord = (case %s end),usn=?,mod=? where nid in (
-select id from notes where mid = ?)""" % " ".join(map),
+update cards
+  set
+    `ord` = (case
+      when `ord` == :oldidx then :newidx
+      when :mini<= `ord` and `ord` <= :maxi then (`ord` + (:diff))
+      else `ord` end
+    ),
+    usn = :usn,
+    mod = :mod
+  where
+    :mini <= `ord` and
+     `ord` <= :maxi and
+     nid in (select id from notes where mid = :mid)""" % " ".join(map),
                              self.model.manager.col.usn(), intTime(), self.model.getId())
 
     # Tools
