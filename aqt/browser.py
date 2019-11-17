@@ -717,14 +717,14 @@ class Browser(QMainWindow):
         self.form.searchButton.clicked.connect(self.onSearchActivated)
         self.form.searchEdit.lineEdit().returnPressed.connect(self.onSearchActivated)
         self.form.searchEdit.setCompleter(None)
-        self._searchPrompt = self._defaultPrompt()
-        self.form.searchEdit.addItems([search or self._searchPrompt] + self.mw.pm.profile['searchHistory'])
+        searchLineOnOpen = search or self._defaultPrompt()
+        self.form.searchEdit.addItems([searchLineOnOpen] + self.mw.pm.profile['searchHistory'])
         self._lastSearchTxt = search or "is:current"
         self.card = focusedCard
         self.model.selectedCards = selectedCards
         self.search()
         # then replace text for easily showing the deck
-        self.form.searchEdit.lineEdit().setText(self._searchPrompt)
+        self.form.searchEdit.lineEdit().setText(searchLineOnOpen)
         self.form.searchEdit.lineEdit().selectAll()
         self.form.searchEdit.setFocus()
 
