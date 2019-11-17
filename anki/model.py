@@ -465,3 +465,21 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         l = list(ords)
         l.sort()
         return l
+
+    def _addTmp(self):
+        self.fieldNameToOrd = {}
+        self.templateNameToOrd = {}
+        for field in self['flds']:
+            name = field['name']
+            ord = field['ord']
+            self.fieldNameToOrd[name] = ord
+        for idx, template in enumerate(self['tmpls']):
+            name = template['name']
+            ord = template['ord']
+            self.templateNameToOrd[name] = ord
+            if self['type'] == MODEL_STD:
+                template.old_type = self['req'][idx][1]
+                template.old_req = self['req'][idx][2]
+            template.old_qfmt = template['qfmt']
+            template.is_new = False
+
