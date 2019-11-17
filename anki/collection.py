@@ -385,6 +385,11 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         """The card object whose id is id."""
         return anki.cards.Card(self, id)
 
+    def siblings(self, cids):
+        """Return the siblings of cards whose ids are in cids"""
+        siblings = self.db.list(f"select id from cards where nid in (select nid from cards where id in {ids2str(cids)})")
+        return siblings
+
     def getNote(self, id):
         """The note object whose id is id."""
         return anki.notes.Note(self, id=id)
