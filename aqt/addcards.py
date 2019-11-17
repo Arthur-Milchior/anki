@@ -80,7 +80,6 @@ class AddCards(QDialog):
         button.setShortcut(QKeySequence(sc))
         button.setToolTip(_("Shortcut: %s") % shortcut(sc))
         button.clicked.connect(self.onHistory)
-        button.setEnabled(False)
         self.historyButton = button
 
     def setAndFocusNote(self, note):
