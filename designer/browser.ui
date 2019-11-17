@@ -295,6 +295,7 @@
     <addaction name="menuFlag"/>
     <addaction name="separator"/>
     <addaction name="action_Info"/>
+    <addaction name="action_Export"/>
    </widget>
    <widget class="QMenu" name="menu_Notes">
     <property name="title">
@@ -609,6 +610,14 @@
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+K</string>
+   </property>
+  </action>
+  <action name="action_Export">
+   <property name="text">
+    <string>&amp;Export Cards</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+E</string>
    </property>
   </action>
  </widget>
