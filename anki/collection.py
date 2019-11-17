@@ -658,13 +658,25 @@ select id from notes where id in %s and id not in (select nid from cards)""" %
         return rem
 
     def emptyCardReport(self, cids):
-        rep = ""
-        for ords, cnt, flds in self.db.all("""
-select group_concat(ord+1), count(), flds from cards card, notes note
-where card.nid = note.id and card.id in %s group by nid""" % ids2str(cids)):
-            rep += _("Empty card numbers: %(card)s\nFields: %(fieldsContent)s\n\n") % dict(
-                card=ords, fieldsContent=flds.replace("\x1f", " / "))
-        return rep
+        rep = []
+        for ords, mid, flds in self.db.all("""
+        select group_concat(ord), mid, flds from cards card, notes n
+        where card.nid = n.id and card.id in %s group by nid order by mid""" % ids2str(cids)):
+            model = self.models.get(mid)
+            modelName  = model["name"]
+            templates = model["tmpls"]
+            isCloze = model["type"] == MODEL_CLOZE
+            line = (_("Empty cards")+" ("+modelName+"): ")
+            if isCloze:
+                 line += ords
+            else:
+                for ord in ords.split(","):
+                    ord  = int(ord)
+                    templateName = templates[ord]["name"]
+                    line += templateName+", "
+            line +="\nFields: %(f)s\n" % dict(f=flds.replace("\x1f", " / "))
+            rep.append(line)
+        return "\n".join(rep)
 
     # Field checksums and sorting fields
     ##########################################################################
