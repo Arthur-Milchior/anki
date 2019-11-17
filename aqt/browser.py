@@ -1735,6 +1735,38 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         self.model.endReset()
         self.mw.requireReset()
 
+    def addPrefix(self):
+        self.applyToSelectedCard(self._addPrefix)
+
+    def _addPrefix(self, cids):
+        self.mw.checkpoint("Add prefix")
+        self.mw.progress.start()
+        prefix, returnValue = getText(_("Prefix to add:"), default="prefix")
+        if not returnValue or not text:
+            return
+        self.mw.col.decks.addPrefix(cids, prefix)
+        # Reset collection and main window
+        self.mw.progress.finish()
+        self.mw.reset()
+        tooltip(_("""Prefix added."""))
+
+    def removePrefix(self):
+        self.applyToSelectedCard(self._addPrefix)
+
+    def _removePrefix(self, cids):
+        self.mw.checkpoint("Remove prefix")
+        self.mw.progress.start()
+
+        self.mw.col.decks.removePrefix(cids)
+
+        # Reset collection and main window
+        self.col.decks.flush()
+        self.col.reset()
+        self.mw.reset()
+        self.mw.progress.finish()
+        tooltip(_("""Prefix removed."""))
+
+
     # Tags
     ######################################################################
 
