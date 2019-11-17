@@ -315,6 +315,7 @@
     <addaction name="actionManage_Note_Types"/>
     <addaction name="separator"/>
     <addaction name="actionDelete"/>
+    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuColumns">
     <property name="title">
@@ -325,6 +326,8 @@
     <property name="title">
      <string>&amp;Decks</string>
     </property>
+    <addaction name="addPrefix"/>
+    <addaction name="removePrefix"/>
    </widget>
    <addaction name="menuEdit"/>
    <addaction name="menu_Notes"/>
@@ -609,6 +612,26 @@
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+K</string>
+   </property>
+  </action>
+  <action name="actionAdd_prefix">
+   <property name="text">
+    <string>Add prefix</string>
+   </property>
+  </action>
+  <action name="actionRemove_prefix">
+   <property name="text">
+    <string>Remove prefix</string>
+   </property>
+  </action>
+  <action name="addPrefix">
+   <property name="text">
+    <string>Add prefix</string>
+   </property>
+  </action>
+  <action name="removePrefix">
+   <property name="text">
+    <string>Remove prefix</string>
    </property>
   </action>
  </widget>

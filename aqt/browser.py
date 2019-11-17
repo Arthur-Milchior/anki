@@ -597,6 +597,13 @@ class Browser(QMainWindow):
         self.form.actionTags.triggered.connect(self.onFilterButton)
         self.form.actionSidebar.triggered.connect(self.focusSidebar)
         self.form.actionCardList.triggered.connect(self.onCardList)
+        # decks
+        self.form.addPrefix.triggered.connect(self.addPrefix)
+        self.addPrefixShortcut = QShortcut(QKeySequence("Ctrl+Alt+P"), self)
+        self.addPrefixShortcut.activated.connect(self.addPrefix)
+        self.removePrefixShortcut = QShortcut(QKeySequence("Ctrl+Alt+Shift+P"), self)
+        self.removePrefixShortcut.activated.connect(self.removePrefix)
+        self.form.removePrefix.triggered.connect(self.removePrefix)
         # help
         self.form.actionGuide.triggered.connect(self.onHelp)
         # keyboard shortcut for shift+home/end
