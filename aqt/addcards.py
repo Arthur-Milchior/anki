@@ -166,6 +166,9 @@ class AddCards(QDialog):
                 action = menu.addAction(_("(Note deleted)"))
                 action.setEnabled(False)
         runHook("AddCards.onHistory", self, menu)
+        m.addSeparator()
+        a = m.addAction("Open Browser on 'Added &Today'")
+        a.triggered.connect(lambda: self.show_browser_on_added_today())
         menu.exec_(self.historyButton.mapToGlobal(QPoint(0,0)))
 
     def show_browser_on_added_today(self):
