@@ -456,15 +456,6 @@ class DataModel(QAbstractTableModel):
 # Line painter
 ######################################################################
 
-COLOUR_SUSPENDED = "#FFFFB2"
-COLOUR_MARKED = "#ccc"
-
-flagColours = {
-    1: "#ffaaaa",
-    2: "#ffb347",
-    3: "#82E0AA",
-    4: "#85C1E9",
-}
 
 class StatusDelegate(QItemDelegate):
     """Similar to QItemDelegate and ensure that the row is colored
