@@ -1419,9 +1419,9 @@ where id in %s""" % ids2str(
             ",".join([str(nid) for nid in self.selectedNotes()]))
 
     def oneModelNotes(self):
-        sn = self.selectedNotes()
-        if not sn:
-            return
+        return self.applyToSelectedNote(self._oneModelNotes)
+
+    def _oneModelNotes(self, sn):
         mods = self.col.db.scalar("""
 select count(distinct mid) from notes
 where id in %s""" % ids2str(sn))
@@ -1667,9 +1667,9 @@ where id in %s""" % ids2str(sn))
         self._deleteNotes()
 
     def _deleteNotes(self):
-        nids = self.selectedNotes()
-        if not nids:
-            return
+        self.applyToSelectedNote(self.__deleteNotes)
+
+    def __deleteNotes(self, nids):
         self.mw.checkpoint(_("Delete Notes"))
         self.model.beginReset()
         # figure out where to place the cursor after the deletion
@@ -1703,10 +1703,10 @@ where id in %s""" % ids2str(sn))
         self.editor.saveNow(self._setDeck)
 
     def _setDeck(self):
+        return self.applyToSelectedCard(__setDeck)
+
+    def __setDeck(self, cids):
         from aqt.studydeck import StudyDeck
-        cids = self.selectedCards()
-        if not cids:
-            return
         did = self.mw.col.db.scalar(
             "select did from cards where id = ?", cids[0])
         current=self.mw.col.decks.get(did).getName()
@@ -1861,6 +1861,21 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         self.mw.requireReset()
         self.model.endReset()
 
+    # Edit
+    ######################################################################
+
+    def applyToSelectedNote(self, fun):
+        sn = self.selectedNotes()
+        if not sn:
+            return
+        return fun(sn)
+
+    def applyToSelectedCard(self, fun):
+        sc = self.selectedCards()
+        if not sc:
+            return
+        return fun(sc)
+
     # Rescheduling
     ######################################################################
 
@@ -1944,9 +1959,9 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         self.editor.saveNow(self._onFindReplace)
 
     def _onFindReplace(self):
-        sn = self.selectedNotes()
-        if not sn:
-            return
+        return self.applyToSelectedNote(self.__onFindReplace)
+
+    def __onFindReplace(self, sn):
         import anki.find
         fields = anki.find.fieldNamesForNotes(self.mw.col, sn)
         dialog = QDialog(self)
