@@ -244,10 +244,17 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         for index, template in enumerate(self['tmpls']):
             template['ord'] = index
 
-    def _syncTemplates(self):
+    def _syncTemplates(self, changedOrNewReq=None):
         """Generate all cards not yet generated, whose note's model is model.
-        It's called only when model is saved, a new model is given and template is asked to be computed"""
-        self.manager.col.genCards(self.nids())
+
+         It's called only when model is saved, a new model is given
+        and template is asked to be computed
+
+        changedOrNewReq -- set of index of templates which needs to be
+        recomputed
+
+        """
+        rem = self.manager.col.genCards(self.nids(), changedOrNewReq)
 
     def newField(self, name):
         return Field(self, name=name)
