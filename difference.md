@@ -2,6 +2,10 @@
 This files list the difference between regular anki and this forked
 version. It also lists the different options in the Preferences's extra page.
 
+## Anki quicker (802285486)
+Those modification makes anki quicker. Technical details are on the
+add-on page.
+
 ## Explain errors
 You obtain more detailled error message if a sync fail, and if you try
 do do a «Check database».

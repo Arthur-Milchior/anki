@@ -1,0 +1,5 @@
+Assume you have a note type with a lot of card type, or with a lot of card. Assume you edite the note type. Then, closing the editor and saving the note type may take several minutes. This is because anki redoes some useless computation and does not consider the fact that some template did not change.n
+
+This add-on just ensure that this computation is done only when it is required.
+
+For more information, go to https://github.com/Arthur-Milchior/anki-fast-note-type-editor
