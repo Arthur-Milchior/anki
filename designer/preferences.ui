@@ -262,6 +262,13 @@
             </widget>
            </item>
            <item>
+            <widget class="QCheckBox" name="syncAddons">
+             <property name="text">
+              <string>Synchronize add-ons too</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QCheckBox" name="autoSync">
              <property name="text">
               <string>Automatically sync on profile open/close</string>
