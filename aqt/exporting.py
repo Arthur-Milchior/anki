@@ -106,9 +106,14 @@ class ExportDialog(QDialog):
             self.frm.includeTags.isChecked())
         self.exporter.includeHTML = (
             self.frm.includeHTML.isChecked())
-        if not self.frm.deck.currentIndex():
+        if self.frm.deck.currentIndex() == 1: #position 1 means: all decks.
             self.exporter.did = None
+            self.exporter.cids = None
+        elif self.frm.deck.currentIndex() == 0 and self.cids is not None:#position 0 means: selected decks.
+            self.exporter.did = None
+            self.exporter.cids = self.cids
         else:
+            self.exporter.cids = None
             name = self.decks[self.frm.deck.currentIndex()]
             self.exporter.did = self.col.decks.id(name)
         if self.isVerbatim:
