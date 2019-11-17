@@ -526,6 +526,36 @@
         </widget>
        </item>
        <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>When opening the browser, show:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="browserFromReviewer">
+           <item>
+            <property name="text">
+             <string>Current Card</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Current Note</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Current Deck</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
         <spacer name="verticalSpacer_6">
          <property name="orientation">
           <enum>Qt::Vertical</enum>

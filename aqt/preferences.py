@@ -229,6 +229,7 @@ Not currently enabled; click the sync button in the main window to enable."""))
         {"name":"numBackups", "kind":"numeric", "sync":False},
         # advanced option
         {"name":"pastePNG", "sync":False},
+        {"name":"browserFromReviewer", "default":"note", "fromCol": (lambda x: {"cid":0,"nid":1,"did":2}.get(x, 1)), "toCol": (lambda x: {0:"cid",1:"nid",2:"did"}[x]), "kind": "combo"},
     ]
 
     def setupOneSetting(self, name, default=False, kind="check", sync=True, fromCol=identity, toCol=identity):
