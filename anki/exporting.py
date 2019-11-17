@@ -27,6 +27,7 @@ class Exporter:
         #Currently, did is never set during initialisation.
         self.col = col
         self.did = did
+        self.cids = None
 
     def doExport(self, path):
         raise Exception("not implemented")
