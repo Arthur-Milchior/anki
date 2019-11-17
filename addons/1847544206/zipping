@@ -1,0 +1,2 @@
+rm automatically-update.zip
+zip automatically-update.zip config.* *py  LICENSE *.md zipping --exclude \*~ \*zip

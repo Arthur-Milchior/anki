@@ -14,3 +14,8 @@ instead of deleting the note» chage the behavior of anki when he finds
 a note which has no more card. This allow to lose the content of the
 note, and let you correct the note instead to generate cards.
 
+## Update add-ons (1847544206)
+
+While syncing collection, add-ons will be updated. Updates are exactly
+the same process as when you click on the update button in the add-on manager.
+
