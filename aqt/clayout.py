@@ -77,6 +77,7 @@ class CardLayout(QDialog):
         # take the focus away from the first input area when starting up,
         # as users tend to accidentally type into the template
         self.setFocus()
+        self.model._addTmp()
 
     def redraw(self):
         """TODO
