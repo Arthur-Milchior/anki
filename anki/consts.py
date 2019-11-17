@@ -76,6 +76,10 @@ CARD_LRN = 1
 CARD_DUE = 2
 CARD_FILTERED = 3
 
+# Kind of deck
+DECK_STD = 0
+DECK_DYN = 1
+
 # Leech actions
 LEECH_SUSPEND = 0
 LEECH_TAGONLY = 1

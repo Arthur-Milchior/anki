@@ -23,7 +23,7 @@ defaultDeck = {
     'conf': 1,
     'usn': 0,
     'desc': "",
-    'dyn': 0,  # anki uses int/bool interchangably here
+    'dyn': DECK_STD,  # anki uses int/bool interchangably here
     'collapsed': False,
     # added in beta11
     'extendNew': 10,
@@ -36,7 +36,7 @@ defaultDynamicDeck = {
     'lrnToday': [0, 0],
     'timeToday': [0, 0],
     'collapsed': False,
-    'dyn': 1,
+    'dyn': DECK_DYN,
     'desc': "",
     'usn': 0,
     'delays': None,
