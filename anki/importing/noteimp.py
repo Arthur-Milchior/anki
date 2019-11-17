@@ -164,7 +164,9 @@ class NoteImporter(Importer):
                                 fld0)
                 continue
             firsts[fld0] = True
-            # already exists?
+            # if duplicate allowed, don't test?
+            if self.col.conf.get("allowDuplicateFirstField", False):
+                continue
             found = False#Whether a note with a similar first field was found
             if csum in csums:
                 # csum is not a guarantee; have to check
