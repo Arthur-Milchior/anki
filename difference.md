@@ -2,6 +2,11 @@
 This files list the difference between regular anki and this forked
 version. It also lists the different options in the Preferences's extra page.
 
+## Added today (861864770)
+Add an option in the add card window to open the browser with notes
+created today.
+
+
 ## Explain errors
 You obtain more detailled error message if a sync fail, and if you try
 do do a «Check database».
