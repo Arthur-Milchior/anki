@@ -1478,19 +1478,19 @@ where id in %s"""
         )
 
     def oneModelNotes(self):
-        sf = self.selectedNotes()
-        if not sf:
+        sn = self.selectedNotes()
+        if not sn:
             return
         mods = self.col.db.scalar(
             """
 select count(distinct mid) from notes
 where id in %s"""
-            % ids2str(sf)
+            % ids2str(sn)
         )
         if mods > 1:
             showInfo(_("Please select cards from only one note type."))
             return
-        return sf
+        return sn
 
     def onHelp(self):
         openHelp("browser")
