@@ -49,6 +49,9 @@ class Field(DictAugmentedInModel):
         field -- the field dictionnary
         newName -- either a name. Or None if the field is deleted.
         """
+        # This requires to recompute req entirely, as the new name may already be in questions.
+        # Todo: recompute only if it is the case
+
         self.model.manager.col.modSchema(check=True)
         #Regexp associating to a mustache the name of its field
         pat = r'{{([^{}]*)([:#^/]|[^:#/^}][^:}]*?:|)%s}}'

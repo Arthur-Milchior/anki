@@ -497,4 +497,3 @@ select id from cards where nid in (select id from notes where mid = ?)""",
                 template.old_req = self['req'][idx][2]
             template.old_qfmt = template['qfmt']
             template.is_new = False
-
