@@ -1,0 +1,1 @@
+Set the value to null if you don't want to introduce a shortcut. The name of the shortcut should be self explainatory.
