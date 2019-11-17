@@ -28,9 +28,13 @@ from aqt.utils import (checkInvalidFilename, getSaveFile, showInfo,
 
 class ExportDialog(QDialog):
 
-    def __init__(self, mw, deck=None):
+    def __init__(self, mw, deck=None, cids=None):
+        """
+        cids -- the cards selected, if it's opened from the browser
+        """
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
+        self.cids = cids
         self.col = mw.col
         self.frm = aqt.forms.exporting.Ui_ExportDialog()
         self.frm.setupUi(self)
