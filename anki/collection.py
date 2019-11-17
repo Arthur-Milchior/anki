@@ -471,10 +471,12 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         corresponding to those position/cloze"""
         return [model.getTemplate(ord) for ord in avail]
 
-    def genCards(self, nids):
+    def genCards(self, nids, changedOrNewReq=None):
         """Ids of cards which needs to be removed.
 
-        Generate missing cards of a note with id in nids.
+        Generate missing cards of a note with id in nids and with ord in changedOrNewReq.
+
+        changedOrNewReq -- set of index of templates which needs to be recomputed
         """
         # build map of (nid,ord) so we don't create dupes
         snids = ids2str(nids)
@@ -514,7 +516,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         for nid, mid, flds in self.db.execute(
             "select id, mid, flds from notes where id in "+snids):
             model = self.models.get(mid, orNone=False)
-            avail = model.availOrds(flds)
+            avail = model.availOrds(flds, changedOrNewReq)
             did = dids.get(nid) or model['did']
             due = dues.get(nid)
             # add any missing cards
@@ -535,9 +537,12 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
                     ts += 1
             # note any cards that need removing
             if nid in have:
-                for ord, id in list(have[nid].items()):
-                    if ord not in avail:
-                        rem.append(id)
+                for ord, cid in list(have[nid].items()):
+                    if ord in avail:
+                        continue
+                    if changedOrNewReq is not None and ord not in changedOrNewReq:
+                        continue
+                    rem.append(cid)
         # bulk update
         self.db.executemany("""
 insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
