@@ -181,11 +181,10 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
     def _drawButtons(self):
         buf = ""
         drawLinks = deepcopy(self.drawLinks)
-        for drawLink in drawLinks:
-            if drawLink[0]:
-                drawLink[0] = _("Shortcut key: %s") % shortcut(drawLink[0])
-            buf += """
-<button title='%s' onclick='pycmd(\"%s\");'>%s</button>""" % tuple(drawLink)
+        for (shortcut_, cmd, text) in drawLinks:
+            if shortcut_:
+                shortcut_ = _("Shortcut key: %s") % shortcut(shortcut_)
+            buf += """<button title='%s' onclick='pycmd(\"%s\");'>%s</button>""" % (shortcut_, cmd, text)
         self.bottom.draw(buf)
         self.bottom.web.onBridgeCmd = self._linkHandler
 
