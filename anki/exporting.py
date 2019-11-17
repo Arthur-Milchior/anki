@@ -78,7 +78,9 @@ class Exporter:
 
     def cardIds(self):
         """card ids of cards in deck self.did if it is set, all ids otherwise."""
-        if not self.did:
+        if self.cids is not None:
+            cids = self.cids
+        elif not self.did:
             cids = self.col.db.list("select id from cards")
         else:
             cids = self.col.decks.get(self.did).getCids(children=True)
