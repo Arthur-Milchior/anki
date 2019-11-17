@@ -438,7 +438,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_3">
+     <widget class="QWidget" name="tab_4">
       <attribute name="title">
        <string>Processing</string>
       </attribute>

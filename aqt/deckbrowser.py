@@ -155,8 +155,8 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
     def _defaultColumns(self):
         return [
             DeckName(),
-            Number("Due", "due", colDue),
-            Number("New", "new", colNew),
+            Number("Due", "due", self.mw.col.conf.get("colors", defaultColors)['due']),
+            Number("New", "new", self.mw.col.conf.get("colors", defaultColors)['new']),
             Gear(),
         ]
 

@@ -215,12 +215,12 @@ from revlog where id > ? """+lim, (self.col.sched.dayCutoff-86400)*1000)
             tot += day[1]+day[2]
             totd.append((day[0], tot))
         data = [
-            dict(data=mtr, color=colMature, label=_("Mature")),
-            dict(data=yng, color=colYoung, label=_("Young")),
+            dict(data=mtr, color=self.col.conf.get("colors", defaultColors)["mature"], label=_("Mature")),
+            dict(data=yng, color=self.col.conf.get("colors", defaultColors)["young"], label=_("Young")),
         ]
         if len(totd) > 1:
             data.append(
-                dict(data=totd, color=colCum, label=_("Cumulative"), yaxis=2,
+                dict(data=totd, color=self.col.conf.get("colors", defaultColors)["cum"], label=_("Cumulative"), yaxis=2,
                      bars={'show': False}, lines=dict(show=True), stack=False))
         txt = self._title(
             _("Forecast"),
@@ -285,7 +285,7 @@ group by day order by day""" % (self._limit(), lim),
             return self._graph(
                 id, data=data, conf=conf, xunit=chunk, ylabel=ylabel, ylabel2=ylabel2)
         # graph
-        repdata, repsum = self._splitRepData(data, ((1, colLearn, ""),))
+        repdata, repsum = self._splitRepData(data, ((1, self.col.conf.get("colors", defaultColors)["learn"], ""),))
         txt = self._title(
             _("Added"), _("The number of new cards you have added."))
         txt += plot("intro", repdata, ylabel=_("Cards"), ylabel2=_("Cumulative Cards"))
@@ -318,11 +318,11 @@ group by day order by day""" % (self._limit(), lim),
                 id, data=data, conf=conf, xunit=chunk, ylabel=ylabel, ylabel2=ylabel2)
         # reps
         (repdata, repsum) = self._splitRepData(data, (
-            (3, colMature, _("Mature")),
-            (2, colYoung, _("Young")),
-            (4, colRelearn, _("Relearn")),
-            (1, colLearn, _("Learn")),
-            (5, colCram, _("Cram"))))
+            (3, self.col.conf.get("colors", defaultColors)["mature"], _("Mature")),
+            (2, self.col.conf.get("colors", defaultColors)["young"], _("Young")),
+            (4, self.col.conf.get("colors", defaultColors)["relearn"], _("Relearn")),
+            (1, self.col.conf.get("colors", defaultColors)["learn"], _("Learn")),
+            (5, self.col.conf.get("colors", defaultColors)["cram"], _("Cram"))))
         txt1 = self._title(
             _("Review Count"), _("The number of questions you have answered."))
         txt1 += plot("reps", repdata, ylabel=_("Answers"), ylabel2=_(
@@ -332,11 +332,11 @@ group by day order by day""" % (self._limit(), lim),
         txt1 += rep
         # time
         (timdata, timsum) = self._splitRepData(data, (
-            (8, colMature, _("Mature")),
-            (7, colYoung, _("Young")),
-            (9, colRelearn, _("Relearn")),
-            (6, colLearn, _("Learn")),
-            (10, colCram, _("Cram"))))
+            (8, self.col.conf.get("colors", defaultColors)["mature"], _("Mature")),
+            (7, self.col.conf.get("colors", defaultColors)["young"], _("Young")),
+            (9, self.col.conf.get("colors", defaultColors)["relearn"], _("Relearn")),
+            (6, self.col.conf.get("colors", defaultColors)["learn"], _("Learn")),
+            (10, self.col.conf.get("colors", defaultColors)["cram"], _("Cram"))))
         if self.type == CARD_NEW:
             kindOfTime = _("Minutes")
             convHours = False
@@ -520,8 +520,8 @@ group by day order by day)""" % lim,
         txt = self._title(_("Intervals"),
                           _("Delays until reviews are shown again."))
         txt += self._graph(id="ivl", ylabel2=_("Percentage"), xunit=chunk, data=[
-            dict(data=ivls, color=colIvl),
-            dict(data=totd, color=colCum, yaxis=2,
+            dict(data=ivls, color=self.col.conf.get("colors", defaultColors)["ivl"]),
+            dict(data=totd, color=self.col.conf.get("colors", defaultColors)["cum"], yaxis=2,
              bars={'show': False}, lines=dict(show=True), stack=False)
             ], conf=dict(
                 xaxis=dict(min=-0.5, max=ivlmax+0.5),
@@ -568,9 +568,9 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = {QUEUE
         txt = self._title(_("Answer Buttons"),
                           _("The number of times you have pressed each button."))
         txt += self._graph(id="ease", data=[
-            dict(data=dic['lrn'], color=colLearn, label=_("Learning")),
-            dict(data=dic['yng'], color=colYoung, label=_("Young")),
-            dict(data=dic['mtr'], color=colMature, label=_("Mature")),
+            dict(data=dic['lrn'], color=self.col.conf.get("colors", defaultColors)["learn"], label=_("Learning")),
+            dict(data=dic['yng'], color=self.col.conf.get("colors", defaultColors)["young"], label=_("Young")),
+            dict(data=dic['mtr'], color=self.col.conf.get("colors", defaultColors)["mature"], label=_("Mature")),
             ], type="bars", conf=dict(
                 xaxis=dict(ticks=ticks, min=0, max=15)),
             ylabel=_("Answers"))
@@ -665,8 +665,8 @@ order by thetype, ease""" % (ease4repl, lim))
         txt = self._title(_("Hourly Breakdown"),
                           _("Review success rate for each hour of the day."))
         txt += self._graph(id="hour", data=[
-            dict(data=shifted, color=colCum, label=_("% Correct")),
-            dict(data=counts, color=colHour, label=_("Answers"), yaxis=2,
+            dict(data=shifted, color=self.col.conf.get("colors", defaultColors)["cum"], label=_("% Correct")),
+            dict(data=counts, color=self.col.conf.get("colors", defaultColors)["hour"], label=_("Answers"), yaxis=2,
              bars=dict(barWidth=0.2), stack=False)
         ], conf=dict(
             xaxis=dict(ticks=[[0, _("4AM")], [6, _("10AM")],
@@ -706,10 +706,10 @@ group by hour having count() > 30 order by hour""" % lim,
         div = self._cards()
         nameColor = []
         for index, (kindOfCard, col) in enumerate((
-            (_("Mature"), colMature),
-            (_("Young+Learn"), colYoung),
-            (_("Unseen"), colUnseen),
-            (_("Suspended+Buried"), colSusp))):
+            (_("Mature"), self.col.conf.get("colors", defaultColors)["mature"]),
+            (_("Young+Learn"), self.col.conf.get("colors", defaultColors)["young"]),
+            (_("Unseen"), self.col.conf.get("colors", defaultColors)["unseen"]),
+            (_("Suspended+Buried"), self.col.conf.get("colors", defaultColors)["unseen"]))):
             nameColor.append(dict(data=div[index], label="%s: %s" % (kindOfCard, div[index]), color=col))
         # text data
         tableLines = []

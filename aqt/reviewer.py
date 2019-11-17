@@ -522,8 +522,8 @@ time = %(time)d;
             counts = list(self.mw.col.sched.counts(self.card))
         idx = self.mw.col.sched.countIdx(self.card)
         counts[idx] = "<u>%s</u>" % (counts[idx])
-        listColors = [colNew, colLearn,colRev]
-        return " + ".join(f'<font color="{color}">{counts[idx]}</font>' for idx, color in enumerate(listColors))
+        listColors = ["new", "learn", "rev"]
+        return " + ".join(f'<font color="{self.mw.col.conf.get("colors", defaultColors)[color]}">{counts[idx]}</font>' for idx, color in enumerate(listColors))
 
     def _defaultEase(self):
         if self.mw.col.sched.answerButtons(self.card) == 4:

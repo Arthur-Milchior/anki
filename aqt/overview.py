@@ -188,7 +188,7 @@ to their original deck.""")
             {string}:
           </td>
           <td>
-            <b><font color={color}>{nb}</font></b>
+            <b><font color={self.mw.col.conf.get("colors", defaultColors)[color]}>{nb}</font></b>
           </td>
         </tr>''' for string, color, nb in footList)+
 '''
