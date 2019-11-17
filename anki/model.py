@@ -390,7 +390,7 @@ select id from cards where nid in (select id from notes where mid = ?)""",
     # Required field/text cache
     ##########################################################################
 
-    def availOrds(self, flds):
+    def availOrds(self, flds, changedOrNewReq=None):
         """Given a joined field string, return ordinal of card type which
         should be generated. See
         ../documentation/templates_generation_rules.md for the detail
@@ -400,8 +400,10 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         fields = {}
         for index, fieldType in enumerate(splitFields(flds)):
             fields[index] = fieldType.strip()
-        avail = []
-        for ord, type, req in self['req']:
+        avail = []#List of ord cards which would be generated
+        ords = changedOrNewReq if changedOrNewReq is not None else range(len(self['req']))
+        for ord in ords:
+            ord, type, req = self['req'][ord]
             # unsatisfiable template
             if type == "none":
                 continue
