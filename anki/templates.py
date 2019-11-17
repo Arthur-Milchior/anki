@@ -75,17 +75,17 @@ update cards set ord = ord - 1, usn = ?, mod = ?
         self.model.save(recomputeReq=False)
         return True
 
-    def move(self, idx):
-        """Move input self to position idx in model.
+    def move(self, newidx):
+        """Move input self to position newidx in model.
         Move also every other self to make this consistent.
         Comment again after that TODODODO
         """
         oldidx = self.model['tmpls'].index(self)
-        if oldidx == idx:
+        if oldidx == newidx:
             return
         oldidxs = dict((id(self), self['ord']) for self in self.model['tmpls'])
         self.model['tmpls'].remove(self)
-        self.model['tmpls'].insert(idx, self)
+        self.model['tmpls'].insert(newidx, self)
         self.model._updateTemplOrds()
         # generate change map
         map = [("when ord = %d then %d" % (oldidxs[id(self)], self['ord']))
