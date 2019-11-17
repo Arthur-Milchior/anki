@@ -168,6 +168,15 @@ class AddCards(QDialog):
         runHook("AddCards.onHistory", self, menu)
         menu.exec_(self.historyButton.mapToGlobal(QPoint(0,0)))
 
+    def show_browser_on_added_today(self):
+        browser = aqt.dialogs.open("Browser", self.mw)
+        browser.form.searchEdit.lineEdit().setText("added:1")
+        browser.onSearchActivated()
+        if u'noteCrt' in browser.model.activeCols:
+            col_index = browser.model.activeCols.index(u'noteCrt')
+            browser.onSortChanged(col_index, True)
+        browser.form.tableView.selectRow(0)
+
     def editHistory(self, nid):
         browser = aqt.dialogs.open("Browser", self.mw, f"nid:{nid}")
 
