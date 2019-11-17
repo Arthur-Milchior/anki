@@ -35,19 +35,20 @@ class ExportDialog(QDialog):
         self.frm = aqt.forms.exporting.Ui_ExportDialog()
         self.frm.setupUi(self)
         self.exporter = None
-        self.setup(deck)
+        self.setup(deck, cids)
         self.exec_()
 
-    def setup(self, deck):
+    def setup(self, deck=None, cids=None):
         """
 
         keyword arguments:
         deck -- if None, then export whole anki. If deck, export this deck (at least as default).
+        cids -- If cids is not None, export those cards.
         """
         self.exporters = exporters()
         # if a deck specified, start with .apkg type selected
         idx = 0
-        if deck:
+        if deck or cids:
             for index, (exporterString,e) in enumerate(self.exporters):
                 if e.ext == ".apkg":
                     idx = index
@@ -57,7 +58,11 @@ class ExportDialog(QDialog):
         self.frm.format.activated.connect(self.exporterChanged)
         self.exporterChanged(idx)
         # deck list
-        self.decks = [_("All Decks")] + sorted(self.col.decks.allNames())
+        self.decks = [_("All Decks")]
+        if cids:
+            bs=_("Browser's selection")
+            self.decks = [bs] + self.decks
+        self.decks = self.decks + sorted(self.col.decks.allNames())
         self.frm.deck.addItems(self.decks)
         # save button
         exportButton = QPushButton(_("Export..."))
