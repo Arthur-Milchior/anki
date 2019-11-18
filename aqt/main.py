@@ -487,6 +487,10 @@ from the profile screen."))
                 self.BackupThread(newpath, data).start()
 
     def cleanBackup(self):
+        self.cleanRecentBackup()
+        self.cleanLongTermBackup()
+
+    def cleanRecentBackup(self):
         # find existing backups
         backups = [file
                    for file in os.listdir(self.pm.backupFolder())
@@ -499,6 +503,34 @@ from the profile screen."))
             fname = backups.pop(0)
             path = os.path.join(self.pm.backupFolder(), fname)
             os.unlink(path)
+
+    def cleanLongTermBackup(self):
+        nbDayInMonth = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+        monthsToKeep = []
+        for nbMonth in range(12):
+            if nbMonth<self.month:
+                monthsToKeep.append((self.year, self.month-nbMonth))
+            else:
+                monthsToKeep.append((self.year-1, self.month-nbMonth+12))
+
+        nbDayThisMonth = nbDayInMonth[self.month-1]
+        nbDayPreviousMonth = nbDayInMonth[(self.month-2) % 12]
+
+        daysToKeep = []
+        for nbDay in range(nbDayThisMonth):
+            if nbDay<self.day:
+                daysToKeep.append((self.year, self.month, self.day-nbDay))
+            else:
+                if self.month == 1:
+                    daysToKeep.append((self.year-1, 12, self.day-nbDay+nbDayPreviousMonth))
+                else:
+                    daysToKeep.append((self.year, self.month-1, self.day-nbDay+nbDayPreviousMonth))
+        filesToKeep = ([f"backup-monthly-{yearToHave:02d}-{monthToHave:02d}.colpkg" for yearToHave, monthToHave in monthsToKeep]+
+                       [f"backup-daily-{yearToHave:02d}-{monthToHave:02d}-{dayToHave:02d}.colpkg" for yearToHave, monthToHave, dayToHave in daysToKeep])
+        for file in os.listdir(self.pm.backupFolder()):
+            if (file.startswith("backup-monthy-") or file.startswith("backup-daily-")) and file not in filesToKeep:
+                oldpath = os.path.join(self.pm.backupFolder(), file)
+                os.unlink(oldpath)
 
     def maybeOptimize(self):
         # have two weeks passed?
