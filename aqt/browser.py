@@ -1952,9 +1952,76 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         if on:
             self.form.actionUndo.setText(self.mw.form.actionUndo.text())
 
-    # Edit: replacing
+    # Edit: Batch Edit
     ######################################################################
 
+    def onBatchEdit(self):
+        return self.editor.saveNow(self._onBatchEdit)
+
+    def _onBatchEdit(self):
+        return self.applyToSelectedNote(self.__onBatchEdit)
+
+    def __onBatchEdit(self, nids):
+        import anki.find
+        fields = anki.find.fieldNamesForNotes(self.mw.col, nids)
+        qdialog = QDialog(self)
+        frm = aqt.forms.batchedit.Ui_Dialog()
+        frm.setupUi(qdialog)
+        qdialog.setWindowModality(Qt.WindowModal)
+        frm.field.addItems(fields)
+        restoreGeom(qdialog, "batchedit")
+        frm.addBefore.clicked.connect(lambda : self.___onBatchEdit(qdialog, frm, "before", nids, fields))
+        frm.addAfter.clicked.connect(lambda : self.___onBatchEdit(qdialog, frm, "after", nids, fields))
+        frm.replace.clicked.connect(lambda : self.___onBatchEdit(qdialog, frm, "replace", nids, fields))
+        qdialog.exec_()
+
+    def ___onBatchEdit(self, qdialog, frm, pos, nids, fields):
+        saveGeom(qdialog, "batchedit")
+        fieldName = fields[frm.field.currentIndex()]
+        self.mw.checkpoint(_("Batch edit"))
+        self.mw.progress.start()
+        self.model.beginReset()
+        isHtml = frm.insertAsHtml.isChecked()
+        html = frm.textToAdd.toPlainText()
+        html = html.replace('\n', '<br/>')
+        if not isHtml:
+            html = html.replace('<', '&lt;')
+            html = html.replace('>', '&gt;')
+        cnt = 0
+        for nid in nids:
+            note = self.mw.col.getNote(nid)
+            try:
+                content = note[fieldName]
+            except KeyError:
+                continue
+            if isHtml:
+                spacer = "\n"
+                breaks = (spacer)
+            else:
+                spacer = "<br/>"
+                breaks = ("<div>", "</div>", "<br>", spacer)
+            if self.col.conf.get("newLineInBatchEdit", False):
+                spacer = ""
+            if pos == "after":
+                if content.endswith(breaks):
+                    spacer = ""
+                note[fieldName] += spacer + html
+            elif pos == "before":
+                if content.startswith(breaks):
+                    spacer = ""
+                note[fieldName] = html + spacer + content
+            elif pos == "replace":
+                note[fieldName] = html
+            note.flush()
+            cnt += 1
+
+        self.model.endReset()
+        self.mw.progress.finish()
+        tooltip(f"<b>Updated</b> {cnt} notes.", parent=self)
+        qdialog.reject()
+
+    # Edit: replacing
+    ######################################################################
     def onFindReplace(self):
         self.editor.saveNow(self._onFindReplace)
 
