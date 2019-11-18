@@ -1291,13 +1291,16 @@ will be lost. Continue?"""))
         box.accepted.connect(lambda: this.onDelete(cids, diag))
         diag.show()
 
+    def _delete(self, cids):
+        self.col.remCards(cids)
+        tooltip(ngettext("%d card deleted.", "%d cards deleted.", len(cids)) % len(cids))
+        self.reset()
+
     def onDelete(self, cids, diag):
         saveGeom(diag, "emptyCards")
         QDialog.accept(diag)
         self.checkpoint(_("Delete Empty"))
-        self.col.remCards(cids)
-        tooltip(ngettext("%d card deleted.", "%d cards deleted.", len(cids)) % len(cids))
-        self.reset()
+        self._delete(cids):
 
     # Debugging
     ######################################################################
