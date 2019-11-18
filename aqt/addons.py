@@ -373,6 +373,7 @@ class ConfigEditor(QDialog):
     def updateText(self, conf):
         text = json.dumps(conf, sort_keys=True,
                           indent=4, separators=(',', ': '))
+        text = readableJson(text)
         self.form.editor.setPlainText(text)
 
     def onClose(self):
