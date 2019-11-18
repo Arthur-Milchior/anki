@@ -226,11 +226,16 @@ def ids2str(ids):
     """Given a list of integers, return a string '(int1,int2,...)'."""
     return "(%s)" % ",".join(str(id) for id in ids)
 
-def timestampID(db, table):
-    "Return a non-conflicting timestamp for table."
+def timestampID(db, table, t=None):
+    """Return a non-conflicting timestamp for table.
+
+    t -- the time of the id. (It may be changed slightly to ensure
+    unicity). If none, then the time is now
+
+    """
     # be careful not to create multiple objects without flushing them, or they
     # may share an ID.
-    time = intTime(1000)
+    time = t or intTime(1000)
     while db.scalar("select id from %s where id = ?" % table, time):
         time += 1
     return time
