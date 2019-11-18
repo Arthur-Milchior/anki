@@ -278,8 +278,8 @@ Please create a new card type first."""))
     def onCardSelected(self, idx):
         if self.redrawing:
             return
-        self.card = self.cards[idx]
         self.ord = idx
+        self.card = self.cards[self.ord]
         self.playedAudio = {}
         self.readCard()
         self.renderPreview()
