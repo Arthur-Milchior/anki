@@ -16,8 +16,8 @@ from anki.lang import _, ngettext
 from anki.sound import clearAudioQueue, playFromText
 from anki.utils import bodyClass, isMac, isWin, joinFields
 from aqt.qt import *
-from aqt.utils import (askUser, downArrow, getOnlyText, mungeQA, openHelp,
-                       restoreGeom, saveGeom, showInfo, showWarning)
+from aqt.utils import (askUser, downArrow, flushNote, getOnlyText, mungeQA,
+                       openHelp, restoreGeom, saveGeom, showInfo, showWarning)
 from aqt.webview import AnkiWebView
 
 
@@ -58,7 +58,7 @@ class CardLayout(QDialog):
                     continue
                 self.emptyFields.append(name)
                 note[name] = "(%s)" % name
-            note.flush()
+            flushNote(note)
         self.setupTopArea()
         self.setupMainArea()
         self.setupButtons()

@@ -23,8 +23,8 @@ from anki.sync import AnkiRequestsClient
 from anki.utils import checksum, isWin, namedtmp, stripHTMLMedia
 from aqt.qt import *
 from aqt.sound import getAudio
-from aqt.utils import (getFile, openHelp, qtMenuShortcutWorkaround, shortcut,
-                       showInfo, showWarning, tooltip)
+from aqt.utils import (flushNote, getFile, openHelp, qtMenuShortcutWorkaround,
+                       shortcut, showInfo, showWarning, tooltip)
 from aqt.webview import AnkiWebView
 
 """
@@ -336,7 +336,7 @@ class Editor:
         txt = self.mw.col.media.escapeImages(txt, unescape=True)
         self.note.fields[ord] = txt
         if not self.addMode:
-            self.note.flush()
+            flushNote(self.note)
             self.mw.requireReset()
 
     def onFocus(self, num):
@@ -518,7 +518,7 @@ class Editor:
             self.mw.col.tags.split(tagsTxt))
         self.tags.setText(self.mw.col.tags.join(self.note.tags).strip())
         if not self.addMode:
-            self.note.flush()
+            flushNote(self.note)
         runHook("tagsUpdated", self.note)
 
     def saveAddModeVars(self):

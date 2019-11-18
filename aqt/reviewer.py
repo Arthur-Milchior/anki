@@ -17,7 +17,7 @@ from anki.sound import clearAudioQueue, play, playFromText
 from anki.utils import bodyClass, stripHTML
 from aqt.qt import *
 from aqt.sound import getAudio
-from aqt.utils import (askUserDialog, downArrow, mungeQA,
+from aqt.utils import (askUserDialog, downArrow, flushNote, mungeQA,
                        qtMenuShortcutWorkaround, tooltip)
 
 
