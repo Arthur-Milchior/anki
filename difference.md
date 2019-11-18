@@ -14,3 +14,8 @@ instead of deleting the note» chage the behavior of anki when he finds
 a note which has no more card. This allow to lose the content of the
 note, and let you correct the note instead to generate cards.
 
+## New line in Json (112201952)
+In order to lead configurations be easier to edit, this add-on allow
+newline in json strings. It allow add newlines in the add-on
+configuration editor.
+
