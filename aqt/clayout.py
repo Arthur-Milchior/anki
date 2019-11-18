@@ -107,11 +107,16 @@ class CardLayout(QDialog):
 
     def setupTopArea(self):
         self.topArea = QWidget()
-        self.topAreaForm = aqt.forms.clayout_top.Ui_Form()
-        self.topAreaForm.setupUi(self.topArea)
-        self.topAreaForm.templateOptions.setText(_("Options") + " "+downArrow())
-        self.topAreaForm.templateOptions.clicked.connect(self.onMore)
-        self.topAreaForm.templatesBox.currentIndexChanged.connect(self.onCardSelected)
+        module = aqt.forms.clayout_top_cloze if self._isCloze() else aqt.forms.clayout_top
+        self.topAreaForm = module.Ui_Form()
+        if self._isCloze():
+            cardNumber = self.ord+1
+            self.topAreaForm.clozeNumber.setValue(cardNumber)
+            self.topAreaForm.clozeNumber.valueChanged.connect(lambda idx: self.onCardSelected(idx-1))
+        else:
+            self.topAreaForm.templateOptions.setText(_("Options") + " "+downArrow())
+            self.topAreaForm.templateOptions.clicked.connect(self.onMore)
+            self.topAreaForm.templatesBox.currentIndexChanged.connect(self.onCardSelected)
 
     def updateTopArea(self):
         cnt = self.model.useCount()
@@ -125,12 +130,13 @@ class CardLayout(QDialog):
     def updateCardNames(self):
         """ In the list of card name, change them according to
         current's name"""
+        if self._isCloze():
+            return
         self.redrawing = True
         combo = self.topAreaForm.templatesBox
         combo.clear()
         combo.addItems(self._summarizedName(template) for template in self.model['tmpls'])
         combo.setCurrentIndex(self.ord)
-        combo.setEnabled(not self._isCloze())
         self.redrawing = False
 
     def _summarizedName(self, tmpl):
