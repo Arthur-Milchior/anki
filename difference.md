@@ -2,6 +2,12 @@
 This files list the difference between regular anki and this forked
 version. It also lists the different options in the Preferences's extra page.
 
+## Compile LaTeX as soon as possible (769835008)
+
+As soon as a note with LaTeX is saved, its latex is compiled. A
+message warns when there is an error. To save time, once an expression
+failed, it's not tried again.
+
 ## Explain errors
 You obtain more detailled error message if a sync fail, and if you try
 do do a «Check database».
