@@ -63,6 +63,7 @@ class CardLayout(QDialog):
         self.setupMainArea()
         self.setupButtons()
         self.setupShortcuts()
+        self.did = self.parent.deckChooser.selectedId() if hasattr(self.parent,"deckChooser") else None
         self.setWindowTitle(_("Card Types for %s") % self.model.getName())
         v1 = QVBoxLayout()
         v1.addWidget(self.topArea)
@@ -82,10 +83,7 @@ class CardLayout(QDialog):
         """TODO
         update the list of card
         """
-        did = None
-        if hasattr(self.parent,"deckChooser"):
-            did = self.parent.deckChooser.selectedId()
-        self.cards = self.col.previewCards(self.note, 2, did=did)
+        self.cards = self.col.previewCards(self.note, 2, did=self.did)
         #the list of cards of this note, with all templates
         idx = self.ord
         if idx >= len(self.cards):
