@@ -179,12 +179,26 @@ to their original deck.""")
                 (_("To Review"), colRev, counts[2])]
             return (f'''
 <table width=400 cellpadding=5>
-<tr><td align=center valign=top>
-<table cellspacing=5>'''+
-"\n".join("<tr><td>{string}:</td><td><b><font color={color}>{nb}</font></b></td></tr>" for string, color, nb in footList)+
-'''</table>
-</td><td align=center>
-{but("study", _("Study Now"), id="study",extra=" autofocus")}</td></tr></table>''')
+  <tr>
+    <td align=center valign=top>
+      <table cellspacing=5>'''+
+        "\n".join('''
+        <tr>
+          <td>
+            {string}:
+          </td>
+          <td>
+            <b><font color={color}>{nb}</font></b>
+          </td>
+        </tr>''' for string, color, nb in footList)+
+'''
+      </table>
+    </td>
+    <td align=center>
+    {but("study", _("Study Now"), id="study",extra=" autofocus")}
+    </td>
+  </tr>
+</table>''')
 
 
     _body = """
