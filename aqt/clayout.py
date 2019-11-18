@@ -6,6 +6,7 @@
 * edit a note type
 * preview the different cards of a note."""
 import collections
+import copy
 import json
 import re
 
@@ -279,7 +280,12 @@ Please create a new card type first."""))
         if self.redrawing:
             return
         self.ord = idx
-        self.card = self.cards[self.ord]
+        if self._isCloze():
+            tmpl = copy.copy(self.note.model()['tmpls'][0])
+            tmpl['ord'] = self.ord
+            self.card = self.col._newCard(self.note, tmpl, 1, flush=False, did=self.did)
+        else:
+            self.card = self.cards[self.ord]
         self.playedAudio = {}
         self.readCard()
         self.renderPreview()
