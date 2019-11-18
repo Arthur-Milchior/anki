@@ -1275,7 +1275,7 @@ will be lost. Continue?"""))
         """Method called by Tools>Empty Cards..."""
 
         self.progress.start(immediate=True)
-        cids = self.col.emptyCids()
+        cids = set(self.col.emptyCids())
         if not cids:
             self.progress.finish()
             tooltip(_("No empty cards."))
