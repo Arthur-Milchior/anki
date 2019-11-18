@@ -1288,15 +1288,16 @@ will be lost. Continue?"""))
                 geomKey="emptyCards")
         box.addButton(_("Delete Cards"), QDialogButtonBox.AcceptRole)
         box.button(QDialogButtonBox.Close).setDefault(True)
-        def onDelete():
-            saveGeom(diag, "emptyCards")
-            QDialog.accept(diag)
-            self.checkpoint(_("Delete Empty"))
-            self.col.remCards(cids)
-            tooltip(ngettext("%d card deleted.", "%d cards deleted.", len(cids)) % len(cids))
-            self.reset()
-        box.accepted.connect(onDelete)
+        box.accepted.connect(lambda: this.onDelete(cids, diag))
         diag.show()
+
+    def onDelete(self, cids, diag):
+        saveGeom(diag, "emptyCards")
+        QDialog.accept(diag)
+        self.checkpoint(_("Delete Empty"))
+        self.col.remCards(cids)
+        tooltip(ngettext("%d card deleted.", "%d cards deleted.", len(cids)) % len(cids))
+        self.reset()
 
     # Debugging
     ######################################################################
