@@ -465,11 +465,15 @@ from the profile screen."))
 
     def doBackup(self):
         # do backup
-        fname = time.strftime("backup-%Y-%m-%d-%H.%M.%S.colpkg", time.localtime(time.time()))
-        newpath = os.path.join(self.pm.backupFolder(), fname)
+        patternsToCreate = {"backup-%Y-%m-%d-%H.%M.%S.colpkg"}
+        filesToCreate = {time.strftime(pattern, time.localtime(time.time()))
+                         for pattern in patternsToCreate}
         with open(self.pm.collectionPath(), "rb") as file:
             data = file.read()
-        self.BackupThread(newpath, data).start()
+        for fname in filesToCreate:
+            newpath = os.path.join(self.pm.backupFolder(), fname)
+            if not os.path.exists(newpath):
+                self.BackupThread(newpath, data).start()
 
     def cleanBackup(self):
         # find existing backups
