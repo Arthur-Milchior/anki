@@ -20,10 +20,11 @@ class ModelChooser(QHBoxLayout):
     widget -- the button used to open this window. It contains the
     name of the current model.
     """
-    def __init__(self, mw, widget, label=True):
+    def __init__(self, mw, widget, label=True, addCardWindow = None):
         QHBoxLayout.__init__(self)
         self.widget = widget
         self.mw = mw
+        self.addCardWindow = addCardWindow
         self.deck = mw.col
         self.label = label
         self.setContentsMargins(0,0,0,0)
