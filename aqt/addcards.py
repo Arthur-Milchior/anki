@@ -112,6 +112,9 @@ class AddCards(QDialog):
             self.removeTempNote(oldNote)
         self.editor.setNote(note)
 
+    def onResetSameModel(self, keep=False):
+        return self.onReset(model=self.editor.note._model, keep=keep)
+
     def onReset(self, model=None, keep=False):
         """Create a new note and set it with the current field values.
 
