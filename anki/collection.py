@@ -471,6 +471,9 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         corresponding to those position/cloze"""
         return [model.getTemplate(ord) for ord in avail]
 
+    def isCardNew(self, id):
+        return self.db.scalar(f"select id from cards where id = ? and type = {CARD_NEW}", id)
+
     def genCards(self, nids):
         """Ids of cards which needs to be removed.
 
@@ -534,10 +537,14 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
                                  now, usn, due))
                     ts += 1
             # note any cards that need removing
+            removeSeenCard = not self.conf.get("keepSeenCard", True)
             if nid in have:
                 for ord, id in list(have[nid].items()):
-                    if ord not in avail:
-                        rem.append(id)
+                    if ord in avail:
+                        continue
+                    if not (removeSeenCard or self.isCardNew(id)):
+                        continue
+                    rem.append(id)
         # bulk update
         self.db.executemany("""
 insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
