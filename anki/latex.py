@@ -28,6 +28,7 @@ regexps = {
     "math": re.compile(r"\[\$\$\](.+?)\[/\$\$\]", re.DOTALL | re.IGNORECASE),
     }
 
+
 # add standard tex install location to osx
 if isMac:
     os.environ['PATH'] += ":/usr/texbin:/Library/TeX/texbin"
@@ -95,6 +96,8 @@ def _imgLink(col, latex, model):
     """
     txt = _latexFromHtml(col, latex)
 
+    if txt in col.buggedLatex:
+        return col.buggedLatex[txt]
     if model.get("latexsvg", False):
         ext = "svg"
     else:
@@ -112,6 +115,7 @@ def _imgLink(col, latex, model):
 
     err = _buildImg(col, txt, fname, model)
     if err:
+        col.buggedLatex[txt] = err
         return err
     else:
         return link
@@ -126,7 +130,9 @@ def _latexFromHtml(col, latex):
     return latex
 
 def _buildImg(col, latex, fname, model):
-    """Generate an image file from latex code
+    """An error message if something did not work correctly.
+
+    Generate an image file from latex code
 
     latex's header and foot is added as in the model. The image is
     named fname and added to the media folder of this collection.
