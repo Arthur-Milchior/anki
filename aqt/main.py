@@ -460,12 +460,23 @@ from the profile screen."))
     def backup(self):
         if not self.pm.profile['numBackups'] or devMode:
             return
+        currentTime = time.localtime(time.time())
+        # Saving currentTime so that there is no change between successive
+        # files if by acciddent a backup occurs before and after
+        # midnightp
+        self.year = int(time.strftime("%Y",currentTime))
+        self.month = int(time.strftime("%m",currentTime))
+        self.day = int(time.strftime("%d",currentTime))
         self.doBackup()
         self.cleanBackup()
 
     def doBackup(self):
         # do backup
         patternsToCreate = {"backup-%Y-%m-%d-%H.%M.%S.colpkg"}
+        if self.pm.profile.get('longTermBackup', True):
+            patternsToCreate.update({f"backup-yearly-{self.year:02d}.colpkg",
+                                     f"backup-monthly-{self.year:02d}-{self.month:02d}.colpkg",
+                                     f"backup-daily-{self.year:02d}-{self.month:02d}-{self.day:02d}.colpkg",})
         filesToCreate = {time.strftime(pattern, time.localtime(time.time()))
                          for pattern in patternsToCreate}
         with open(self.pm.collectionPath(), "rb") as file:
