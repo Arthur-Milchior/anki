@@ -173,20 +173,18 @@ to their original deck.""")
             return '<div style="white-space: pre-wrap;">%s</div>' % (
                 self.mw.col.sched.finishedMsg())
         else:
-            return f'''
+            footList = [
+                (_("New"), colNew, counts[0]),
+                (_("Learning"), colLearn, counts[1]),
+                (_("To Review"), colRev, counts[2])]
+            return (f'''
 <table width=400 cellpadding=5>
 <tr><td align=center valign=top>
-<table cellspacing=5>
-<tr><td>%s:</td><td><b><font color={colNew}>%s</font></b></td></tr>
-<tr><td>%s:</td><td><b><font color={colLearn}>%s</font></b></td></tr>
-<tr><td>%s:</td><td><b><font color={colRev}>%s</font></b></td></tr>
-</table>
+<table cellspacing=5>'''+
+"\n".join("<tr><td>{string}:</td><td><b><font color={color}>{nb}</font></b></td></tr>" for string, color, nb in footList)+
+'''</table>
 </td><td align=center>
-%s</td></tr></table>''' % (
-    _("New"), counts[0],
-    _("Learning"), counts[1],
-    _("To Review"), counts[2],
-    but("study", _("Study Now"), id="study",extra=" autofocus"))
+{but("study", _("Study Now"), id="study",extra=" autofocus")}</td></tr></table>''')
 
 
     _body = """
