@@ -93,6 +93,9 @@ class ModelChooser(QHBoxLayout):
         cdeck.save()
         runHook("currentModelChanged")
         self.mw.reset()
+        if self.addCardWindow:
+            self.addCardWindow.onModelChange() #this is onModelChange from card, and note from ModelChange
+            self.updateModels()
 
     def updateModels(self):
         """Change the button's text so that it has the name of the current
