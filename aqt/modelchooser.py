@@ -100,4 +100,5 @@ class ModelChooser(QHBoxLayout):
     def updateModels(self):
         """Change the button's text so that it has the name of the current
         model."""
-        self.models.setText(self.deck.models.current().getName())
+        modelName = self.deck.models.current().getName()
+        self.models.setText(modelName)
