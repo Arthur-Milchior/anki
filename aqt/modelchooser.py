@@ -100,5 +100,9 @@ class ModelChooser(QHBoxLayout):
     def updateModels(self):
         """Change the button's text so that it has the name of the current
         model."""
-        modelName = self.deck.models.current().getName()
+        if hasattr(self,"editor") or (self.addCardWindow is not None):#self's init has ended
+            modelName = self.addCardWindow.editor.note._model["name"]
+        else:# initialisation of the window
+            modelName = self.deck.models.current().getName()
+
         self.models.setText(modelName)
