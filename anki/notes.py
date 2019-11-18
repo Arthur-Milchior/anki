@@ -117,6 +117,9 @@ from notes where id = ?""", self.id)
         mod -- A modification timestamp"""
         assert self.scm == self.col.scm
         self._preFlush()
+        texError = None
+        if self.col.conf.get("compileLaTeX", True):
+            texError = self.tagTex(mod)
         sfld = stripHTMLMedia(self.fields[self._model.sortIdx()])
         tags = self.stringTags()
         fields = self.joinedFields()
@@ -135,6 +138,7 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
                             self.data)
         self.col.tags.register(self.tags)
         self._postFlush()
+        return texError
 
     def joinedFields(self):
         """The list of fields, separated by \x1f (\\x1f)."""
