@@ -1,0 +1,2 @@
+rm clozeInClayout.zip
+zip clozeInClayout.zip config.* *py  LICENSE *.md zipping --exclude \*~ \*zip *ui
