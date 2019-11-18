@@ -531,3 +531,26 @@ class AddonManager:
 
     def getWebExports(self, addon):
         return self._webExports.get(addon)
+
+def readableJson(text):
+    """Text, where \n are replaced with new line. Unless it's preceded by a odd number of \."""
+    l=[]
+    numberOfSlashOdd=False
+    numberOfQuoteOdd=False
+    for char in text:
+        if char == "n" and numberOfQuoteOdd and numberOfSlashOdd:
+            l[-1]="\n"
+        else:
+            l.append(char)
+            if char=="\n":
+                char="newline"
+
+        if char == "\"":
+            if not numberOfSlashOdd:
+                numberOfQuoteOdd = not numberOfQuoteOdd
+
+        if char == "\\":
+            numberOfSlashOdd = not numberOfSlashOdd
+        else:
+            numberOfSlashOdd = False
+    return "".join(l)
