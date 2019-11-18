@@ -85,10 +85,8 @@ class CardLayout(QDialog):
         """
         self.cards = self.col.previewCards(self.note, 2, did=self.did)
         #the list of cards of this note, with all templates
-        idx = self.ord
-        if idx >= len(self.cards):
+        if self.ord >= len(self.cards) and not self._isCloze():
             self.ord = len(self.cards) - 1
-
         self.redrawing = True
         self.updateTopArea()
         self.redrawing = False
