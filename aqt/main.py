@@ -460,7 +460,10 @@ from the profile screen."))
     def backup(self):
         if not self.pm.profile['numBackups'] or devMode:
             return
+        self.doBackup()
+        self.cleanBackup()
 
+    def doBackup(self):
         # do backup
         fname = time.strftime("backup-%Y-%m-%d-%H.%M.%S.colpkg", time.localtime(time.time()))
         newpath = os.path.join(self.pm.backupFolder(), fname)
@@ -468,6 +471,7 @@ from the profile screen."))
             data = file.read()
         self.BackupThread(newpath, data).start()
 
+    def cleanBackup(self):
         # find existing backups
         backups = [file
                    for file in os.listdir(self.pm.backupFolder())
