@@ -575,6 +575,7 @@ class Browser(QMainWindow):
         self.form.actionChangeModel.triggered.connect(self.onChangeModel)
         self.form.actionFindDuplicates.triggered.connect(self.onFindDupes)
         self.form.actionFindReplace.triggered.connect(self.onFindReplace)
+        self.form.actionBatchEdit.triggered.connect(self.onBatchEdit)
         self.form.actionManage_Note_Types.triggered.connect(self.mw.onNoteTypes)
         self.form.actionDelete.triggered.connect(self.deleteNotes)
         # cards
