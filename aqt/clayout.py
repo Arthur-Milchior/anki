@@ -93,7 +93,6 @@ class CardLayout(QDialog):
 
         self.redrawing = True
         self.updateTopArea()
-        self.updateMainArea()
         self.redrawing = False
         self.onCardSelected(self.ord)
 
@@ -227,12 +226,6 @@ class CardLayout(QDialog):
         pform.backWeb.stdHtml(self.mw.reviewer.revHtml(),
                               css=["reviewer.css"],
                                js=jsinc)
-
-    def updateMainArea(self):
-        if self._isCloze():
-            cnt = len(self.model.availOrds(joinFields(self.note.fields)))
-            for groupBox in self.pform.groupBox, self.pform.groupBox_2:
-                groupBox.setTitle(groupBox.title() + _(" (1 of %d)") % max(cnt, 1))
 
     def onRemove(self):
         """ Remove the current template, except if it would leave a note without card. Ask user for confirmation"""
