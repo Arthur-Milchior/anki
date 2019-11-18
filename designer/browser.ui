@@ -315,6 +315,7 @@
     <addaction name="actionManage_Note_Types"/>
     <addaction name="separator"/>
     <addaction name="actionDelete"/>
+    <addaction name="actionCopy"/>
    </widget>
    <widget class="QMenu" name="menuColumns">
     <property name="title">
@@ -609,6 +610,14 @@
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+K</string>
+   </property>
+  </action>
+  <action name="actionCopy">
+   <property name="text">
+    <string>&amp;Copy Note</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Alt+C</string>
    </property>
   </action>
  </widget>

@@ -577,6 +577,7 @@ class Browser(QMainWindow):
         self.form.actionFindReplace.triggered.connect(self.onFindReplace)
         self.form.actionManage_Note_Types.triggered.connect(self.mw.onNoteTypes)
         self.form.actionDelete.triggered.connect(self.deleteNotes)
+        self.form.actionCopy.triggered.connect(self.actionCopy)
         # cards
         self.form.actionChange_Deck.triggered.connect(self.setDeck)
         self.form.action_Info.triggered.connect(self.showCardInfo)
