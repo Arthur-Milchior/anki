@@ -458,30 +458,27 @@ from the profile screen."))
             zip.close()
 
     def backup(self):
-        nbacks = self.pm.profile['numBackups']
-        if not nbacks or devMode:
+        if not self.pm.profile['numBackups'] or devMode:
             return
-        dir = self.pm.backupFolder()
-        path = self.pm.collectionPath()
 
         # do backup
         fname = time.strftime("backup-%Y-%m-%d-%H.%M.%S.colpkg", time.localtime(time.time()))
-        newpath = os.path.join(dir, fname)
-        with open(path, "rb") as file:
+        newpath = os.path.join(self.pm.backupFolder(), fname)
+        with open(self.pm.collectionPath(), "rb") as file:
             data = file.read()
         self.BackupThread(newpath, data).start()
 
         # find existing backups
         backups = [file
-                   for file in os.listdir(dir)
+                   for file in os.listdir(self.pm.backupFolder())
                    # only look for new-style format
                    if not re.match(r"backup-\d{4}-\d{2}-.+.colpkg", file)]
         backups.sort()
 
         # remove old ones
-        while len(backups) > nbacks:
+        while len(backups) > self.pm.profile['numBackups']:
             fname = backups.pop(0)
-            path = os.path.join(dir, fname)
+            path = os.path.join(self.pm.backupFolder(), fname)
             os.unlink(path)
 
     def maybeOptimize(self):
