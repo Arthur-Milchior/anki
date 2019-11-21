@@ -965,6 +965,9 @@ QTreeWidget {
         """Open the about window"""
         return aqt.dialogs.open("About", self)
 
+    def onPostpone_Reviews(self):
+        self.addDelay(self.col.getReviewCards())
+
     def onDonate(self):
         """Ask the OS to open the donate web page"""
         return openLink(aqt.appDonate)
