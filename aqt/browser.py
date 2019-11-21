@@ -587,6 +587,7 @@ class Browser(QMainWindow):
         self.form.actionOrange_Flag.triggered.connect(lambda: self.onSetFlag(2))
         self.form.actionGreen_Flag.triggered.connect(lambda: self.onSetFlag(3))
         self.form.actionBlue_Flag.triggered.connect(lambda: self.onSetFlag(4))
+        self.form.actionPostpone_reviews.triggered.connect(self.onPostpone_reviews)
         # jumps
         self.form.actionPreviousCard.triggered.connect(self.onPreviousCard)
         self.form.actionNextCard.triggered.connect(self.onNextCard)
