@@ -78,6 +78,11 @@ class DialogManager:
         "Preferences": [preferences.Preferences, None],
     }
 
+    def isMultiple(self, name):
+        if "name" not in {"AddCards", "Browser", "EditCurrent"}:
+            name = "OtherWindows"
+        # no need to import mw, we are already in the aqt module
+        return mw.col.conf.get(f"{name}MultipleTime", True)
 
     def open(self, name, *args, **kwargs):
         """Open a window of kind name.
