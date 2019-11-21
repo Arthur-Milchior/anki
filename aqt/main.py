@@ -973,6 +973,25 @@ QTreeWidget {
         """Ask the OS to open the documentation web page"""
         openHelp("")
 
+    def addDelay(self, cids):
+        (delay, delayResp) = getText("How many day to add to cards ? (negative number to substract days)")
+        try:
+            delay = int(delay)
+        except ValueError:
+            showWarning("Please enter an integral number of days")
+            return None
+        if (not delayResp) or delay == 0:
+            return None
+        self.checkpoint("Adding delay")
+        self.progress.start()
+        self.col.addDelay(cids, delay)
+        self.progress.finish()
+        self.col.reset()
+        self.reset()
+        tooltip(_("""Delay added."""))
+
+
+
     # Importing & exporting
     ##########################################################################
 
