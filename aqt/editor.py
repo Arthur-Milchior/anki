@@ -445,12 +445,11 @@ class Editor:
     def fieldsAreBlank(self, previousNote=None):
         if not self.note:
             return True
-        model = self.note.model()
-        for index, fldValue in enumerate(self.note.fields):
+        for index, fieldValue in enumerate(self.note.fields):
             notChangedvalues = {"", "<br>"}
-            if previousNote and model['flds'][index]['sticky']:
+            if previousNote and self.model['flds'][index]['sticky']:
                 notChangedvalues.add(previousNote.fields[index])
-            if fldValue not in notChangedvalues:
+            if fieldValue not in notChangedvalues:
                 return False
         return True
 
