@@ -403,6 +403,26 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         if renamedFiles:
             return self.check(local=local)
         nohave = [ref for ref in allRefs if not ref.startswith("_")]
+
+        # Deal with tag
+        alreadyMissingNids = self.col.findNotes("tag:MissingMedia")
+        nidsOfMissingRefs = set()
+        for ref in allRefs:
+            nidsOfMissingRefs.update(refsToNid[ref])
+
+        # remove tags when a note has no missing media anymore
+        for nid in nidsOfMissingRefs:
+            if nid not in alreadyMissingNids:
+                note = self.col.getNote(nid)
+                note.addTag("MissingMedia")
+                note.flush()
+
+        # Add tags to notes with missing media
+        for nid in alreadyMissingNids:
+            if nid not in nidsOfMissingRefs:
+                note = self.col.getNote(nid)
+                note.delTag("MissingMedia")
+                note.flush()
         # make sure the media DB is valid
         try:
             self.findChanges()
