@@ -666,6 +666,20 @@ where card.nid = note.id and card.id in %s group by nid""" % ids2str(cids)):
                 card=ords, fieldsContent=flds.replace("\x1f", " / "))
         return rep
 
+    def addDelay(self, cids, delay):
+        ivlDelay = round(delay * (self.conf.get("factorAddDay", 0.33) if delay >0 else self.conf.get("factorRemoveDay", 0.33)))
+        for cid in cids:
+            card = mw.col.getCard(cid)
+            if card.type !=2:
+                continue
+            card.ivl += ivlDelay
+            if card.odid: # Also update cards in filtered decks
+                card.odue += delay
+            else:
+                card.due += delay
+            card.flush()
+
+
     # Field checksums and sorting fields
     ##########################################################################
 
