@@ -90,6 +90,7 @@
     <addaction name="separator"/>
     <addaction name="actionNoteTypes"/>
     <addaction name="actionPreferences"/>
+    <addaction name="actionPostpone_Reviews"/>
    </widget>
    <addaction name="menuCol"/>
    <addaction name="menuEdit"/>
@@ -235,6 +236,11 @@
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Shift+A</string>
+   </property>
+  </action>
+  <action name="actionPostpone_Reviews">
+   <property name="text">
+    <string>P&amp;ostpone Reviews</string>
    </property>
   </action>
  </widget>
