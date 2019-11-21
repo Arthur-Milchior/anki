@@ -89,6 +89,15 @@ class DialogManager:
         return mw.col.conf.get(f"{name}MultipleTime", True)
 
     def open(self, name, *args, **kwargs):
+        """Open a new window, with name and args.
+
+        Or reopen the window name, if it should be single in the
+        config, and is already opened.
+        """
+        function = self.openMany if self.isMultiple(name) else self.openSingle
+        return function(name,*args)
+
+    def openSingle(self, name, *args, **kwargs):
         """Open a window of kind name.
 
         Open (and show) the one already opened, if it
@@ -125,6 +134,15 @@ class DialogManager:
         return instance
 
     def markClosed(self, name):
+        """Remove the window of windowName from the set of windows. """
+        # If it is a window of kind single, then call super
+        # Otherwise, use inspect to figure out which is the caller
+        if self.isMultiple(name):
+            self.markClosedMultiple()
+        else:
+            self.markClosedSingle(name)
+
+    def markClosedSingle(self, name):
         """Window name is now considered as closed. It removes the element from _dialogs."""
         self._dialogs[name] = [self._dialogs[name][0], None]
 
