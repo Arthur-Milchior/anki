@@ -67,7 +67,7 @@ def test_deckIntegration():
         f.write("test")
     # check media
     ret = d.media.check()
-    assert ret[0] == ["fake2.png"]
+    assert ret[0] == {"fake2.png"}
     assert ret[1] == ["foo.jpg"]
 
 def test_changes():

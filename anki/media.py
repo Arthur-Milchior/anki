@@ -412,7 +412,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         if dirFound:
             warnings.append(
                 _("Anki does not support files in subfolders of the collection.media folder."))
-        return (nohave, unused, warnings)
+        return (allRefs, unused, warnings)
 
     def _normalizeNoteRefs(self, nid):
         note = self.col.getNote(nid)
