@@ -129,6 +129,13 @@ class DialogManager:
         onsuccess -- the function to call when the last window is closed.
         """
 
+        def callback():
+            """Call onsuccess if all window (except main) are closed."""
+            if self.allClosed():
+                onsuccess()
+            else:
+                # still waiting for others to close
+                pass
         # can we close immediately?
         if self.allClosed():
             onsuccess()
@@ -138,15 +145,6 @@ class DialogManager:
         for (name, (creator, instance)) in self._dialogs.items():
             if not instance:
                 continue
-
-            def callback():
-                """Call onsuccess if all window (except main) are closed."""
-                if self.allClosed():
-                    onsuccess()
-                else:
-                    # still waiting for others to close
-                    pass
-
             if getattr(instance, "silentlyClose", False):
                 instance.close()
                 callback()
