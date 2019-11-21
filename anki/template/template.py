@@ -133,30 +133,17 @@ class Template:
     def render_tags(self):
         """Renders all the tags in a template for a context. Normally
         {{# and {{^ are already removed."""
-        repCount = 0
         try:
-            while 1:
-                if repCount > 100:
-                    print("too many replacements")
-                    break
-                repCount += 1
-
-                # search for some {{foo}}
-                match = self.tag_re.search(self.template)
-                if match is None:
-                    break
-                replacement, tag = self.sub_tag(match)
-
-                self.template = self.template.replace(tag, replacement)
+            self.template = self.tag_re.sub(self.sub_tag, self.template)
         except (SyntaxError, KeyError):
-            return "{{invalid template}}"
+            self.template = "{{invalid template}}"
 
     def sub_tag(self, match):
         tag, tag_type, tag_name = match.group(0, 1, 2)
         # i.e. "{{!foo}}", "!", "foo"
         tag_name = tag_name.strip()
         func = modifiers[tag_type]
-        return func(self, tag_name), tag
+        return func(self, tag_name)
 
     # {{{ functions just like {{ in anki
     @modifier('{')
