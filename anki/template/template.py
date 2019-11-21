@@ -145,15 +145,18 @@ class Template:
                 match = self.tag_re.search(self.template)
                 if match is None:
                     break
+                replacement, tag = self.sub_tag(match)
 
-                #
-                tag, tag_type, tag_name = match.group(0, 1, 2)
-                tag_name = tag_name.strip()
-                func = modifiers[tag_type]
-                replacement = func(self, tag_name)
                 self.template = self.template.replace(tag, replacement)
         except (SyntaxError, KeyError):
             return "{{invalid template}}"
+
+    def sub_tag(self, match):
+        tag, tag_type, tag_name = match.group(0, 1, 2)
+        # i.e. "{{!foo}}", "!", "foo"
+        tag_name = tag_name.strip()
+        func = modifiers[tag_type]
+        return func(self, tag_name), tag
 
     # {{{ functions just like {{ in anki
     @modifier('{')
