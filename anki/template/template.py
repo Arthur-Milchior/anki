@@ -104,32 +104,34 @@ class Template:
             if match is None:
                 break
 
-            section, section_name, inner = match.group(0, 1, 2)
-            section_name = section_name.strip()
-
-            # val will contain the content of the field considered
-            # right now
-            val = None
-            match = re.match(r"c[qa]:(\d+):(.+)", section_name)
-            if match:
-                # get full field text
-                txt = get_or_attr(self.context, match.group(2), None)
-                match = re.search(clozeReg%match.group(1), txt)
-                if match:
-                    val = match.group(1)
-            else:
-                val = get_or_attr(self.context, section_name, None)
-
-            replacer = ''
-            # Whether it's {{^
-            inverted = section[2] == "^"
-            # Ensuring we don't consider whitespace in val
-            if val:
-                val = stripHTMLMedia(val).strip()
-            if bool(val) != inverted:
-                replacer = inner
-
+            section, replacer = self.sub_section(match)
             self.template = self.template.replace(section, replacer)
+
+    def sub_section(self, match):
+        section, section_name, inner = match.group(0, 1, 2)
+        section_name = section_name.strip()
+
+        # val will contain the content of the field considered
+        # right now
+        val = None
+        match = re.match("c[qa]:(\d+):(.+)", section_name)
+        if match:
+            # get full field text
+            txt = get_or_attr(self.context, match.group(2), None)
+            match = re.search(clozeReg%match.group(1), txt)
+            if match:
+                val = match.group(1)
+        else:
+            val = get_or_attr(self.context, section_name, None)
+        replacer = ''
+        # Whether it's {{^
+        inverted = section[2] == "^"
+        # Ensuring we don't consider whitespace in val
+        if val:
+            val = stripHTMLMedia(val).strip()
+        if bool(val) != inverted:
+            replacer = inner
+        return section, replacer
 
     def render_tags(self):
         """Renders all the tags in a template for a context. Normally
