@@ -99,13 +99,10 @@ class Template:
     def render_sections(self):
         """replace {{#foo}}bar{{/foo}} and {{^foo}}bar{{/foo}} by
         their normal value."""
-        while 1:
-            match = self.section_re.search(self.template)
-            if match is None:
-                break
+        n = 1
+        while n:
+            self.template, n = self.section_re.subn(self.sub_section, self.template)
 
-            section, replacer = self.sub_section(match)
-            self.template = self.template.replace(section, replacer)
 
     def sub_section(self, match):
         section, section_name, inner = match.group(0, 1, 2)
@@ -131,7 +128,7 @@ class Template:
             val = stripHTMLMedia(val).strip()
         if bool(val) != inverted:
             replacer = inner
-        return section, replacer
+        return replacer
 
     def render_tags(self):
         """Renders all the tags in a template for a context. Normally
