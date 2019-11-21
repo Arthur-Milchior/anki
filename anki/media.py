@@ -339,6 +339,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         mdir = self.dir()
         # gather all media references in NFC form
         allRefs = set()
+        refsToNid = dict() # this dic is new
         for nid, mid, flds in self.col.db.execute("select id, mid, flds from notes"):
             noteRefs = self.filesInStr(mid, flds)
             # check the refs are in NFC
@@ -348,6 +349,11 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
                     self._normalizeNoteRefs(nid)
                     noteRefs = self.filesInStr(mid, flds)
                     break
+            # Compute the list of notes with missing media
+            for f in noteRefs:
+                if f not in refsToNid:
+                    refsToNid[f] = set()
+                refsToNid[f].add(nid)
             allRefs.update(noteRefs)
         # loop through media folder
         unused = []
