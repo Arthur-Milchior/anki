@@ -14,3 +14,10 @@ instead of deleting the note» chage the behavior of anki when he finds
 a note which has no more card. This allow to lose the content of the
 note, and let you correct the note instead to generate cards.
 
+## Open a window multiple time (354407385)
+Allows to open multiple copy of the same window.
+
+In the preferences, you can decide which you can open multiple time.
+
+TODO: do it better than using stacks
+
