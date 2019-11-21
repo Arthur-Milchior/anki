@@ -229,6 +229,7 @@ Not currently enabled; click the sync button in the main window to enable."""))
         {"name":"numBackups", "kind":"numeric", "sync":False},
         # advanced option
         {"name":"pastePNG", "sync":False},
+        *[(f"{window}MultipleTime", True) for window in ["AddCards", "EditCurrent", "Browser", "OtherWindows"]],#those are the windows name, thus with caps
     ]
 
     def setupOneSetting(self, name, default=False, kind="check", sync=True, fromCol=identity, toCol=identity):
