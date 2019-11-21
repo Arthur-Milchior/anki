@@ -849,6 +849,9 @@ where card.nid == note.id
     def findDupes(self, *args, **kwargs):
         return anki.find.findDupes(self, *args, **kwargs)
 
+    def getReviewCards(self):
+        return self.findCards("is:review")
+
     # Stats
     ##########################################################################
 
