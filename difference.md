@@ -14,3 +14,11 @@ instead of deleting the note» chage the behavior of anki when he finds
 a note which has no more card. This allow to lose the content of the
 note, and let you correct the note instead to generate cards.
 
+## Tag missing media (2027876532)
+If a note is supposed to have media (image or audio), it will have the
+tag "MissingMedia", when you «check media».
+
+The prefenece "In case of missing media, show the notes in the
+browser" allows to decide whether the browser show you the list of
+notes with missing media when you check media.
+
