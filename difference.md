@@ -2,6 +2,12 @@
 This files list the difference between regular anki and this forked
 version. It also lists the different options in the Preferences's extra page.
 
+## Add-on folder: keep more files (225953877)
+When add-on are updated, all files are deleted, with some
+exceptions. You can decide in the preferences which files are
+kepts. Anki's default contains only config.json and the folder
+user_files. This also adds `.git` `.gitignore` `.svn` and `.github`.
+
 ## Explain errors
 You obtain more detailled error message if a sync fail, and if you try
 do do a «Check database».

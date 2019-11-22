@@ -15,6 +15,7 @@ class Addon:
 """ Set of characteristic of Add-ons incorporated here"""
 incorporatedAddonsSet = {
     Addon("3 add-ons merged quicker anki explain deletion explain database check", 777545149, 1560838078, "https://github.com/Arthur-Milchior/anki-big-addon", "9138f06acf75df3eeb79a9b3cabdcfb0c6d964b9"),
+    Addon("Keep files (git, svn...) in add-on folders", 225953877, 1574388077, "d6f81fa47021f37100c77fc92470491526e7982a", "https://github.com/Arthur-Milchior/anki-keep-files-in-addon-Folder"),
     Addon("«Check database» Explain errors and what is done to fix it", 1135180054, gitHash = "371c360e5611ad3eec5dcef400d969e7b1572141", gitRepo = "https://github.com/Arthur-Milchior/anki-database-check-explained"), #mod unkwon because it's not directly used by the author anymore
 }
 
