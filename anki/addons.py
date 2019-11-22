@@ -506,19 +506,22 @@ class AddonManager:
 
     def backupUserFiles(self, sid):
         """Move user file's folder to a folder called files_backup in the add-on folder"""
-        userFilePath = self._userFilesPath(sid)
-        if os.path.exists(userFilePath):
-            os.rename(userFilePath, self._userFilesBackupPath())
+        if not os.path.exists(self._userFilesBackupPath()):
+            os.mkdir(self._userFilesBackupPath())
+        for filename in self.col.config.get("base names", "user_files .git .gitignore .svn .github"):
+            p = os.path.join(self.addonsFolder(sid), filename)
+            if os.path.exists(p):
+                os.rename(p, os.path.join(self._userFilesBackupPath(), filename))
 
     def restoreUserFiles(self, sid):
         """Move the back up of user file's folder to its normal location in
         the folder of the addon sid"""
-        userFilePath = self._userFilesPath(sid)
-        bp = self._userFilesBackupPath()
-        # did we back up userFiles?
-        if not os.path.exists(bp):
-            return
-        os.rename(bp, userFilePath)
+        for filename in getUserOption("base names", defaultBaseNames):
+            if os.path.exists(os.path.join(self._userFilesBackupPath(), filename)):
+                os.rename(os.path.join(self._userFilesBackupPath(), filename), os.path.join(self.addonsFolder(sid), filename))
+
+        if os.path.exists(self._userFilesBackupPath()):
+            os.rmdir(self._userFilesBackupPath())
 
     # Web Exports
     ######################################################################
