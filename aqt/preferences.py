@@ -229,6 +229,7 @@ Not currently enabled; click the sync button in the main window to enable."""))
         {"name":"numBackups", "kind":"numeric", "sync":False},
         # advanced option
         {"name":"pastePNG", "sync":False},
+        {"name":"filesToKeep", "kind":"text", "default":"user_files .git .gitignore .svn .github"},
     ]
 
     def setupOneSetting(self, name, default=False, kind="check", sync=True, fromCol=identity, toCol=identity):
@@ -256,6 +257,7 @@ Not currently enabled; click the sync button in the main window to enable."""))
             "text": "setText"
         }.get(kind)
         getattr(widget, function)(fromCol(value))
+            
 
     def updateOneSetting(self, name, default=False, kind="check", sync=True, fromCol=identity, toCol=identity):
         """Save the value from the preference manager' widget

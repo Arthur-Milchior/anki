@@ -526,6 +526,20 @@
         </widget>
        </item>
        <item>
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>Files to keep in add-on folder, space separated:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="filesToKeep">
+         <property name="text">
+          <string>user_files .git .gitignore .svn .github</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <spacer name="verticalSpacer_6">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
