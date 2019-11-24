@@ -89,7 +89,7 @@ class DeckManager:
     # Deck save/load
     #############################################################
 
-    def id(self, name: str, create: bool = True, type: int = 0,) -> Optional[int]:
+    def id(self, name: str, create: bool = True, deckToCopy: int = 0,) -> Optional[int]:
         "Add a deck with NAME. Reuse deck if already exists. Return id as int."
         id = self.id_for_name(name)
         if id:
@@ -97,7 +97,7 @@ class DeckManager:
         elif not create:
             return None
 
-        deck = self.new_deck_legacy(bool(type))
+        deck = self.new_deck_legacy(bool(deckToCopy))
         deck["name"] = name
         self.update(deck, preserve_usn=False)
 
@@ -529,7 +529,7 @@ class DeckManager:
 
     def newDyn(self, name: str) -> int:
         "Return a new dynamic deck and set it as the current deck."
-        did = self.id(name, type=1)
+        did = self.id(name, deckToCopy=1)
         self.select(did)
         return did
 
