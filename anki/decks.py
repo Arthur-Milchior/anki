@@ -130,10 +130,10 @@ class DeckManager:
     # Deck save/load
     #############################################################
 
-    def id(self, name, create=True, type=None):
+    def id(self, name, create=True, deckToCopy=None):
         "Add a deck with NAME. Reuse deck if already exists. Return id as int."
-        if type is None:
-            type = defaultDeck
+        if deckToCopy is None:
+            deckToCopy = defaultDeck
         name = name.replace('"', '')
         name = unicodedata.normalize("NFC", name)
         deck = self.byName(name)
@@ -141,7 +141,7 @@ class DeckManager:
             return int(deck["id"])
         if not create:
             return None
-        deck = copy.deepcopy(type)
+        deck = copy.deepcopy(deckToCopy)
         if "::" in name:
             # not top level; ensure all parents exist
             name = self._ensureParents(name)
@@ -595,7 +595,7 @@ class DeckManager:
 
     def newDyn(self, name):
         "Return a new dynamic deck and set it as the current deck."
-        did = self.id(name, type=defaultDynamicDeck)
+        did = self.id(name, deckToCopy=defaultDynamicDeck)
         self.select(did)
         return did
 
