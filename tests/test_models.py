@@ -106,7 +106,7 @@ def test_templates():
     assert c.ord == 1
     assert c2.ord == 0
     # removing a template should delete its cards
-    assert d.models.remTemplate(m, m['tmpls'][0])
+    assert m['tmpls'][0].rem()
     assert d.cardCount() == 1
     reqSize(m)
     # and should have updated the other cards' ordinals
@@ -117,7 +117,7 @@ def test_templates():
     t = m.newTemplate("tmpl name")
     t.add()
     reqSize(m)
-    assert not d.models.remTemplate(m, m['tmpls'][0])
+    assert not m['tmpls'][0].rem()
     reqSize(m)
 
 def test_cloze_ordinals():
@@ -131,7 +131,7 @@ def test_cloze_ordinals():
     t['afmt'] = "{{text:cloze:Text}}"
     t.add()
     m.save()
-    d.models.remTemplate(m, m['tmpls'][0])
+    m['tmpls'][0].rem()
     
     f = d.newNote()
     f['Text'] = '{{c1::firstQ::firstA}}{{c2::secondQ::secondA}}'
@@ -223,7 +223,7 @@ def test_chained_mods():
     t['afmt'] = "{{cloze:text:Text}}"
     t.add()
     m.save()
-    d.models.remTemplate(m, m['tmpls'][0])
+    m['tmpls'][0].rem()
     
     f = d.newNote()
     q1 = '<span style=\"color:red\">phrase</span>'
@@ -313,7 +313,7 @@ def test_modelChange():
     assert f['Text'] == "f2"
     assert len(f.cards()) == 2
     # back the other way, with deletion of second ord
-    deck.models.remTemplate(basic, basic['tmpls'][1])
+    basic['tmpls'][1].rem()
     reqSize(basic)
     assert deck.db.scalar("select count() from cards where nid = ?", f.id) == 2
     basic.change(cloze, [f.id], map, map)

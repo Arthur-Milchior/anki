@@ -210,7 +210,7 @@ def _upgradeClozeModel(col, model):
         if "{{cloze:" not in template['qfmt']:
             rems.append(template)
     for rem in rems:
-        col.models.remTemplate(model, rem)
+        model.rem(rem)
     del model['tmpls'][1:]
     model.models._updateTemplOrds()
     model.save()

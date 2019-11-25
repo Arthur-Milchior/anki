@@ -1,4 +1,4 @@
-from anki.utils import DictAugmentedInModel, joinFields
+from anki.utils import DictAugmentedInModel, ids2str, intTime, joinFields
 
 defaultTemplate = {
     'name': "",
@@ -38,6 +38,42 @@ class Template(DictAugmentedInModel):
         self.model['tmpls'].append(self)
         self.model._updateTemplOrds()
         self.model.save()
+
+    def rem(self):
+        """Remove the input template from the model model.
+        Return False if removing template would leave orphan
+        notes. Otherwise True
+        """
+        assert len(self.model['tmpls']) > 1
+        # find cards using this template
+        ord = self.model['tmpls'].index(self)
+        cids = self.model.manager.col.db.list("""
+select card.id from cards card, notes note where card.nid=note.id and mid = ? and ord = ?""",
+                                 self.model.getId(), ord)
+        # all notes with this template must have at least two cards, or we
+        # could end up creating orphaned notes
+        if self.model.manager.col.db.scalar("""
+select nid, count() from cards where
+nid in (select nid from cards where id in %s)
+group by nid
+having count() < 2
+limit 1""" % ids2str(cids)):
+            return False
+        # ok to proceed; remove cards
+        self.model.manager.col.modSchema(check=True)
+        self.model.manager.col.remCards(cids)
+        # shift ordinals
+        self.model.manager.col.db.execute("""
+update cards set ord = ord - 1, usn = ?, mod = ?
+ where nid in (select id from notes where mid = ?) and ord > ?""",
+                             self.model.manager.col.usn(), intTime(), self.model.getId(), ord)
+        self.model['tmpls'].pop(ord)
+        if 'req' in self.model:
+            # True except for quite new models, especially in tests.
+            self.model['req'].pop(ord)
+        self.model._updateTemplOrds()
+        self.model.save()
+        return True
 
     # Tools
     ##################################################
