@@ -169,7 +169,7 @@ def test_csv2():
     m = mm.current()
     f = mm.newField(m, "Three")
     mm.addField(m, f)
-    mm.save(m)
+    m.save()
     n = deck.newNote()
     n['Front'] = "1"
     n['Back'] = "2"

@@ -78,7 +78,7 @@ class Models(QDialog):
         txt = getText(_("New name:"), default=self.model.getName())
         if txt[1] and txt[0]:
             self.model.setName(txt[0])
-            self.mm.save(self.model)
+            self.model.save()
         self.updateModelsList()
 
     def updateModelsList(self):
@@ -109,7 +109,7 @@ class Models(QDialog):
             if txt:
                 model.setName(txt)
             self.mm.ensureNameUnique(model)
-            self.mm.save(model)
+            model.save()
             self.updateModelsList()
 
     def onDelete(self):
@@ -145,7 +145,7 @@ class Models(QDialog):
 
     def saveModel(self):
         """Similar to "save the model" in anki/models.py"""
-        self.mm.save(self.model)
+        self.model.save()
 
     def _tmpNote(self):
         self.mm.setCurrent(self.model)

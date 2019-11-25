@@ -53,7 +53,7 @@ def test_new():
     # t['qfmt'] = "{{Back}}"
     # t['afmt'] = "{{Front}}"
     # mm.addTemplate(m, t)
-    # mm.save(m)
+    # m.save()
     # f = d.newNote()
     # f['Front'] = u"2"; f['Back'] = u"2"
     # d.addNote(f)
@@ -803,7 +803,7 @@ def test_ordcycle():
     t['qfmt'] = "{{Front}}"
     t['afmt'] = "{{Back}}"
     mm.addTemplate(m, t)
-    mm.save(m)
+    m.save()
     # create a new note; it should have 3 cards
     f = d.newNote()
     f['Front'] = "1"; f['Back'] = "1"

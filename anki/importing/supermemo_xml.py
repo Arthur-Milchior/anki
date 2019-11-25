@@ -85,7 +85,7 @@ class SupermemoXmlImporter(NoteImporter):
         NoteImporter.__init__(self, *args)
         model = addBasicModel(self.col)
         model.setName("Supermemo")
-        self.col.models.save(model)
+        model.save()
         self.initMapping()
 
         self.lines = None

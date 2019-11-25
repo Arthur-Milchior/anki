@@ -53,12 +53,12 @@ def test_noteAddDelete():
     t['qfmt'] = "{{Back}}"
     t['afmt'] = "{{Front}}"
     mm.addTemplate(m, t)
-    mm.save(m)
+    m.save()
     # the default save doesn't generate cards
     assert deck.cardCount() == 1
     # but when templates are edited such as in the card layout screen, it
     # should generate cards on close
-    mm.save(m, templates=True)
+    m.save(template=True)
     assert deck.cardCount() == 2
     # creating new notes should use both cards
     f = deck.newNote()
@@ -124,7 +124,7 @@ def test_furigana():
     m = mm.current()
     # filter should work
     m['tmpls'][0]['qfmt'] = '{{kana:Front}}'
-    mm.save(m)
+    m.save()
     n = deck.newNote()
     n['Front'] = 'foo[abc]'
     deck.addNote(n)
@@ -136,5 +136,5 @@ def test_furigana():
     assert "sound:" in c.q(reload=True)
     # it shouldn't throw an error while people are editing
     m['tmpls'][0]['qfmt'] = '{{kana:}}'
-    mm.save(m)
+    m.save()
     c.q(reload=True)

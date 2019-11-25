@@ -46,7 +46,7 @@ def test_findCards():
     t['qfmt'] = "{{Back}}"
     t['afmt'] = "{{Front}}"
     mm.addTemplate(m, t)
-    mm.save(m)
+    m.save()
     f = deck.newNote()
     f['Front'] = 'test'
     f['Back'] = 'foo bar'

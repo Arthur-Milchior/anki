@@ -88,7 +88,7 @@ def test_templates():
     t['qfmt'] = "{{Back}}"
     t['afmt'] = "{{Front}}"
     mm.addTemplate(m, t)
-    mm.save(m)
+    m.save()
     reqSize(m)
     f = d.newNote()
     f['Front'] = '1'
@@ -130,7 +130,7 @@ def test_cloze_ordinals():
     t['qfmt'] = "{{text:cloze:Text}}"
     t['afmt'] = "{{text:cloze:Text}}"
     mm.addTemplate(m, t)
-    mm.save(m)
+    m.save()
     d.models.remTemplate(m, m['tmpls'][0])
     
     f = d.newNote()
@@ -147,7 +147,7 @@ def test_text():
     d = getEmptyCol()
     m = d.models.current()
     m['tmpls'][0]['qfmt'] = "{{text:Front}}"
-    d.models.save(m)
+    m.save()
     f = d.newNote()
     f['Front'] = 'hello<b>world'
     d.addNote(f)
@@ -222,7 +222,7 @@ def test_chained_mods():
     t['qfmt'] = "{{cloze:text:Text}}"
     t['afmt'] = "{{cloze:text:Text}}"
     mm.addTemplate(m, t)
-    mm.save(m)
+    m.save()
     d.models.remTemplate(m, m['tmpls'][0])
     
     f = d.newNote()
@@ -247,7 +247,7 @@ def test_modelChange():
     t['qfmt'] = "{{Back}}"
     t['afmt'] = "{{Front}}"
     mm.addTemplate(m, t)
-    mm.save(m)
+    m.save()
     reqSize(basic)
     f = deck.newNote()
     f['Front'] = 'f'
@@ -338,18 +338,18 @@ def test_availOrds():
     # simple templates
     assert mm.availOrds(m, joinFields(f.fields)) == [0]
     t['qfmt'] = "{{Back}}"
-    mm.save(m, templates=True)
+    m.save(template=True)
     assert not mm.availOrds(m, joinFields(f.fields))
     # AND
     t['qfmt'] = "{{#Front}}{{#Back}}{{Front}}{{/Back}}{{/Front}}"
-    mm.save(m, templates=True)
+    m.save(template=True)
     assert not mm.availOrds(m, joinFields(f.fields))
     t['qfmt'] = "{{#Front}}\n{{#Back}}\n{{Front}}\n{{/Back}}\n{{/Front}}"
-    mm.save(m, templates=True)
+    m.save(template=True)
     assert not mm.availOrds(m, joinFields(f.fields))
     # OR
     t['qfmt'] = "{{Front}}\n{{Back}}"
-    mm.save(m, templates=True)
+    m.save(template=True)
     assert mm.availOrds(m, joinFields(f.fields)) == [0]
     t['Front'] = ""
     t['Back'] = "1"

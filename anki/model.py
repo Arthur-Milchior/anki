@@ -12,15 +12,18 @@ class Model(DictAugmentedIdUsn):
         self['tmpls'] = list(map(lambda tmpl: Template(self, tmpl), self['tmpls']))
         self['flds'] = list(map(lambda fld: Field(self, fld), self['flds']))
 
-    def deepcopy(self):
-        dict = {}
-        for key in self:
-            if key in {'tmpls', 'flds'}:
-                image = list(map(lambda object: object.deepcopy(), self[key]))
-            else:
-                image = copy.deepcopy(self[key])
-            dict[key] = image
-        return self.__class__(self.manager, dict=dict)
+    def save(self, template=False):
+        """
+        * Mark model modified.
+        Keyword arguments:
+        model -- A Model
+        templates -- whether to check for cards not generated in this model
+        """
+        if self.getId():
+            self._updateRequired()
+            if template:
+                self._syncTemplates()
+        super().save()
 
     # Tools
     ##################################################
@@ -31,6 +34,17 @@ class Model(DictAugmentedIdUsn):
         model -- a model object."""
         return self.manager.col.db.list(
             "select id from notes where mid = ?", self.getId())
+
+    def deepcopy(self):
+        dict = {}
+        for key in self:
+            if key in {'tmpls', 'flds'}:
+                image = list(map(lambda object: object.deepcopy(), self[key]))
+            else:
+                image = copy.deepcopy(self[key])
+            dict[key] = image
+        return self.__class__(self.manager, dict=dict)
+
     # Templates
     ##################################################
 

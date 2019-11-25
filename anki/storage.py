@@ -108,7 +108,7 @@ def _upgrade(col, ver):
         for model in col.models.all():
             if not "{{cloze:" in model['tmpls'][0]['qfmt']:
                 model['type'] = MODEL_STD
-                col.models.save(model)
+                model.save()
             else:
                 clozes.append(model)
         for model in clozes:
@@ -129,7 +129,7 @@ def _upgrade(col, ver):
                 model['css'] += "\n" + template['css'].replace(
                     ".card ", ".card%d "%(template['ord']+1))
                 del template['css']
-            col.models.save(model)
+            model.save()
         col.db.execute("update col set ver = 6")
     if ver < 7:
         col.modSchema(check=False)
@@ -193,7 +193,7 @@ update cards set left = left + left*1000 where queue = 1""")
             for template in model['tmpls']:
                 template['bqfmt'] = ''
                 template['bafmt'] = ''
-            col.models.save(model)
+            model.save()
         col.db.execute("update col set ver = 11")
 
 def _upgradeClozeModel(col, model):
@@ -213,7 +213,7 @@ def _upgradeClozeModel(col, model):
         col.models.remTemplate(model, rem)
     del model['tmpls'][1:]
     col.models._updateTemplOrds(model)
-    col.models.save(model)
+    model.save()
 
 # Creating a new collection
 ######################################################################
