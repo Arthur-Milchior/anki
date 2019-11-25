@@ -50,36 +50,36 @@ def test_fields():
     # add a field
     f = d.models.newField(m, "foo")
     d.models.addField(m, f)
-    assert d.getNote(d.models.nids(m)[0]).fields == ["1", "2", ""]
+    assert d.getNote(m.nids()[0]).fields == ["1", "2", ""]
     assert d.models.scmhash(m) != h
     # rename it
     d.models.renameField(m, f, "bar")
-    assert d.getNote(d.models.nids(m)[0])['bar'] == ''
+    assert d.getNote(m.nids()[0])['bar'] == ''
     # delete back
     d.models.remField(m, m['flds'][1])
-    assert d.getNote(d.models.nids(m)[0]).fields == ["1", ""]
+    assert d.getNote(m.nids()[0]).fields == ["1", ""]
     # move 0 -> 1
     d.models.moveField(m, m['flds'][0], 1)
-    assert d.getNote(d.models.nids(m)[0]).fields == ["", "1"]
+    assert d.getNote(m.nids()[0]).fields == ["", "1"]
     # move 1 -> 0
     d.models.moveField(m, m['flds'][1], 0)
-    assert d.getNote(d.models.nids(m)[0]).fields == ["1", ""]
+    assert d.getNote(m.nids()[0]).fields == ["1", ""]
     # add another and put in middle
     f = d.models.newField(m, "baz")
     d.models.addField(m, f)
-    f = d.getNote(d.models.nids(m)[0])
+    f = d.getNote(m.nids()[0])
     f['baz'] = "2"
     f.flush()
-    assert d.getNote(d.models.nids(m)[0]).fields == ["1", "", "2"]
+    assert d.getNote(m.nids()[0]).fields == ["1", "", "2"]
     # move 2 -> 1
     d.models.moveField(m, m['flds'][2], 1)
-    assert d.getNote(d.models.nids(m)[0]).fields == ["1", "2", ""]
+    assert d.getNote(m.nids()[0]).fields == ["1", "2", ""]
     # move 0 -> 2
     d.models.moveField(m, m['flds'][0], 2)
-    assert d.getNote(d.models.nids(m)[0]).fields == ["2", "", "1"]
+    assert d.getNote(m.nids()[0]).fields == ["2", "", "1"]
     # move 0 -> 1
     d.models.moveField(m, m['flds'][0], 1)
-    assert d.getNote(d.models.nids(m)[0]).fields == ["", "2", "1"]
+    assert d.getNote(m.nids()[0]).fields == ["", "2", "1"]
 
 def test_templates():
     d = getEmptyCol()

@@ -162,7 +162,7 @@ class FieldDialog(QDialog):
         self.saveField()
         if self.oldSortField != self.model['sortf']:
             self.mw.progress.start()
-            self.mw.col.updateFieldCache(self.mm.nids(self.model))
+            self.mw.col.updateFieldCache(self.model.nids())
             self.mw.progress.finish()
         self.mm.save(self.model)
         self.mw.reset()

@@ -311,14 +311,6 @@ select id from cards where nid in (select id from notes where mid = ?)""",
     # Tools
     ##################################################
 
-    def nids(self, model):
-        """The ids of notes whose model is model.
-
-        Keyword arguments
-        model -- a model object."""
-        return self.col.db.list(
-            "select id from notes where mid = ?", model.getId())
-
     def useCount(self, model):
         """Number of note using the model model.
 
@@ -385,7 +377,7 @@ and notes.mid = ? and cards.ord = ?""", model.getId(), ord)
         assert 0 <= idx < len(model['flds'])
         self.col.modSchema(check=True)
         model['sortf'] = idx
-        self.col.updateFieldCache(self.nids(model))
+        self.col.updateFieldCache(model.nids())
         self.save(model)
 
     def addField(self, model, fieldType):
@@ -435,7 +427,7 @@ and notes.mid = ? and cards.ord = ?""", model.getId(), ord)
         self._transformFields(model, delete)
         if model['flds'][model['sortf']].getName() != sortFldName:
             # need to rebuild sort field
-            self.col.updateFieldCache(self.nids(model))
+            self.col.updateFieldCache(model.nids())
         # saves
         self.renameField(model, fieldTypeToRemove, None)
 
@@ -611,7 +603,7 @@ select id from notes where mid = ?)""" % " ".join(map),
         """Generate all cards not yet generated, whose note's model is model.
 
         It's called only when model is saved, a new model is given and template is asked to be computed"""
-        rem = self.col.genCards(self.nids(model))
+        rem = self.col.genCards(model.nids())
 
     # Model changing
     ##########################################################################

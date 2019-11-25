@@ -20,3 +20,13 @@ class Model(DictAugmentedIdUsn):
                 image = copy.deepcopy(self[key])
             dict[key] = image
         return self.__class__(self.manager, dict=dict)
+
+    # Tools
+    ##################################################
+
+    def nids(self):
+        """The ids of notes whose model is model.
+        Keyword arguments
+        model -- a model object."""
+        return self.manager.col.db.list(
+            "select id from notes where mid = ?", self.getId())

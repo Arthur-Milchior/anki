@@ -659,7 +659,7 @@ select id from notes where id in %s and id not in (select nid from cards)""" %
         """The card id of empty cards of the collection"""
         rem = []
         for model in self.models.all():
-            rem += self.genCards(self.models.nids(model))
+            rem += self.genCards(model.nids())
         return rem
 
     def emptyCardReport(self, cids):
@@ -1084,7 +1084,7 @@ select id from cards where odue > 0 and (type={CARD_LRN} or queue={CARD_DUE}) an
         self.tags.registerNotes()
         # field cache
         for model in self.models.all():
-            self.updateFieldCache(self.models.nids(model))
+            self.updateFieldCache(model.nids())
         # new cards can't have a due position > 32 bits, so wrap items over
         # 2 million back to 1 million
         curs.execute(f"""
