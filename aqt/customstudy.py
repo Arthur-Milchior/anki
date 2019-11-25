@@ -127,10 +127,10 @@ class CustomStudy(QDialog):
                 return QDialog.accept(self)
             else:
                 # safe to empty
-                self.mw.col.sched.emptyDyn(cur['id'])
+                self.mw.col.sched.emptyDyn(cur.getId())
                 # reuse; don't delete as it may have children
                 dyn = cur
-                self.mw.col.decks.select(cur['id'])
+                self.mw.col.decks.select(cur.getId())
         else:
             did = self.mw.col.decks.newDyn(_("Custom Study Session"))
             dyn = self.mw.col.decks.get(did)

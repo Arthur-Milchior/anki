@@ -46,7 +46,7 @@ def test_misc():
     f['Back'] = '2'
     d.addNote(f)
     c = f.cards()[0]
-    id = d.models.current()['id']
+    id = d.models.current().getId()
     assert c.template()['ord'] == 0
 
 def test_genrem():

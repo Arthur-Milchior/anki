@@ -890,7 +890,7 @@ $(function () {
 
     def _limit(self):
         if self.wholeCollection:
-            return ids2str([deck['id'] for deck in self.col.decks.all()])
+            return ids2str([deck.getId() for deck in self.col.decks.all()])
         return self.col.sched._deckLimit()
 
     def _revlogLimit(self):

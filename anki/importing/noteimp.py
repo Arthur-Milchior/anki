@@ -119,7 +119,7 @@ class NoteImporter(Importer):
         # gather checks for duplicate comparison
         csums = {}
         for csum, id in self.col.db.execute(
-            "select csum, id from notes where mid = ?", self.model['id']):
+            "select csum, id from notes where mid = ?", self.model.getId()):
             if csum in csums:
                 csums[csum].append(id)
             else:
@@ -246,7 +246,7 @@ content in the text file to the correct fields."""))
         for ord, card in list(note.cards.items()):
             self._cards.append((id, ord, card))
         self.col.tags.register(note.tags)
-        return [id, guid64(), self.model['id'],
+        return [id, guid64(), self.model.getId(),
                 intTime(), self.col.usn(), self.col.tags.join(note.tags),
                 note.fieldsStr, "", "", 0, ""]
 

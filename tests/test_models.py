@@ -26,7 +26,7 @@ def test_modelCopy():
     m = deck.models.current()
     m2 = deck.models.copy(m)
     assert m2['name'] == "Basic copy"
-    assert m2['id'] != m['id']
+    assert m2.getId() != m.getId()
     assert len(m2['flds']) == 2
     assert len(m['flds']) == 2
     assert len(m2['flds']) == len(m['flds'])

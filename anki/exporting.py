@@ -215,7 +215,7 @@ class AnkiExporter(Exporter):
         # models - start with zero
         self.dst.models.models = {}
         for srcModel in self.src.models.all():
-            if int(srcModel['id']) in mids:
+            if int(srcModel.getId()) in mids:
                 self.dst.models.update(srcModel)
         # decks
         if not self.did:
@@ -224,9 +224,9 @@ class AnkiExporter(Exporter):
             dids = self.src.decks.childDids(self.did, includeSelf=True)
         dconfs = {}
         for deck in self.src.decks.all():
-            if str(deck['id']) == "1":
+            if str(deck.getId()) == "1":
                 continue
-            if dids and deck['id'] not in dids:
+            if dids and deck.getId() not in dids:
                 continue
             if not deck['dyn'] and deck['conf'] != 1:
                 if self.includeSched:
@@ -238,7 +238,7 @@ class AnkiExporter(Exporter):
             self.dst.decks.update(deck)
         # copy used deck confs
         for dc in self.src.decks.allConf():
-            if dc['id'] in dconfs:
+            if dc.getId() in dconfs:
                 self.dst.decks.updateConf(dc)
         # find used media
         media = {}
@@ -260,7 +260,7 @@ class AnkiExporter(Exporter):
                     if fname.startswith("_"):
                         # Scan all models in mids for reference to fname
                         for srcModel in self.src.models.all():
-                            if int(srcModel['id']) in mids:
+                            if int(srcModel.getId()) in mids:
                                 if self._modelHasMedia(srcModel, fname):
                                     media[fname] = True
                                     break

@@ -529,7 +529,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
                     if self.decks.isDyn(did):
                         did = 1
                     # if the deck doesn'template exist, use default instead
-                    did = self.decks.get(did)['id']
+                    did = self.decks.get(did).getId()
                     # use sibling due# if there is one, else use a new id
                     if due is None:
                         due = self.nextID("pos")
@@ -599,7 +599,7 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
             # must not be a filtered deck
             card.did = 1
         else:
-            card.did = deck['id']
+            card.did = deck.getId()
         card.due = self._dueForDid(card.did, due)
         if flush:
             card.flush()
@@ -980,7 +980,7 @@ or mid not in %s limit 1""" % ids2str(self.models.ids())):
 select 1 from cards where ord not in %s and nid in (
 select id from notes where mid = ?) limit 1""" %
                                ids2str([template['ord'] for template in model['tmpls']]),
-                               model['id']):
+                               model.getId()):
                 return
         return True
 
@@ -1022,7 +1022,7 @@ select id from notes where mid not in """ + ids2str(self.models.ids()))
 select id from cards where ord not in %s and nid in (
 select id from notes where mid = ?)""" %
                                    ids2str([template['ord'] for template in model['tmpls']]),
-                                   model['id'])
+                                   model.getId())
                 if ids:
                     problems.append(
                         ngettext("Deleted %d card with missing template.",
@@ -1032,7 +1032,7 @@ select id from notes where mid = ?)""" %
             # notes with invalid field count
             ids = []
             for id, flds in self.db.execute(
-                    "select id, flds from notes where mid = ?", model['id']):
+                    "select id, flds from notes where mid = ?", model.getId()):
                 if (flds.count("\x1f") + 1) != len(model['flds']):
                     ids.append(id)
             if ids:

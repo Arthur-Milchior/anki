@@ -1008,7 +1008,7 @@ QTreeWidget {
         if not diag.ok:
             # user cancelled first config
             self.col.decks.rem(did)
-            self.col.decks.select(deck['id'])
+            self.col.decks.select(deck.getId())
 
     # Menu, title bar & status
     ##########################################################################

@@ -106,8 +106,8 @@ order by due""" % (self._deckLimit()),
 
     def extendLimits(self, new, rev):
         cur = self.col.decks.current()
-        ancestors = self.col.decks.parents(cur['id'])
-        children = self.col.decks.childrenDecks(cur['id'])
+        ancestors = self.col.decks.parents(cur.getId())
+        children = self.col.decks.childrenDecks(cur.getId())
         for deck in [cur] + ancestors + children:
             # add
             deck['newToday'][1] -= new
@@ -130,15 +130,15 @@ order by due""" % (self._deckLimit()),
             ancestors = self.col.decks.parents(did, nameMap)
             for ancestor in ancestors:
                 # add if missing
-                if ancestor['id'] not in pcounts:
-                    pcounts[ancestor['id']] = limFn(ancestor)
+                if ancestor.getId() not in pcounts:
+                    pcounts[ancestor.getId()] = limFn(ancestor)
                 # take minimum of child and parent
-                lim = min(pcounts[ancestor['id']], lim)
+                lim = min(pcounts[ancestor.getId()], lim)
             # see how many cards we actually have
             cnt = cntFn(did, lim)
             # if non-zero, decrement from parent counts
             for ancestor in ancestors:
-                pcounts[ancestor['id']] -= cnt
+                pcounts[ancestor.getId()] -= cnt
             # we may also be a parent
             pcounts[did] = lim - cnt
             # and add to running total
@@ -256,7 +256,7 @@ select count() from
         "Limit for deck without parent limits."
         if deck['dyn']:
             return self.reportLimit
-        conf = self.col.decks.confForDid(deck['id'])
+        conf = self.col.decks.confForDid(deck.getId())
         return max(0, conf['new']['perDay'] - deck['newToday'][1])
 
     def totalNewForCurrentDeck(self):
@@ -402,7 +402,7 @@ did = ? and queue = {QUEUE_DAY_LRN} and due <= ? limit ?""",
         # invalid deck selected?
         if deck['dyn']:
             return self.reportLimit
-        conf = self.col.decks.confForDid(deck['id'])
+        conf = self.col.decks.confForDid(deck.getId())
         return max(0, conf['rev']['perDay'] - deck['revToday'][1])
 
     def _resetRev(self):

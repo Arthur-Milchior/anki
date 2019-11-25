@@ -383,13 +383,13 @@ def test_review_limits():
 
     pconf['rev']['perDay'] = 5
     d.decks.updateConf(pconf)
-    d.decks.setConf(parent, pconf['id'])
+    d.decks.setConf(parent, pconf.getId())
     cconf['rev']['perDay'] = 10
     d.decks.updateConf(cconf)
-    d.decks.setConf(child, cconf['id'])
+    d.decks.setConf(child, cconf.getId())
 
     m = d.models.current()
-    m['did'] = child['id']
+    m['did'] = child.getId()
     d.models.save(m)
 
     # add some cards
@@ -410,7 +410,7 @@ def test_review_limits():
     assert tree[1][5][0][2] == 5 # child
 
     # .counts() should match
-    d.decks.select(child['id'])
+    d.decks.select(child.getId())
     d.sched.reset()
     assert d.sched.counts() == (0, 0, 5)
 
@@ -424,9 +424,9 @@ def test_review_limits():
     assert tree[1][5][0][2] == 4 # child
 
     # switch limits
-    d.decks.setConf(parent, cconf['id'])
-    d.decks.setConf(child, pconf['id'])
-    d.decks.select(parent['id'])
+    d.decks.setConf(parent, cconf.getId())
+    d.decks.setConf(child, pconf.getId())
+    d.decks.select(parent.getId())
     d.sched.reset()
 
     # child limits do not affect the parent

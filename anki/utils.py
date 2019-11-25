@@ -491,6 +491,9 @@ class DictAugmentedIdUsn(DictAugmented):
     def __eq__(self, other):
         return self.getId() == other.getId()
 
+    def getId(self):
+        return self['id']
+
     def save(self):
         """State that the DeckManager has been changed. Changes the
         mod and usn of the potential argument.

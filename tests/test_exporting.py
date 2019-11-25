@@ -47,7 +47,7 @@ def test_export_anki():
     e.exportInto(newname)
     # exporting should not have changed conf for original deck
     conf = deck.decks.confForDid(did)
-    assert conf['id'] != 1
+    assert conf.getId() != 1
     # connect to new deck
     d2 = aopen(newname)
     assert d2.cardCount() == 2

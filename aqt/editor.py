@@ -435,7 +435,7 @@ class Editor:
 
     def showDupes(self):
         contents = stripHTMLMedia(self.note.fields[0])
-        search = f"""\"dupe:{self.note.model()['id']},{contents}\""""
+        search = f"""\"dupe:{self.note.model().getId()},{contents}\""""
         browser = aqt.dialogs.open("Browser", self.mw, search)
 
     def fieldsAreBlank(self, previousNote=None):

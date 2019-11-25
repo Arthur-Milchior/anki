@@ -124,18 +124,18 @@ class Scheduler(BothScheduler):
             nlim = self._deckNewLimitSingle(deck)
             if parentName:
                 nlim = min(nlim, lims[parentName][0])
-            new = self._newForDeck(deck['id'], nlim)
+            new = self._newForDeck(deck.getId(), nlim)
             # learning
-            lrn = self._lrnForDeck(deck['id'])
+            lrn = self._lrnForDeck(deck.getId())
             # reviews
             if parentName:
                 plim = lims[parentName][1]
             else:
                 plim = None
             rlim = self._deckRevLimitSingle(deck, parentLimit=plim)
-            rev = self._revForDeck(deck['id'], rlim, childMap)
+            rev = self._revForDeck(deck.getId(), rlim, childMap)
             # save to list
-            data.append([deck['name'], deck['id'], rev, lrn, new])
+            data.append([deck['name'], deck.getId(), rev, lrn, new])
             # add deck as a parent
             lims[deck['name']] = [nlim, rlim]
         return data
@@ -447,7 +447,7 @@ and due <= ? limit ?)""",
         elif '::' not in deck['name']:
             return lim
         else:
-            for parent in self.col.decks.parents(deck['id']):
+            for parent in self.col.decks.parents(deck.getId()):
                 # pass in dummy parentLimit so we don't do parent lookup again
                 lim = min(lim, self._deckRevLimitSingle(parent, parentLimit=lim))
             return lim
@@ -658,8 +658,8 @@ limit ?""" % ids2str(self.col.decks.active()),
             except:
                 return total
             # move the cards over
-            self.col.log(deck['id'], ids)
-            self._moveToDyn(deck['id'], ids, start=start+total)
+            self.col.log(deck.getId(), ids)
+            self._moveToDyn(deck.getId(), ids, start=start+total)
             total += len(ids)
         return total
 

@@ -145,17 +145,17 @@ class Scheduler(BothScheduler):
             nlim = self._deckNewLimitSingle(deck)
             if parentName:
                 nlim = min(nlim, lims[parentName][0])
-            new = self._newForDeck(deck['id'], nlim)
+            new = self._newForDeck(deck.getId(), nlim)
             # learning
-            lrn = self._lrnForDeck(deck['id'])
+            lrn = self._lrnForDeck(deck.getId())
             # reviews
             #rlim -- maximal number of review, taking parent into account
             rlim = self._deckRevLimitSingle(deck)
             if parentName:
                 rlim = min(rlim, lims[parentName][1])
-            rev = self._revForDeck(deck['id'], rlim)
+            rev = self._revForDeck(deck.getId(), rlim)
             # save to list
-            data.append([deck['name'], deck['id'], rev, lrn, new])
+            data.append([deck['name'], deck.getId(), rev, lrn, new])
             # add deck as a parent
             lims[deck['name']] = [nlim, rlim]
         return data
@@ -743,8 +743,8 @@ select id from cards where did in %s and queue = {QUEUE_REV} and due <= ? limit 
             ids = []
             return ids
         # move the cards over
-        self.col.log(deck['id'], ids)
-        self._moveToDyn(deck['id'], ids)
+        self.col.log(deck.getId(), ids)
+        self._moveToDyn(deck.getId(), ids)
         return ids
 
     def emptyDyn(self, did, lim=None):

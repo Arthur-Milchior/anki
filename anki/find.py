@@ -439,7 +439,7 @@ class Finder:
         val = val.lower()
         for model in self.col.models.all():
             if unicodedata.normalize("NFC", model['name'].lower()) == val:
-                ids.append(model['id'])
+                ids.append(model.getId())
         return "note.mid in %s" % ids2str(ids)
 
     def _findDeck(self, args):
@@ -457,7 +457,7 @@ class Finder:
         # current deck?
         ids = None
         if val.lower() == "current":
-            ids = dids(self.col.decks.current()['id'])
+            ids = dids(self.col.decks.current().getId())
         elif "*" not in val:
             # single deck
             ids = dids(self.col.decks.id(val, create=False))
@@ -467,7 +467,7 @@ class Finder:
             val = re.escape(val).replace(r"\*", ".*")
             for deck in self.col.decks.all():
                 if re.match("(?i)"+val, unicodedata.normalize("NFC", deck['name'])):
-                    ids.update(dids(deck['id']))
+                    ids.update(dids(deck.getId()))
         if not ids:
             return
         sids = ids2str(ids)
@@ -491,10 +491,10 @@ class Finder:
                         # if the user has asked for a cloze card, we want
                         # to give all ordinals, so we just limit to the
                         # model instead
-                        lims.append("(note.mid = %s)" % model['id'])
+                        lims.append("(note.mid = %s)" % model.getId())
                     else:
                         lims.append("(note.mid = %s and card.ord = %s)" % (
-                            model['id'], template['ord']))
+                            model.getId(), template['ord']))
         return " or ".join(lims)
 
     def _findField(self, field, val):
@@ -510,7 +510,7 @@ class Finder:
         for model in self.col.models.all():
             for fieldType in model['flds']:
                 if unicodedata.normalize("NFC", fieldType['name'].lower()) == field:
-                    mods[str(model['id'])] = (model, fieldType['ord'])
+                    mods[str(model.getId())] = (model, fieldType['ord'])
         if not mods:
             # nothing has that field
             return
@@ -560,7 +560,7 @@ def findReplace(col, nids, src, dst, regex=False, field=None, fold=True):
         for model in col.models.all():
             for fieldType in model['flds']:
                 if fieldType['name'].lower() == field.lower():
-                    mmap[str(model['id'])] = fieldType['ord']
+                    mmap[str(model.getId())] = fieldType['ord']
         if not mmap:
             return 0
     # find and gather replacements

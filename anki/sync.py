@@ -444,7 +444,7 @@ from notes where %s""" % (self.maxUsn, lim))
         Each note type whose mod time is greater on server, or which does not exists in collection, is copied into the collection.
         """
         for serverModel in serverChanges:
-            localModel = self.col.models.get(serverModel['id'])
+            localModel = self.col.models.get(serverModel.getId())
             # if missing locally or server is newer, update
             if not localModel or serverModel['mod'] > localModel['mod']:
                 # This is a hack to detect when the note type has been altered
@@ -477,7 +477,7 @@ from notes where %s""" % (self.maxUsn, lim))
 
     def mergeDecks(self, serverChanges):
         for serverDeck in serverChanges[0]:
-            localDeck = self.col.decks.get(serverDeck['id'], False)
+            localDeck = self.col.decks.get(serverDeck.getId(), False)
             # work around mod time being stored as string
             if localDeck and not isinstance(localDeck['mod'], int):
                 localDeck['mod'] = int(localDeck['mod'])
@@ -487,7 +487,7 @@ from notes where %s""" % (self.maxUsn, lim))
                 self.col.decks.update(serverDeck)
         for serverDeckOption in serverChanges[1]:
             try:
-                localDeckOption = self.col.decks.getConf(serverDeckOption['id'])
+                localDeckOption = self.col.decks.getConf(serverDeckOption.getId())
             except KeyError:
                 localDeckOption = None
             # if missing locally or server is newer, update

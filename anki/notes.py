@@ -52,7 +52,7 @@ class Note:
             self.id = timestampID(col.db, "notes")
             self.guid = guid64()
             self._model = model
-            self.mid = model['id']
+            self.mid = model.getId()
             self.tags = []
             self.fields = [""] * len(self._model['flds'])
             self.flags = 0

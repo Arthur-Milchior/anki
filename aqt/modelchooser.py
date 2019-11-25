@@ -86,9 +86,9 @@ class ModelChooser(QHBoxLayout):
         if not ret.name:
             return
         model = self.deck.models.byName(ret.name)
-        self.deck.conf['curModel'] = model['id']
+        self.deck.conf['curModel'] = model.getId()
         cdeck = self.deck.decks.current()
-        cdeck['mid'] = model['id']
+        cdeck['mid'] = model.getId()
         self.deck.decks.save(cdeck)
         runHook("currentModelChanged")
         self.mw.reset()

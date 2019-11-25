@@ -160,7 +160,7 @@ class ModelManager:
         model -- A Model
         templates -- whether to check for cards not generated in this model
         """
-        if model and model['id']:
+        if model and model.getId():
             model['mod'] = intTime()
             model['usn'] = self.col.usn()
             self._updateRequired(model)
@@ -206,7 +206,7 @@ class ModelManager:
 
     def setCurrent(self, model):
         """Change curModel value and marks the collection as modified."""
-        self.col.conf['curModel'] = model['id']
+        self.col.conf['curModel'] = model.getId()
         self.col.setMod()
 
     def get(self, id):
@@ -251,13 +251,13 @@ class ModelManager:
     def rem(self, model):
         "Delete model, and all its cards/notes."
         self.col.modSchema(check=True)
-        current = self.current()['id'] == model['id']
+        current = self.current().getId() == model.getId()
         # delete notes/cards
         self.col.remCards(self.col.db.list("""
 select id from cards where nid in (select id from notes where mid = ?)""",
-                                      model['id']))
+                                      model.getId()))
         # then the model
-        del self.models[str(model['id'])]
+        del self.models[str(model.getId())]
         self.save()
         # GUI should ensure last model is not deleted
         if current:
@@ -279,14 +279,14 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         Keyword arguments
         model -- a model object"""
         for mcur in self.all():
-            if (mcur['name'] == model['name'] and mcur['id'] != model['id']):
+            if (mcur['name'] == model['name'] and mcur.getId() != model.getId()):
                 model['name'] += "-" + checksum(str(time.time()))[:5]
                 break
 
     def update(self, model):
         "Add or update an existing model. Used for syncing and merging."
         self.ensureNameUnique(model)
-        self.models[str(model['id'])] = model
+        self.models[str(model.getId())] = model
         # mark registry changed, but don't bump mod time
         self.save()
 
@@ -315,7 +315,7 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         Keyword arguments
         model -- a model object."""
         return self.col.db.list(
-            "select id from notes where mid = ?", model['id'])
+            "select id from notes where mid = ?", model.getId())
 
     def useCount(self, model):
         """Number of note using the model model.
@@ -323,7 +323,7 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         Keyword arguments
         model -- a model object."""
         return self.col.db.scalar(
-            "select count() from notes where mid = ?", model['id'])
+            "select count() from notes where mid = ?", model.getId())
 
     def tmplUseCount(self, model, ord):
         """The number of cards which used template number ord of the
@@ -333,7 +333,7 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         model -- a model object."""
         return self.col.db.scalar("""
 select count() from cards, notes where cards.nid = notes.id
-and notes.mid = ? and cards.ord = ?""", model['id'], ord)
+and notes.mid = ? and cards.ord = ?""", model.getId(), ord)
 
     # Copying
     ##################################################
@@ -395,7 +395,7 @@ and notes.mid = ? and cards.ord = ?""", model['id'], ord)
         field -- a field object
         """
         # only mod schema if model isn't new
-        if model['id']:
+        if model.getId():
             self.col.modSchema(check=True)
         model['flds'].append(fieldType)
         self._updateFieldOrds(model)
@@ -505,11 +505,11 @@ and notes.mid = ? and cards.ord = ?""", model['id'], ord)
 
         fn -- a function taking and returning a list of field."""
         # model hasn't been added yet?
-        if not model['id']:
+        if not model.getId():
             return
         notesUpdates = []
         for (id, flds) in self.col.db.execute(
-            "select id, flds from notes where mid = ?", model['id']):
+            "select id, flds from notes where mid = ?", model.getId()):
             notesUpdates.append((joinFields(fn(splitFields(flds))),
                       intTime(), self.col.usn(), id))
         self.col.db.executemany(
@@ -533,7 +533,7 @@ and notes.mid = ? and cards.ord = ?""", model['id'], ord)
         """Add a new template in model, as last element. This template is a copy
         of the input template
         """
-        if model['id']:
+        if model.getId():
             self.col.modSchema(check=True)
         model['tmpls'].append(template)
         self._updateTemplOrds(model)
@@ -550,7 +550,7 @@ and notes.mid = ? and cards.ord = ?""", model['id'], ord)
         ord = model['tmpls'].index(template)
         cids = self.col.db.list("""
 select card.id from cards card, notes note where card.nid=note.id and mid = ? and ord = ?""",
-                                 model['id'], ord)
+                                 model.getId(), ord)
         # all notes with this template must have at least two cards, or we
         # could end up creating orphaned notes
         if self.col.db.scalar("""
@@ -567,7 +567,7 @@ limit 1""" % ids2str(cids)):
         self.col.db.execute("""
 update cards set ord = ord - 1, usn = ?, mod = ?
  where nid in (select id from notes where mid = ?) and ord > ?""",
-                             self.col.usn(), intTime(), model['id'], ord)
+                             self.col.usn(), intTime(), model.getId(), ord)
         model['tmpls'].remove(template)
         self._updateTemplOrds(model)
         self.save(model)
@@ -601,7 +601,7 @@ update cards set ord = ord - 1, usn = ?, mod = ?
         self.col.db.execute("""
 update cards set ord = (case %s end),usn=?,mod=? where nid in (
 select id from notes where mid = ?)""" % " ".join(map),
-                             self.col.usn(), intTime(), model['id'])
+                             self.col.usn(), intTime(), model.getId())
 
     def _syncTemplates(self, model):
         """Generate all cards not yet generated, whose note's model is model.
@@ -627,7 +627,7 @@ select id from notes where mid = ?)""" % " ".join(map),
         cmap -- the dictionnary sending to each card type's ord of the old model a card type's ord of the new model
         """
         self.col.modSchema(check=True)
-        assert newModel['id'] == model['id'] or (fmap and cmap)
+        assert newModel.getId() == model.getId() or (fmap and cmap)
         if fmap:
             self._changeNotes(nids, newModel, fmap)
         if cmap:
@@ -658,7 +658,7 @@ select id from notes where mid = ?)""" % " ".join(map),
             for index in range(nfields):
                 flds.append(newflds.get(index, ""))
             flds = joinFields(flds)
-            noteData.append(dict(nid=nid, flds=flds, mid=str(newModel['id']),
+            noteData.append(dict(nid=nid, flds=flds, mid=newModel.getId(),
                       mod=intTime(),usn=self.col.usn()))
         self.col.db.executemany(
             "update notes set flds=:flds,mid=:mid,mod=:mod,usn=:usn where id = :nid", noteData)
@@ -745,10 +745,10 @@ select id from notes where mid = ?)""" % " ".join(map),
         """
         ankiflagFlds = ["ankiflag"] * len(flds)
         emptyFlds = [""] * len(flds)
-        data = [1, 1, model['id'], 1, template['ord'], "", joinFields(ankiflagFlds), 0]
+        data = [1, 1, model.getId(), 1, template['ord'], "", joinFields(ankiflagFlds), 0]
         # The html of the card at position ord where each field's content is "ankiflag"
         full = self.col._renderQA(data)['q']
-        data = [1, 1, model['id'], 1, template['ord'], "", joinFields(emptyFlds), 0]
+        data = [1, 1, model.getId(), 1, template['ord'], "", joinFields(emptyFlds), 0]
         # The html of the card at position ord where each field's content is the empty string ""
         empty = self.col._renderQA(data)['q']
 

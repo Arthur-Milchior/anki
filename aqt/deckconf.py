@@ -16,7 +16,7 @@ class DeckConf(QDialog):
         QDialog.__init__(self, mw)
         self.mw = mw
         self.deck = deck
-        self.childDids = self.mw.col.decks.childDids(self.deck['id'])
+        self.childDids = self.mw.col.decks.childDids(self.deck.getId())
         self._origNewOrder = None
         self.form = aqt.forms.dconf.Ui_Dialog()
         self.form.setupUi(self)
@@ -56,7 +56,7 @@ class DeckConf(QDialog):
         self.form.dconf.clear()
         for idx, conf in enumerate(self.confList):
             self.form.dconf.addItem(conf['name'])
-            if str(conf['id']) == str(current):
+            if str(conf.getId()) == str(current):
                 startOn = idx
         self.ignoreConfChange = False
         self.form.dconf.setCurrentIndex(startOn)
@@ -84,13 +84,13 @@ class DeckConf(QDialog):
         if self.conf:
             self.saveConf()
         conf = self.confList[idx]
-        self.deck['conf'] = conf['id']
+        self.deck['conf'] = conf.getId()
         self.loadConf()
         cnt = 0
         for deck in self.mw.col.decks.all():
             if deck['dyn']:
                 continue
-            if deck['conf'] == conf['id']:
+            if deck['conf'] == conf.getId():
                 cnt += 1
         if cnt > 1:
             txt = _("Your changes will affect multiple decks. If you wish to "
@@ -113,10 +113,10 @@ class DeckConf(QDialog):
         self.loadConfs()
 
     def remGroup(self):
-        if int(self.conf['id']) == 1:
+        if int(self.conf.getId()) == 1:
             showInfo(_("The default configuration can't be removed."), self)
         else:
-            self.mw.col.decks.remConf(self.conf['id'])
+            self.mw.col.decks.remConf(self.conf.getId())
             self.deck['conf'] = 1
             self.loadConfs()
 
@@ -153,8 +153,8 @@ class DeckConf(QDialog):
         if "::" not in self.deck['name']:
             return ""
         lim = -1
-        for ancestor in self.mw.col.decks.parents(self.deck['id']):
-            conf = self.mw.col.decks.confForDid(ancestor['id'])
+        for ancestor in self.mw.col.decks.parents(self.deck.getId()):
+            conf = self.mw.col.decks.confForDid(ancestor.getId())
             perDay = conf[type]['perDay']
             if lim == -1:
                 lim = perDay
@@ -163,7 +163,7 @@ class DeckConf(QDialog):
         return _("(parent limit: %d)") % lim
 
     def loadConf(self):
-        self.conf = self.mw.col.decks.confForDid(self.deck['id'])
+        self.conf = self.mw.col.decks.confForDid(self.deck.getId())
         # new
         conf = self.conf['new']
         self.form.lrnSteps.setText(self.listToUser(conf['delays']))
@@ -258,9 +258,9 @@ class DeckConf(QDialog):
         if self._origNewOrder != conf['order']:
             # order of current deck has changed, so have to resort
             if conf['order'] == NEW_CARDS_RANDOM:
-                self.mw.col.sched.randomizeCards(self.deck['id'])
+                self.mw.col.sched.randomizeCards(self.deck.getId())
             else:
-                self.mw.col.sched.orderCards(self.deck['id'])
+                self.mw.col.sched.orderCards(self.deck.getId())
         # rev
         conf = self.conf['rev']
         conf['perDay'] = self.form.revPerDay.value()
