@@ -188,6 +188,15 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         self.manager.col.db.executemany(
             "update notes set flds=?,mod=?,usn=? where id = ?", notesUpdates)
 
+    def _updateFieldOrds(self):
+        """
+        Change the order of the field of the model in order to copy
+        the order in model['flds'].
+        Keyword arguments
+        model -- a model"""
+        for index, fieldType in enumerate(self['flds']):
+            fieldType['ord'] = index
+
     # Templates
     ##################################################
 

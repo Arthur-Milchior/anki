@@ -229,7 +229,7 @@ class ModelManager:
         if model.getId():
             self.col.modSchema(check=True)
         model['flds'].append(fieldType)
-        self._updateFieldOrds(model)
+        model._updateFieldOrds()
         model.save()
         def add(fieldsContents):
             fieldsContents.append("")
@@ -256,7 +256,7 @@ class ModelManager:
             if fieldType.getName() == sortFldName:
                 model['sortf'] = index
                 break
-        self._updateFieldOrds(model)
+        model._updateFieldOrds()
         def delete(fieldsContents):
             del fieldsContents[idx]
             return fieldsContents
@@ -284,7 +284,7 @@ class ModelManager:
         model['flds'].insert(idx, fieldType)
         # restore sort fieldType
         model['sortf'] = model['flds'].index(sortf)
-        self._updateFieldOrds(model)
+        model._updateFieldOrds()
         model.save()
         def move(fields, oldidx=oldidx):
             val = fields[oldidx]
@@ -319,16 +319,6 @@ class ModelManager:
                         pat  % re.escape(fieldType.getName()), "", template[fmt])
         fieldType.setName(newName)
         model.save()
-
-    def _updateFieldOrds(self, model):
-        """
-        Change the order of the field of the model in order to copy
-        the order in model['flds'].
-
-        Keyword arguments
-        model -- a model"""
-        for index, fieldType in enumerate(model['flds']):
-            fieldType['ord'] = index
 
     # Templates
     ##################################################
