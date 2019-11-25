@@ -9,6 +9,7 @@ from anki import Collection
 from anki.consts import *
 from anki.importing.base import Importer
 from anki.lang import _
+from anki.models import Model
 from anki.utils import intTime, joinFields, splitFields
 
 
@@ -240,10 +241,10 @@ class Anki2Importer(Importer):
             # missing from target col?
             if not self.dst.models.have(mid):
                 # copy it over
-                model = srcModel.copy()
-                model['id'] = mid
-                model['usn'] = self.col.usn()
-                self.dst.models.update(model)
+                dstModel = Model(self.dst.models, srcModel.copy())
+                dstModel['id'] = mid
+                dstModel['usn'] = self.col.usn()
+                self.dst.models.update(dstModel)
                 break
             # there's an existing model; do the schemas match?
             dstModel = self.dst.models.get(mid)
@@ -251,10 +252,10 @@ class Anki2Importer(Importer):
             if srcScm == dstScm:
                 # copy styling changes over if newer
                 if srcModel['mod'] > dstModel['mod']:
-                    model = srcModel.copy()
-                    model['id'] = mid
-                    model['usn'] = self.col.usn()
-                    self.dst.models.update(model)
+                    dstModel = Model(self.dst.models, srcModel.copy())
+                    dstModel['id'] = mid
+                    dstModel['usn'] = self.col.usn()
+                    self.dst.models.update(dstModel)
                 break
             # as they don't match, try next id
             mid += 1

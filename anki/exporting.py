@@ -213,9 +213,9 @@ class AnkiExporter(Exporter):
             self.dst.sched.resetCards(cids)
         # models - start with zero
         self.dst.models.models = {}
-        for model in self.src.models.all():
-            if int(model['id']) in mids:
-                self.dst.models.update(model)
+        for srcModel in self.src.models.all():
+            if int(srcModel['id']) in mids:
+                self.dst.models.update(srcModel)
         # decks
         if not self.did:
             dids = []
@@ -258,9 +258,9 @@ class AnkiExporter(Exporter):
                         continue
                     if fname.startswith("_"):
                         # Scan all models in mids for reference to fname
-                        for model in self.src.models.all():
-                            if int(model['id']) in mids:
-                                if self._modelHasMedia(model, fname):
+                        for srcModel in self.src.models.all():
+                            if int(srcModel['id']) in mids:
+                                if self._modelHasMedia(srcModel, fname):
                                     media[fname] = True
                                     break
         self.mediaFiles = list(media.keys())
@@ -279,12 +279,12 @@ class AnkiExporter(Exporter):
     def removeSystemTags(self, tags):
         return self.src.tags.remFromStr("marked leech", tags)
 
-    def _modelHasMedia(self, model, fname):
+    def _modelHasMedia(self, srcModel, fname):
         # First check the styling
-        if fname in model["css"]:
+        if fname in srcModel["css"]:
             return True
         # If no reference to fname then check the templates as well
-        for template in model["tmpls"]:
+        for template in srcModel["tmpls"]:
             if fname in template["qfmt"] or fname in template["afmt"]:
                 return True
         return False

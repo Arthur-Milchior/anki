@@ -10,6 +10,7 @@ import time
 from anki.consts import *
 from anki.hooks import runHook
 from anki.lang import _
+from anki.model import Model
 from anki.utils import checksum, ids2str, intTime, joinFields, splitFields
 
 """This module deals with models, known as note type in Anki's documentation.
@@ -144,7 +145,10 @@ class ModelManager:
     def load(self, json_):
         "Load registry from JSON."
         self.changed = False
-        self.models = json.loads(json_)
+        self.models = dict()
+        for model in json.loads(json_).values():
+            model = Model(self, model)
+            self.models[str(model['id'])] = model
 
     def save(self, model=None, templates=False):
         """
@@ -241,6 +245,7 @@ class ModelManager:
         model['tmpls'] = []
         model['tags'] = []
         model['id'] = None
+        model = Model(self, model)
         return model
 
     def rem(self, model):
@@ -335,7 +340,7 @@ and notes.mid = ? and cards.ord = ?""", model['id'], ord)
 
     def copy(self, model):
         "A copy of model, already in the collection."
-        m2 = copy.deepcopy(model)
+        m2 = model.deepcopy()
         m2['name'] = _("%s copy") % m2['name']
         self.add(m2)
         return m2
