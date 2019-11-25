@@ -199,34 +199,6 @@ class ModelManager:
         """The list of id of models"""
         return list(self.models.keys())
 
-    # Templates
-    ##################################################
-
-    def moveTemplate(self, model, template, idx):
-        """Move input template to position idx in model.
-
-        Move also every other template to make this consistent.
-
-        Comment again after that TODODODO
-        """
-        oldidx = model['tmpls'].index(template)
-        if oldidx == idx:
-            return
-        oldidxs = dict((id(template), template['ord']) for template in model['tmpls'])
-        model['tmpls'].remove(template)
-        model['tmpls'].insert(idx, template)
-        model._updateTemplOrds()
-        # generate change map
-        map = []
-        for template in model['tmpls']:
-            map.append("when ord = %d then %d" % (oldidxs[id(template)], template['ord']))
-        # apply
-        model.save()
-        self.col.db.execute("""
-update cards set ord = (case %s end),usn=?,mod=? where nid in (
-select id from notes where mid = ?)""" % " ".join(map),
-                             self.col.usn(), intTime(), model.getId())
-
     # Sync handling
     ##########################################################################
 

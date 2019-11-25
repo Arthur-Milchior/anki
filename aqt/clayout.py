@@ -422,7 +422,7 @@ Please create a new card type first."""))
         if pos == cur:
             return
         pos -= 1
-        self.mm.moveTemplate(self.model, self.card.template(), pos)
+        self.card.template().move(pos)
         self.ord = pos
         self.redraw()
 

@@ -100,7 +100,7 @@ def test_templates():
     assert c.ord == 0
     assert c2.ord == 1
     # switch templates
-    d.models.moveTemplate(m, c.template(), 1)
+    c.template().move(1)
     reqSize(m)
     c.load(); c2.load()
     assert c.ord == 1
