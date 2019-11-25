@@ -57,7 +57,7 @@ class Note:
             self.fields = [""] * len(self._model['flds'])
             self.flags = 0
             self.data = ""
-            self._fmap = self.col.models.fieldMap(self._model)
+            self._fmap = self._model.fieldMap()
             self.scm = self.col.scm
 
     def load(self):
@@ -76,7 +76,7 @@ from notes where id = ?""", self.id)
         self.fields = splitFields(self.fields)
         self.tags = self.col.tags.split(self.tags)
         self._model = self.col.models.get(self.mid)
-        self._fmap = self.col.models.fieldMap(self._model)
+        self._fmap = self._model.fieldMap()
         self.scm = self.col.scm
 
     def flush(self, mod=None):

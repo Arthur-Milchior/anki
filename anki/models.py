@@ -268,14 +268,6 @@ and notes.mid = ? and cards.ord = ?""", model.getId(), ord)
         fieldType.setName(name)
         return fieldType
 
-    def fieldMap(self, model):
-        """Mapping of (field name) -> (ord, field object).
-
-        keyword arguments:
-        model : a model
-        """
-        return dict((fieldType.getName(), (fieldType['ord'], fieldType)) for fieldType in model['flds'])
-
     def fieldNames(self, model):
         """The list of names of fields of this model."""
         return [fieldType.getName() for fieldType in model['flds']]
@@ -664,7 +656,7 @@ select id from notes where mid = ?)""" % " ".join(map),
         allowEmpty: allows to treat a note without cloze field as a note with a cloze number 1
         """
         sflds = splitFields(flds)
-        map = self.fieldMap(model)
+        map = model.fieldMap()
         ords = set()
         matches = re.findall("{{[^}]*?cloze:(?:[^}]?:)*(.+?)}}", model['tmpls'][0]['qfmt'])
         matches += re.findall("<%cloze:(.+?)%>", model['tmpls'][0]['qfmt'])

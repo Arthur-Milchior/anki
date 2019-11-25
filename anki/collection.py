@@ -752,7 +752,7 @@ where card.nid = note.id and card.id in %s group by nid""" % ids2str(cids)):
         """
         fields = {}
         flist = splitFields(flds)#the list of fields
-        for (name, (idx, conf)) in list(self.models.fieldMap(model).items()):#conf is not used
+        for (name, (idx, conf)) in list(model.fieldMap().items()):#conf is not used
             fields[name] = flist[idx]
         return fields
 

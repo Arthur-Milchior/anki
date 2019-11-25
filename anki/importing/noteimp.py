@@ -126,7 +126,7 @@ class NoteImporter(Importer):
                 csums[csum] = [id]
         firsts = {}#mapping sending first field of added note to true
         fld0idx = self.mapping.index(self.model['flds'][0].getName())
-        self._fmap = self.col.models.fieldMap(self.model)
+        self._fmap = self.model.fieldMap()
         self._nextID = timestampID(self.col.db, "notes")
         # loop through the notes
         updates = []

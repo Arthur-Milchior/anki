@@ -122,6 +122,16 @@ select id from cards where nid in (select id from notes where mid = ?)""",
             dict[key] = image
         return self.__class__(self.manager, dict=dict)
 
+    # Fields
+    ##################################################
+
+    def fieldMap(self):
+        """Mapping of (field name) -> (ord, field object).
+        keyword arguments:
+        model : a model
+        """
+        return dict((fieldType.getName(), (fieldType['ord'], fieldType)) for fieldType in self['flds'])
+
     # Templates
     ##################################################
 
@@ -169,7 +179,7 @@ select id from cards where nid in (select id from notes where mid = ?)""",
             # nothing to do
             return
         req = []
-        flds = [fieldType['name'] for fieldType in self['flds']]
+        flds = [fieldType.getName() for fieldType in self['flds']]
         for template in self['tmpls']:
             ret = template._req(flds)
             req.append((template['ord'], ret[0], ret[1]))
