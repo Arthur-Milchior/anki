@@ -9,6 +9,18 @@ class Template(DictAugmentedInModel):
 
     """
 
+    # Tools
+    ##################################################
+
+    def useCount(self):
+        """The number of cards which used template number ord of the
+        model obj.
+        Keyword arguments
+        model -- a model object."""
+        return self.col.db.scalar("""
+select count() from cards, notes where cards.nid = notes.id
+and notes.mid = ? and cards.ord = ?""", self.model.getId(), self['ord'])
+
     # Required field/text cache
     ##########################################################################
 

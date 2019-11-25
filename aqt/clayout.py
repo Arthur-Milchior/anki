@@ -239,13 +239,14 @@ class CardLayout(QDialog):
         if len(self.model['tmpls']) < 2:
             return showInfo(_("At least one card type is required."))
         idx = self.ord
-        cards = self.mm.tmplUseCount(self.model, idx)
+        template = self.cards[idx].template()
+        cards = template.useCount()
         cards = ngettext("%d card", "%d cards", cards) % cards
         msg = (_("Delete the '%(modelName)s' card type, and its %(cards)s?") %
             dict(modelName=self.model['tmpls'][idx].getName(), cards=cards))
         if not askUser(msg):
             return
-        if not self.mm.remTemplate(self.model, self.cards[idx].template()):
+        if not self.mm.remTemplate(self.model, template):
             return showWarning(_("""\
 Removing this card type would cause one or more notes to be deleted. \
 Please create a new card type first."""))

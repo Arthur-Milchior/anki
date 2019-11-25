@@ -226,19 +226,6 @@ class ModelManager:
         """The list of id of models"""
         return list(self.models.keys())
 
-    # Tools
-    ##################################################
-
-    def tmplUseCount(self, model, ord):
-        """The number of cards which used template number ord of the
-        model obj.
-
-        Keyword arguments
-        model -- a model object."""
-        return self.col.db.scalar("""
-select count() from cards, notes where cards.nid = notes.id
-and notes.mid = ? and cards.ord = ?""", model.getId(), ord)
-
     # Copying
     ##################################################
 
