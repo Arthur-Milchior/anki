@@ -172,6 +172,22 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         self.manager.col.updateFieldCache(self.nids())
         self.save()
 
+    def _transformFields(self, fn):
+        """For each note of the model self, apply fn to the set of field's
+        value, and save the note modified.
+        fn -- a function taking and returning a list of field.
+        """
+        # model hasn't been added yet?
+        if not self.getId():
+            return
+        notesUpdates = []
+        for (id, flds) in self.manager.col.db.execute(
+            "select id, flds from notes where mid = ?", self.getId()):
+            notesUpdates.append((joinFields(fn(splitFields(flds))),
+                      intTime(), self.manager.col.usn(), id))
+        self.manager.col.db.executemany(
+            "update notes set flds=?,mod=?,usn=? where id = ?", notesUpdates)
+
     # Templates
     ##################################################
 
