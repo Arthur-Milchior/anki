@@ -610,5 +610,5 @@ select id from notes where mid = ?)""" % " ".join(map),
 
     def beforeUpload(self):
         for model in self.all():
-            model['usn'] = 0
+            model.beforeUpload()
         self.save()

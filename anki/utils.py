@@ -500,6 +500,9 @@ class DictAugmentedIdUsn(DictAugmented):
     def getId(self):
         return self['id']
 
+    def beforeUpload(self):
+        self['usn'] = 0
+
     def save(self):
         """State that the DeckManager has been changed. Changes the
         mod and usn of the potential argument.

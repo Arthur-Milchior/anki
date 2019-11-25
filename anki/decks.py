@@ -866,9 +866,9 @@ same id."""
 
     def beforeUpload(self):
         for deck in self.all():
-            deck['usn'] = 0
+            deck.beforeUpload()
         for conf in self.allConf():
-            conf['usn'] = 0
+            conf.beforeUpload()
         self.save()
 
     # Dynamic decks
