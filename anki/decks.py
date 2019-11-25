@@ -203,6 +203,7 @@ class DeckManager:
         decks -- json dic associating to each id (as string) its deck
         dconf -- json dic associating to each id (as string) its configuration(option)
         """
+        self.changed = False
         self.decks = {}
         for deck in json.loads(decks).values():
             deck = Deck(self, deck)
@@ -211,18 +212,6 @@ class DeckManager:
         for dconf in json.loads(dconf).values():
             dconf = DConf(self, dconf)
             self.dconf[str(dconf['id'])] = dconf
-
-        # set limits to within bounds
-        found = False
-        for conf in list(self.dconf.values()):
-            for type in ('rev', 'new'):
-                pd = 'perDay'
-                if conf[type][pd] > 999999:
-                    conf[type][pd] = 999999
-                    self.save(conf)
-                    found = True
-        if not found:
-            self.changed = False
 
     def save(self, deckOrOption=None):
         """State that the DeckManager has been changed. Changes the
