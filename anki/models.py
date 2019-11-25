@@ -80,19 +80,6 @@ qfmt -- "question format string"
 # - careful not to add any lists/dicts/etc here, as they aren't deep copied
 
 
-defaultField = {
-    'name': "",
-    'ord': None,
-    'sticky': False,
-    # the following alter editing, and are used as defaults for the
-    # template wizard
-    'rtl': False,
-    'font': "Arial",
-    'size': 20,
-    # reserved for future use
-    'media': [],
-}
-
 defaultTemplate = {
     'name': "",
     'ord': None,
@@ -233,9 +220,9 @@ class ModelManager:
         """A new field, similar to the default one, whose name is name."""
         assert(isinstance(name, str))
         fieldType = defaultField.copy()
-        fieldType = Field(model, fieldType)
-        fieldType.setName(name)
-        return fieldType
+        field = Field(model, fieldType)
+        field.setName(name)
+        return field
 
     def fieldNames(self, model):
         """The list of names of fields of this model."""

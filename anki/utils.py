@@ -521,10 +521,10 @@ class DictAugmentedInModel(DictAugmented):
         self.model = model
         super().load(model, dict)
 
-    def new(self, name, default):
+    def new(self, manager, name, default):
         fieldType = default.copy()
-        fieldType.setName(name)
-        self.load(model, fieldType)
+        fieldType['name'] = name
+        self.load(manager, fieldType)
 
     def copy(self, model):
         return self.__class__(model, dict(self))

@@ -159,20 +159,8 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         It's called only when model is saved, a new model is given and template is asked to be computed"""
         self.manager.col.genCards(self.nids())
 
-    # Required field/text cache
-    ##########################################################################
-
-    def _updateRequired(self):
-        """Entirely recompute the model's req value"""
-        if self['type'] == MODEL_CLOZE:
-            # nothing to do
-            return
-        req = []
-        flds = [fieldType['name'] for fieldType in self['flds']]
-        for template in self['tmpls']:
-            ret = template._req(flds)
-            req.append((template['ord'], ret[0], ret[1]))
-        self['req'] = req
+    def newField(self, name):
+        return Field(self, name=name)
 
     # Model changing
     ##########################################################################
