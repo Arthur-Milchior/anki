@@ -21,7 +21,7 @@ def _newBasicModel(col, name=None):
     template = model.newTemplate(_("Card 1"))
     template['qfmt'] = "{{"+_("Front")+"}}"
     template['afmt'] = "{{FrontSide}}\n\n<hr id=answer>\n\n"+"{{"+_("Back")+"}}"
-    mm.addTemplate(model, template)
+    template.add()
     return model
 
 def addBasicModel(col):
@@ -54,7 +54,7 @@ def _newForwardReverse(col, name=None):
     template = model.newTemplate(_("Card 2"))
     template['qfmt'] = "{{"+_("Back")+"}}"
     template['afmt'] = "{{FrontSide}}\n\n<hr id=answer>\n\n"+"{{"+_("Front")+"}}"
-    mm.addTemplate(model, template)
+    template.add()
     return model
 
 def addForwardReverse(col):
@@ -105,7 +105,7 @@ def addClozeModel(col):
 }"""
     template['qfmt'] = fmt
     template['afmt'] = fmt + "<br>\n{{%s}}" % _("Extra")
-    mm.addTemplate(model, template)
+    template.add()
     mm.add(model)
     return model
 

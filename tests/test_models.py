@@ -87,7 +87,7 @@ def test_templates():
     t = m.newTemplate("Reverse")
     t['qfmt'] = "{{Back}}"
     t['afmt'] = "{{Front}}"
-    mm.addTemplate(m, t)
+    t.add()
     m.save()
     reqSize(m)
     f = d.newNote()
@@ -115,7 +115,7 @@ def test_templates():
     assert stripHTML(c.q()) == "1"
     # it shouldn't be possible to orphan notes by removing templates
     t = m.newTemplate("tmpl name")
-    mm.addTemplate(m, t)
+    t.add()
     reqSize(m)
     assert not d.models.remTemplate(m, m['tmpls'][0])
     reqSize(m)
@@ -129,7 +129,7 @@ def test_cloze_ordinals():
     t = m.newTemplate("ChainedCloze")
     t['qfmt'] = "{{text:cloze:Text}}"
     t['afmt'] = "{{text:cloze:Text}}"
-    mm.addTemplate(m, t)
+    t.add()
     m.save()
     d.models.remTemplate(m, m['tmpls'][0])
     
@@ -221,7 +221,7 @@ def test_chained_mods():
     t = m.newTemplate("ChainedCloze")
     t['qfmt'] = "{{cloze:text:Text}}"
     t['afmt'] = "{{cloze:text:Text}}"
-    mm.addTemplate(m, t)
+    t.add()
     m.save()
     d.models.remTemplate(m, m['tmpls'][0])
     
@@ -246,7 +246,7 @@ def test_modelChange():
     t = m.newTemplate("Reverse")
     t['qfmt'] = "{{Back}}"
     t['afmt'] = "{{Front}}"
-    mm.addTemplate(m, t)
+    t.add()
     m.save()
     reqSize(basic)
     f = deck.newNote()

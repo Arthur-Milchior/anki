@@ -447,7 +447,7 @@ Please create a new card type first."""))
         old = self.card.template()
         template['qfmt'] = old['qfmt']
         template['afmt'] = old['afmt']
-        self.mm.addTemplate(self.model, template)
+        template.add()
         self.ord = len(self.cards)
         self.redraw()
 

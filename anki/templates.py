@@ -29,6 +29,16 @@ class Template(DictAugmentedInModel):
         """
         super().new(model, name, defaultTemplate)
 
+    def add(self):
+        """Add this template in model, as last element.
+
+        """
+        if self.model.getId():
+            self.model.manager.col.modSchema(check=True)
+        self.model['tmpls'].append(self)
+        self.model._updateTemplOrds()
+        self.model.save()
+
     # Tools
     ##################################################
 

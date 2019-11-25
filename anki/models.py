@@ -202,16 +202,6 @@ class ModelManager:
     # Templates
     ##################################################
 
-    def addTemplate(self, model, template):
-        """Add a new template in model, as last element. This template is a copy
-        of the input template
-        """
-        if model.getId():
-            self.col.modSchema(check=True)
-        model['tmpls'].append(template)
-        model._updateTemplOrds()
-        model.save()
-
     def remTemplate(self, model, template):
         """Remove the input template from the model model.
 
