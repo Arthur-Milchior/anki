@@ -211,22 +211,9 @@ class ModelManager:
         model.setCurrent()
         model.save()
 
-    def ensureNameUnique(self, model):
-        """Transform the name of model into a new name.
-
-        If a model with this name but a distinct id exists in the
-        manager, the name of this object is appended by - and by a
-        5 random digits generated using the current time.
-        Keyword arguments
-        model -- a model object"""
-        for mcur in self.all():
-            if (mcur.getName() == model.getName() and mcur.getId() != model.getId()):
-                model.setName(model.getName() + "-" + checksum(str(time.time()))[:5])
-                break
-
     def update(self, model):
         "Add or update an existing model. Used for syncing and merging."
-        self.ensureNameUnique(model)
+        model.ensureNameUnique()
         self.models[str(model.getId())] = model
         # mark registry changed, but don't bump mod time
         self.save()

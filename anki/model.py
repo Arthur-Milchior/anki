@@ -1,9 +1,10 @@
 import copy
+import time
 
 from anki.consts import *
 from anki.fields import Field
 from anki.templates import Template
-from anki.utils import DictAugmentedIdUsn, intTime
+from anki.utils import DictAugmentedIdUsn, checksum, intTime
 
 defaultModel = {
     'sortf': 0,
@@ -81,6 +82,17 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         # GUI should ensure last model is not deleted
         if current:
             list(self.manager.models.values())[0].setCurrent()
+
+    def ensureNameUnique(self):
+        """Transform the name of model into a new name.
+        If a model with this name but a distinct id exists in the
+        manager, the name of this object is appended by - and by a
+        5 random digits generated using the current time.
+        Keyword arguments"""
+        for mcur in self.manager.all():
+            if (mcur.getName() == self.getName() and mcur.getId() != self.getId()):
+                self.setName(self.getName() + "-" + checksum(str(time.time()))[:5])
+                break
 
     # Tools
     ##################################################
