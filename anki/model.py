@@ -160,6 +160,18 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         """The index of the field used for sorting."""
         return self['sortf']
 
+    def setSortIdx(self, idx):
+        """State that the id of the sorting field of the model is idx.
+        Mark the model as modified, change the cache.
+        Keyword arguments
+        idx -- the identifier of a field
+        """
+        assert 0 <= idx < len(self['flds'])
+        self.manager.col.modSchema(check=True)
+        self['sortf'] = idx
+        self.manager.col.updateFieldCache(self.nids())
+        self.save()
+
     # Templates
     ##################################################
 

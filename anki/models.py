@@ -216,20 +216,6 @@ class ModelManager:
     # Fields
     ##################################################
 
-    def setSortIdx(self, model, idx):
-        """State that the id of the sorting field of the model is idx.
-
-        Mark the model as modified, change the cache.
-        Keyword arguments
-        model -- a model
-        idx -- the identifier of a field
-        """
-        assert 0 <= idx < len(model['flds'])
-        self.col.modSchema(check=True)
-        model['sortf'] = idx
-        self.col.updateFieldCache(model.nids())
-        model.save()
-
     def addField(self, model, fieldType):
         """Append the field field as last element of the model model.
 
