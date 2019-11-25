@@ -616,7 +616,7 @@ select id from notes where mid = ?)""" % " ".join(map),
 
         """
         if model['type'] == MODEL_CLOZE:
-            return self._availClozeOrds(model, flds)
+            return model._availClozeOrds(flds)
         fields = {}
         for index, fieldType in enumerate(splitFields(flds)):
             fields[index] = fieldType.strip()
@@ -646,32 +646,6 @@ select id from notes where mid = ?)""" % " ".join(map),
                     continue
             avail.append(ord)
         return avail
-
-    def _availClozeOrds(self, model, flds, allowEmpty=True):
-        """The list of fields F which are used in some {{cloze:F}} in a template
-
-        keyword arguments:
-        model: a model
-        flds: a list of fields as in the database
-        allowEmpty: allows to treat a note without cloze field as a note with a cloze number 1
-        """
-        sflds = splitFields(flds)
-        map = model.fieldMap()
-        ords = set()
-        matches = re.findall("{{[^}]*?cloze:(?:[^}]?:)*(.+?)}}", model['tmpls'][0]['qfmt'])
-        matches += re.findall("<%cloze:(.+?)%>", model['tmpls'][0]['qfmt'])
-        for fname in matches:
-            if fname not in map:
-                continue#Do not consider cloze not related to an existing field
-            ord = map[fname][0]
-            ords.update([int(match)-1 for match in re.findall(
-                r"(?s){{c(\d+)::.+?}}", sflds[ord])])#The number of the cloze of this field, minus one
-        if -1 in ords:#remove cloze 0
-            ords.remove(-1)
-        if not ords and allowEmpty:
-            # empty clozes use first ord
-            return [0]
-        return list(ords)
 
     # Sync handling
     ##########################################################################

@@ -1,10 +1,11 @@
 import copy
+import re
 import time
 
 from anki.consts import *
 from anki.fields import Field
 from anki.templates import Template
-from anki.utils import DictAugmentedIdUsn, checksum, intTime
+from anki.utils import DictAugmentedIdUsn, checksum, intTime, splitFields
 
 defaultModel = {
     'sortf': 0,
@@ -184,3 +185,30 @@ select id from cards where nid in (select id from notes where mid = ?)""",
             ret = template._req(flds)
             req.append((template['ord'], ret[0], ret[1]))
         self['req'] = req
+
+    # Required field/text cache
+    ##########################################################################
+
+    def _availClozeOrds(self, flds, allowEmpty=True):
+        """The list of fields F which are used in some {{cloze:F}} in a template
+        keyword arguments:
+        flds: a list of fields as in the database
+        allowEmpty: allows to treat a note without cloze field as a note with a cloze number 1
+        """
+        sflds = splitFields(flds)
+        map = self.fieldMap()
+        ords = set()
+        matches = re.findall("{{[^}]*?cloze:(?:[^}]?:)*(.+?)}}", self['tmpls'][0]['qfmt'])
+        matches += re.findall("<%cloze:(.+?)%>", self['tmpls'][0]['qfmt'])
+        for fname in matches:
+            if fname not in map:
+                continue#Do not consider cloze not related to an existing field
+            ord = map[fname][0]
+            ords.update([int(match)-1 for match in re.findall(
+                r"(?s){{c(\d+)::.+?}}", sflds[ord])])#The number of the cloze of this field, minus one
+        if -1 in ords:#remove cloze 0
+            ords.remove(-1)
+        if not ords and allowEmpty:
+            # empty clozes use first ord
+            return [0]
+        return list(ords)
