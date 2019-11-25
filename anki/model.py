@@ -94,6 +94,14 @@ select id from cards where nid in (select id from notes where mid = ?)""",
                 self.setName(self.getName() + "-" + checksum(str(time.time()))[:5])
                 break
 
+    def _setID(self):
+        """Set the id of model to a new unique value."""
+        while 1:
+            id = str(intTime(1000))
+            if id not in self.manager.models:
+                break
+        self['id'] = id
+
     # Tools
     ##################################################
 

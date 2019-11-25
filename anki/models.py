@@ -206,7 +206,7 @@ class ModelManager:
 
     def add(self, model):
         """Add a new model model in the database of models"""
-        self._setID(model)
+        model._setID()
         self.update(model)
         model.setCurrent()
         model.save()
@@ -217,14 +217,6 @@ class ModelManager:
         self.models[str(model.getId())] = model
         # mark registry changed, but don't bump mod time
         self.save()
-
-    def _setID(self, model):
-        """Set the id of model to a new unique value."""
-        while 1:
-            id = str(intTime(1000))
-            if id not in self.models:
-                break
-        model['id'] = id
 
     def have(self, id):
         """Whether there exists a model whose id is did."""
