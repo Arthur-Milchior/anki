@@ -3,6 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 # some add-ons expect json to be in the utils module
+import functools
 import json  # pylint: disable=unused-import
 import locale
 import math
@@ -456,3 +457,31 @@ def identity(x):
 
 def negation(x):
     return not x
+
+# Classes to extend dicts
+#############################################################################
+
+@functools.total_ordering
+class DictAugmented(dict):
+    def __init__(self, manager, dict=None, name=None):
+        if dict:
+            self.load(manager, dict)
+        else:
+            assert (name is not None)
+            self.new(manager, name)
+
+    def load(self, manager, dict):
+        self.manager = manager
+        super().__init__(dict)
+
+    def __eq__(self, other):
+        return self["name"] == other["name"]
+
+    def __lt__(self, other):
+        return self["name"] < other["name"]
+
+    def deepcopy(self):
+        dict = {}
+        for key in self:
+            dict[key] = copy.deepcopy(self[key])
+        return self.__class__(self.manager, dict=dict)
