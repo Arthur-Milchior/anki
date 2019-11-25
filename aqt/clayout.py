@@ -115,7 +115,7 @@ class CardLayout(QDialog):
         self.topAreaForm.templatesBox.currentIndexChanged.connect(self.onCardSelected)
 
     def updateTopArea(self):
-        cnt = self.mw.col.models.useCount(self.model)
+        cnt = self.model.useCount()
         #number of notes using this model
         self.topAreaForm.changesLabel.setText(ngettext(
             "Changes below will affect the %(cnt)d note that uses this card type.",
@@ -436,7 +436,7 @@ Please create a new card type first."""))
 
     def onAddCard(self):
         """Ask for confirmation and create a copy of current card as the last template"""
-        cnt = self.mw.col.models.useCount(self.model)
+        cnt = self.model.useCount()
         txt = ngettext("This will create %d card. Proceed?",
                        "This will create %d cards. Proceed?", cnt) % cnt
         if not askUser(txt):

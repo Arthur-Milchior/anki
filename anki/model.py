@@ -124,6 +124,13 @@ select id from cards where nid in (select id from notes where mid = ?)""",
             dict[key] = image
         return self.__class__(self.manager, dict=dict)
 
+    def useCount(self):
+        """Number of note using the model model.
+        Keyword arguments
+        model -- a model object."""
+        return self.manager.col.db.scalar(
+            "select count() from notes where mid = ?", self.getId())
+
     # Fields
     ##################################################
 

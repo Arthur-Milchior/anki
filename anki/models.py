@@ -229,14 +229,6 @@ class ModelManager:
     # Tools
     ##################################################
 
-    def useCount(self, model):
-        """Number of note using the model model.
-
-        Keyword arguments
-        model -- a model object."""
-        return self.col.db.scalar(
-            "select count() from notes where mid = ?", model.getId())
-
     def tmplUseCount(self, model, ord):
         """The number of cards which used template number ord of the
         model obj.

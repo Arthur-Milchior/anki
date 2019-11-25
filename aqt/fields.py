@@ -100,7 +100,7 @@ class FieldDialog(QDialog):
     def onDelete(self):
         if len(self.model['flds']) < 2:
             return showWarning(_("Notes require at least one field."))
-        count = self.mm.useCount(self.model)
+        count = self.model.useCount()
         count = ngettext("%d note", "%d notes", count) % count
         if not askUser(_("Delete field from %s?") % count):
             return

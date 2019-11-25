@@ -89,7 +89,7 @@ class Models(QDialog):
         self.models.sort(key=itemgetter("name"))
         self.form.modelsList.clear()
         for model in self.models:
-            mUse = self.mm.useCount(model)
+            mUse = model.useCount()
             mUse = ngettext("%d note", "%d notes", mUse) % mUse
             item = QListWidgetItem("%s [%s]" % (model.getName(), mUse))
             self.form.modelsList.addItem(item)
@@ -117,7 +117,7 @@ class Models(QDialog):
             showInfo(_("Please add another note type first."),
                      parent=self)
             return
-        if self.mm.useCount(self.model):
+        if self.model.useCount():
             msg = _("Delete this note type and all its cards?")
         else:
             msg = _("Delete this unused note type?")

@@ -304,8 +304,8 @@ def test_modelChange():
     f['Front'] = 'f2'
     f['Back'] = 'b2'
     deck.addNote(f)
-    assert deck.models.useCount(basic) == 2
-    assert deck.models.useCount(cloze) == 0
+    assert basic.useCount() == 2
+    assert cloze.useCount() == 0
     map = {0: 0, 1: 1}
     cloze.change(basic, [f.id], map, map)
     f.load()
