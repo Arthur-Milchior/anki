@@ -25,7 +25,7 @@ class PaukerImporter(NoteImporter):
 
         model.setName("Pauker")
         model.models.save()
-        self.col.models.setCurrent(model)
+        model.setCurrent()
         self.model = model
         self.initMapping()
         NoteImporter.run(self)

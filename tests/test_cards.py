@@ -79,7 +79,7 @@ def test_genrem():
 def test_gendeck():
     d = getEmptyCol()
     cloze = d.models.byName("Cloze")
-    d.models.setCurrent(cloze)
+    cloze.setCurrent()
     f = d.newNote()
     f['Text'] = '{{c1::one}}'
     d.addNote(f)

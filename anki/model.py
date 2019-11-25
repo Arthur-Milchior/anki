@@ -25,6 +25,11 @@ class Model(DictAugmentedIdUsn):
                 self._syncTemplates()
         super().save()
 
+    def setCurrent(self):
+        """Change curModel value and marks the collection as modified."""
+        self.manager.col.conf['curModel'] = self.getId()
+        self.manager.col.setMod()
+
     # Tools
     ##################################################
 

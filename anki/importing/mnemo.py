@@ -129,7 +129,7 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""):
             model.setName("Mnemosyne-FrontOnly")
         mm = self.col.models
         model.save()
-        mm.setCurrent(model)
+        model.setCurrent()
         self.model = model
         self._fields = len(model['flds'])
         self.initMapping()
@@ -194,7 +194,7 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""):
         model.setName("Mnemosyne-Cloze")
         mm = self.col.models
         model.save()
-        mm.setCurrent(model)
+        model.setCurrent()
         self.model = model
         self._fields = len(model['flds'])
         self.initMapping()

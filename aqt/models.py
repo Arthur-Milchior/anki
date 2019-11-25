@@ -148,7 +148,7 @@ class Models(QDialog):
         self.model.save()
 
     def _tmpNote(self):
-        self.mm.setCurrent(self.model)
+        self.model.setCurrent()
         note = self.col.newNote(forDeck=False)
         for name in list(note.keys()):
             note[name] = "("+name+")"
@@ -227,7 +227,7 @@ class AddModel(QDialog):
         else:
             # add copy to deck
             self.model = self.mw.col.models.copy(model)
-            self.mw.col.models.setCurrent(self.model)
+            self.model.setCurrent()
         QDialog.accept(self)
 
     def onHelp(self):

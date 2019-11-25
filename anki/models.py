@@ -200,11 +200,6 @@ class ModelManager:
             model = self.get(self.col.conf['curModel'])
         return model or list(self.models.values())[0]
 
-    def setCurrent(self, model):
-        """Change curModel value and marks the collection as modified."""
-        self.col.conf['curModel'] = model.getId()
-        self.col.setMod()
-
     def get(self, id):
         "Get model object with ID, or None."
         id = str(id)
@@ -257,13 +252,13 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         self.save()
         # GUI should ensure last model is not deleted
         if current:
-            self.setCurrent(list(self.models.values())[0])
+            list(self.models.values())[0].setCurrent()
 
     def add(self, model):
         """Add a new model model in the database of models"""
         self._setID(model)
         self.update(model)
-        self.setCurrent(model)
+        model.setCurrent()
         model.save()
 
     def ensureNameUnique(self, model):
