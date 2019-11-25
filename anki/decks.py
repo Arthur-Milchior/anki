@@ -8,6 +8,7 @@ import operator
 import unicodedata
 
 from anki.consts import *
+from anki.dconf import DConf
 from anki.errors import DeckRenameError
 from anki.hooks import runHook
 from anki.lang import _
@@ -202,7 +203,11 @@ class DeckManager:
         dconf -- json dic associating to each id (as string) its configuration(option)
         """
         self.decks = json.loads(decks)
-        self.dconf = json.loads(dconf)
+        self.dconf = {}
+        for dconf in json.loads(dconf).values():
+            dconf = DConf(self, dconf)
+            self.dconf[str(dconf['id'])] = dconf
+
         # set limits to within bounds
         found = False
         for conf in list(self.dconf.values()):
@@ -561,7 +566,11 @@ same id."""
         cloneFrom -- The configuration copied by the new one."""
         if cloneFrom is None:
             cloneFrom = defaultConf
-        conf = copy.deepcopy(cloneFrom)
+        if not isinstance(cloneFrom, DConf):
+            # This is in particular the case in tests, where confs are
+            # given directly as dic.
+            cloneFrom = DConf(self, cloneFrom)
+        conf = cloneFrom.deepcopy()
         while 1:
             id = intTime(1000)
             if str(id) not in self.dconf:
