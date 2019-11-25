@@ -2334,7 +2334,7 @@ Are you sure you want to continue?""")):
         self.browser.mw.col.modSchema(check=True)
         self.browser.mw.progress.start()
         self.browser.model.beginReset()
-        self.browser.mw.col.models.change(self.oldModel, self.nids, self.targetModel, fmap, cmap)
+        self.targetModel.change(self.oldModel, self.nids, fmap, cmap)
         self.browser.search()
         self.browser.model.endReset()
         self.browser.mw.progress.finish()
