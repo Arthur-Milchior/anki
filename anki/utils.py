@@ -504,6 +504,9 @@ class DictAugmentedIdUsn(DictAugmented):
         self['usn'] = self.manager.col.usn()
         self.manager.save()
 
+    def setId(self, newId):
+        self['id'] = newId
+
 class DictAugmentedInModel(DictAugmented):
     def load(self, model, dict):
         self.model = model

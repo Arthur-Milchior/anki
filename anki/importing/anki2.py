@@ -242,7 +242,7 @@ class Anki2Importer(Importer):
             if not self.dst.models.have(mid):
                 # copy it over
                 dstModel = Model(self.dst.models, srcModel.copy())
-                dstModel['id'] = mid
+                dstModel.setId(mid)
                 dstModel['usn'] = self.col.usn()
                 self.dst.models.update(dstModel)
                 break
@@ -253,7 +253,7 @@ class Anki2Importer(Importer):
                 # copy styling changes over if newer
                 if srcModel['mod'] > dstModel['mod']:
                     dstModel = Model(self.dst.models, srcModel.copy())
-                    dstModel['id'] = mid
+                    dstModel.setId(mid)
                     dstModel['usn'] = self.col.usn()
                     self.dst.models.update(dstModel)
                 break
