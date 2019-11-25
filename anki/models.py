@@ -8,6 +8,7 @@ import re
 import time
 
 from anki.consts import *
+from anki.fields import Field
 from anki.hooks import runHook
 from anki.lang import _
 from anki.model import Model
@@ -349,12 +350,12 @@ and notes.mid = ? and cards.ord = ?""", model.getId(), ord)
     # Fields
     ##################################################
 
-    def newField(self, name):
+    def newField(self, model, name):
         """A new field, similar to the default one, whose name is name."""
         assert(isinstance(name, str))
         fieldType = defaultField.copy()
         fieldType['name'] = name
-        return fieldType
+        return Field(model, fieldType)
 
     def fieldMap(self, model):
         """Mapping of (field name) -> (ord, field object).

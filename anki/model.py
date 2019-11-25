@@ -1,5 +1,6 @@
 import copy
 
+from anki.fields import Field
 from anki.templates import Template
 from anki.utils import DictAugmentedIdUsn
 
@@ -8,11 +9,12 @@ class Model(DictAugmentedIdUsn):
     def load(self, manager, dict):
         super().load(manager, dict)
         self['tmpls'] = list(map(lambda tmpl: Template(self, tmpl), self['tmpls']))
+        self['flds'] = list(map(lambda fld: Field(self, fld), self['flds']))
 
     def deepcopy(self):
         dict = {}
         for key in self:
-            if key in {'tmpls'}:
+            if key in {'tmpls', 'flds'}:
                 image = list(map(lambda object: object.deepcopy(), self[key]))
             else:
                 image = copy.deepcopy(self[key])
