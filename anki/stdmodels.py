@@ -17,7 +17,7 @@ def _newBasicModel(col, name=None):
     mm.addField(model, fm)
     fm = mm.newField(_("Back"))
     mm.addField(model, fm)
-    template = mm.newTemplate(_("Card 1"))
+    template = mm.newTemplate(model, _("Card 1"))
     template['qfmt'] = "{{"+_("Front")+"}}"
     template['afmt'] = "{{FrontSide}}\n\n<hr id=answer>\n\n"+"{{"+_("Back")+"}}"
     mm.addTemplate(model, template)
@@ -50,7 +50,7 @@ models.append((lambda: _("Basic (type in the answer)"), addBasicTypingModel))
 def _newForwardReverse(col, name=None):
     mm = col.models
     model = _newBasicModel(col, name or _("Basic (and reversed card)"))
-    template = mm.newTemplate(_("Card 2"))
+    template = mm.newTemplate(model, _("Card 2"))
     template['qfmt'] = "{{"+_("Back")+"}}"
     template['afmt'] = "{{FrontSide}}\n\n<hr id=answer>\n\n"+"{{"+_("Front")+"}}"
     mm.addTemplate(model, template)
@@ -92,7 +92,7 @@ def addClozeModel(col):
     mm.addField(model, fm)
     fm = mm.newField(_("Extra"))
     mm.addField(model, fm)
-    template = mm.newTemplate(_("Cloze"))
+    template = mm.newTemplate(model, _("Cloze"))
     fmt = "{{cloze:%s}}" % txt
     model['css'] += """
 .cloze {

@@ -84,7 +84,7 @@ def test_fields():
 def test_templates():
     d = getEmptyCol()
     m = d.models.current(); mm = d.models
-    t = mm.newTemplate("Reverse")
+    t = mm.newTemplate(m, "Reverse")
     t['qfmt'] = "{{Back}}"
     t['afmt'] = "{{Front}}"
     mm.addTemplate(m, t)
@@ -114,7 +114,7 @@ def test_templates():
     assert c.ord == 0
     assert stripHTML(c.q()) == "1"
     # it shouldn't be possible to orphan notes by removing templates
-    t = mm.newTemplate("template name")
+    t = mm.newTemplate(m, "tmpl name")
     mm.addTemplate(m, t)
     reqSize(m)
     assert not d.models.remTemplate(m, m['tmpls'][0])
@@ -126,7 +126,7 @@ def test_cloze_ordinals():
     m = d.models.current(); mm = d.models
     
     #We replace the default Cloze template
-    t = mm.newTemplate("ChainedCloze")
+    t = mm.newTemplate(m, "ChainedCloze")
     t['qfmt'] = "{{text:cloze:Text}}"
     t['afmt'] = "{{text:cloze:Text}}"
     mm.addTemplate(m, t)
@@ -218,7 +218,7 @@ def test_chained_mods():
     m = d.models.current(); mm = d.models
     
     #We replace the default Cloze template
-    t = mm.newTemplate("ChainedCloze")
+    t = mm.newTemplate(m, "ChainedCloze")
     t['qfmt'] = "{{cloze:text:Text}}"
     t['afmt'] = "{{cloze:text:Text}}"
     mm.addTemplate(m, t)
@@ -243,7 +243,7 @@ def test_modelChange():
     reqSize(cloze)
     # enable second template and add a note
     m = deck.models.current(); mm = deck.models
-    t = mm.newTemplate("Reverse")
+    t = mm.newTemplate(m, "Reverse")
     t['qfmt'] = "{{Back}}"
     t['afmt'] = "{{Front}}"
     mm.addTemplate(m, t)

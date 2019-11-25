@@ -443,7 +443,7 @@ Please create a new card type first."""))
         if not askUser(txt):
             return
         name = self._newCardName()
-        template = self.mm.newTemplate(name)
+        template = self.mm.newTemplate(self.model, name)
         old = self.card.template()
         template['qfmt'] = old['qfmt']
         template['afmt'] = old['afmt']

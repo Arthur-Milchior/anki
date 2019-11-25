@@ -11,6 +11,7 @@ from anki.consts import *
 from anki.hooks import runHook
 from anki.lang import _
 from anki.model import Model
+from anki.templates import Template
 from anki.utils import checksum, ids2str, intTime, joinFields, splitFields
 
 """This module deals with models, known as note type in Anki's documentation.
@@ -518,7 +519,7 @@ and notes.mid = ? and cards.ord = ?""", model.getId(), ord)
     # Templates
     ##################################################
 
-    def newTemplate(self, name):
+    def newTemplate(self, model, name):
         """A new template, whose content is the one of
         defaultTemplate, and name is name.
 
@@ -527,7 +528,7 @@ and notes.mid = ? and cards.ord = ?""", model.getId(), ord)
         """
         template = defaultTemplate.copy()
         template['name'] = name
-        return template
+        return Template(model, template)
 
     def addTemplate(self, model, template):
         """Add a new template in model, as last element. This template is a copy
