@@ -106,7 +106,7 @@ class FieldDialog(QDialog):
             return
         fldType = self.model['flds'][self.form.fieldList.currentRow()]
         self.mw.progress.start()
-        self.mm.remField(self.model, fldType)
+        fldType.rem()
         self.mw.progress.finish()
         self.fillFields()
         self.form.fieldList.setCurrentRow(0)

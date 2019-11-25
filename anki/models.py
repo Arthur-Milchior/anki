@@ -215,37 +215,6 @@ class ModelManager:
     # Fields
     ##################################################
 
-    def remField(self, model, fieldTypeToRemove):
-        """Remove a field from a model.
-        Also remove it from each note of this model
-        Move the position of the sortfield. Update the position of each field.
-
-        Modify the template
-
-        model -- the model
-        field -- the field object"""
-        self.col.modSchema(check=True)
-        # save old sort field
-        sortFldName = model['flds'][model['sortf']].getName()
-        idx = model['flds'].index(fieldTypeToRemove)
-        model['flds'].remove(fieldTypeToRemove)
-        # restore old sort field if possible, or revert to first field
-        model['sortf'] = 0
-        for index, fieldType in enumerate(model['flds']):
-            if fieldType.getName() == sortFldName:
-                model['sortf'] = index
-                break
-        model._updateFieldOrds()
-        def delete(fieldsContents):
-            del fieldsContents[idx]
-            return fieldsContents
-        model._transformFields(delete)
-        if model['flds'][model['sortf']].getName() != sortFldName:
-            # need to rebuild sort field
-            self.col.updateFieldCache(model.nids())
-        # saves
-        fieldTypeToRemove.rename(None)
-
     def moveField(self, model, fieldType, idx):
         """Move the field to position idx
 

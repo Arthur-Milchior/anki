@@ -56,7 +56,7 @@ def test_fields():
     f.rename("bar")
     assert d.getNote(m.nids()[0])['bar'] == ''
     # delete back
-    d.models.remField(m, m['flds'][1])
+    m['flds'][1].rem()
     assert d.getNote(m.nids()[0]).fields == ["1", ""]
     # move 0 -> 1
     d.models.moveField(m, m['flds'][0], 1)

@@ -66,3 +66,32 @@ class Field(DictAugmentedInModel):
                         pat  % re.escape(self.getName()), "", template[fmt])
         self.setName(newName)
         self.model.save()
+
+    def rem(self):
+        """Remove a field from a model.
+        Also remove it from each note of this model
+        Move the position of the sortfield. Update the position of each field.
+        Modify the template
+        model -- the model
+        field -- the field object"""
+        self.model.manager.col.modSchema(check=True)
+        # save old sort field
+        sortFldName = self.model['flds'][self.model['sortf']].getName()
+        idx = self.model['flds'].index(self)
+        self.model['flds'].remove(self)
+        # restore old sort field if possible, or revert to first field
+        self.model['sortf'] = 0
+        for index, fieldType in enumerate(self.model['flds']):
+            if fieldType.getName() == sortFldName:
+                self.model['sortf'] = index
+                break
+        self.model._updateFieldOrds()
+        def delete(fieldsContents):
+            del fieldsContents[idx]
+            return fieldsContents
+        self.model._transformFields(delete)
+        if self.model['flds'][self.model['sortf']].getName() != sortFldName:
+            # need to rebuild sort field
+            self.model.manager.col.updateFieldCache(self.model.nids())
+        # saves
+        self.rename(None)
