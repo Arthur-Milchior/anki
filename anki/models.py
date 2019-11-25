@@ -216,10 +216,6 @@ class ModelManager:
     # Fields
     ##################################################
 
-    def sortIdx(self, model):
-        """The index of the field used for sorting."""
-        return model['sortf']
-
     def setSortIdx(self, model, idx):
         """State that the id of the sorting field of the model is idx.
 

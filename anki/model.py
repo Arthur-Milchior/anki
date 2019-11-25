@@ -156,6 +156,10 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         """The list of names of fields of this model."""
         return [fieldType.getName() for fieldType in self['flds']]
 
+    def sortIdx(self):
+        """The index of the field used for sorting."""
+        return self['sortf']
+
     # Templates
     ##################################################
 

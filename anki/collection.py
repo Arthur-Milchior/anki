@@ -688,7 +688,7 @@ where card.nid = note.id and card.id in %s group by nid""" % ids2str(cids)):
             if not model:
                 # note points to invalid model
                 continue
-            notesUpdates.append((stripHTMLMedia(fields[self.models.sortIdx(model)]),
+            notesUpdates.append((stripHTMLMedia(fields[model.sortIdx()]),
                       fieldChecksum(fields[0]),
                       nid))
         # apply, relying on calling code to bump usn+mod

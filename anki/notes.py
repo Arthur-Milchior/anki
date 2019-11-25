@@ -93,7 +93,7 @@ from notes where id = ?""", self.id)
         mod -- A modification timestamp"""
         assert self.scm == self.col.scm
         self._preFlush()
-        sfld = stripHTMLMedia(self.fields[self.col.models.sortIdx(self._model)])
+        sfld = stripHTMLMedia(self.fields[self._model.sortIdx()])
         tags = self.stringTags()
         fields = self.joinedFields()
         if not mod and self.col.db.scalar(

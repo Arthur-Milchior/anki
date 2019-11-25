@@ -315,7 +315,7 @@ class DataModel(QAbstractTableModel):
         """The content of the sorting field, on a single line."""
         note = card.note()
         model = note.model()
-        sortIdx = card.col.models.sortIdx(model)
+        sortIdx = model.sortIdx()
         sortField = note.fields[sortIdx]
         return htmlToTextLine(sortField)
 
@@ -451,7 +451,7 @@ class DataModel(QAbstractTableModel):
         row = index.row()
         card = self.getCard(index)
         nt = card.note().model()
-        return nt['flds'][self.col.models.sortIdx(nt)]['rtl']
+        return nt['flds'][nt.sortIdx()]['rtl']
 
 # Line painter
 ######################################################################
