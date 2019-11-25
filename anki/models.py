@@ -613,22 +613,6 @@ select id from notes where mid = ?)""" % " ".join(map),
             cardData)
         self.col.remCards(deleted)
 
-    # Schema hash
-    ##########################################################################
-
-    def scmhash(self, model):
-        """Return a hash of the schema, to see if models are
-        compatible. Consider only name of fields and of card type, and
-        not the card type itself.
-
-        """
-        scm = ""
-        for fieldType in model['flds']:
-            scm += fieldType.getName()
-        for template in model['tmpls']:
-            scm += template.getName()
-        return checksum(scm)
-
     # Required field/text cache
     ##########################################################################
 

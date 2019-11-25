@@ -236,7 +236,7 @@ class Anki2Importer(Importer):
             return self._modelMap[srcMid]
         mid = srcMid
         srcModel = self.src.models.get(srcMid)
-        srcScm = self.src.models.scmhash(srcModel)
+        srcScm = srcModel.scmhash()
         while True:
             # missing from target col?
             if not self.dst.models.have(mid):
@@ -248,7 +248,7 @@ class Anki2Importer(Importer):
                 break
             # there's an existing model; do the schemas match?
             dstModel = self.dst.models.get(mid)
-            dstScm = self.dst.models.scmhash(dstModel)
+            dstScm = dstModel.scmhash()
             if srcScm == dstScm:
                 # copy styling changes over if newer
                 if srcModel['mod'] > dstModel['mod']:

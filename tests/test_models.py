@@ -32,7 +32,7 @@ def test_modelCopy():
     assert len(m2['flds']) == len(m['flds'])
     assert len(m['tmpls']) == 1
     assert len(m2['tmpls']) == 1
-    assert deck.models.scmhash(m) == deck.models.scmhash(m2)
+    assert m.scmhash() == m2.scmhash()
     reqSize(m)
     reqSize(m2)
 
@@ -46,12 +46,12 @@ def test_fields():
     # make sure renaming a field updates the templates
     d.models.renameField(m, m['flds'][0], "NewFront")
     assert "{{NewFront}}" in m['tmpls'][0]['qfmt']
-    h = d.models.scmhash(m)
+    h = m.scmhash()
     # add a field
     f = d.models.newField(m, "foo")
     d.models.addField(m, f)
     assert d.getNote(m.nids()[0]).fields == ["1", "2", ""]
-    assert d.models.scmhash(m) != h
+    assert m.scmhash() != h
     # rename it
     d.models.renameField(m, f, "bar")
     assert d.getNote(m.nids()[0])['bar'] == ''

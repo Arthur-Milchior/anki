@@ -144,3 +144,18 @@ select id from cards where nid in (select id from notes where mid = ?)""",
             ret = template._req(flds)
             req.append((template['ord'], ret[0], ret[1]))
         self['req'] = req
+
+    # Schema hash
+    ##########################################################################
+
+    def scmhash(self):
+        """Return a hash of the schema, to see if models are
+        compatible. Consider only name of fields and of card type, and
+        not the card type itself.
+        """
+        scm = ""
+        for fieldType in self['flds']:
+            scm += fieldType.getName()
+        for template in self['tmpls']:
+            scm += template.getName()
+        return checksum(scm)
