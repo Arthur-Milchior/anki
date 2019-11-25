@@ -619,7 +619,7 @@ def fieldNamesForNotes(col, nids):
     mids = col.db.list("select distinct mid from notes where id in %s" % ids2str(nids))
     for mid in mids:
         model = col.models.get(mid)
-        for name in col.models.fieldNames(model):
+        for name in model.fieldNames():
             if name not in fields: #slower w/o
                 fields.add(name)
     return sorted(fields, key=lambda field: field.lower())

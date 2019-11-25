@@ -216,18 +216,6 @@ class ModelManager:
     # Fields
     ##################################################
 
-    def newField(self, model, name):
-        """A new field, similar to the default one, whose name is name."""
-        assert(isinstance(name, str))
-        fieldType = defaultField.copy()
-        field = Field(model, fieldType)
-        field.setName(name)
-        return field
-
-    def fieldNames(self, model):
-        """The list of names of fields of this model."""
-        return [fieldType.getName() for fieldType in model['flds']]
-
     def sortIdx(self, model):
         """The index of the field used for sorting."""
         return model['sortf']

@@ -44,6 +44,7 @@ class Model(DictAugmentedIdUsn):
         self['flds'] = list(map(lambda fld: Field(self, fld), self['flds']))
 
     def new(self, manager, name):
+        assert(isinstance(name, str))
         model = defaultModel.copy()
         model['name'] = name
         model['mod'] = intTime()
@@ -150,6 +151,10 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         model : a model
         """
         return dict((fieldType.getName(), (fieldType['ord'], fieldType)) for fieldType in self['flds'])
+
+    def fieldNames(self):
+        """The list of names of fields of this model."""
+        return [fieldType.getName() for fieldType in self['flds']]
 
     # Templates
     ##################################################
