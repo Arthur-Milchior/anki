@@ -212,7 +212,7 @@ def _upgradeClozeModel(col, model):
     for rem in rems:
         col.models.remTemplate(model, rem)
     del model['tmpls'][1:]
-    col.models._updateTemplOrds(model)
+    model.models._updateTemplOrds()
     model.save()
 
 # Creating a new collection

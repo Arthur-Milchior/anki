@@ -200,6 +200,11 @@ select id from cards where nid in (select id from notes where mid = ?)""",
     # Templates
     ##################################################
 
+    def _updateTemplOrds(self):
+        """Change the value of 'ord' in each template of this model to reflect its new position"""
+        for index, template in enumerate(self['tmpls']):
+            template['ord'] = index
+
     def _syncTemplates(self):
         """Generate all cards not yet generated, whose note's model is model.
         It's called only when model is saved, a new model is given and template is asked to be computed"""

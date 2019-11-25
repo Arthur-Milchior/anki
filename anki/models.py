@@ -234,7 +234,7 @@ class ModelManager:
         if model.getId():
             self.col.modSchema(check=True)
         model['tmpls'].append(template)
-        self._updateTemplOrds(model)
+        model._updateTemplOrds()
         model.save()
 
     def remTemplate(self, model, template):
@@ -267,14 +267,9 @@ update cards set ord = ord - 1, usn = ?, mod = ?
  where nid in (select id from notes where mid = ?) and ord > ?""",
                              self.col.usn(), intTime(), model.getId(), ord)
         model['tmpls'].remove(template)
-        self._updateTemplOrds(model)
+        model._updateTemplOrds()
         model.save()
         return True
-
-    def _updateTemplOrds(self, model):
-        """Change the value of 'ord' in each template of this model to reflect its new position"""
-        for index, template in enumerate(model['tmpls']):
-            template['ord'] = index
 
     def moveTemplate(self, model, template, idx):
         """Move input template to position idx in model.
@@ -289,7 +284,7 @@ update cards set ord = ord - 1, usn = ?, mod = ?
         oldidxs = dict((id(template), template['ord']) for template in model['tmpls'])
         model['tmpls'].remove(template)
         model['tmpls'].insert(idx, template)
-        self._updateTemplOrds(model)
+        model._updateTemplOrds()
         # generate change map
         map = []
         for template in model['tmpls']:
