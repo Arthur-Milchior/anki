@@ -121,7 +121,7 @@ def _upgrade(col, ver):
         col.modSchema(check=False)
         import anki.models
         for model in col.models.all():
-            model['css'] = anki.models.defaultModel['css']
+            model['css'] = anki.model.defaultModel['css']
             for template in model['tmpls']:
                 if 'css' not in template:
                     # ankidroid didn't bump version

@@ -79,33 +79,6 @@ qfmt -- "question format string"
 
 # - careful not to add any lists/dicts/etc here, as they aren't deep copied
 
-defaultModel = {
-    'sortf': 0,
-    'did': 1,
-    'latexPre': """\
-\\documentclass[12pt]{article}
-\\special{papersize=3in,5in}
-\\usepackage[utf8]{inputenc}
-\\usepackage{amssymb,amsmath}
-\\pagestyle{empty}
-\\setlength{\\parindent}{0in}
-\\begin{document}
-""",
-    'latexPost': "\\end{document}",
-    'mod': 0,
-    'usn': 0,
-    'vers': [], # FIXME: remove when other clients have caught up
-    'type': MODEL_STD,
-    'css': """\
-.card {
- font-family: arial;
- font-size: 20px;
- text-align: center;
- color: black;
- background-color: white;
-}
-"""
-}
 
 defaultField = {
     'name': "",
@@ -229,15 +202,7 @@ class ModelManager:
     def new(self, name):
         "Create a new model, save it in the registry, and return it."
         # caller should call save() after modifying
-        model = defaultModel.copy()
-        model['name'] = name
-        model['mod'] = intTime()
-        model['flds'] = []
-        model['tmpls'] = []
-        model['tags'] = []
-        model['id'] = None
-        model = Model(self, model)
-        return model
+        return Model(self, name=name)
 
     def rem(self, model):
         "Delete model, and all its cards/notes."

@@ -3,14 +3,51 @@ import copy
 from anki.consts import *
 from anki.fields import Field
 from anki.templates import Template
-from anki.utils import DictAugmentedIdUsn
+from anki.utils import DictAugmentedIdUsn, intTime
 
+defaultModel = {
+    'sortf': 0,
+    'did': 1,
+    'latexPre': """\
+\\documentclass[12pt]{article}
+\\special{papersize=3in,5in}
+\\usepackage[utf8]{inputenc}
+\\usepackage{amssymb,amsmath}
+\\pagestyle{empty}
+\\setlength{\\parindent}{0in}
+\\begin{document}
+""",
+    'latexPost': "\\end{document}",
+    'mod': 0,
+    'usn': 0,
+    'vers': [], # FIXME: remove when other clients have caught up
+    'type': MODEL_STD,
+    'css': """\
+.card {
+ font-family: arial;
+ font-size: 20px;
+ text-align: center;
+ color: black;
+ background-color: white;
+}
+"""
+}
 
 class Model(DictAugmentedIdUsn):
     def load(self, manager, dict):
         super().load(manager, dict)
         self['tmpls'] = list(map(lambda tmpl: Template(self, tmpl), self['tmpls']))
         self['flds'] = list(map(lambda fld: Field(self, fld), self['flds']))
+
+    def new(self, manager, name):
+        model = defaultModel.copy()
+        model['name'] = name
+        model['mod'] = intTime()
+        model['flds'] = []
+        model['tmpls'] = []
+        model['tags'] = []
+        model['id'] = None
+        self.load(manager, model)
 
     def save(self, template=False):
         """
