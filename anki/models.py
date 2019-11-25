@@ -170,7 +170,7 @@ class ModelManager:
         if self.changed:
             self.ensureNotEmpty()
             self.col.db.execute("update col set models = ?",
-                                 json.dumps(self.models))
+                                 json.dumps(self.models, default=lambda model: model.dumps()))
             self.changed = False
 
     def ensureNotEmpty(self):

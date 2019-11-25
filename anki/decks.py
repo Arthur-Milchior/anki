@@ -233,8 +233,8 @@ class DeckManager:
         """
         if self.changed:
             self.col.db.execute("update col set decks=?, dconf=?",
-                                 json.dumps(self.decks),
-                                 json.dumps(self.dconf))
+                                 json.dumps(self.decks, default=lambda model: model.dumps()),
+                                 json.dumps(self.dconf, default=lambda model: model.dumps()))
             self.changed = False
 
     # Deck save/load
