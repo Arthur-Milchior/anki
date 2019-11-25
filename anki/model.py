@@ -30,3 +30,10 @@ class Model(DictAugmentedIdUsn):
         model -- a model object."""
         return self.manager.col.db.list(
             "select id from notes where mid = ?", self.getId())
+    # Templates
+    ##################################################
+
+    def _syncTemplates(self):
+        """Generate all cards not yet generated, whose note's model is model.
+        It's called only when model is saved, a new model is given and template is asked to be computed"""
+        self.manager.col.genCards(self.nids())

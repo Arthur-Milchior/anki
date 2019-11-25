@@ -167,7 +167,7 @@ class ModelManager:
             model['usn'] = self.col.usn()
             self._updateRequired(model)
             if templates:
-                self._syncTemplates(model)
+                model._syncTemplates()
         self.changed = True
         runHook("newModel") # By default, only refresh side bar of browser
 
@@ -598,12 +598,6 @@ update cards set ord = ord - 1, usn = ?, mod = ?
 update cards set ord = (case %s end),usn=?,mod=? where nid in (
 select id from notes where mid = ?)""" % " ".join(map),
                              self.col.usn(), intTime(), model.getId())
-
-    def _syncTemplates(self, model):
-        """Generate all cards not yet generated, whose note's model is model.
-
-        It's called only when model is saved, a new model is given and template is asked to be computed"""
-        rem = self.col.genCards(model.nids())
 
     # Model changing
     ##########################################################################
