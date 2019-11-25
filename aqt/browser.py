@@ -2,31 +2,29 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import sre_constants
 import html
-import time
-import re
-import unicodedata
-from operator import  itemgetter
-from anki.lang import ngettext
 import json
+import re
+import sre_constants
+import time
+import unicodedata
+from operator import itemgetter
 
-from aqt.qt import *
 import anki
 import aqt.forms
-from anki.utils import fmtTimeSpan, ids2str, htmlToTextLine, \
-    isWin, intTime, \
-    isMac, bodyClass
-from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter, \
-    saveHeader, restoreHeader, saveState, restoreState, getTag, \
-    showInfo, askUser, tooltip, openHelp, showWarning, shortcut, mungeQA, \
-    getOnlyText, MenuList, SubMenu, qtMenuShortcutWorkaround
-from anki.lang import _
-from anki.hooks import runHook, addHook, remHook, runFilter
-from aqt.webview import AnkiWebView
 from anki.consts import *
-from anki.sound import clearAudioQueue, allSounds, play
-
+from anki.hooks import addHook, remHook, runFilter, runHook
+from anki.lang import _, ngettext
+from anki.sound import allSounds, clearAudioQueue, play
+from anki.utils import (bodyClass, fmtTimeSpan, htmlToTextLine, ids2str,
+                        intTime, isMac, isWin)
+from aqt.qt import *
+from aqt.utils import (MenuList, SubMenu, askUser, getOnlyText, getTag,
+                       mungeQA, openHelp, qtMenuShortcutWorkaround,
+                       restoreGeom, restoreHeader, restoreSplitter,
+                       restoreState, saveGeom, saveHeader, saveSplitter,
+                       saveState, shortcut, showInfo, showWarning, tooltip)
+from aqt.webview import AnkiWebView
 
 # Data model
 ##########################################################################

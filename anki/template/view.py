@@ -1,6 +1,8 @@
-from anki.template import Template
 import os.path
 import re
+
+from anki.template import Template
+
 
 class View:
     # Path where this view's template(s) live

@@ -2,17 +2,17 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import time
-import random
-import itertools
-from operator import itemgetter
-from heapq import *
 import datetime
+import itertools
+import random
+import time
+from heapq import *
+from operator import itemgetter
 
-from anki.utils import ids2str, intTime, fmtTimeSpan
-from anki.lang import _
 from anki.consts import *
 from anki.hooks import runHook
+from anki.lang import _
+from anki.utils import fmtTimeSpan, ids2str, intTime
 
 # card types: 0=new, 1=lrn, 2=rev, 3=relrn
 # queue types: 0=new, 1=(re)lrn, 2=rev, 3=day (re)lrn,

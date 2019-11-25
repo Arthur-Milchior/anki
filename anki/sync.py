@@ -2,19 +2,21 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import io
 import gzip
-import random
-import requests
+import io
 import json
 import os
+import random
 
-from anki.db import DB, DBError
-from anki.utils import ids2str, intTime, platDesc, checksum, devMode
-from anki.consts import *
-from anki.utils import versionWithBuild
-from .hooks import runHook
+import requests
+
 import anki
+from anki.consts import *
+from anki.db import DB, DBError
+from anki.utils import (checksum, devMode, ids2str, intTime, platDesc,
+                        versionWithBuild)
+
+from .hooks import runHook
 from .lang import ngettext
 
 # syncing vars

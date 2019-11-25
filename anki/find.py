@@ -6,10 +6,10 @@ import re
 import sre_constants
 import unicodedata
 
-from anki.utils import ids2str, splitFields, joinFields, intTime, fieldChecksum, stripHTMLMedia
 from anki.consts import *
 from anki.hooks import *
-
+from anki.utils import (fieldChecksum, ids2str, intTime, joinFields,
+                        splitFields, stripHTMLMedia)
 
 # Find
 ##########################################################################

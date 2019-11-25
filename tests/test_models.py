@@ -1,8 +1,9 @@
 # coding: utf-8
 
-from tests.shared import getEmptyCol
-from anki.utils import stripHTML, joinFields
 import anki.template
+from anki.utils import joinFields, stripHTML
+from tests.shared import getEmptyCol
+
 
 def test_modelDelete():
     deck = getEmptyCol()

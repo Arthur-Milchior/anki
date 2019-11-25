@@ -1,16 +1,18 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-from anki.lang import _
-
-from aqt.qt import *
+import aqt.deckchooser
+import aqt.editor
 import aqt.forms
-from aqt.utils import saveGeom, restoreGeom, showWarning, askUser, shortcut, \
-    tooltip, openHelp, addCloseShortcut, downArrow
-from anki.sound import clearAudioQueue
+import aqt.modelchooser
 from anki.hooks import addHook, remHook, runHook
+from anki.lang import _
+from anki.sound import clearAudioQueue
 from anki.utils import htmlToTextLine, isMac
-import aqt.editor, aqt.modelchooser, aqt.deckchooser
+from aqt.qt import *
+from aqt.utils import (addCloseShortcut, askUser, downArrow, openHelp,
+                       restoreGeom, saveGeom, shortcut, showWarning, tooltip)
+
 
 class AddCards(QDialog):
 

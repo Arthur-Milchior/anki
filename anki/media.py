@@ -2,21 +2,24 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import io
-import re
-import traceback
-import urllib.request, urllib.parse, urllib.error
-import unicodedata
-import sys
-import zipfile
-import pathlib
 import json
 import os
+import pathlib
+import re
+import sys
+import traceback
+import unicodedata
+import urllib.error
+import urllib.parse
+import urllib.request
+import zipfile
 
-from anki.utils import checksum, isWin, isMac
-from anki.db import DB, DBError
 from anki.consts import *
-from anki.latex import mungeQA
+from anki.db import DB, DBError
 from anki.lang import _
+from anki.latex import mungeQA
+from anki.utils import checksum, isMac, isWin
+
 
 class MediaManager:
 

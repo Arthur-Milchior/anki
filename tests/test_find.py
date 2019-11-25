@@ -1,9 +1,9 @@
 # coding: utf-8
-from nose.tools import assert_raises
-
 from anki.consts import *
 from anki.find import Finder
+from nose.tools import assert_raises
 from tests.shared import getEmptyCol
+
 
 def test_parse():
     f = Finder(None)

@@ -2,12 +2,20 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import atexit
 import html
-import re, sys, threading, time, subprocess, os, atexit
-import  random
+import os
+import random
+import re
+import subprocess
+import sys
+import threading
+import time
+
 from anki.hooks import addHook, runHook
-from anki.utils import  tmpdir, isWin, isMac, isLin
 from anki.lang import _
+from anki.mpv import MPV, MPVBase
+from anki.utils import isLin, isMac, isWin, tmpdir
 
 # Shared utils
 ##########################################################################
@@ -86,7 +94,6 @@ def retryWait(proc):
 # MPV
 ##########################################################################
 
-from anki.mpv import MPV, MPVBase
 
 mpvPath, mpvEnv = _packagedCmd(["mpv"])
 

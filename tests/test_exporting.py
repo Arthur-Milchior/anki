@@ -1,9 +1,13 @@
 # coding: utf-8
 
-import nose, os, tempfile
+import os
+import tempfile
+
+import nose
 from anki import Collection as aopen
 from anki.exporting import *
 from anki.importing import Anki2Importer
+
 from .shared import getEmptyCol
 
 deck = None

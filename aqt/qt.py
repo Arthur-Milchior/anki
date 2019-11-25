@@ -5,29 +5,31 @@
 # pylint: disable=unused-import
 
 import os
+import sys
+import traceback
+
+from PyQt5.Qt import *
+from PyQt5.QtCore import \
+    pyqtRemoveInputHook  # pylint: disable=no-name-in-module
+from PyQt5.QtWebEngineWidgets import *
+
+from anki.utils import isMac, isWin
 
 # fix buggy ubuntu12.04 display of language selector
 os.environ["LIBOVERLAY_SCROLLBAR"] = "0"
 
-from anki.utils import isWin, isMac
 
-from PyQt5.Qt import *
-# trigger explicit message in case of missing libraries
-# instead of silently failing to import
-from PyQt5.QtWebEngineWidgets import *
 try:
     from PyQt5 import sip
 except ImportError:
     import sip
 
-from PyQt5.QtCore import pyqtRemoveInputHook # pylint: disable=no-name-in-module
 
 def debug():
     from pdb import set_trace
     pyqtRemoveInputHook()
     set_trace()
 
-import sys, traceback
 
 if os.environ.get("DEBUG"):
     def info(type, value, tb):

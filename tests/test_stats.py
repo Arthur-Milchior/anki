@@ -1,7 +1,9 @@
 # coding: utf-8
 
-import  os
-from tests.shared import  getEmptyCol
+import os
+
+from tests.shared import getEmptyCol
+
 
 def test_stats():
     d = getEmptyCol()

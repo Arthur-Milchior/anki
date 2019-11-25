@@ -2,11 +2,14 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import zipfile, os
-import unicodedata
 import json
-from anki.utils import tmpfile
+import os
+import unicodedata
+import zipfile
+
 from anki.importing.anki2 import Anki2Importer
+from anki.utils import tmpfile
+
 
 class AnkiPackageImporter(Anki2Importer):
 

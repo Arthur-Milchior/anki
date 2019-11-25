@@ -2,6 +2,7 @@
 
 from tests.shared import getEmptyCol
 
+
 def test_previewCards():
     deck = getEmptyCol()
     f = deck.newNote()
@@ -104,6 +105,3 @@ def test_gendeck():
     f['Text'] += '{{c4::four}}'
     f.flush()
     assert f.cards()[3].did == newId
-
-
-

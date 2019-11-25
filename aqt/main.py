@@ -2,34 +2,35 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import faulthandler
+import gc
+import platform
 import re
 import signal
-import zipfile
-import gc
 import time
-import faulthandler
-import platform
+import zipfile
 from threading import Thread
 
 from send2trash import send2trash
-from aqt.qt import *
-from anki import Collection
-from anki.utils import  isWin, isMac, intTime, splitFields, ids2str, \
-        devMode
-from anki.hooks import runHook, addHook, runFilter
-import aqt
-import aqt.progress
-import aqt.webview
-import aqt.toolbar
-import aqt.stats
-import aqt.mediasrv
-import anki.sound
+
 import anki.mpv
-from aqt.utils import saveGeom, restoreGeom, showInfo, showWarning, \
-    restoreState, getOnlyText, askUser, showText, tooltip, \
-    openHelp, openLink, checkInvalidFilename, getFile
-from aqt.qt import sip
+import anki.sound
+import aqt
+import aqt.mediasrv
+import aqt.progress
+import aqt.stats
+import aqt.toolbar
+import aqt.webview
+from anki import Collection
+from anki.hooks import addHook, runFilter, runHook
 from anki.lang import _, ngettext
+from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
+from aqt.qt import *
+from aqt.qt import sip
+from aqt.utils import (askUser, checkInvalidFilename, getFile, getOnlyText,
+                       openHelp, openLink, restoreGeom, restoreState, saveGeom,
+                       showInfo, showText, showWarning, tooltip)
+
 
 class AnkiQt(QMainWindow):
     def __init__(self, app, profileManager, opts, args):

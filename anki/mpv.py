@@ -25,19 +25,21 @@
 #
 # ------------------------------------------------------------------------------
 
-import sys
-import os
-import time
+import inspect
 import json
-import socket
+import os
 import select
+import socket
+import subprocess
+import sys
 import tempfile
 import threading
-import subprocess
-import inspect
+import time
+from distutils.spawn import \
+    find_executable  # pylint: disable=import-error,no-name-in-module
+from queue import Empty, Full, Queue
 
-from distutils.spawn import find_executable # pylint: disable=import-error,no-name-in-module
-from queue import Queue, Empty, Full
+from anki.utils import isWin
 
 
 class MPVError(Exception):
@@ -55,7 +57,6 @@ class MPVCommandError(MPVError):
 class MPVTimeoutError(MPVError):
     pass
 
-from anki.utils import isWin
 if isWin:
     # pylint: disable=import-error
     import win32file, win32pipe, pywintypes, winerror
@@ -568,4 +569,3 @@ class MPV(MPVBase):
         """Set the value of property `name`.
         """
         return self.command("set_property", name, value)
-

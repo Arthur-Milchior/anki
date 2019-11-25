@@ -4,6 +4,7 @@
 # Based off Kieran Clancy's initial implementation.
 
 import re
+
 from anki.hooks import addHook
 
 r = r' ?([^ >]+?)\[(.+?)\]'

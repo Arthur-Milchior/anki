@@ -1,5 +1,6 @@
 from tests.shared import assertException, getEmptyCol
 
+
 def test_flags():
     col = getEmptyCol()
     n = col.newNote()

@@ -1,10 +1,11 @@
 # coding: utf-8
 
-import os, tempfile
-from tests.shared import assertException, getEmptyCol
-from anki.stdmodels import addBasicModel, models
+import os
+import tempfile
 
 from anki import Collection as aopen
+from anki.stdmodels import addBasicModel, models
+from tests.shared import assertException, getEmptyCol
 
 newPath = None
 newMod = None

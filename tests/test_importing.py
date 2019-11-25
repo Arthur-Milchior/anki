@@ -1,10 +1,12 @@
 # coding: utf-8
 
-import  os
-from tests.shared import  getUpgradeDeckPath, getEmptyCol
+import os
+
+from anki.importing import (Anki2Importer, AnkiPackageImporter,
+                            MnemosyneImporter, SupermemoXmlImporter,
+                            TextImporter)
 from anki.utils import ids2str
-from anki.importing import Anki2Importer, TextImporter, \
-    SupermemoXmlImporter, MnemosyneImporter, AnkiPackageImporter
+from tests.shared import getEmptyCol, getUpgradeDeckPath
 
 testDir = os.path.dirname(__file__)
 

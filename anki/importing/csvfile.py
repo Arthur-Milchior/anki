@@ -5,7 +5,7 @@
 import csv
 import re
 
-from anki.importing.noteimp import NoteImporter, ForeignNote
+from anki.importing.noteimp import ForeignNote, NoteImporter
 from anki.lang import _
 
 
