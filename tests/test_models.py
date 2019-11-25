@@ -59,10 +59,10 @@ def test_fields():
     m['flds'][1].rem()
     assert d.getNote(m.nids()[0]).fields == ["1", ""]
     # move 0 -> 1
-    d.models.moveField(m, m['flds'][0], 1)
+    m['flds'][0].move(1)
     assert d.getNote(m.nids()[0]).fields == ["", "1"]
     # move 1 -> 0
-    d.models.moveField(m, m['flds'][1], 0)
+    m['flds'][1].move(0)
     assert d.getNote(m.nids()[0]).fields == ["1", ""]
     # add another and put in middle
     f = m.newField("baz")
@@ -72,13 +72,13 @@ def test_fields():
     f.flush()
     assert d.getNote(m.nids()[0]).fields == ["1", "", "2"]
     # move 2 -> 1
-    d.models.moveField(m, m['flds'][2], 1)
+    m['flds'][2].move(1)
     assert d.getNote(m.nids()[0]).fields == ["1", "2", ""]
     # move 0 -> 2
-    d.models.moveField(m, m['flds'][0], 2)
+    m['flds'][0].move(2)
     assert d.getNote(m.nids()[0]).fields == ["2", "", "1"]
     # move 0 -> 1
-    d.models.moveField(m, m['flds'][0], 1)
+    m['flds'][0].move(1)
     assert d.getNote(m.nids()[0]).fields == ["", "2", "1"]
 
 def test_templates():

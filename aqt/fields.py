@@ -126,7 +126,7 @@ class FieldDialog(QDialog):
         self.saveField()
         fldType = self.model['flds'][self.currentIdx]
         self.mw.progress.start()
-        self.mm.moveField(self.model, fldType, pos-1)
+        fldType.move(pos-1)
         self.mw.progress.finish()
         self.fillFields()
         self.form.fieldList.setCurrentRow(pos-1)
