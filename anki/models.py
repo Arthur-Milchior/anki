@@ -605,48 +605,6 @@ select id from notes where mid = ?)""" % " ".join(map),
             cardData)
         self.col.remCards(deleted)
 
-    # Required field/text cache
-    ##########################################################################
-
-
-    def availOrds(self, model, flds):
-        """Given a joined field string, return ordinal of card type which
-        should be generated. See
-        ../documentation/templates_generation_rules.md for the detail
-
-        """
-        if model['type'] == MODEL_CLOZE:
-            return model._availClozeOrds(flds)
-        fields = {}
-        for index, fieldType in enumerate(splitFields(flds)):
-            fields[index] = fieldType.strip()
-        avail = []
-        for ord, type, req in model['req']:
-            # unsatisfiable template
-            if type == "none":
-                continue
-            # AND requirement?
-            elif type == "all":
-                ok = True
-                for idx in req:
-                    if not fields[idx]:
-                        # missing and was required
-                        ok = False
-                        break
-                if not ok:
-                    continue
-            # OR requirement?
-            elif type == "any":
-                ok = False
-                for idx in req:
-                    if fields[idx]:
-                        ok = True
-                        break
-                if not ok:
-                    continue
-            avail.append(ord)
-        return avail
-
     # Sync handling
     ##########################################################################
 

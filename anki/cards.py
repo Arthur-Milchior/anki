@@ -280,8 +280,7 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
 
     def isEmpty(self):
         """TODO"""
-        ords = self.col.models.availOrds(
-            self.model(), joinFields(self.note().fields))
+        ords = self.model().availOrds(joinFields(self.note().fields))
         if self.ord not in ords:
             return True
 

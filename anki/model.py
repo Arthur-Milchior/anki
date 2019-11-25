@@ -189,6 +189,43 @@ select id from cards where nid in (select id from notes where mid = ?)""",
     # Required field/text cache
     ##########################################################################
 
+    def availOrds(self, flds):
+        """Given a joined field string, return ordinal of card type which
+        should be generated. See
+        ../documentation/templates_generation_rules.md for the detail
+        """
+        if self['type'] == MODEL_CLOZE:
+            return self._availClozeOrds(flds)
+        fields = {}
+        for index, fieldType in enumerate(splitFields(flds)):
+            fields[index] = fieldType.strip()
+        avail = []
+        for ord, type, req in self['req']:
+            # unsatisfiable template
+            if type == "none":
+                continue
+            # AND requirement?
+            elif type == "all":
+                ok = True
+                for idx in req:
+                    if not fields[idx]:
+                        # missing and was required
+                        ok = False
+                        break
+                if not ok:
+                    continue
+            # OR requirement?
+            elif type == "any":
+                ok = False
+                for idx in req:
+                    if fields[idx]:
+                        ok = True
+                        break
+                if not ok:
+                    continue
+            avail.append(ord)
+        return avail
+
     def _availClozeOrds(self, flds, allowEmpty=True):
         """The list of fields F which are used in some {{cloze:F}} in a template
         keyword arguments:

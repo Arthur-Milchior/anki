@@ -293,7 +293,7 @@ where id = ? and flds != ?""", rows)
                 sidx = self._fmap[fact][0]
                 fields[sidx] = note.fields[card]
         note.fieldsStr = joinFields(fields)
-        ords = self.col.models.availOrds(self.model, note.fieldsStr)
+        ords = self.model.availOrds(note.fieldsStr)
         if not ords:
             self._emptyNotes = True
         return ords
