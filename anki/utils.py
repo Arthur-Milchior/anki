@@ -3,6 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 # some add-ons expect json to be in the utils module
+import copy
 import functools
 import json  # pylint: disable=unused-import
 import locale
@@ -499,3 +500,13 @@ class DictAugmentedIdUsn(DictAugmented):
         self['mod'] = intTime()
         self['usn'] = self.manager.col.usn()
         self.manager.save()
+
+class DictAugmentedInModel(DictAugmented):
+    def load(self, model, dict):
+        self.model = model
+        super().load(model, dict)
+
+    def new(self, name, default):
+        fieldType = default.copy()
+        fieldType['name'] = name
+        self.load(model, fieldType)
