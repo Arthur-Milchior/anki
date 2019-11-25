@@ -67,6 +67,21 @@ class Model(DictAugmentedIdUsn):
         self.manager.col.conf['curModel'] = self.getId()
         self.manager.col.setMod()
 
+    def rem(self):
+        "Delete model, and all its cards/notes."
+        self.manager.col.modSchema(check=True)
+        current = self.manager.current().getId() == self.getId()
+        # delete notes/cards
+        self.manager.col.remCards(self.manager.col.db.list("""
+select id from cards where nid in (select id from notes where mid = ?)""",
+                                      self.getId()))
+        # then the model
+        del self.manager.models[str(self.getId())]
+        self.manager.save()
+        # GUI should ensure last model is not deleted
+        if current:
+            list(self.manager.models.values())[0].setCurrent()
+
     # Tools
     ##################################################
 

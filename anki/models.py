@@ -204,21 +204,6 @@ class ModelManager:
         # caller should call save() after modifying
         return Model(self, name=name)
 
-    def rem(self, model):
-        "Delete model, and all its cards/notes."
-        self.col.modSchema(check=True)
-        current = self.current().getId() == model.getId()
-        # delete notes/cards
-        self.col.remCards(self.col.db.list("""
-select id from cards where nid in (select id from notes where mid = ?)""",
-                                      model.getId()))
-        # then the model
-        del self.models[str(model.getId())]
-        self.save()
-        # GUI should ensure last model is not deleted
-        if current:
-            list(self.models.values())[0].setCurrent()
-
     def add(self, model):
         """Add a new model model in the database of models"""
         self._setID(model)

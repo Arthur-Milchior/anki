@@ -18,7 +18,7 @@ def test_modelDelete():
     f['Back'] = '2'
     deck.addNote(f)
     assert deck.cardCount() == 1
-    deck.models.rem(deck.models.current())
+    deck.models.current().rem()
     assert deck.cardCount() == 0
 
 def test_modelCopy():

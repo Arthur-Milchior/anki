@@ -123,7 +123,7 @@ class Models(QDialog):
             msg = _("Delete this unused note type?")
         if not askUser(msg, parent=self):
             return
-        self.mm.rem(self.model)
+        self.model.rem()
         self.model = None
         self.updateModelsList()
 
