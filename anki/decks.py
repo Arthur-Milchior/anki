@@ -9,6 +9,7 @@ import unicodedata
 
 from anki.consts import *
 from anki.dconf import DConf
+from anki.deck import Deck
 from anki.errors import DeckRenameError
 from anki.hooks import runHook
 from anki.lang import _
@@ -202,7 +203,10 @@ class DeckManager:
         decks -- json dic associating to each id (as string) its deck
         dconf -- json dic associating to each id (as string) its configuration(option)
         """
-        self.decks = json.loads(decks)
+        self.decks = {}
+        for deck in json.loads(decks).values():
+            deck = Deck(self, deck)
+            self.decks[str(deck['id'])] = deck
         self.dconf = {}
         for dconf in json.loads(dconf).values():
             dconf = DConf(self, dconf)
@@ -270,7 +274,12 @@ class DeckManager:
                 break
         if deckToCopy is None:
             deckToCopy = defaultDeck
-        deck = copy.deepcopy(deckToCopy)
+        if isinstance(deckToCopy, dict):
+            # useful mostly in tests where decks are given directly as dic
+            deck = Deck(self, copy.deepcopy(deckToCopy))
+        else:
+            assert isinstance(deckToCopy, Deck)
+            deck = deckToCopy.deepcopy()
         deck['name'] = name
         deck['id'] = id
         self.decks[str(id)] = deck

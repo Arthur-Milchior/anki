@@ -10,6 +10,7 @@ import unicodedata
 import zipfile
 
 from anki import Collection
+from anki.deck import Deck
 from anki.hooks import runHook
 from anki.lang import _
 from anki.utils import ids2str, namedtmp, splitFields, stripHTML
@@ -232,7 +233,7 @@ class AnkiExporter(Exporter):
                     dconfs[deck['conf']] = True
             if not self.includeSched:
                 # scheduling not included, so reset deck settings to default
-                deck = dict(deck)
+                deck = Deck(self.dst.decks, dict(deck))
                 deck['conf'] = 1
             self.dst.decks.update(deck)
         # copy used deck confs
