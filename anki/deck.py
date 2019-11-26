@@ -9,6 +9,12 @@ class Deck(DictAugmentedDyn):
         """Adding or replacing the deck with our id in the manager"""
         self.manager.decks[str(self.getId())] = self
 
+    # Name family
+    #############################################################
+
+    def isTopLevel(self):
+        return "::" not in self.getName()
+
     # Getter/Setter
     #############################################################
 

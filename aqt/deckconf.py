@@ -150,7 +150,7 @@ class DeckConf(QDialog):
 
     def parentLimText(self, type="new"):
         # top level?
-        if "::" not in self.deck.getName():
+        if self.deck.isTopLevel():
             return ""
         lim = -1
         for ancestor in self.mw.col.decks.parents(self.deck.getId()):

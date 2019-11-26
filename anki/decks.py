@@ -444,7 +444,7 @@ class DeckManager:
 
         if ontoDeckDid is None or ontoDeckDid == '':
             #if the deck is dragged to toplevel
-            if len(self._path(draggedDeckName)) > 1:
+            if not draggedDeck.isTopLevel():
                 #And is not already at top level
                 self.rename(draggedDeck, self._basename(draggedDeckName))
         elif self._canDragAndDrop(draggedDeckName, ontoDeckName):
