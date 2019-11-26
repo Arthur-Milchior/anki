@@ -29,3 +29,6 @@ class Deck(DictAugmentedDyn):
 
     def isDefaultConf(self):
         return self.getConfId() == 1
+
+    def setDefaultConf(self):
+        self['conf'] = 1

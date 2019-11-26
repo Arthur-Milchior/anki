@@ -117,7 +117,7 @@ class DeckConf(QDialog):
             showInfo(_("The default configuration can't be removed."), self)
         else:
             self.mw.col.decks.remConf(self.conf.getId())
-            self.deck['conf'] = 1
+            self.deck.setDefaultConf()
             self.loadConfs()
 
     def renameGroup(self):
