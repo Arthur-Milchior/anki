@@ -337,15 +337,16 @@ class DeckManager:
         return "::".join(DeckManager._path(name)[:-1])
 
     def _ensureParents(self, name):
-        """Ensure parents exist, and return name with case matching parents.
+        """(name of parent with case matching existing parents. Parent deck)
 
-        Parents are created if they do not already exists.
-        If a dynamic deck is found, return false
+        Parents are created if they do not already exists.  If a
+        dynamic deck is found, return false.
+
         """
         ancestorName = ""
         path = self._path(name)
         if len(path) < 2:
-            return name
+            return None, name
         for pathPiece in path[:-1]:
             if not ancestorName:
                 ancestorName += pathPiece
@@ -354,11 +355,11 @@ class DeckManager:
             # fetch or create
             deck = self.byName(ancestorName, create=True)
             if deck.isDyn():
-                return False
+                return deck, False
             # get original case
             ancestorName = deck.getName()
         name = ancestorName + "::" + path[-1]
-        return name
+        return deck, name
 
     # Deck configurations
     #############################################################

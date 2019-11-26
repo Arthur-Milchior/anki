@@ -24,7 +24,7 @@ class Deck(DictAugmentedDyn):
         """To be called when a deck is copied"""
         if "::" in name:
             # not top level; ensure all parents exist
-            name = self.manager._ensureParents(name)
+            parent, name = self.manager._ensureParents(name)
         self.setName(name)
         while 1:
             id = intTime(1000)
@@ -99,7 +99,7 @@ class Deck(DictAugmentedDyn):
         If newName already exists or if it a descendant of a filtered
         deck, the operation is aborted."""
         # ensure we have parents
-        newName = self.manager._ensureParents(newName)
+        parent, newName = self.manager._ensureParents(newName)
         # make sure we're not nesting under a filtered deck
         if newName is False:
             raise DeckRenameError(_("A filtered deck cannot have subdecks."))
@@ -114,7 +114,7 @@ class Deck(DictAugmentedDyn):
             child.addInModel()
             child.save()
         # ensure we have parents again, as we may have renamed parent->child
-        newName = self.manager._ensureParents(newName)
+        parent, newName = self.manager._ensureParents(newName)
         # renaming may have altered active did order
         self.manager.maybeAddToActive()
 
