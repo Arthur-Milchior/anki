@@ -27,6 +27,16 @@ class Deck(DictAugmentedDyn):
     def getPath(self):
         return self.manager._path(self.getName())
 
+    ## Tests:
+    def isParentOf(self, other):
+        otherParent = other.getParent()
+        if otherParent is None:
+            return False
+        return otherParent == self
+
+    def isChildOf(self, other):
+        return other.isParentOf(self)
+
     # Getter/Setter
     #############################################################
 
