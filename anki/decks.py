@@ -8,7 +8,7 @@ import operator
 import unicodedata
 
 from anki.consts import *
-from anki.dconf import DConf
+from anki.dconf import DConf, defaultConf
 from anki.deck import Deck
 from anki.errors import DeckRenameError
 from anki.hooks import runHook
@@ -138,45 +138,6 @@ defaultDynamicDeck = {
 
     # v2 scheduler
     "previewDelay": 10,
-}
-
-defaultConf = {
-    'name': _("Default"),
-    'new': {
-        'delays': [1, 10],
-        'ints': [1, 4, 7], # 7 is not currently used
-        'initialFactor': STARTING_FACTOR,
-        'separate': True,
-        'order': NEW_CARDS_DUE,
-        'perDay': 20,
-        # may not be set on old decks
-        'bury': False,
-    },
-    'lapse': {
-        'delays': [10],
-        'mult': 0,
-        'minInt': 1,
-        'leechFails': 8,
-        # type 0=suspend, 1=tagonly
-        'leechAction': LEECH_SUSPEND,
-    },
-    'rev': {
-        'perDay': 200,
-        'ease4': 1.3,
-        'fuzz': 0.05,
-        'minSpace': 1, # not currently used
-        'ivlFct': 1,
-        'maxIvl': 36500,
-        # may not be set on old decks
-        'bury': False,
-        'hardFactor': 1.2,
-    },
-    'maxTaken': 60,
-    'timer': 0,
-    'autoplay': True,
-    'replayq': True,
-    'mod': 0,
-    'usn': 0,
 }
 
 class DeckManager:
@@ -421,16 +382,7 @@ class DeckManager:
             # This is in particular the case in tests, where confs are
             # given directly as dic.
             cloneFrom = DConf(self, cloneFrom)
-        conf = cloneFrom.deepcopy()
-        while 1:
-            id = intTime(1000)
-            if str(id) not in self.dconf:
-                break
-        conf['id'] = id
-        conf.setName(name)
-        self.dconf[str(id)] = conf
-        conf.save()
-        return id
+        return cloneFrom.copy_(name).getId()
 
     def remConf(self, id):
         """Remove a configuration and update all decks using it.
