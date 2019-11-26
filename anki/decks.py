@@ -315,13 +315,13 @@ class DeckManager:
             # rather than deleting the cards
             self.col.sched.emptyDyn(did)
             if childrenToo:
-                for id in self.childDids(did):
+                for id in deck.getDescendantsIds():
                     self.rem(id, cardsToo)
         else:
             # delete children first
             if childrenToo:
                 # we don't want to delete children when syncing
-                for id in self.childDids(did):
+                for id in deck.getDescendantsIds():
                     self.rem(id, cardsToo)
             # delete cards too?
             if cardsToo:
@@ -643,7 +643,7 @@ same id."""
         of the descendant."""
         if not children:
             return self.col.db.list("select id from cards where did=?", did)
-        dids = self.childDids(did, includeSelf=True)
+        dids = self.get(did).getDescendantsIds(includeSelf=True)
         return self.col.db.list("select id from cards where did in "+
                                 ids2str(dids))
 
@@ -712,26 +712,12 @@ same id."""
         # current deck
         self.col.conf['curDeck'] = did
         # and active decks (current + all children)
-        self.col.conf['activeDecks'] = self.childDids(did, sort=True, includeSelf=True)
+        self.col.conf['activeDecks'] = self.get(did).getDescendantsIds(sort=True, includeSelf=True)
         self.changed = True
 
     def children(self, did, includeSelf=False, sort=False):
         "All descendant of did, as (name, id)."
         return [(deck.getName(), deck.getId()) for deck in self.get(did).getDescendants(includeSelf=includeSelf, sort=sort)]
-
-    def childDids(self, did, includeSelf=False, sort=False):
-        #childmap is useless. Keep for consistency with anki.
-        #sort was True by default, but never used.
-        """The list of all descendant of did, as deck ids, ordered alphabetically
-
-        The list starts with the toplevel ancestors of did and its
-        i-th element is the ancestor with i times ::.
-
-        Keyword arguments:
-        did -- the id of the deck we consider
-        """
-        # get ancestors names
-        return [deck.getId() for deck in self.get(did).getDescendants(includeSelf=includeSelf, sort=sort)]
 
     def nameMap(self):
         """

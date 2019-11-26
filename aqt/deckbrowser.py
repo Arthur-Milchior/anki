@@ -315,7 +315,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             return showWarning(_("The default deck can't be deleted."))
         self.mw.checkpoint(_("Delete Deck"))
         if deck.isStd():
-            dids = self.mw.col.decks.childDids(did, includeSelf=True)
+            dids = deck.getDescendantsIds(includeSelf=True)
             cnt = self.mw.col.db.scalar(
                 "select count() from cards where did in {0} or "
                 "odid in {0}".format(ids2str(dids)))

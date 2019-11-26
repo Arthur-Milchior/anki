@@ -221,7 +221,7 @@ class AnkiExporter(Exporter):
         if not self.did:
             dids = []
         else:
-            dids = self.src.decks.childDids(self.did, includeSelf=True)
+            dids = self.src.decks.get(self.did).getDescendantsIds(includeSelf=True)
         dconfs = {}
         for deck in self.src.decks.all():
             if deck.isDefault():

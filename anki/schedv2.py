@@ -452,7 +452,7 @@ and due <= ? limit ?)""",
             return lim
 
     def _revForDeck(self, did, lim, sort=True):
-        dids = self.col.decks.childDids(did, includeSelf=True)
+        dids = self.col.decks.get(did).getDescendantsIds(includeSelf=True)
         lim = min(lim, self.reportLimit)
         return self.col.db.scalar(
             f"""

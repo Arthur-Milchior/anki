@@ -74,6 +74,19 @@ class Deck(DictAugmentedDyn):
         return [deck for deck in self.manager.all(sort=sort) if deck.getName().startswith(name+"::") or (includeSelf and deck.getName() == name)]
     #todo, maybe sort only this smaller list, at least until all() memoize
 
+    def getDescendantsIds(self, includeSelf=False, sort=False):
+        #sort was True by default, but never used.
+        """The list of all descendant of did, as deck ids, ordered alphabetically
+
+        The list starts with the toplevel ancestors of did and its
+        i-th element is the ancestor with i times ::.
+
+        Keyword arguments:
+        did -- the id of the deck we consider
+        """
+        # get ancestors names
+        return [deck.getId() for deck in self.getDescendants(includeSelf=includeSelf, sort=sort)]
+
     ## Tests:
     def isParentOf(self, other):
         otherParent = other.getParent()
