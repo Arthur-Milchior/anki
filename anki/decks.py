@@ -673,7 +673,7 @@ same id."""
                 self.save(deck)
 
             # immediate parent must exist
-            immediateParent = self.parentName(deck.getName())
+            immediateParent = deck.getParentName()
             if immediateParent and immediateParent not in names:
                 self.col.log("fix deck with missing parent", deck.getName())
                 self._ensureParents(deck.getName())
@@ -754,7 +754,7 @@ same id."""
             childMap[deck.getId()] = {}
 
             # add note to immediate parent
-            immediateParent = self.parentName(deck.getName())
+            immediateParent = deck.getParentName()
             if immediateParent:
                 pid = nameMap[immediateParent].getId()
                 childMap[pid][deck.getId()] = childMap[deck.getId()]

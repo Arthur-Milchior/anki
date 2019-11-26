@@ -139,7 +139,7 @@ class Scheduler(BothScheduler):
         lims = {}
         data = []
         for deck in decks:
-            parentName = self.col.decks.parentName(deck.getName())
+            parentName = deck.getParentName()
             # new
             #nlim -- maximal number of new card, taking parent into account
             nlim = self._deckNewLimitSingle(deck)

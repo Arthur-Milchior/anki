@@ -119,7 +119,7 @@ class Scheduler(BothScheduler):
         data = []
         childMap = self.col.decks.childMap()
         for deck in decks:
-            parentName = self.col.decks.parentName(deck.getName())
+            parentName = deck.getParentName()
             # new
             nlim = self._deckNewLimitSingle(deck)
             if parentName:

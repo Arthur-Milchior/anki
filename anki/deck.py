@@ -15,6 +15,9 @@ class Deck(DictAugmentedDyn):
     def isTopLevel(self):
         return "::" not in self.getName()
 
+    def getParentName(self):
+        return self.manager.parentName(self.getName())
+
     # Getter/Setter
     #############################################################
 
