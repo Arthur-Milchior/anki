@@ -6,3 +6,9 @@ class Deck(DictAugmentedDyn):
     def addInModel(self):
         """Adding or replacing the deck with our id in the manager"""
         self.manager.decks[str(self.getId())] = self
+
+    # Conf
+    #############################################################
+
+    def getConfId(self):
+        return self.get('conf')

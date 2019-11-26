@@ -48,7 +48,7 @@ class DeckConf(QDialog):
         self.loadConfs()
 
     def loadConfs(self):
-        current = self.deck['conf']
+        current = self.deck.getConfId()
         self.confList = self.mw.col.decks.allConf()
         self.confList.sort(key=itemgetter('name'))
         startOn = 0
@@ -90,7 +90,7 @@ class DeckConf(QDialog):
         for deck in self.mw.col.decks.all():
             if deck.isDyn():
                 continue
-            if deck['conf'] == conf.getId():
+            if deck.getConfId() == conf.getId():
                 cnt += 1
         if cnt > 1:
             txt = _("Your changes will affect multiple decks. If you wish to "

@@ -227,7 +227,7 @@ class Syncer:
         self.mergeDecks(serverChange['decks'])
         self.mergeTags(serverChange['tags'])
         if 'conf' in serverChange:
-            self.mergeConf(serverChange['conf'])
+            self.mergeConf(serverChange.getConfId())
         # this was left out of earlier betas
         if 'crt' in serverChange:
             self.col.crt = serverChange['crt']
