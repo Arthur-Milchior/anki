@@ -154,6 +154,13 @@ class Deck(DictAugmentedDyn):
         else:
             return True
 
+    def update(self):
+        "Add or update an existing deck. Used for syncing and merging."
+        self.manager.decks[str(self.getId())] = self
+        self.manager.maybeAddToActive()
+        # mark registry changed, but don't bump mod time
+        self.addInModel()
+
     # Name family
     #############################################################
 

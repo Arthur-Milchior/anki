@@ -344,13 +344,6 @@ class DeckManager:
             assert isinstance(deckToCopy, Deck)
             return deckToCopy.copy_(name)
 
-    def update(self, deck):
-        "Add or update an existing deck. Used for syncing and merging."
-        deck.addInModel()
-        self.maybeAddToActive()
-        # mark registry changed, but don't bump mod time
-        self.save()
-
     def _isParent(self, parentDeckName, childDeckName, normalize=True):
         """Whether childDeckName is a direct child of parentDeckName."""
         if normalize:
