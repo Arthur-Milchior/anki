@@ -141,7 +141,7 @@ class ModelManager:
         Keyword arguments:
         forDeck -- Whether ther model of the deck should be considered; assuming it exists."""
         "Get current model."
-        model = self.get(self.col.decks.current().get('mid'))
+        model = self.col.decks.current().getModel()
         if not forDeck or not model:
             model = self.get(self.col.conf['curModel'])
         return model or list(self.models.values())[0]

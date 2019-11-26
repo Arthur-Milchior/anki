@@ -1,5 +1,6 @@
 from anki.consts import *
 from anki.dconf import DConf
+from anki.model import Model
 from anki.utils import DictAugmentedDyn
 
 
@@ -45,3 +46,16 @@ class Deck(DictAugmentedDyn):
 
     def setDefaultConf(self):
         self.setConf(1)
+
+    # Model
+    #############################################################
+
+    def getModel(self):
+        self.manager.col.models.get(self.get('mid'))
+
+    def setModel(self, model):
+        if isinstance(model, int):
+            self['mid'] = model
+        else:
+            assert(isinstance(model, Model))
+            self['mid'] = model.getId()
