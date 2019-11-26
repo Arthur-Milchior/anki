@@ -65,3 +65,14 @@ class Deck(DictAugmentedDyn):
         else:
             assert(isinstance(model, Model))
             self['mid'] = model.getId()
+
+    # Graphical
+    #############################################################
+
+    def collapse(self):
+        self['collapsed'] = not self['collapsed']
+        self.save()
+
+    def collapseBrowser(self):
+        deck['browserCollapsed'] = not deck.get('browserCollapsed', False)
+        self.save()

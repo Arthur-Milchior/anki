@@ -1079,11 +1079,12 @@ by clicking on one on the left."""))
         grps = self.col.sched.deckDueTree()
         def fillGroups(root, grps, head=""):
             for grp in grps:
+                deck = self.mw.col.decks.get(grp[1])
                 item = self.CallbackItem(
                     root, grp[0],
                     lambda grp=grp: self.setFilter("deck", head+grp[0]),
-                    lambda grp=grp: self.mw.col.decks.collapseBrowser(grp[1]),
-                    not self.mw.col.decks.get(grp[1]).get('browserCollapsed', False))
+                    lambda grp=grp: deck.collapseBrowser(),
+                    not deck.get('browserCollapsed', False))
                 item.setIcon(0, QIcon(":/icons/deck.svg"))
                 newhead = head + grp[0]+"::"
                 fillGroups(item, grp[5], newhead)

@@ -298,7 +298,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         self.mw.onDeckConf()
 
     def _collapse(self, did):
-        self.mw.col.decks.collapse(did)
+        self.mw.col.decks.get(did).collapse()
         self._renderPage(reuse=True)
 
     def _dragDeckOnto(self, draggedDeckDid, ontoDeckDid):
