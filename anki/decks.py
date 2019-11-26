@@ -411,7 +411,7 @@ class DeckManager:
             raise DeckRenameError(_("That deck already exists."))
         # rename children
         oldName = deck.getName()
-        for child in self.childrenDecks(deck.getId(), includeSelf=True):
+        for child in deck.getDescendants(includeSelf=True):
             child.setName(child.getName().replace(oldName, newName, 1))
             self.save(child)
         # ensure we have parents again, as we may have renamed parent->child
@@ -717,14 +717,7 @@ same id."""
 
     def children(self, did, includeSelf=False, sort=False):
         "All descendant of did, as (name, id)."
-        return [(deck.getName(), deck.getId()) for deck in self.childrenDecks(includeSelf=includeSelf, sort=sort)]
-
-    def childrenDecks(self, did, includeSelf=False, sort=False):
-        "All decks descendant of did."
-        name = self.get(did).getName()
-        actv = []
-        return [deck for deck in self.all(sort=sort) if deck.getName().startswith(name+"::") or (includeSelf and deck.getName() == name)]
-    #todo, maybe sort only this smaller list, at least until all() memoize
+        return [(deck.getName(), deck.getId()) for deck in self.get(did).getDescendants(includeSelf=includeSelf, sort=sort)]
 
     def childDids(self, did, includeSelf=False, sort=False):
         #childmap is useless. Keep for consistency with anki.
@@ -738,7 +731,7 @@ same id."""
         did -- the id of the deck we consider
         """
         # get ancestors names
-        return [deck.getId() for deck in self.childrenDecks(did, includeSelf=includeSelf, sort=sort)]
+        return [deck.getId() for deck in self.get(did).getDescendants(includeSelf=includeSelf, sort=sort)]
 
     def nameMap(self):
         """
