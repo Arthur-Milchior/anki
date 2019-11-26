@@ -36,7 +36,7 @@ def test_export_anki():
     confId = deck.decks.confId("newconf")
     conf = deck.decks.getConf(confId)
     conf['new']['perDay'] = 5
-    deck.decks.save(conf)
+    conf.save()
     dobj.setConf(confId)
     # export
     e = AnkiExporter(deck)

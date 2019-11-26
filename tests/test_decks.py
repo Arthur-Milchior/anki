@@ -167,6 +167,6 @@ def test_check():
     FOO_did = d.decks.id("bar")
     FOO = d.decks.byName("bar")
     FOO["name"] = "FOO"
-    d.decks.save(FOO)
+    FOO.save()
     d.decks._checkDeckTree()
     assert "foo" not in d.decks.allNames() or "FOO" not in d.decks.allNames()

@@ -300,15 +300,15 @@ class Anki2Importer(Importer):
         # pull conf over
         if 'conf' in importedDeck and not importedDeck.isDefaultConf():
             conf = importedDeck.getConf()
-            self.dst.decks.save(conf)
+            conf.save()
             self.dst.decks.updateConf(conf)
             localDeck = self.dst.decks.get(newid)
             localDeck.setConf(importedDeck.getConfId())
-            self.dst.decks.save(localDeck)
+            localDeck.save()
         # save desc
         localDeck = self.dst.decks.get(newid)
         localDeck['desc'] = importedDeck['desc']
-        self.dst.decks.save(localDeck)
+        localDeck.save()
         # add to deck map and return
         self._decks[did] = newid
         return newid

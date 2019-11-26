@@ -101,7 +101,7 @@ def _upgrade(col, ver):
         for deck in col.decks.all():
             deck.setStd()
             deck['collapsed'] = False
-            col.decks.save(deck)
+            deck.save()
     if ver < 4:
         col.modSchema(check=False)
         clozes = []
@@ -181,14 +181,14 @@ update cards set left = left + left*1000 where queue = 1""")
                 if 'extendNew' not in deck:
                     deck['extendNew'] = 10
                     deck['extendRev'] = 50
-            col.decks.save(deck)
+            deck.save()
         for conf in col.decks.allConf():
             rev = conf['rev']
             rev['ivlFct'] = rev.get("ivlfct", 1)
             if 'ivlfct' in rev:
                 del rev['ivlfct']
             rev['maxIvl'] = 36500
-            col.decks.save(conf)
+            conf.save()
         for model in col.models.all():
             for template in model['tmpls']:
                 template['bqfmt'] = ''

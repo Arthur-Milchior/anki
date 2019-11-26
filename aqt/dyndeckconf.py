@@ -109,7 +109,7 @@ class DeckConf(QDialog):
         self.deck['terms'] = terms
         self.deck['previewDelay'] = self.form.previewDelay.value()
 
-        self.mw.col.decks.save(self.deck)
+        self.deck.save()
         return True
 
     def reject(self):

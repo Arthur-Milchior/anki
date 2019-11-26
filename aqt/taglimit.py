@@ -83,7 +83,7 @@ class TagLimit(QDialog):
         # save in the deck for future invocations
         self.deck['activeTags'] = yes
         self.deck['inactiveTags'] = noes
-        self.mw.col.decks.save(self.deck)
+        self.deck.save()
         # build query string
         self.tags = ""
         if yes:

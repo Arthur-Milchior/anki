@@ -213,16 +213,13 @@ class DeckManager:
             dconf = DConf(self, dconf)
             self.dconf[str(dconf['id'])] = dconf
 
-    def save(self, deckOrOption=None):
+    def save(self):
         """State that the DeckManager has been changed. Changes the
         mod and usn of the potential argument.
 
         The potential argument can be either a deck or a deck
         configuration.
         """
-        if deckOrOption:
-            deckOrOption['mod'] = intTime()
-            deckOrOption['usn'] = self.col.usn()
         self.changed = True
 
     def flush(self):
@@ -272,7 +269,7 @@ class DeckManager:
         deck.setName(name)
         deck.setId(id)
         deck.addInModel()
-        self.save(deck)
+        deck.save()
         self.maybeAddToActive()
         runHook("newDeck")
         return int(id)
@@ -300,7 +297,7 @@ class DeckManager:
                     name = base + suffix
                     if not self.byName(name):
                         deck.setName(name)
-                        self.save(deck)
+                        deck.save()
                         break
                     suffix += "1"
             return
@@ -413,7 +410,7 @@ class DeckManager:
         oldName = deck.getName()
         for child in deck.getDescendants(includeSelf=True):
             child.setName(child.getName().replace(oldName, newName, 1))
-            self.save(child)
+            child.save()
         # ensure we have parents again, as we may have renamed parent->child
         newName = self._ensureParents(newName)
         # renaming may have altered active did order
@@ -547,7 +544,7 @@ same id."""
         conf['id'] = id
         conf.setName(name)
         self.dconf[str(id)] = conf
-        self.save(conf)
+        conf.save()
         return id
 
     def remConf(self, id):
@@ -568,7 +565,7 @@ same id."""
                 continue
             if str(deck.getConfId()) == str(id):
                 deck.setDefaultConf()
-                self.save(deck)
+                deck.save()
 
     def didsForConf(self, conf):
         """The dids of the decks using the configuration conf."""
@@ -589,7 +586,7 @@ same id."""
         new['id'] = conf.getId()
         new.setName(conf.getName())
         self.dconf[str(conf.getId())] = new
-        self.save(new)
+        new.save()
         # if it was previously randomized, resort
         if not oldOrder:
             self.col.sched.resortConf(new)
@@ -644,13 +641,13 @@ same id."""
             if self.normalizeName(deck.getName()) in names:
                 self.col.log("fix duplicate deck name", deck.getName())
                 deck.setName(deck.getName() + "%d" % intTime(1000))
-                self.save(deck)
+                deck.save()
 
             # ensure no sections are blank
             if not all(deck.getName().split("::")):
                 self.col.log("fix deck with missing sections", deck.getName())
                 deck['name'] = "recovered%d" % intTime(1000)
-                self.save(deck)
+                deck.save()
 
             # immediate parent must exist
             immediateParent = deck.getParentName()

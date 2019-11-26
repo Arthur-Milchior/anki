@@ -107,13 +107,13 @@ class CustomStudy(QDialog):
         spin = self.form.spin.value()
         if self.radioIdx == RADIO_NEW:
             self.deck['extendNew'] = spin
-            self.mw.col.decks.save(self.deck)
+            self.deck.save()
             self.mw.col.sched.extendLimits(spin, 0)
             self.mw.reset()
             return QDialog.accept(self)
         elif self.radioIdx == RADIO_REV:
             self.deck['extendRev'] = spin
-            self.mw.col.decks.save(self.deck)
+            self.deck.save()
             self.mw.col.sched.extendLimits(0, spin)
             self.mw.reset()
             return QDialog.accept(self)
