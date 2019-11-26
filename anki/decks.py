@@ -404,14 +404,6 @@ class DeckManager:
                 deck.setDefaultConf()
                 deck.save()
 
-    def didsForConf(self, conf):
-        """The dids of the decks using the configuration conf."""
-        dids = []
-        for deck in list(self.decks.values()):
-            if 'conf' in deck and deck.getConfId() == conf.getId():
-                dids.append(deck.getId())
-        return dids
-
     def restoreToDefault(self, conf):
         """Change the configuration to default.
 
