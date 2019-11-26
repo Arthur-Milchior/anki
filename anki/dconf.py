@@ -19,3 +19,9 @@ class DConf(DictAugmentedDyn):
     #############################################################
     def isDefault(self):
         return str(self.getId()) == "1"
+
+    def update(self):
+        """Add g to the set of dconf's. Potentially replacing a dconf with the
+same id."""
+        self.manager.dconf[str(self.getId())] = self
+        self.manager.save()

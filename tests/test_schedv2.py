@@ -382,10 +382,10 @@ def test_review_limits():
     cconf = d.decks.getConf(d.decks.confId("childConf"))
 
     pconf['rev']['perDay'] = 5
-    d.decks.updateConf(pconf)
+    pconf.update()
     parent.setConf(pconf.getId())
     cconf['rev']['perDay'] = 10
-    d.decks.updateConf(cconf)
+    cconf.update()
     child.setConf(cconf.getId())
 
     m = d.models.current()

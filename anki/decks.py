@@ -410,12 +410,6 @@ class DeckManager:
         """The dconf object whose id is confId."""
         return self.dconf[str(confId)]
 
-    def updateConf(self, conf):
-        """Add g to the set of dconf's. Potentially replacing a dconf with the
-same id."""
-        self.dconf[str(conf.getId())] = conf
-        self.save()
-
     def confId(self, name, cloneFrom=None):
         """Create a new configuration and return its id.
 

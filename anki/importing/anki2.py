@@ -302,7 +302,7 @@ class Anki2Importer(Importer):
         if 'conf' in importedDeck and not importedDeck.isDefaultConf():
             conf = importedDeck.getConf()
             conf.save()
-            self.dst.decks.updateConf(conf)
+            conf.update()
             localDeck.setConf(importedDeck.getConfId())
             localDeck.save()
         # save desc
