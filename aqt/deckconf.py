@@ -205,7 +205,7 @@ class DeckConf(QDialog):
 
     def onRestore(self):
         self.mw.progress.start()
-        self.mw.col.decks.restoreToDefault(self.conf)
+        self.conf.restoreToDefault()
         self.mw.progress.finish()
         self.loadConf()
 

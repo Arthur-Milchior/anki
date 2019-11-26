@@ -384,22 +384,6 @@ class DeckManager:
             cloneFrom = DConf(self, cloneFrom)
         return cloneFrom.copy_(name)
 
-    def restoreToDefault(self, conf):
-        """Change the configuration to default.
-
-        The only remaining part of the configuration are: the order of
-        new card, the name and the id.
-        """
-        oldOrder = conf['new']['order']
-        new = copy.deepcopy(defaultConf)
-        new['id'] = conf.getId()
-        new.setName(conf.getName())
-        self.dconf[str(conf.getId())] = new
-        new.save()
-        # if it was previously randomized, resort
-        if not oldOrder:
-            self.col.sched.resortConf(new)
-
     # Deck utils
     #############################################################
 

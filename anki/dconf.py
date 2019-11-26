@@ -101,6 +101,22 @@ same id."""
             deck.setDefaultConf()
             deck.save()
 
+    def restoreToDefault(self):
+        """Change the configuration to default.
+
+        The only remaining part of the configuration are: the order of
+        new card, the name and the id.
+        """
+        oldOrder = self['new']['order']
+        new = copy.deepcopy(defaultConf)
+        new['id'] = self.getId()
+        new.setName(self.getName())
+        self.manager.dconf[str(self.getId())] = new
+        new.save()
+        # if it was previously randomized, resort
+        if not oldOrder:
+            self.manager.col.sched.resortConf(new)
+
     def getDecks(self, conf):
         """The decks of the decks using the configuration conf."""
         return [deck for deck in self.decks.values() if 'conf' in deck and deck.getConfId() == conf.getId()]
