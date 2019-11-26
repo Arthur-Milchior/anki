@@ -1,13 +1,37 @@
+import copy
+
 from anki.consts import *
 from anki.dconf import DConf
+from anki.hooks import runHook
 from anki.model import Model
-from anki.utils import DictAugmentedDyn, ids2str
+from anki.utils import DictAugmentedDyn, ids2str, intTime
 
 
 class Deck(DictAugmentedDyn):
     def addInModel(self):
         """Adding or replacing the deck with our id in the manager"""
         self.manager.decks[str(self.getId())] = self
+
+    def copy_(self, name):
+        deck = self.deepcopy()
+        deck.cleanCopy(name)
+        return deck
+
+    def cleanCopy(self, name):
+        """To be called when a deck is copied"""
+        if "::" in name:
+            # not top level; ensure all parents exist
+            name = self.manager._ensureParents(name)
+        self.setName(name)
+        while 1:
+            id = intTime(1000)
+            if str(id) not in self.manager.decks:
+                break
+        self.setId(id)
+        self.addInModel()
+        self.save()
+        self.manager.maybeAddToActive()
+        runHook("newDeck")
 
     # Name family
     #############################################################

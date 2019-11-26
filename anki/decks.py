@@ -251,28 +251,16 @@ class DeckManager:
             return int(deck.getId())
         if not create:
             return None
-        if "::" in name:
-            # not top level; ensure all parents exist
-            name = self._ensureParents(name)
-        while 1:
-            id = intTime(1000)
-            if str(id) not in self.decks:
-                break
         if deckToCopy is None:
             deckToCopy = defaultDeck
         if isinstance(deckToCopy, dict):
             # useful mostly in tests where decks are given directly as dic
             deck = Deck(self, copy.deepcopy(deckToCopy))
+            deck.cleanCopy(name)
         else:
             assert isinstance(deckToCopy, Deck)
-            deck = deckToCopy.deepcopy()
-        deck.setName(name)
-        deck.setId(id)
-        deck.addInModel()
-        deck.save()
-        self.maybeAddToActive()
-        runHook("newDeck")
-        return int(id)
+            deck = deckToCopy.copy_(name)
+        return deck.getId()
 
     def rem(self, did, cardsToo=False, childrenToo=True):
         """Remove the deck whose id is did.
