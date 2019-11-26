@@ -228,7 +228,7 @@ class AnkiExporter(Exporter):
                 continue
             if dids and deck.getId() not in dids:
                 continue
-            if deck.isStd() and deck['conf'] != 1:
+            if deck.isStd() and not deck.isDefaultConf():
                 if self.includeSched:
                     dconfs[deck['conf']] = True
             if not self.includeSched:

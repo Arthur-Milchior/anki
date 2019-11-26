@@ -298,7 +298,7 @@ class Anki2Importer(Importer):
         # create in local
         newid = self.dst.decks.id(name)
         # pull conf over
-        if 'conf' in importedDeck and importedDeck['conf'] != 1:
+        if 'conf' in importedDeck and not importedDeck.isDefaultConf():
             conf = importedDeck.getConf()
             self.dst.decks.save(conf)
             self.dst.decks.updateConf(conf)

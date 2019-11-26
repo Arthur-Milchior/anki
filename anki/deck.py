@@ -26,3 +26,6 @@ class Deck(DictAugmentedDyn):
             return conf
         # dynamic decks have embedded conf
         return self
+
+    def isDefaultConf(self):
+        return self.getConfId() == 1

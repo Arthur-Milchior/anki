@@ -58,7 +58,7 @@ def test_export_anki():
     assert conf2['new']['perDay'] == 20
     dobj = d2.decks.get(did)
     # conf should be 1
-    assert dobj['conf'] == 1
+    assert dobj.isDefaultConf()
     # try again, limited to a deck
     fd, newname = tempfile.mkstemp(prefix="ankitest", suffix=".anki2")
     newname = str(newname)
