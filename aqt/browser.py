@@ -322,7 +322,7 @@ class DataModel(QAbstractTableModel):
     @staticmethod
     def templateContent(card, row, col):
         """Name of the card type. With its number if it's a cloze card"""
-        templateName = card.template()['name']
+        templateName = card.template().getName()
         if card.model()['type'] == MODEL_CLOZE:
             templateName += " %d" % (card.ord+1)
         return templateName
@@ -391,7 +391,7 @@ class DataModel(QAbstractTableModel):
     @staticmethod
     def noteContent(card, row, col):
         """The name of the card's note's type"""
-        return card.model()['name']
+        return card.model().getName()
 
     @staticmethod
     def cardIvlContent(card, row, col):
@@ -1092,7 +1092,7 @@ by clicking on one on the left."""))
     def _modelTree(self, root):
         for model in sorted(self.col.models.all(), key=itemgetter("name")):
             mitem = self.CallbackItem(
-                root, model['name'], lambda model=model: self.setFilter("note", model['name']))
+                root, model.getName(), lambda model=model: self.setFilter("note", model.getName()))
             mitem.setIcon(0, QIcon(":/icons/notetype.svg"))
 
     # Filter tree
@@ -1211,7 +1211,7 @@ by clicking on one on the left."""))
     def _deckFilters(self):
         def addDecks(parent, decks):
             for head, did, rev, lrn, new, children in decks:
-                name = self.mw.col.decks.get(did)['name']
+                name = self.mw.col.decks.get(did).getName()
                 shortname = DeckManager._basename(name)
                 if children:
                     subm = parent.addMenu(shortname)
@@ -1238,23 +1238,23 @@ by clicking on one on the left."""))
         menu.addSeparator()
 
         noteTypes = MenuList()
-        for nt in sorted(self.col.models.all(), key=lambda nt: nt['name'].lower()):
+        for nt in sorted(self.col.models.all(), key=lambda nt: nt.getName().lower()):
             # no sub menu if it's a single template
             if len(nt['tmpls']) == 1:
-                noteTypes.addItem(nt['name'], self._filterFunc("note", nt['name']))
+                noteTypes.addItem(nt.getName(), self._filterFunc("note", nt.getName()))
             else:
-                subm = noteTypes.addMenu(nt['name'])
+                subm = noteTypes.addMenu(nt.getName())
 
-                subm.addItem(_("All Card Types"), self._filterFunc("note", nt['name']))
+                subm.addItem(_("All Card Types"), self._filterFunc("note", nt.getName()))
                 subm.addSeparator()
 
                 # add templates
                 for index, tmpl in enumerate(nt['tmpls']):
                     #T: name is a card type name. n it's order in the list of card type.
                     #T: this is shown in browser's filter, when seeing the list of card type of a note type.
-                    name = _("%(cardNumber)d: %(name)s") % dict(cardNumber=index+1, name=tmpl['name'])
+                    name = _("%(cardNumber)d: %(name)s") % dict(cardNumber=index+1, name=tmpl.getName())
                     subm.addItem(name, self._filterFunc(
-                        "note", nt['name'], "card", str(index+1)))
+                        "note", nt.getName(), "card", str(index+1)))
 
         menu.addChild(noteTypes.chunked())
         return menu
@@ -1708,7 +1708,7 @@ where id in %s""" % ids2str(sn))
             return
         did = self.mw.col.db.scalar(
             "select did from cards where id = ?", cids[0])
-        current=self.mw.col.decks.get(did)['name']
+        current=self.mw.col.decks.get(did).getName()
         ret = StudyDeck(
             self.mw, current=current, accept=_("Move Cards"),
             title=_("Change Deck"), help="browse", parent=self)
@@ -2179,7 +2179,7 @@ class ChangeModel(QDialog):
         self.oldModel = self.browser.col.models.get(
             self.browser.col.db.scalar(
                 "select mid from notes where id = ?", self.nids[0]))
-        self.form.oldModelLabel.setText(self.oldModel['name'])
+        self.form.oldModelLabel.setText(self.oldModel.getName())
         self.modelChooser = aqt.modelchooser.ModelChooser(
             self.browser.mw, self.form.modelChooserWidget, label=False)
         self.modelChooser.models.setFocus()
@@ -2220,10 +2220,10 @@ class ChangeModel(QDialog):
         map = QWidget()
         layout = QGridLayout()
         combos = []
-        targets = [entry['name'] for entry in dst] + [_("Nothing")]
+        targets = [entry.getName() for entry in dst] + [_("Nothing")]
         indices = {}
         for i, entry in enumerate(src):
-            layout.addWidget(QLabel(_("Change %s to:") % entry['name']), i, 0)
+            layout.addWidget(QLabel(_("Change %s to:") % entry.getName()), i, 0)
             cb = QComboBox()
             cb.addItems(targets)
             idx = min(i, len(targets)-1)

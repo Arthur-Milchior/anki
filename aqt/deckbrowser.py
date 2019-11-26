@@ -280,7 +280,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
     def _rename(self, did):
         self.mw.checkpoint(_("Rename Deck"))
         deck = self.mw.col.decks.get(did)
-        oldName = deck['name']
+        oldName = deck.getName()
         newName = getOnlyText(_("New deck name:"), default=oldName)
         newName = newName.replace('"', "")
         if not newName or newName == oldName:
@@ -324,7 +324,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             else:
                 extra = None
         if deck['dyn'] or not extra or askUser(
-            (_("Are you sure you wish to delete %s?") % deck['name']) +
+            (_("Are you sure you wish to delete %s?") % deck.getName()) +
             extra):
             self.mw.progress.start(immediate=True)
             self.mw.col.decks.rem(did, True)

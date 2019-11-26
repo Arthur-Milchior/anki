@@ -31,9 +31,9 @@ class ChangeMap(QDialog):
         count = 0
         setCurrent = False
         for field in self.model['flds']:
-            item = QListWidgetItem(_("Map to %s") % field['name'])
+            item = QListWidgetItem(_("Map to %s") % field.getName())
             self.frm.fields.addItem(item)
-            if current == field['name']:
+            if current == field.getName():
                 setCurrent = True
                 self.frm.fields.setCurrentRow(count)
             count += 1
@@ -53,7 +53,7 @@ class ChangeMap(QDialog):
     def accept(self):
         row = self.frm.fields.currentRow()
         if row < len(self.model['flds']):
-            self.field = self.model['flds'][row]['name']
+            self.field = self.model['flds'][row].getName()
         elif row == self.frm.fields.count() - 2:
             self.field = "_tags"
         else:

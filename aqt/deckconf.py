@@ -27,7 +27,7 @@ class DeckConf(QDialog):
         self.form.buttonBox.helpRequested.connect(lambda: openHelp("deckoptions"))
         self.form.confOpts.clicked.connect(self.confOpts)
         self.form.buttonBox.button(QDialogButtonBox.RestoreDefaults).clicked.connect(self.onRestore)
-        self.setWindowTitle(_("Options for %s") % self.deck['name'])
+        self.setWindowTitle(_("Options for %s") % self.deck.getName())
         # qt doesn't size properly with altered fonts otherwise
         restoreGeom(self, "deckconf", adjustSize=True)
         self.show()
@@ -55,7 +55,7 @@ class DeckConf(QDialog):
         self.ignoreConfChange = True
         self.form.dconf.clear()
         for idx, conf in enumerate(self.confList):
-            self.form.dconf.addItem(conf['name'])
+            self.form.dconf.addItem(conf.getName())
             if str(conf.getId()) == str(current):
                 startOn = idx
         self.ignoreConfChange = False
@@ -121,17 +121,17 @@ class DeckConf(QDialog):
             self.loadConfs()
 
     def renameGroup(self):
-        old = self.conf['name']
+        old = self.conf.getName()
         name = getOnlyText(_("New name:"), default=old)
         if not name or name == old:
             return
-        self.conf['name'] = name
+        self.conf.getName['name'] = name
         self.loadConfs()
 
     def setChildren(self):
         if not askUser(
             _("Set all decks below %s to this option group?") %
-            self.deck['name']):
+            self.deck.getName()):
             return
         for did in self.childDids:
             deck = self.mw.col.decks.get(did)
@@ -150,7 +150,7 @@ class DeckConf(QDialog):
 
     def parentLimText(self, type="new"):
         # top level?
-        if "::" not in self.deck['name']:
+        if "::" not in self.deck.getName():
             return ""
         lim = -1
         for ancestor in self.mw.col.decks.parents(self.deck.getId()):

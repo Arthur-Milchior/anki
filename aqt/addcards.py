@@ -95,9 +95,9 @@ class AddCards(QDialog):
             oldFields = list(oldNote.keys())
             newFields = list(note.keys())
             for index, fldType in enumerate(note.model()['flds']):
-                fieldName = fldType['name']
+                fieldName = fldType.getName()
                 try:
-                    oldFieldName = oldNote.model()['flds'][index]['name']
+                    oldFieldName = oldNote.model()['flds'][index].getName()
                 except IndexError:
                     oldFieldName = None
                 # copy identical fields

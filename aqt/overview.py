@@ -45,7 +45,7 @@ class Overview:
             self.mw.onDeckConf()
         elif url == "cram":
             deck = self.mw.col.decks.current()
-            self.mw.onCram("'deck:%s'" % deck['name'])
+            self.mw.onCram("'deck:%s'" % deck.getName())
         elif url == "refresh":
             self.mw.col.sched.rebuildDyn()
             self.mw.reset()
@@ -132,7 +132,7 @@ class Overview:
         else:
             shareLink = ""
         self.web.stdHtml(self._body % dict(
-                deck=deck['name'],
+                deck=deck.getName(),
                 shareLink=shareLink,
                 desc=self._desc(deck),
                 table=self._table()

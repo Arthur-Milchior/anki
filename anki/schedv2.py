@@ -119,7 +119,7 @@ class Scheduler(BothScheduler):
         data = []
         childMap = self.col.decks.childMap()
         for deck in decks:
-            parentName = self.col.decks.parentName(deck['name'])
+            parentName = self.col.decks.parentName(deck.getName())
             # new
             nlim = self._deckNewLimitSingle(deck)
             if parentName:
@@ -135,9 +135,9 @@ class Scheduler(BothScheduler):
             rlim = self._deckRevLimitSingle(deck, parentLimit=plim)
             rev = self._revForDeck(deck.getId(), rlim, childMap)
             # save to list
-            data.append([deck['name'], deck.getId(), rev, lrn, new])
+            data.append([deck.getName(), deck.getId(), rev, lrn, new])
             # add deck as a parent
-            lims[deck['name']] = [nlim, rlim]
+            lims[deck.getName()] = [nlim, rlim]
         return data
 
     def deckDueTree(self):
@@ -444,7 +444,7 @@ and due <= ? limit ?)""",
         lim = super()._deckRevLimitSingle(deck)
         if parentLimit is not None:
             return min(parentLimit, lim)
-        elif '::' not in deck['name']:
+        elif '::' not in deck.getName():
             return lim
         else:
             for parent in self.col.decks.parents(deck.getId()):

@@ -320,8 +320,8 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
             fld = fld.split(":")[1]
         # loop through fields for a match
         for fldType in self.card.model()['flds']:
-            if fldType['name'] == fld:
-                self.typeCorrect = self.card.note()[fldType['name']]
+            if fldType.getName() == fld:
+                self.typeCorrect = self.card.note()[fldType.getName()]
                 if clozeIdx:
                     # narrow to cloze
                     self.typeCorrect = self._contentForCloze(

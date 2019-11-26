@@ -4,6 +4,7 @@
 
 from anki.consts import MODEL_CLOZE
 from anki.lang import _
+from anki.model import Model
 
 models = []
 

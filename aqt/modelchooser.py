@@ -73,7 +73,7 @@ class ModelChooser(QHBoxLayout):
         """Open Choose Note Type window"""
         #Method called when we want to change the current model
         from aqt.studydeck import StudyDeck
-        current = self.deck.models.current()['name']
+        current = self.deck.models.current().getName()
         # edit button
         edit = QPushButton(_("Manage"), clicked=self.onEdit)
         def nameFunc():
@@ -96,4 +96,4 @@ class ModelChooser(QHBoxLayout):
     def updateModels(self):
         """Change the button's text so that it has the name of the current
         model."""
-        self.models.setText(self.deck.models.current()['name'])
+        self.models.setText(self.deck.models.current().getName())

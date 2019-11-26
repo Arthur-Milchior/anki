@@ -25,7 +25,7 @@ class DeckConf(QDialog):
         self.mw.checkpoint(_("Options"))
         self.setWindowModality(Qt.WindowModal)
         self.form.buttonBox.helpRequested.connect(lambda: openHelp("filtered"))
-        self.setWindowTitle(_("Options for %s") % self.deck['name'])
+        self.setWindowTitle(_("Options for %s") % self.deck.getName())
         restoreGeom(self, "dyndeckconf")
         self.initialSetup()
         self.loadConf()

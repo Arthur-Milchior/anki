@@ -476,10 +476,13 @@ class DictAugmented(dict):
         super().__init__(dict)
 
     def __eq__(self, other):
-        return self["name"] == other["name"]
+        return self.getName() == other.getName()
 
     def __lt__(self, other):
-        return self["name"] < other["name"]
+        return self.getName() < other.getName()
+
+    def getName(self):
+        return self['name']
 
     def deepcopy(self):
         dict = {}

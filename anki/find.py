@@ -438,7 +438,7 @@ class Finder:
         ids = []
         val = val.lower()
         for model in self.col.models.all():
-            if unicodedata.normalize("NFC", model['name'].lower()) == val:
+            if unicodedata.normalize("NFC", model.getName().lower()) == val:
                 ids.append(model.getId())
         return "note.mid in %s" % ids2str(ids)
 
@@ -466,7 +466,7 @@ class Finder:
             ids = set()
             val = re.escape(val).replace(r"\*", ".*")
             for deck in self.col.decks.all():
-                if re.match("(?i)"+val, unicodedata.normalize("NFC", deck['name'])):
+                if re.match("(?i)"+val, unicodedata.normalize("NFC", deck.getName())):
                     ids.update(dids(deck.getId()))
         if not ids:
             return
@@ -486,7 +486,7 @@ class Finder:
         lims = []
         for model in self.col.models.all():
             for template in model['tmpls']:
-                if unicodedata.normalize("NFC", template['name'].lower()) == val.lower():
+                if unicodedata.normalize("NFC", template.getName().lower()) == val.lower():
                     if model['type'] == MODEL_CLOZE:
                         # if the user has asked for a cloze card, we want
                         # to give all ordinals, so we just limit to the
@@ -509,7 +509,7 @@ class Finder:
         mods = {}
         for model in self.col.models.all():
             for fieldType in model['flds']:
-                if unicodedata.normalize("NFC", fieldType['name'].lower()) == field:
+                if unicodedata.normalize("NFC", fieldType.getName().lower()) == field:
                     mods[str(model.getId())] = (model, fieldType['ord'])
         if not mods:
             # nothing has that field
@@ -559,7 +559,7 @@ def findReplace(col, nids, src, dst, regex=False, field=None, fold=True):
     if field:
         for model in col.models.all():
             for fieldType in model['flds']:
-                if fieldType['name'].lower() == field.lower():
+                if fieldType.getName().lower() == field.lower():
                     mmap[str(model.getId())] = fieldType['ord']
         if not mmap:
             return 0
@@ -607,7 +607,7 @@ def fieldNames(col, downcase=True):
     fields = set()
     for model in col.models.all():
         for fieldType in model['flds']:
-            name=fieldType['name'].lower() if downcase else fieldType['name']
+            name=fieldType.getName().lower() if downcase else fieldType.getName()
             if name not in fields: #slower w/o
                 fields.add(name)
     return list(fields)
@@ -640,7 +640,7 @@ def findDupes(col, fieldName, search=""):
         if mid not in fields:
             model = col.models.get(mid)
             for fieldIndex, fieldType in enumerate(model['flds']):
-                if fieldType['name'].lower() == fieldName.lower():
+                if fieldType.getName().lower() == fieldName.lower():
                     fields[mid] = fieldIndex
                     break
         return fields[mid]

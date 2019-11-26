@@ -226,7 +226,7 @@ class ModelManager:
 
     def allNames(self, type=None):
         "Get all model names."
-        return map(lambda model:model['name'], self.all(type=type))
+        return map(lambda model:model.getName(), self.all(type=type))
 
     def byName(self, name):
         """Get model whose name is name.
@@ -234,7 +234,7 @@ class ModelManager:
         keyword arguments
         name -- the name of the wanted model."""
         for model in list(self.models.values()):
-            if model['name'] == name:
+            if model.getName() == name:
                 return model
 
     def new(self, name):
@@ -281,7 +281,7 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         Keyword arguments
         model -- a model object"""
         for mcur in self.all():
-            if (mcur['name'] == model['name'] and mcur.getId() != model.getId()):
+            if (mcur.getName() == model.getName() and mcur.getId() != model.getId()):
                 model['name'] += "-" + checksum(str(time.time()))[:5]
                 break
 
@@ -363,11 +363,11 @@ and notes.mid = ? and cards.ord = ?""", model.getId(), ord)
         keyword arguments:
         model : a model
         """
-        return dict((fieldType['name'], (fieldType['ord'], fieldType)) for fieldType in model['flds'])
+        return dict((fieldType.getName(), (fieldType['ord'], fieldType)) for fieldType in model['flds'])
 
     def fieldNames(self, model):
         """The list of names of fields of this model."""
-        return [fieldType['name'] for fieldType in model['flds']]
+        return [fieldType.getName() for fieldType in model['flds']]
 
     def sortIdx(self, model):
         """The index of the field used for sorting."""
@@ -418,13 +418,13 @@ and notes.mid = ? and cards.ord = ?""", model.getId(), ord)
         field -- the field object"""
         self.col.modSchema(check=True)
         # save old sort field
-        sortFldName = model['flds'][model['sortf']]['name']
+        sortFldName = model['flds'][model['sortf']].getName()
         idx = model['flds'].index(fieldTypeToRemove)
         model['flds'].remove(fieldTypeToRemove)
         # restore old sort field if possible, or revert to first field
         model['sortf'] = 0
         for index, fieldType in enumerate(model['flds']):
-            if fieldType['name'] == sortFldName:
+            if fieldType.getName() == sortFldName:
                 model['sortf'] = index
                 break
         self._updateFieldOrds(model)
@@ -432,7 +432,7 @@ and notes.mid = ? and cards.ord = ?""", model.getId(), ord)
             del fieldsContents[idx]
             return fieldsContents
         self._transformFields(model, delete)
-        if model['flds'][model['sortf']]['name'] != sortFldName:
+        if model['flds'][model['sortf']].getName() != sortFldName:
             # need to rebuild sort field
             self.col.updateFieldCache(self.nids(model))
         # saves
@@ -484,10 +484,10 @@ and notes.mid = ? and cards.ord = ?""", model.getId(), ord)
             for fmt in ('qfmt', 'afmt'):
                 if newName:
                     template[fmt] = re.sub(
-                        pat % re.escape(fieldType['name']), wrap(newName), template[fmt])
+                        pat % re.escape(fieldType.getName()), wrap(newName), template[fmt])
                 else:
                     template[fmt] = re.sub(
-                        pat  % re.escape(fieldType['name']), "", template[fmt])
+                        pat  % re.escape(fieldType.getName()), "", template[fmt])
         fieldType['name'] = newName
         self.save(model)
 
@@ -718,9 +718,9 @@ select id from notes where mid = ?)""" % " ".join(map),
         """
         scm = ""
         for fieldType in model['flds']:
-            scm += fieldType['name']
+            scm += fieldType.getName()
         for template in model['tmpls']:
-            scm += template['name']
+            scm += template.getName()
         return checksum(scm)
 
     # Required field/text cache
@@ -732,7 +732,7 @@ select id from notes where mid = ?)""" % " ".join(map),
             # nothing to do
             return
         req = []
-        flds = [fieldType['name'] for fieldType in model['flds']]
+        flds = [fieldType.getName() for fieldType in model['flds']]
         for template in model['tmpls']:
             ret = self._reqForTemplate(model, flds, template)
             req.append((template['ord'], ret[0], ret[1]))

@@ -25,7 +25,7 @@ def test_modelCopy():
     deck = getEmptyCol()
     m = deck.models.current()
     m2 = deck.models.copy(m)
-    assert m2['name'] == "Basic copy"
+    assert m2.getName() == "Basic copy"
     assert m2.getId() != m.getId()
     assert len(m2['flds']) == 2
     assert len(m['flds']) == 2
@@ -157,7 +157,7 @@ def test_cloze():
     d = getEmptyCol()
     d.models.setCurrent(d.models.byName("Cloze"))
     f = d.newNote()
-    assert f.model()['name'] == "Cloze"
+    assert f.model().getName() == "Cloze"
     # a cloze model with no clozes is not empty
     f['Text'] = 'nothing'
     assert d.addNote(f)

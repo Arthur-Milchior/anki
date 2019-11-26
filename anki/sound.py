@@ -173,7 +173,7 @@ def cleanupOldMplayerProcesses():
     for proc in psutil.process_iter():
         try:
             info = proc.as_dict(attrs=['pid', 'name', 'exe'])
-            if not info['exe'] or info['name'] != 'mplayer.exe':
+            if not info['exe'] or info.getName() != 'mplayer.exe':
                 continue
 
             # not anki's bundled mplayer

@@ -56,8 +56,8 @@ class CardStats:
                 self.addLine(_("Total Time"), self.time(total))
         elif card.queue == QUEUE_NEW:
             self.addLine(_("Position"), card.due)
-        self.addLine(_("Card Type"), card.template()['name'])
-        self.addLine(_("Note Type"), card.model()['name'])
+        self.addLine(_("Card Type"), card.template().getName())
+        self.addLine(_("Note Type"), card.model().getName())
         self.addLine(_("Deck"), self.col.decks.name(card.did))
         self.addLine(_("Note ID"), card.nid)
         self.addLine(_("Card ID"), card.id)
@@ -773,7 +773,7 @@ from cards where did in %s""" % self._limit())
         if self.wholeCollection:
             deck = _("whole collection")
         else:
-            deck = self.col.decks.current()['name']
+            deck = self.col.decks.current().getName()
         html += _("Scope: %s") % deck
         html += "<br>"
         html += _("Period: %s") % [

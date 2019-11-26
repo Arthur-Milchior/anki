@@ -273,7 +273,7 @@ class Anki2Importer(Importer):
             return self._decks[did]
         # get the name in src
         importedDeck = self.src.decks.get(did)
-        name = importedDeck['name']
+        name = importedDeck.getName()
         # if there's a prefix, replace the top level deck
         if self.deckPrefix:
             if "::" in name:

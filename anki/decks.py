@@ -304,8 +304,8 @@ class DeckManager:
             # we won't allow the default deck to be deleted, but if it's a
             # child of an existing deck then it needs to be renamed
             deck = self.get(did)
-            if '::' in deck['name']:
-                base = self._basename(deck['name'])
+            if '::' in deck.getName():
+                base = self._basename(deck.getName())
                 suffix = ""
                 while True:
                     # find an unused name
@@ -412,7 +412,7 @@ class DeckManager:
     def byName(self, name):
         """Get deck with NAME, ignoring case."""
         for deck in list(self.decks.values()):
-            if self.equalName(deck['name'], name):
+            if self.equalName(deck.getName(), name):
                 return deck
 
     def update(self, deck):
@@ -438,9 +438,9 @@ class DeckManager:
             if ancestor['dyn']:
                 raise DeckRenameError(_("A filtered deck cannot have subdecks."))
         # rename children
-        oldName = deck['name']
+        oldName = deck.getName()
         for child in self.childrenDecks(deck.getId(), includeSelf=True):
-            child['name'] = child['name'].replace(oldName, newName, 1)
+            child['name'] = child.getName().replace(oldName, newName, 1)
             self.save(child)
         # ensure we have parents again, as we may have renamed parent->child
         newName = self._ensureParents(newName)
@@ -451,8 +451,8 @@ class DeckManager:
         """Rename the deck whose id is draggedDeckDid as a children of
         the deck whose id is ontoDeckDid."""
         draggedDeck = self.get(draggedDeckDid)
-        draggedDeckName = draggedDeck['name']
-        ontoDeckName = self.get(ontoDeckDid)['name']
+        draggedDeckName = draggedDeck.getName()
+        ontoDeckName = self.get(ontoDeckDid).getName()
 
         if ontoDeckDid is None or ontoDeckDid == '':
             #if the deck is dragged to toplevel
@@ -463,8 +463,8 @@ class DeckManager:
             #The following three lines seems to be useless, as they
             #repeat lines above
             draggedDeck = self.get(draggedDeckDid)
-            draggedDeckName = draggedDeck['name']
-            ontoDeckName = self.get(ontoDeckDid)['name']
+            draggedDeckName = draggedDeck.getName()
+            ontoDeckName = self.get(ontoDeckDid).getName()
             assert ontoDeckName.strip()
             self.rename(draggedDeck, ontoDeckName + "::" + self._basename(draggedDeckName))
 
@@ -635,7 +635,7 @@ same id."""
         oldOrder = conf['new']['order']
         new = copy.deepcopy(defaultConf)
         new['id'] = conf.getId()
-        new['name'] = conf['name']
+        new['name'] = conf.getName()
         self.dconf[str(conf.getId())] = new
         self.save(new)
         # if it was previously randomized, resort
@@ -653,7 +653,7 @@ same id."""
         """
         deck = self.get(did, default=default)
         if deck:
-            return deck['name']
+            return deck.getName()
         return _("[no deck]")
 
     def nameOrNone(self, did):
@@ -661,7 +661,7 @@ same id."""
         otherwise."""
         deck = self.get(did, default=False)
         if deck:
-            return deck['name']
+            return deck.getName()
         return None
 
     def setDeck(self, cids, did):
@@ -711,25 +711,25 @@ same id."""
 
         for deck in decks:
             # two decks with the same name?
-            if self.normalizeName(deck['name']) in names:
-                self.col.log("fix duplicate deck name", deck['name'])
+            if self.normalizeName(deck.getName()) in names:
+                self.col.log("fix duplicate deck name", deck.getName())
                 deck['name'] += "%d" % intTime(1000)
                 self.save(deck)
 
             # ensure no sections are blank
-            if not all(deck['name'].split("::")):
-                self.col.log("fix deck with missing sections", deck['name'])
+            if not all(deck.getName().split("::")):
+                self.col.log("fix deck with missing sections", deck.getName())
                 deck['name'] = "recovered%d" % intTime(1000)
                 self.save(deck)
 
             # immediate parent must exist
-            immediateParent = self.parentName(deck['name'])
+            immediateParent = self.parentName(deck.getName())
             if immediateParent and immediateParent not in names:
-                self.col.log("fix deck with missing parent", deck['name'])
-                self._ensureParents(deck['name'])
+                self.col.log("fix deck with missing parent", deck.getName())
+                self._ensureParents(deck.getName())
                 names.add(self.normalizeName(immediateParent))
 
-            names.add(self.normalizeName(deck['name']))
+            names.add(self.normalizeName(deck.getName()))
 
     def checkIntegrity(self):
         self._recoverOrphans()
@@ -765,13 +765,13 @@ same id."""
 
     def children(self, did, includeSelf=False, sort=False):
         "All descendant of did, as (name, id)."
-        return [(deck['name'], deck.getId()) for deck in self.childrenDecks(includeSelf=includeSelf, sort=sort)]
+        return [(deck.getName(), deck.getId()) for deck in self.childrenDecks(includeSelf=includeSelf, sort=sort)]
 
     def childrenDecks(self, did, includeSelf=False, sort=False):
         "All decks descendant of did."
-        name = self.get(did)['name']
+        name = self.get(did).getName()
         actv = []
-        return [deck for deck in self.all(sort=sort) if deck['name'].startswith(name+"::") or (includeSelf and deck['name'] == name)]
+        return [deck for deck in self.all(sort=sort) if deck.getName().startswith(name+"::") or (includeSelf and deck.getName() == name)]
     #todo, maybe sort only this smaller list, at least until all() memoize
 
     def childDids(self, did, childMap=None, includeSelf=False, sort=False):
@@ -804,7 +804,7 @@ same id."""
             childMap[deck.getId()] = {}
 
             # add note to immediate parent
-            immediateParent = self.parentName(deck['name'])
+            immediateParent = self.parentName(deck.getName())
             if immediateParent:
                 pid = nameMap[immediateParent].getId()
                 childMap[pid][deck.getId()] = childMap[deck.getId()]
@@ -823,7 +823,7 @@ same id."""
         """
         ancestorsNames = []
         last = ""
-        parts = self.get(did)['name'].split("::")
+        parts = self.get(did).getName().split("::")
         if not includeSelf:
             parts = parts[:-1]
         for part in parts:
@@ -859,7 +859,7 @@ same id."""
         """
         Dictionnary from deck name to deck object.
         """
-        return dict((deck['name'], deck) for deck in self.decks.values())
+        return dict((deck.getName(), deck) for deck in self.decks.values())
 
     # Sync handling
     ##########################################################################

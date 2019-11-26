@@ -139,7 +139,7 @@ class Scheduler(BothScheduler):
         lims = {}
         data = []
         for deck in decks:
-            parentName = self.col.decks.parentName(deck['name'])
+            parentName = self.col.decks.parentName(deck.getName())
             # new
             #nlim -- maximal number of new card, taking parent into account
             nlim = self._deckNewLimitSingle(deck)
@@ -155,9 +155,9 @@ class Scheduler(BothScheduler):
                 rlim = min(rlim, lims[parentName][1])
             rev = self._revForDeck(deck.getId(), rlim)
             # save to list
-            data.append([deck['name'], deck.getId(), rev, lrn, new])
+            data.append([deck.getName(), deck.getId(), rev, lrn, new])
             # add deck as a parent
-            lims[deck['name']] = [nlim, rlim]
+            lims[deck.getName()] = [nlim, rlim]
         return data
 
     def deckDueTree(self):

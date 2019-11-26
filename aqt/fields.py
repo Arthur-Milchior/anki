@@ -21,7 +21,7 @@ class FieldDialog(QDialog):
         self.mw.checkpoint(_("Fields"))
         self.form = aqt.forms.fields.Ui_Dialog()
         self.form.setupUi(self)
-        self.setWindowTitle(_("Fields for %s") % self.model['name'])
+        self.setWindowTitle(_("Fields for %s") % self.model.getName())
         self.form.buttonBox.button(QDialogButtonBox.Help).setAutoDefault(False)
         self.form.buttonBox.button(QDialogButtonBox.Close).setAutoDefault(False)
         self.currentIdx = None
@@ -38,7 +38,7 @@ class FieldDialog(QDialog):
         self.currentIdx = None
         self.form.fieldList.clear()
         for index, fldType in enumerate(self.model['flds']):
-            self.form.fieldList.addItem("{}: {}".format(index+1, fldType['name']))
+            self.form.fieldList.addItem("{}: {}".format(index+1, fldType.getName()))
 
     def setupSignals(self):
         self.form.fieldList.currentRowChanged.connect(self.onRowChange)
@@ -65,7 +65,7 @@ class FieldDialog(QDialog):
         for fldType in self.model['flds']:
             if ignoreOrd is not None and fldType['ord'] == ignoreOrd:
                 continue
-            if fldType['name'] == txt:
+            if fldType.getName() == txt:
                 showWarning(_("That field name is already used."))
                 return
         return txt
@@ -77,7 +77,7 @@ class FieldDialog(QDialog):
         """
         idx = self.currentIdx
         fldType = self.model['flds'][idx]
-        name = self._uniqueName(_("New name:"), self.currentIdx, fldType['name'])
+        name = self._uniqueName(_("New name:"), self.currentIdx, fldType.getName())
         if not name:
             return
         self.mm.renameField(self.model, fldType, name)

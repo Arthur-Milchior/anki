@@ -63,7 +63,7 @@ class CardLayout(QDialog):
         self.setupMainArea()
         self.setupButtons()
         self.setupShortcuts()
-        self.setWindowTitle(_("Card Types for %s") % self.model['name'])
+        self.setWindowTitle(_("Card Types for %s") % self.model.getName())
         v1 = QVBoxLayout()
         v1.addWidget(self.topArea)
         v1.addWidget(self.mainArea)
@@ -140,7 +140,7 @@ class CardLayout(QDialog):
         tmpl -- a template object
         """
         return "{}: {} -> {}".format(
-            tmpl['name'],
+            tmpl.getName(),
             self._fieldsOnTemplate(tmpl['qfmt']),
             self._fieldsOnTemplate(tmpl['afmt']))
 
@@ -243,7 +243,7 @@ class CardLayout(QDialog):
         cards = self.mm.tmplUseCount(self.model, idx)
         cards = ngettext("%d card", "%d cards", cards) % cards
         msg = (_("Delete the '%(modelName)s' card type, and its %(cards)s?") %
-            dict(modelName=self.model['tmpls'][idx]['name'], cards=cards))
+            dict(modelName=self.model['tmpls'][idx].getName(), cards=cards))
         if not askUser(msg):
             return
         if not self.mm.remTemplate(self.model, self.cards[idx].template()):
@@ -395,10 +395,10 @@ Please create a new card type first."""))
 
     def onRename(self):
         name = getOnlyText(_("New name:"),
-                           default=self.card.template()['name'])
+                           default=self.card.template().getName())
         if not name:
             return
-        if name in [card.template()['name'] for card in self.cards
+        if name in [card.template().getName() for card in self.cards
                     if card.template()['ord'] != self.ord]:
             return showWarning(_("That name is already used."))
         self.card.template()['name'] = name
@@ -430,7 +430,7 @@ Please create a new card type first."""))
         cardUserIndex = len(self.cards) + 1
         while 1:
             name = _("Card %d") % cardUserIndex
-            if name not in [card.template()['name'] for card in self.cards]:
+            if name not in [card.template().getName() for card in self.cards]:
                 break
             cardUserIndex += 1
         return name
@@ -533,14 +533,14 @@ adjust the template manually to switch the question and answer."""))
         layout = QVBoxLayout()
         lab = QLabel(_("""\
 Enter deck to place new %s cards in, or leave blank:""") %
-                           self.card.template()['name'])
+                           self.card.template().getName())
         lab.setWordWrap(True)
         layout.addWidget(lab)
         te = TagEdit(dialog, type=1)
         te.setCol(self.col)
         layout.addWidget(te)
         if template['did']:
-            te.setText(self.col.decks.get(template['did'])['name'])
+            te.setText(self.col.decks.get(template['did']).getName())
             te.selectAll()
         bb = QDialogButtonBox(QDialogButtonBox.Close)
         bb.rejected.connect(dialog.close)
@@ -556,7 +556,7 @@ Enter deck to place new %s cards in, or leave blank:""") %
         diag = QDialog(self)
         form = aqt.forms.addfield.Ui_Dialog()
         form.setupUi(diag)
-        fields = [fldType['name'] for fldType in self.model['flds']]
+        fields = [fldType.getName() for fldType in self.model['flds']]
         form.fields.addItems(fields)
         form.font.setCurrentFont(QFont("Arial"))
         form.size.setValue(20)

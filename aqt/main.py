@@ -998,7 +998,7 @@ QTreeWidget {
         deck = self.col.decks.current()
         if not search:
             if not deck['dyn']:
-                search = 'deck:"%s" ' % deck['name']
+                search = 'deck:"%s" ' % deck.getName()
         decks = self.col.decks.allNames()
         while _("Filtered Deck %d") % index in decks:
             index += 1
@@ -1263,7 +1263,7 @@ will be lost. Continue?"""))
     def onStudyDeck(self):
         from aqt.studydeck import StudyDeck
         ret = StudyDeck(
-            self, dyn=True, current=self.col.decks.current()['name'])
+            self, dyn=True, current=self.col.decks.current().getName())
         if ret.name:
             self.col.decks.select(self.col.decks.id(ret.name))
             self.moveToState("overview")

@@ -766,11 +766,11 @@ where card.nid = note.id and card.id in %s group by nid""" % ids2str(cids)):
         it'll be extended by renderQuestion to add FrontSide to it"""
         fields = self._basicFields(flds, model)
         fields['Tags'] = tags.strip()
-        fields['Type'] = model['name']
+        fields['Type'] = model.getName()
         fields['Deck'] = self.decks.name(did)
         fields['Subdeck'] = self.decks._basename(fields['Deck'])
         fields['CardFlag'] = self._flagNameFromCardFlags(cardFlags)
-        fields['Card'] = template['name']
+        fields['Card'] = template.getName()
         fields['c%d' % (ord+1)] = "1"
         return fields
 
@@ -1016,7 +1016,7 @@ select id from notes where mid not in """ + ids2str(self.models.ids()))
                 # model with missing req specification
                 if 'req' not in model:
                     self.models._updateRequired(model)
-                    problems.append(_("Fixed note type: %s") % model['name'])
+                    problems.append(_("Fixed note type: %s") % model.getName())
                 # cards with invalid ordinal
                 ids = self.db.list("""
 select id from cards where ord not in %s and nid in (

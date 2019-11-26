@@ -64,7 +64,7 @@ class ExportDialog(QDialog):
         self.frm.buttonBox.addButton(exportButton, QDialogButtonBox.AcceptRole)
         # set default option if accessed through deck button
         if did:
-            name = self.mw.col.decks.get(did)['name']
+            name = self.mw.col.decks.get(did).getName()
             index = self.frm.deck.findText(name)
             self.frm.deck.setCurrentIndex(index)
 

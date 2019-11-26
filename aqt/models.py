@@ -75,7 +75,7 @@ class Models(QDialog):
 
     def onRename(self):
         """Ask the user for a new name for the model. Save it"""
-        txt = getText(_("New name:"), default=self.model['name'])
+        txt = getText(_("New name:"), default=self.model.getName())
         if txt[1] and txt[0]:
             self.model['name'] = txt[0]
             self.mm.save(self.model)
@@ -91,7 +91,7 @@ class Models(QDialog):
         for model in self.models:
             mUse = self.mm.useCount(model)
             mUse = ngettext("%d note", "%d notes", mUse) % mUse
-            item = QListWidgetItem("%s [%s]" % (model['name'], mUse))
+            item = QListWidgetItem("%s [%s]" % (model.getName(), mUse))
             self.form.modelsList.addItem(item)
         self.form.modelsList.setCurrentRow(row)
 
@@ -105,7 +105,7 @@ class Models(QDialog):
     def onAdd(self):
         model = AddModel(self.mw, self).get()
         if model:
-            txt = getText(_("Name:"), default=model['name'])[0]
+            txt = getText(_("Name:"), default=model.getName())[0]
             if txt:
                 model['name'] = txt
             self.mm.ensureNameUnique(model)
@@ -134,7 +134,7 @@ class Models(QDialog):
         frm.latexsvg.setChecked(self.model.get("latexsvg", False))
         frm.latexHeader.setText(self.model['latexPre'])
         frm.latexFooter.setText(self.model['latexPost'])
-        dialog.setWindowTitle(_("Options for %s") % self.model['name'])
+        dialog.setWindowTitle(_("Options for %s") % self.model.getName())
         frm.buttonBox.helpRequested.connect(lambda: openHelp("latex"))
         restoreGeom(dialog, "modelopts")
         dialog.exec_()
@@ -202,7 +202,7 @@ class AddModel(QDialog):
             self.models.append((True, func))
         # add copies
         for model in sorted(self.col.models.all(), key=itemgetter("name")):
-            item = QListWidgetItem(_("Clone: %s") % model['name'])
+            item = QListWidgetItem(_("Clone: %s") % model.getName())
             self.dialog.models.addItem(item)
             self.models.append((False, model))
         self.dialog.models.setCurrentRow(0)
