@@ -303,7 +303,7 @@ class Anki2Importer(Importer):
             self.dst.decks.save(conf)
             self.dst.decks.updateConf(conf)
             localDeck = self.dst.decks.get(newid)
-            localDeck['conf'] = importedDeck.getConfId()
+            localDeck.setConf(importedDeck.getConfId())
             self.dst.decks.save(localDeck)
         # save desc
         localDeck = self.dst.decks.get(newid)

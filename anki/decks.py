@@ -583,14 +583,6 @@ same id."""
                 deck.setDefaultConf()
                 self.save(deck)
 
-    def setConf(self, deck, id):
-        """Takes a deck objects, switch his id to id and save it as
-        edited.
-
-        Currently used in tests only."""
-        deck['conf'] = id
-        self.save(deck)
-
     def didsForConf(self, conf):
         """The dids of the decks using the configuration conf."""
         dids = []

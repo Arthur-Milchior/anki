@@ -82,7 +82,7 @@ def test_newLimits():
         d.addNote(f)
     # give the child deck a different configuration
     c2 = d.decks.confId("new conf")
-    d.decks.setConf(d.decks.get(g2), c2)
+    d.decks.get(g2).setConf(c2)
     d.reset()
     # both confs have defaulted to a limit of 20
     assert d.sched.newCount == 20
@@ -383,10 +383,10 @@ def test_review_limits():
 
     pconf['rev']['perDay'] = 5
     d.decks.updateConf(pconf)
-    d.decks.setConf(parent, pconf.getId())
+    parent.setConf(pconf.getId())
     cconf['rev']['perDay'] = 10
     d.decks.updateConf(cconf)
-    d.decks.setConf(child, cconf.getId())
+    child.setConf(cconf.getId())
 
     m = d.models.current()
     m['did'] = child.getId()
@@ -424,8 +424,8 @@ def test_review_limits():
     assert tree[1][5][0][2] == 4 # child
 
     # switch limits
-    d.decks.setConf(parent, cconf.getId())
-    d.decks.setConf(child, pconf.getId())
+    parent.setConf(cconf.getId())
+    child.setConf(pconf.getId())
     d.decks.select(parent.getId())
     d.sched.reset()
 

@@ -84,7 +84,7 @@ class DeckConf(QDialog):
         if self.conf:
             self.saveConf()
         conf = self.confList[idx]
-        self.deck['conf'] = conf.getId()
+        self.deck.setConf(conf.getId())
         self.loadConf()
         cnt = 0
         for deck in self.mw.col.decks.all():
@@ -108,7 +108,7 @@ class DeckConf(QDialog):
         # then clone the conf
         id = self.mw.col.decks.confId(name, cloneFrom=self.conf)
         # set the deck to the new conf
-        self.deck['conf'] = id
+        self.deck.setConf(id)
         # then reload the conf list
         self.loadConfs()
 
@@ -137,7 +137,7 @@ class DeckConf(QDialog):
             deck = self.mw.col.decks.get(did)
             if deck.isDyn():
                 continue
-            deck['conf'] = self.deck['conf']
+            deck.setConf(self.deck['conf'])
             self.mw.col.decks.save(deck)
         tooltip(ngettext("%d deck updated.", "%d decks updated.", \
                         len(self.childDids)) % len(self.childDids))
