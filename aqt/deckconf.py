@@ -154,7 +154,7 @@ class DeckConf(QDialog):
             return ""
         lim = -1
         for ancestor in self.mw.col.decks.parents(self.deck.getId()):
-            conf = self.mw.col.decks.confForDid(ancestor.getId())
+            conf = ancestor.getConf()
             perDay = conf[type]['perDay']
             if lim == -1:
                 lim = perDay
@@ -163,7 +163,7 @@ class DeckConf(QDialog):
         return _("(parent limit: %d)") % lim
 
     def loadConf(self):
-        self.conf = self.mw.col.decks.confForDid(self.deck.getId())
+        self.conf = self.deck.getConf()
         # new
         conf = self.conf['new']
         self.form.lrnSteps.setText(self.listToUser(conf['delays']))

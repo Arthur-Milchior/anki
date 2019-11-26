@@ -186,13 +186,11 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
         runHook('showQuestion')
 
     def autoplay(self, card):
-        return self.mw.col.decks.confForDid(
-            card.originalDid())['autoplay']
+        return self.mw.col.decks.get(card.originalDid()).getConf()['autoplay']
 
     def _replayq(self, card, previewer=None):
         cardOwner = previewer if previewer else self
-        return cardOwner.mw.col.decks.confForDid(
-            cardOwner.card.originalDid()).get('replayq', True)
+        return cardOwner.mw.col.decks.get(cardOwner.card.originalDid()).getConf().get('replayq', True)
 
     def _drawFlag(self):
         self.web.eval("_drawFlag(%s);" % self.card.userFlag())

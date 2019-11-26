@@ -172,7 +172,7 @@ class Scheduler(BothScheduler):
                 lrn += ch[3]
                 new += ch[4]
             # limit the counts to the deck's limits
-            conf = self.col.decks.confForDid(did)
+            conf = self.col.decks.get(did).getConf()
             deck = self.col.decks.get(did)
             if conf.isStd():
                 new = max(0, min(new, conf['new']['perDay']-deck['newToday'][1]))

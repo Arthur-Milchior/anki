@@ -614,7 +614,7 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
         due -- the due time of the considered card
 
         """
-        conf = self.decks.confForDid(did)
+        conf = self.decks.get(did).getConf()
         # in order due?
         if conf['new']['order'] == NEW_CARDS_DUE:
             return due

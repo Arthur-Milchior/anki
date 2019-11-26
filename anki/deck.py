@@ -12,3 +12,11 @@ class Deck(DictAugmentedDyn):
 
     def getConfId(self):
         return self.get('conf')
+
+    def getConf(self):
+        if 'conf' in self:
+            conf = self.manager.getConf(self['conf'])
+            conf.setStd()
+            return conf
+        # dynamic decks have embedded conf
+        return self

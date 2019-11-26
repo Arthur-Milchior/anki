@@ -46,7 +46,7 @@ def test_export_anki():
     os.unlink(newname)
     e.exportInto(newname)
     # exporting should not have changed conf for original deck
-    conf = deck.decks.confForDid(did)
+    conf = dobj.getConf()
     assert conf.getId() != 1
     # connect to new deck
     d2 = aopen(newname)
@@ -54,7 +54,7 @@ def test_export_anki():
     # as scheduling was reset, should also revert decks to default conf
     did = d2.decks.id("test", create=False)
     assert did
-    conf2 = d2.decks.confForDid(did)
+    conf2 = d2.decks.get(did).getConf()
     assert conf2['new']['perDay'] == 20
     dobj = d2.decks.get(did)
     # conf should be 1
