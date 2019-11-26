@@ -32,11 +32,10 @@ def setup1():
 def test_export_anki():
     # create a new deck with its own conf to test conf copying
     dobj = deck.decks.byName("test", create=True)
-    confId = deck.decks.confId("newconf")
-    conf = deck.decks.getConf(confId)
+    conf = deck.decks.newConf("newconf")
     conf['new']['perDay'] = 5
     conf.save()
-    dobj.setConf(confId)
+    dobj.setConf(conf)
     # export
     e = AnkiExporter(deck)
     fd, newname = tempfile.mkstemp(prefix="ankitest", suffix=".anki2")

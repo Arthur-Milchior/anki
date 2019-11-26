@@ -106,9 +106,9 @@ class DeckConf(QDialog):
         # first, save currently entered data to current conf
         self.saveConf()
         # then clone the conf
-        id = self.mw.col.decks.confId(name, cloneFrom=self.conf)
+        conf = self.mw.col.decks.newConf(name, cloneFrom=self.conf)
         # set the deck to the new conf
-        self.deck.setConf(id)
+        self.deck.setConf(conf)
         # then reload the conf list
         self.loadConfs()
 

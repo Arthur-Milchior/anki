@@ -371,7 +371,7 @@ class DeckManager:
         """The dconf object whose id is confId."""
         return self.dconf[str(confId)]
 
-    def confId(self, name, cloneFrom=None):
+    def newConf(self, name, cloneFrom=None):
         """Create a new configuration and return its id.
 
         Keyword arguments
@@ -382,7 +382,7 @@ class DeckManager:
             # This is in particular the case in tests, where confs are
             # given directly as dic.
             cloneFrom = DConf(self, cloneFrom)
-        return cloneFrom.copy_(name).getId()
+        return cloneFrom.copy_(name)
 
     def remConf(self, id):
         """Remove a configuration and update all decks using it.
