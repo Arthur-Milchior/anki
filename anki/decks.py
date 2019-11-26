@@ -715,16 +715,6 @@ same id."""
         self.col.conf['activeDecks'] = self.get(did).getDescendantsIds(sort=True, includeSelf=True)
         self.changed = True
 
-    def children(self, did, includeSelf=False, sort=False):
-        "All descendant of did, as (name, id)."
-        return [(deck.getName(), deck.getId()) for deck in self.get(did).getDescendants(includeSelf=includeSelf, sort=sort)]
-
-    def nameMap(self):
-        """
-        Dictionnary from deck name to deck object.
-        """
-        return dict((deck.getName(), deck) for deck in self.decks.values())
-
     # Sync handling
     ##########################################################################
 
