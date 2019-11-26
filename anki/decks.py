@@ -261,53 +261,14 @@ class DeckManager:
         cardsToo -- if set to true, delete its card.
         ChildrenToo -- if set to false,
         """
-        if str(did) == '1':
-            # we won't allow the default deck to be deleted, but if it's a
-            # child of an existing deck then it needs to be renamed
-            if '::' in deck.getName():
-                base = self._basename(deck.getName())
-                suffix = ""
-                while True:
-                    # find an unused name
-                    name = base + suffix
-                    if not self.byName(name):
-                        deck.setName(name)
-                        deck.save()
-                        break
-                    suffix += "1"
-            return
-        # log the removal regardless of whether we have the deck or not
-        self.col._logRem([did], REM_DECK)
-        # do nothing else if doesn't exist
-        if not str(did) in self.decks:
-            return
-        deck = self.get(did)
-        if deck.isDyn():
-            # deleting a cramming deck returns cards to their previous deck
-            # rather than deleting the cards
-            self.col.sched.emptyDyn(did)
-            if childrenToo:
-                for id in deck.getDescendantsIds():
-                    self.rem(id, cardsToo)
+        # Here and not directly in Deck, because we need to delete
+        # decks from id non existing.
+        if str(did) in self.decks:
+            self.get(did, default=False).rem(cardsToo, childrenToo)
         else:
-            # delete children first
-            if childrenToo:
-                # we don't want to delete children when syncing
-                for id in deck.getDescendantsIds():
-                    self.rem(id, cardsToo)
-            # delete cards too?
-            if cardsToo:
-                # don't use cids(), as we want cards in cram decks too
-                cids = self.col.db.list(
-                    "select id from cards where did=? or odid=?", did, did)
-                self.col.remCards(cids)
-        # delete the deck and add a grave (it seems no grave is added)
-        del self.decks[str(did)]
-        del self.decksByNames[deck.getNormalizedName()]
-        # ensure we have an active deck.
-        if did in self.active():
-            self.get(int(list(self.decks.keys())[0])).select()
-        self.save()
+            # log the removal regardless of whether we have the deck or not.
+            # This is done in rem when the deck exists.
+            self.col._logRem([did], REM_DECK)
 
     def allNames(self, dyn=None, sort=False):
         """A list of all deck names.

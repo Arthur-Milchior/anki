@@ -629,7 +629,7 @@ def test_cram():
     assert d.sched.nextIvl(c, 2) == 600
     assert d.sched.nextIvl(c, 3) == 86400
     # delete the deck, returning the card mid-study
-    d.decks.rem(d.decks.selected())
+    d.decks.get(d.decks.selected()).rem()
     assert len(d.sched.deckDueList()) == 1
     c.load()
     assert c.ivl == 1

@@ -57,7 +57,7 @@ def test_remove():
     assert c.did == g1
     # by default deleting the deck leaves the cards with an invalid did
     assert deck.cardCount() == 1
-    deck.decks.rem(g1)
+    deck.decks.get(g1).rem()
     assert deck.cardCount() == 1
     c.load()
     assert c.did == g1
@@ -67,7 +67,7 @@ def test_remove():
     g2 = deck.decks.id("g2")
     c.did = g2; c.flush()
     # this time we'll delete the card/note too
-    deck.decks.rem(g2, cardsToo=True)
+    deck.decks.get(g2).rem(cardsToo=True)
     assert deck.cardCount() == 0
     assert deck.noteCount() == 0
 
@@ -153,13 +153,13 @@ def test_renameForDragAndDrop():
     new_hsk = d.decks.byName("HSK", create=True)
     new_hsk_did = new_hsk.getId()
     assertException(DeckRenameError, lambda: d.decks.renameForDragAndDrop(new_hsk_did, chinese_did))
-    d.decks.rem(new_hsk_did)
+    d.decks.get(new_hsk_did).rem()
 
     # can't drack a deck where sibling have same name different case
     new_hsk = d.decks.byName("hsk", create=True)
     new_hsk_did = new_hsk.getId()
     assertException(DeckRenameError, lambda: d.decks.renameForDragAndDrop(new_hsk_did, chinese_did))
-    d.decks.rem(new_hsk_did)
+    d.decks.get(new_hsk_did).rem()
 
     # '' is a convenient alias for the top level DID
     d.decks.renameForDragAndDrop(hsk_did, '')

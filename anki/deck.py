@@ -34,6 +34,62 @@ class Deck(DictAugmentedDyn):
         self.manager.maybeAddToActive()
         runHook("newDeck")
 
+    def rem(self, cardsToo=False, childrenToo=True):
+        """Remove the deck whose id is did.
+
+        Does not delete the default deck, but rename it.
+
+        Log the removal, even if the deck does not exists, assuming it
+        is not default.
+
+        Keyword arguments:
+        cardsToo -- if set to true, delete its card.
+        ChildrenToo -- if set to false,
+        """
+        if str(self.getId()) == '1':
+            # we won't allow the default deck to be deleted, but if it's a
+            # child of an existing deck then it needs to be renamed
+            if '::' in self.getName():
+                base = self.manager._basename(self.getName())
+                suffix = ""
+                while True:
+                    # find an unused name
+                    name = base + suffix
+                    if not self.manager.byName(name):
+                        self.setName(name)
+                        self.save()
+                        break
+                    suffix += "1"
+            return
+        # log the removal regardless of whether we have the deck or not
+        self.manager.col._logRem([self.getId()], REM_DECK)
+        if self.isDyn():
+            # deleting a cramming deck returns cards to their previous deck
+            # rather than deleting the cards
+            self.manager.col.sched.emptyDyn(self.getId())
+            if childrenToo:
+                for id in self.getDescendantsIds():
+                    self.manager.rem(id, cardsToo)
+        else:
+            # delete children first
+            if childrenToo:
+                # we don't want to delete children when syncing
+                for id in self.getDescendantsIds():
+                    self.manager.rem(id, cardsToo)
+            # delete cards too?
+            if cardsToo:
+                # don't use cids(), as we want cards in cram decks too
+                cids = self.manager.col.db.list(
+                    "select id from cards where did=? or odid=?", self.getId(), self.getId())
+                self.manager.col.remCards(cids)
+        # delete the deck and add a grave (it seems no grave is added)
+        del self.manager.decks[str(self.getId())]
+        del self.manager.decksByNames[self.getNormalizedName()]
+        # ensure we have an active deck.
+        if self.getId() in self.manager.active():
+            self.manager.get(int(list(self.manager.decks.keys())[0])).select()
+        self.manager.save()
+
     # Name family
     #############################################################
 
