@@ -99,14 +99,14 @@ order by due""" % (self._deckLimit()),
 
     def _updateStats(self, card, type, cnt=1):
         key = type+"Today"
-        for ancestor in self.col.decks.parents(card.did, includeSelf=True):
+        for ancestor in self.col.decks.get(card.did).getAncestors(includeSelf=True):
             # add
             ancestor[key][1] += cnt
             self.col.decks.save(ancestor)
 
     def extendLimits(self, new, rev):
         cur = self.col.decks.current()
-        ancestors = self.col.decks.parents(cur.getId())
+        ancestors = cur.getAncestors()
         children = self.col.decks.childrenDecks(cur.getId())
         for deck in [cur] + ancestors + children:
             # add
@@ -127,7 +127,7 @@ order by due""" % (self._deckLimit()),
             if not lim:
                 continue
             # check the parents
-            ancestors = self.col.decks.parents(did, nameMap)
+            ancestors = self.col.decks.get(did).getAncestors()
             for ancestor in ancestors:
                 # add if missing
                 if ancestor.getId() not in pcounts:
@@ -235,7 +235,7 @@ did = ? and queue = {QUEUE_NEW} limit ?)""", did, lim)
             fn = self._deckNewLimitSingle
         lim = -1
         # for the deck and each of its parents
-        for ancestor in self.col.decks.parents(did, includeSelf=True):
+        for ancestor in self.col.decks.get(did).getAncestors(includeSelf=True):
             rem = fn(ancestor)
             if lim == -1:
                 lim = rem

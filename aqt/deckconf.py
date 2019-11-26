@@ -153,7 +153,7 @@ class DeckConf(QDialog):
         if self.deck.isTopLevel():
             return ""
         lim = -1
-        for ancestor in self.mw.col.decks.parents(self.deck.getId()):
+        for ancestor in self.deck.getAncestors():
             conf = ancestor.getConf()
             perDay = conf[type]['perDay']
             if lim == -1:
