@@ -476,7 +476,7 @@ select id from cards where did in %s and queue = {QUEUE_REV} and due <= ? limit 
         if not ids:
             return
         # and change to our new deck
-        self.col.decks.select(did)
+        self.col.decks.get(did).select()
         return ids
 
     def remFromDyn(self, cids):

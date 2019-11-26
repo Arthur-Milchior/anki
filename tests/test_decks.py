@@ -20,7 +20,7 @@ def test_basic():
     assert deck.decks.selected() == 1
     assert deck.decks.active() == [1]
     # we can select a different deck
-    deck.decks.select(parentId)
+    deck.decks.get(parentId).select()
     assert deck.decks.selected() == parentId
     assert deck.decks.active() == [parentId]
     # let's create a child
@@ -29,7 +29,7 @@ def test_basic():
     assert deck.decks.selected() == parentId
     assert deck.decks.active() == [parentId, childId]
     # we can select the child individually too
-    deck.decks.select(childId)
+    deck.decks.get(childId).select()
     assert deck.decks.selected() == childId
     assert deck.decks.active() == [childId]
     # parents with a different case should be handled correctly

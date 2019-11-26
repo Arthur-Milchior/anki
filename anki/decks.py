@@ -333,7 +333,7 @@ class DeckManager:
         del self.decks[str(did)]
         # ensure we have an active deck.
         if did in self.active():
-            self.select(int(list(self.decks.keys())[0]))
+            self.get(int(list(self.decks.keys())[0])).select()
         self.save()
 
     def allNames(self, dyn=None, sort=False):
@@ -634,7 +634,7 @@ same id."""
         #nor in the function called by this code.
         #maybe is not appropriate, since no condition occurs
         deck = self.current()
-        self.select(deck.getId())
+        deck.select()
 
     def cids(self, did, children=False):
         """Return the list of id of cards whose deck's id is did.
@@ -702,19 +702,6 @@ same id."""
         """The currently selected deck object"""
         return self.get(self.selected())
 
-    def select(self, did):
-        """Change activeDecks to the list containing did and the did
-        of its children.
-
-        Also mark the manager as changed."""
-        # make sure arg is an int
-        did = int(did)
-        # current deck
-        self.col.conf['curDeck'] = did
-        # and active decks (current + all children)
-        self.col.conf['activeDecks'] = self.get(did).getDescendantsIds(sort=True, includeSelf=True)
-        self.changed = True
-
     # Sync handling
     ##########################################################################
 
@@ -731,7 +718,7 @@ same id."""
     def newDyn(self, name):
         "Return a new dynamic deck and set it as the current deck."
         did = self.id(name, deckToCopy=defaultDynamicDeck)
-        self.select(did)
+        self.get(did).select()
         return did
 
     @staticmethod

@@ -168,3 +168,19 @@ class Deck(DictAugmentedDyn):
     def collapseBrowser(self):
         deck['browserCollapsed'] = not deck.get('browserCollapsed', False)
         self.save()
+
+    # Deck selection
+    #############################################################
+
+    def select(self):
+        """Change activeDecks to the list containing did and the did
+        of its children.
+
+        Also mark the manager as changed."""
+        # make sure arg is an int
+        did = int(self.getId())
+        # current deck
+        self.manager.col.conf['curDeck'] = did
+        # and active decks (current + all children)
+        self.manager.col.conf['activeDecks'] = self.getDescendantsIds(sort=True, includeSelf=True)
+        self.manager.changed = True

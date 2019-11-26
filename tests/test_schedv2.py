@@ -410,7 +410,7 @@ def test_review_limits():
     assert tree[1][5][0][2] == 5 # child
 
     # .counts() should match
-    d.decks.select(child.getId())
+    child.select()
     d.sched.reset()
     assert d.sched.counts() == (0, 0, 5)
 
@@ -426,7 +426,7 @@ def test_review_limits():
     # switch limits
     parent.setConf(cconf.getId())
     child.setConf(pconf.getId())
-    d.decks.select(parent.getId())
+    parent.select()
     d.sched.reset()
 
     # child limits do not affect the parent

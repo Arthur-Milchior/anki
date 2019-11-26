@@ -67,7 +67,7 @@ class DeckBrowser:
         return False
 
     def _selDeck(self, did):
-        self.mw.col.decks.select(did)
+        self.mw.col.decks.get(did).select()
         self.mw.onOverview()
 
     # HTML generation
@@ -292,7 +292,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
     def _options(self, did):
         # select the deck first, because the dyn deck conf assumes the deck
         # we're editing is the current one
-        self.mw.col.decks.select(did)
+        self.mw.col.decks.get(did).select()
         self.mw.onDeckConf()
 
     def _collapse(self, did):

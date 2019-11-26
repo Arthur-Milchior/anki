@@ -60,7 +60,7 @@ class Anki2Importer(Importer):
         self._decks = {}
         if self.deckPrefix:
             id = self.dst.decks.id(self.deckPrefix)
-            self.dst.decks.select(id)
+            self.dst.decks.get(id).select()
         self._prepareTS()
         self._prepareModels()
         self._importNotes()
