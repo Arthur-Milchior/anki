@@ -244,23 +244,9 @@ class DeckManager:
         not exists. Default true, otherwise return None
         deckToCopy -- A deck to copy in order to create this deck
         """
-        name = name.replace('"', '')
-        name = unicodedata.normalize("NFC", name)
-        deck = self.byName(name)
+        deck = self.byName(name, create=create, deckToCopy=deckToCopy)
         if deck:
             return int(deck.getId())
-        if not create:
-            return None
-        if deckToCopy is None:
-            deckToCopy = defaultDeck
-        if isinstance(deckToCopy, dict):
-            # useful mostly in tests where decks are given directly as dic
-            deck = Deck(self, copy.deepcopy(deckToCopy))
-            deck.cleanCopy(name)
-        else:
-            assert isinstance(deckToCopy, Deck)
-            deck = deckToCopy.copy_(name)
-        return deck.getId()
 
     def rem(self, did, cardsToo=False, childrenToo=True):
         """Remove the deck whose id is did.
@@ -367,11 +353,32 @@ class DeckManager:
         elif default:
             return self.decks['1']
 
-    def byName(self, name):
-        """Get deck with NAME, ignoring case."""
+    def byName(self, name, create=False, deckToCopy=None):
+        """Get deck with NAME, ignoring case.
+
+        Keyword arguments:
+        name -- the name of the new deck. " are removed.
+        create -- States whether the deck must be created if it does
+        not exists. Default true, otherwise return None
+        deckToCopy -- A deck to copy in order to create this deck
+        """
+        name = name.replace('"', '')
+        name = unicodedata.normalize("NFC", name)
         for deck in list(self.decks.values()):
             if self.equalName(deck.getName(), name):
                 return deck
+        if create is False:
+            return None
+        if deckToCopy is None:
+            deckToCopy = defaultDeck
+        if isinstance(deckToCopy, dict):
+            # useful mostly in tests where decks are given directly as dic
+            deck = Deck(self, copy.deepcopy(deckToCopy))
+            deck.cleanCopy(name)
+            return deck
+        else:
+            assert isinstance(deckToCopy, Deck)
+            return deckToCopy.copy_(name)
 
     def update(self, deck):
         "Add or update an existing deck. Used for syncing and merging."
