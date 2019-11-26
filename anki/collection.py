@@ -526,7 +526,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
                 if not doHave:
                     # check deck is not a cram deck
                     did = template['did'] or did
-                    if self.decks.isDyn(did):
+                    if self.decks.get(did).isDyn():
                         did = 1
                     # if the deck doesn'template exist, use default instead
                     did = self.decks.get(did).getId()
@@ -595,7 +595,7 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
                 card.did = note.model()['did']
         # if invalid did, use default instead
         deck = self.decks.get(card.did)
-        if deck['dyn']:
+        if deck.isDyn():
             # must not be a filtered deck
             card.did = 1
         else:
@@ -1070,7 +1070,7 @@ select id from cards where odue > 0 and (type={CARD_LRN} or queue={CARD_DUE}) an
             self.db.execute("update cards set odue=0 where id in "+
                 ids2str(ids))
         # cards with odid set when not in a dyn deck
-        dids = [id for id in self.decks.allIds() if not self.decks.isDyn(id)]
+        dids = [id for id in self.decks.allIds() if not self.decks.get(id).isDyn()]
         ids = self.db.list("""
         select id from cards where odid > 0 and did in %s""" % ids2str(dids))
         if ids:

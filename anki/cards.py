@@ -134,7 +134,7 @@ class Card:
         self.mod = intTime()
         self.usn = self.col.usn()
         # bug check
-        if self.queue == QUEUE_REV and self.odue and not self.col.decks.isDyn(self.did):
+        if self.queue == QUEUE_REV and self.odue and not self.col.decks.get(self.did).isDyn():
             runHook("odueInvalid")
         assert self.due < 4294967296
         self.col.db.execute(

@@ -1716,7 +1716,7 @@ where id in %s""" % ids2str(sn))
             return
         did = self.col.decks.id(ret.name)
         deck = self.col.decks.get(did)
-        if deck['dyn']:
+        if deck.isDyn():
             showWarning(_("Cards can't be manually moved into a filtered deck."))
             return
         self.model.beginReset()

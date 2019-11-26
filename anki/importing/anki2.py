@@ -293,7 +293,7 @@ class Anki2Importer(Importer):
             self._did(idInSrc)
         # if target is a filtered deck, we'll need a new deck name
         localDeck = self.dst.decks.byName(name)
-        if localDeck and localDeck['dyn']:
+        if localDeck and localDeck.isDyn():
             name = "%s %d" % (name, intTime())
         # create in local
         newid = self.dst.decks.id(name)

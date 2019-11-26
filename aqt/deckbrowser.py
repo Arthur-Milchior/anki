@@ -210,7 +210,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         else:
             collapse = """
       <span class=collapse></span>"""
-        if deck['dyn']:
+        if deck.isDyn():
             extraclass = "filtered"
         else:
             extraclass = ""
@@ -314,7 +314,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             return showWarning(_("The default deck can't be deleted."))
         self.mw.checkpoint(_("Delete Deck"))
         deck = self.mw.col.decks.get(did)
-        if not deck['dyn']:
+        if deck.isStd():
             dids = self.mw.col.decks.childDids(did, includeSelf=True)
             cnt = self.mw.col.db.scalar(
                 "select count() from cards where did in {0} or "
@@ -323,7 +323,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
                 extra = ngettext(" It has %d card.", " It has %d cards.", cnt) % cnt
             else:
                 extra = None
-        if deck['dyn'] or not extra or askUser(
+        if deck.isDyn() or not extra or askUser(
             (_("Are you sure you wish to delete %s?") % deck.getName()) +
             extra):
             self.mw.progress.start(immediate=True)

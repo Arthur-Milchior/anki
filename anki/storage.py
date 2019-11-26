@@ -99,7 +99,7 @@ def _upgrade(col, ver):
     if ver < 3:
         # new deck properties
         for deck in col.decks.all():
-            deck['dyn'] = DECK_STD
+            deck.setStd()
             deck['collapsed'] = False
             col.decks.save(deck)
     if ver < 4:
@@ -166,7 +166,7 @@ update cards set left = left + left*1000 where queue = 1""")
     if ver < 11:
         col.modSchema(check=False)
         for deck in col.decks.all():
-            if deck['dyn']:
+            if deck.isDyn():
                 order = deck['order']
                 # failed order was removed
                 if order >= 5:

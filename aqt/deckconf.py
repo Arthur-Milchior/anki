@@ -88,7 +88,7 @@ class DeckConf(QDialog):
         self.loadConf()
         cnt = 0
         for deck in self.mw.col.decks.all():
-            if deck['dyn']:
+            if deck.isDyn():
                 continue
             if deck['conf'] == conf.getId():
                 cnt += 1
@@ -135,7 +135,7 @@ class DeckConf(QDialog):
             return
         for did in self.childDids:
             deck = self.mw.col.decks.get(did)
-            if deck['dyn']:
+            if deck.isDyn():
                 continue
             deck['conf'] = self.deck['conf']
             self.mw.col.decks.save(deck)

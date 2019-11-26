@@ -930,7 +930,7 @@ QTreeWidget {
         deck -- The deck to edit. If not give, current Deck"""
         if not deck:
             deck = self.col.decks.current()
-        if deck['dyn']:
+        if deck.isDyn():
             import aqt.dyndeckconf
             return aqt.dyndeckconf.DeckConf(self, deck=deck)
         else:
@@ -997,7 +997,7 @@ QTreeWidget {
         index = 1
         deck = self.col.decks.current()
         if not search:
-            if not deck['dyn']:
+            if not deck.isDyn():
                 search = 'deck:"%s" ' % deck.getName()
         decks = self.col.decks.allNames()
         while _("Filtered Deck %d") % index in decks:

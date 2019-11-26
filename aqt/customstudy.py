@@ -122,7 +122,7 @@ class CustomStudy(QDialog):
         # the rest create a filtered deck
         cur = self.mw.col.decks.byName(_("Custom Study Session"))
         if cur:
-            if not cur['dyn']:
+            if cur.isStd():
                 showInfo("Please rename the existing Custom Study deck first.")
                 return QDialog.accept(self)
             else:

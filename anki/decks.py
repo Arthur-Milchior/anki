@@ -311,7 +311,7 @@ class DeckManager:
         if not str(did) in self.decks:
             return
         deck = self.get(did)
-        if deck['dyn']:
+        if deck.isDyn():
             # deleting a cramming deck returns cards to their previous deck
             # rather than deleting the cards
             self.col.sched.emptyDyn(did)
@@ -424,7 +424,7 @@ class DeckManager:
             raise DeckRenameError(_("That deck already exists."))
         # make sure we're not nesting under a filtered deck
         for ancestor in self.parentsByName(newName):
-            if ancestor['dyn']:
+            if ancestor.isDyn():
                 raise DeckRenameError(_("A filtered deck cannot have subdecks."))
         # rename children
         oldName = deck.getName()
@@ -542,7 +542,7 @@ class DeckManager:
         assert deck
         if 'conf' in deck:
             conf = self.getConf(deck['conf'])
-            conf['dyn'] = False
+            conf.setStd()
             return conf
         # dynamic decks have embedded conf
         return deck
@@ -868,9 +868,6 @@ same id."""
         did = self.id(name, deckToCopy=defaultDynamicDeck)
         self.select(did)
         return did
-
-    def isDyn(self, did):
-        return self.get(did)['dyn']
 
     @staticmethod
     def normalizeName(name):

@@ -1,7 +1,7 @@
-from anki.utils import DictAugmentedIdUsn
+from anki.utils import DictAugmentedDyn
 
 
-class DConf(DictAugmentedIdUsn):
+class DConf(DictAugmentedDyn):
     """A configuration for decks
 
     """

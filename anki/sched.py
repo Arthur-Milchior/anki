@@ -208,7 +208,7 @@ class Scheduler(BothScheduler):
             # limit the counts to the deck's limits
             conf = self.col.decks.confForDid(did)
             deck = self.col.decks.get(did)
-            if not conf['dyn']:
+            if conf.isStd():
                 rev = max(0, min(rev, conf['rev']['perDay']-deck['revToday'][1]))
                 new = max(0, min(new, conf['new']['perDay']-deck['newToday'][1]))
             tree.append((head, did, rev, lrn, new, children))
@@ -513,7 +513,7 @@ did = ? and queue = {QUEUE_REV} and due <= ? limit ?""",
                                                   did, self.today, lim)
                 if self._revQueue:
                     # ordering
-                    if self.col.decks.get(did)['dyn']:
+                    if self.col.decks.get(did).isDyn():
                         # dynamic decks need due order preserved
                         self._revQueue.reverse()
                     else:
@@ -852,7 +852,7 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?""" % queue, data)
         """Whether this review must be taken into account when this
         card to reschedule the card"""
         conf = self._cardConf(card)
-        if not conf['dyn']:
+        if not conf.isDyn():
             return True
         return conf['resched']
 
