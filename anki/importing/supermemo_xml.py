@@ -84,7 +84,7 @@ class SupermemoXmlImporter(NoteImporter):
         Pameters to be exposed to GUI are stored in self.META"""
         NoteImporter.__init__(self, *args)
         model = addBasicModel(self.col)
-        model['name'] = "Supermemo"
+        model.setName("Supermemo")
         self.col.models.save(model)
         self.initMapping()
 

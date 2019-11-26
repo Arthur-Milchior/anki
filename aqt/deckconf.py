@@ -125,7 +125,7 @@ class DeckConf(QDialog):
         name = getOnlyText(_("New name:"), default=old)
         if not name or name == old:
             return
-        self.conf.getName['name'] = name
+        self.conf.setName(name)
         self.loadConfs()
 
     def setChildren(self):

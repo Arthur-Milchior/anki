@@ -282,7 +282,7 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         model -- a model object"""
         for mcur in self.all():
             if (mcur.getName() == model.getName() and mcur.getId() != model.getId()):
-                model['name'] += "-" + checksum(str(time.time()))[:5]
+                model.setName(model.getName() + "-" + checksum(str(time.time()))[:5])
                 break
 
     def update(self, model):
@@ -343,7 +343,7 @@ and notes.mid = ? and cards.ord = ?""", model.getId(), ord)
     def copy(self, model):
         "A copy of model, already in the collection."
         m2 = model.deepcopy()
-        m2['name'] = _("%s copy") % m2['name']
+        m2['name'] = _("%s copy") % m2.getName()
         self.add(m2)
         return m2
 
@@ -354,8 +354,9 @@ and notes.mid = ? and cards.ord = ?""", model.getId(), ord)
         """A new field, similar to the default one, whose name is name."""
         assert(isinstance(name, str))
         fieldType = defaultField.copy()
-        fieldType['name'] = name
-        return Field(model, fieldType)
+        fieldType = Field(model, fieldType)
+        fieldType.setName(name)
+        return fieldType
 
     def fieldMap(self, model):
         """Mapping of (field name) -> (ord, field object).
@@ -488,7 +489,7 @@ and notes.mid = ? and cards.ord = ?""", model.getId(), ord)
                 else:
                     template[fmt] = re.sub(
                         pat  % re.escape(fieldType.getName()), "", template[fmt])
-        fieldType['name'] = newName
+        fieldType.setName(newName)
         self.save(model)
 
     def _updateFieldOrds(self, model):
@@ -528,8 +529,9 @@ and notes.mid = ? and cards.ord = ?""", model.getId(), ord)
         model during anki's first initialization. It's not used in day to day anki.
         """
         template = defaultTemplate.copy()
-        template['name'] = name
-        return Template(model, template)
+        template = Template(model, template)
+        template.setName(name)
+        return template
 
     def addTemplate(self, model, template):
         """Add a new template in model, as last element. This template is a copy

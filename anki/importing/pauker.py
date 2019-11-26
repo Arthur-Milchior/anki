@@ -22,7 +22,7 @@ class PaukerImporter(NoteImporter):
 
     def run(self):
         model = addForwardReverse(self.col)
-        model['name'] = "Pauker"
+        model.setName("Pauker")
         self.col.models.save(model)
         self.col.models.setCurrent(model)
         self.model = model

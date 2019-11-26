@@ -203,7 +203,7 @@ def _upgradeClozeModel(col, model):
     template = model['tmpls'][0]
     for type in 'qfmt', 'afmt':
         template[type] = re.sub("{{cloze:1:(.+?)}}", r"{{cloze:\1}}", template[type])
-    template['name'] = _("Cloze")
+    template.setName(_("Cloze"))
     # delete non-cloze cards for the model
     rems = []
     for template in model['tmpls'][1:]:

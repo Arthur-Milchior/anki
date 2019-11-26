@@ -280,7 +280,7 @@ class DeckManager:
         else:
             assert isinstance(deckToCopy, Deck)
             deck = deckToCopy.deepcopy()
-        deck['name'] = name
+        deck.setName(name)
         deck.setId(id)
         deck.addInModel()
         self.save(deck)
@@ -311,7 +311,7 @@ class DeckManager:
                     # find an unused name
                     name = base + suffix
                     if not self.byName(name):
-                        deck['name'] = name
+                        deck.setName(name)
                         self.save(deck)
                         break
                     suffix += "1"
@@ -440,7 +440,7 @@ class DeckManager:
         # rename children
         oldName = deck.getName()
         for child in self.childrenDecks(deck.getId(), includeSelf=True):
-            child['name'] = child.getName().replace(oldName, newName, 1)
+            child.setName(child.getName().replace(oldName, newName, 1))
             self.save(child)
         # ensure we have parents again, as we may have renamed parent->child
         newName = self._ensureParents(newName)
@@ -585,7 +585,7 @@ same id."""
             if str(id) not in self.dconf:
                 break
         conf['id'] = id
-        conf['name'] = name
+        conf.setName(name)
         self.dconf[str(id)] = conf
         self.save(conf)
         return id
@@ -635,7 +635,7 @@ same id."""
         oldOrder = conf['new']['order']
         new = copy.deepcopy(defaultConf)
         new['id'] = conf.getId()
-        new['name'] = conf.getName()
+        new.setName(conf.getName())
         self.dconf[str(conf.getId())] = new
         self.save(new)
         # if it was previously randomized, resort
@@ -713,7 +713,7 @@ same id."""
             # two decks with the same name?
             if self.normalizeName(deck.getName()) in names:
                 self.col.log("fix duplicate deck name", deck.getName())
-                deck['name'] += "%d" % intTime(1000)
+                deck.setName(deck.getName() + "%d" % intTime(1000))
                 self.save(deck)
 
             # ensure no sections are blank

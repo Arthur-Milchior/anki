@@ -490,6 +490,9 @@ class DictAugmented(dict):
             dict[key] = copy.deepcopy(self[key])
         return self.__class__(self.manager, dict=dict)
 
+    def setName(self, newName):
+        self['name'] = newName
+
 class DictAugmentedIdUsn(DictAugmented):
     def __eq__(self, other):
         return self.getId() == other.getId()
@@ -517,5 +520,5 @@ class DictAugmentedInModel(DictAugmented):
 
     def new(self, name, default):
         fieldType = default.copy()
-        fieldType['name'] = name
+        fieldType.setName(name)
         self.load(model, fieldType)

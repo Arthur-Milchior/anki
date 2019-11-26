@@ -401,7 +401,7 @@ Please create a new card type first."""))
         if name in [card.template().getName() for card in self.cards
                     if card.template()['ord'] != self.ord]:
             return showWarning(_("That name is already used."))
-        self.card.template()['name'] = name
+        self.card.template().setName(name)
         self.redraw()
 
     def onReorder(self):

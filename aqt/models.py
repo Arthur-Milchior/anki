@@ -77,7 +77,7 @@ class Models(QDialog):
         """Ask the user for a new name for the model. Save it"""
         txt = getText(_("New name:"), default=self.model.getName())
         if txt[1] and txt[0]:
-            self.model['name'] = txt[0]
+            self.model.setName(txt[0])
             self.mm.save(self.model)
         self.updateModelsList()
 
@@ -107,7 +107,7 @@ class Models(QDialog):
         if model:
             txt = getText(_("Name:"), default=model.getName())[0]
             if txt:
-                model['name'] = txt
+                model.setName(txt)
             self.mm.ensureNameUnique(model)
             self.mm.save(model)
             self.updateModelsList()

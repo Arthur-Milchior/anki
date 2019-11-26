@@ -126,7 +126,7 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""):
         # add a basic model
         if not model:
             model = addBasicModel(self.col)
-            model['name'] = "Mnemosyne-FrontOnly"
+            model.setName("Mnemosyne-FrontOnly")
         mm = self.col.models
         mm.save(model)
         mm.setCurrent(model)
@@ -138,7 +138,7 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""):
 
     def _addFrontBacks(self, notes):
         model = addBasicModel(self.col)
-        model['name'] = "Mnemosyne-FrontBack"
+        model.setName("Mnemosyne-FrontBack")
         mm = self.col.models
         template = mm.newTemplate(model, "Back")
         template['qfmt'] = "{{Back}}"
@@ -191,7 +191,7 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""):
             data.append(note)
         # add cloze model
         model = addClozeModel(self.col)
-        model['name'] = "Mnemosyne-Cloze"
+        model.setName("Mnemosyne-Cloze")
         mm = self.col.models
         mm.save(model)
         mm.setCurrent(model)
