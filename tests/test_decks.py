@@ -76,7 +76,7 @@ def test_rename():
     deck = d.decks.byName("hello::world", create=True)
     # should be able to rename into a completely different branch, creating
     # parents as necessary
-    d.decks.rename(deck, "foo::bar")
+    deck.rename("foo::bar")
     assert "foo" in d.decks.allNames()
     assert "foo::bar" in d.decks.allNames()
     assert "hello::world" not in d.decks.allNames()
@@ -84,23 +84,23 @@ def test_rename():
     deck = d.decks.id("tmp", create=True)
     # we can't rename it if it conflicts
     assertException(
-        Exception, lambda: d.decks.rename(deck, "foo"))
+        Exception, lambda: deck.rename("foo"))
     # when renaming, the children should be renamed too
     d.decks.id("one::two::three")
     deck = d.decks.byName("one", create=True)
-    d.decks.rename(deck, "yo")
+    deck.rename("yo")
     for n in "yo", "yo::two", "yo::two::three":
         assert n in d.decks.allNames()
     # over filtered
     filtered = d.decks.newDyn("filtered")
     child = d.decks.byName("child", create=True)
-    assertException(DeckRenameError, lambda: d.decks.rename(child, "filtered::child"))
-    assertException(DeckRenameError, lambda: d.decks.rename(child, "FILTERED::child"))
+    assertException(DeckRenameError, lambda: child.rename("filtered::child"))
+    assertException(DeckRenameError, lambda: child.rename("FILTERED::child"))
     # changing case
     d.decks.id("PARENT")
     d.decks.id("PARENT::CHILD")
-    assertException(DeckRenameError, lambda: d.decks.rename(child, "PARENT::CHILD"))
-    assertException(DeckRenameError, lambda: d.decks.rename(child, "PARENT::child"))
+    assertException(DeckRenameError, lambda: child.rename("PARENT::CHILD"))
+    assertException(DeckRenameError, lambda: child.rename("PARENT::child"))
 
 
 

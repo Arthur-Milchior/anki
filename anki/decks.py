@@ -351,32 +351,6 @@ class DeckManager:
         # mark registry changed, but don't bump mod time
         self.save()
 
-    def rename(self, deck, newName):
-        """Rename the deck object g to newName. Updates
-        children. Creates parents of newName if required.
-
-        If newName already exists or if it a descendant of a filtered
-        deck, the operation is aborted."""
-        # ensure we have parents
-        newName = self._ensureParents(newName)
-        # make sure we're not nesting under a filtered deck
-        if newName is False:
-            raise DeckRenameError(_("A filtered deck cannot have subdecks."))
-        # make sure target node doesn't already exist
-        if self.byName(newName):
-            raise DeckRenameError(_("That deck already exists."))
-        # rename children
-        oldName = deck.getName()
-        for child in deck.getDescendants(includeSelf=True):
-            del self.decksByNames[child.getNormalizedName()]
-            child.setName(child.getName().replace(oldName, newName, 1))
-            child.addInModel()
-            child.save()
-        # ensure we have parents again, as we may have renamed parent->child
-        newName = self._ensureParents(newName)
-        # renaming may have altered active did order
-        self.maybeAddToActive()
-
     def renameForDragAndDrop(self, draggedDeckDid, ontoDeckDid):
         """Rename the deck whose id is draggedDeckDid as a children of
         the deck whose id is ontoDeckDid."""
@@ -388,7 +362,7 @@ class DeckManager:
             #if the deck is dragged to toplevel
             if not draggedDeck.isTopLevel():
                 #And is not already at top level
-                self.rename(draggedDeck, self._basename(draggedDeckName))
+                draggedDeck.rename(self._basename(draggedDeckName))
         elif self._canDragAndDrop(draggedDeckName, ontoDeckName):
             #The following three lines seems to be useless, as they
             #repeat lines above
@@ -396,7 +370,7 @@ class DeckManager:
             draggedDeckName = draggedDeck.getName()
             ontoDeckName = self.get(ontoDeckDid).getName()
             assert ontoDeckName.strip()
-            self.rename(draggedDeck, ontoDeckName + "::" + self._basename(draggedDeckName))
+            draggedDeck.rename(ontoDeckName + "::" + self._basename(draggedDeckName))
 
     def _canDragAndDrop(self, draggedDeckName, ontoDeckName):
         """Whether draggedDeckName can be moved as a children of

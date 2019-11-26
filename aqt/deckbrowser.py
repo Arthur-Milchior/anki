@@ -284,7 +284,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         if not newName or newName == oldName:
             return
         try:
-            self.mw.col.decks.rename(deck, newName)
+            deck.rename(newName)
         except DeckRenameError as e:
             return showWarning(e.description)
         self.show()

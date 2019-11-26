@@ -2,7 +2,9 @@ import copy
 
 from anki.consts import *
 from anki.dconf import DConf
+from anki.errors import DeckRenameError
 from anki.hooks import runHook
+from anki.lang import _
 from anki.model import Model
 from anki.utils import DictAugmentedDyn, ids2str, intTime
 
@@ -89,6 +91,32 @@ class Deck(DictAugmentedDyn):
         if self.getId() in self.manager.active():
             self.manager.get(int(list(self.manager.decks.keys())[0])).select()
         self.manager.save()
+
+    def rename(self, newName):
+        """Rename the deck object g to newName. Updates
+        children. Creates parents of newName if required.
+
+        If newName already exists or if it a descendant of a filtered
+        deck, the operation is aborted."""
+        # ensure we have parents
+        newName = self.manager._ensureParents(newName)
+        # make sure we're not nesting under a filtered deck
+        if newName is False:
+            raise DeckRenameError(_("A filtered deck cannot have subdecks."))
+        # make sure target node doesn't already exist
+        if self.manager.byName(newName):
+            raise DeckRenameError(_("That deck already exists."))
+        # rename children
+        oldName = self.getName()
+        for child in self.getDescendants(includeSelf=True):
+            del self.manager.decksByNames[child.getNormalizedName()]
+            child.setName(child.getName().replace(oldName, newName, 1))
+            child.addInModel()
+            child.save()
+        # ensure we have parents again, as we may have renamed parent->child
+        newName = self.manager._ensureParents(newName)
+        # renaming may have altered active did order
+        self.manager.maybeAddToActive()
 
     # Name family
     #############################################################
