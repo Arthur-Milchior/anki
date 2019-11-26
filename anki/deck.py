@@ -1,7 +1,7 @@
 from anki.consts import *
 from anki.dconf import DConf
 from anki.model import Model
-from anki.utils import DictAugmentedDyn
+from anki.utils import DictAugmentedDyn, ids2str
 
 
 class Deck(DictAugmentedDyn):
@@ -112,6 +112,20 @@ class Deck(DictAugmentedDyn):
 
     def isDefault(self):
         return str(self.getId()) == "1"
+
+    # Deck utils
+    #############################################################
+
+    def getCids(self, children=False):
+        """Return the list of id of cards whose deck's id is did.
+
+        If Children is set to true, returns also the list of the cards
+        of the descendant."""
+        if not children:
+            return self.col.db.list("select id from cards where did=?", self.getId())
+        dids = self.getDescendantsIds(includeSelf=True)
+        return self.manager.col.db.list("select id from cards where did in "+
+                                ids2str(dids))
 
     # Conf
     #############################################################

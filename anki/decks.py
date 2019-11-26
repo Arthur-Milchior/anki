@@ -636,17 +636,6 @@ same id."""
         deck = self.current()
         deck.select()
 
-    def cids(self, did, children=False):
-        """Return the list of id of cards whose deck's id is did.
-
-        If Children is set to true, returns also the list of the cards
-        of the descendant."""
-        if not children:
-            return self.col.db.list("select id from cards where did=?", did)
-        dids = self.get(did).getDescendantsIds(includeSelf=True)
-        return self.col.db.list("select id from cards where did in "+
-                                ids2str(dids))
-
     def _recoverOrphans(self):
         """Move the cards whose deck does not exists to the default
         deck, without changing the mod date."""

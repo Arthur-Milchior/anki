@@ -80,7 +80,7 @@ class Exporter:
         if not self.did:
             cids = self.col.db.list("select id from cards")
         else:
-            cids = self.col.decks.cids(self.did, children=True)
+            cids = self.col.decks.get(self.did).getCids(children=True)
         self.count = len(cids)
         return cids
 
