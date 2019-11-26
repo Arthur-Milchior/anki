@@ -85,6 +85,22 @@ same id."""
         conf.save()
         return conf
 
+    def rem(self):
+        """Remove a configuration and update all decks using it.
+
+        The new conf of the deck using this configuation is the
+        default one.
+
+        Keyword arguments:
+        id -- The id of the configuration to remove. Should not be the
+        default conf."""
+        assert not self.isDefault()
+        self.manager.col.modSchema(check=True)
+        del self.manager.dconf[self.getId()]
+        for deck in self.decks():
+            deck.setDefaultConf()
+            deck.save()
+
     def getDecks(self, conf):
         """The decks of the decks using the configuration conf."""
         return [deck for deck in self.decks.values() if 'conf' in deck and deck.getConfId() == conf.getId()]

@@ -384,26 +384,6 @@ class DeckManager:
             cloneFrom = DConf(self, cloneFrom)
         return cloneFrom.copy_(name)
 
-    def remConf(self, id):
-        """Remove a configuration and update all decks using it.
-
-        The new conf of the deck using this configuation is the
-        default one.
-
-        Keyword arguments:
-        id -- The id of the configuration to remove. Should not be the
-        default conf."""
-        assert int(id) != 1
-        self.col.modSchema(check=True)
-        del self.dconf[str(id)]
-        for deck in self.all():
-            # ignore cram decks
-            if 'conf' not in deck:
-                continue
-            if str(deck.getConfId()) == str(id):
-                deck.setDefaultConf()
-                deck.save()
-
     def restoreToDefault(self, conf):
         """Change the configuration to default.
 
