@@ -15,5 +15,7 @@ class DConf(DictAugmentedDyn):
                 self.save()
                 self.manager.changed = True
 
+    # Basic tests
+    #############################################################
     def isDefault(self):
         return str(self.getId()) == "1"

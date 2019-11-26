@@ -113,7 +113,7 @@ class DeckConf(QDialog):
         self.loadConfs()
 
     def remGroup(self):
-        if int(self.conf.getId()) == 1:
+        if self.conf.isDefault():
             showInfo(_("The default configuration can't be removed."), self)
         else:
             self.mw.col.decks.remConf(self.conf.getId())

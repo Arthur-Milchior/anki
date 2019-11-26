@@ -7,6 +7,12 @@ class Deck(DictAugmentedDyn):
         """Adding or replacing the deck with our id in the manager"""
         self.manager.decks[str(self.getId())] = self
 
+    # Getter/Setter
+    #############################################################
+
+    def isDefault(self):
+        return str(self.getId()) == "1"
+
     # Conf
     #############################################################
 

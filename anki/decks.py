@@ -292,7 +292,6 @@ class DeckManager:
         if str(did) == '1':
             # we won't allow the default deck to be deleted, but if it's a
             # child of an existing deck then it needs to be renamed
-            deck = self.get(did)
             if '::' in deck.getName():
                 base = self._basename(deck.getName())
                 suffix = ""

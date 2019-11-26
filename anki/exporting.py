@@ -224,7 +224,7 @@ class AnkiExporter(Exporter):
             dids = self.src.decks.childDids(self.did, includeSelf=True)
         dconfs = {}
         for deck in self.src.decks.all():
-            if str(deck.getId()) == "1":
+            if deck.isDefault():
                 continue
             if dids and deck.getId() not in dids:
                 continue

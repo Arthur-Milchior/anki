@@ -182,7 +182,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         """
         name, did, rev, lrn, new, children = node
         deck = self.mw.col.decks.get(did)
-        if did == 1 and cnt > 1 and not children:
+        if deck.isDefault() and cnt > 1 and not children:
             # if the default deck is empty, hide it
             if not self.mw.col.db.scalar("select 1 from cards where did = 1 limit 1"):
                 return ""
@@ -310,10 +310,10 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         self.show()
 
     def _delete(self, did):
-        if str(did) == '1':
+        deck = self.mw.col.decks.get(did)
+        if deck.isDefault():
             return showWarning(_("The default deck can't be deleted."))
         self.mw.checkpoint(_("Delete Deck"))
-        deck = self.mw.col.decks.get(did)
         if deck.isStd():
             dids = self.mw.col.decks.childDids(did, includeSelf=True)
             cnt = self.mw.col.db.scalar(
