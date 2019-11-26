@@ -37,6 +37,16 @@ class Deck(DictAugmentedDyn):
     def isChildOf(self, other):
         return other.isParentOf(self)
 
+    def isAncestorOf(self, other, includeSelf=False):
+        if includeSelf and self == other:
+            return True
+        return self.manager._isAncestor(self.getName(), other.getName())
+
+    def isDescendantOf(self, other, includeSelf=False):
+        if includeSelf and self == other:
+            return True
+        return self.manager._isAncestor(other.getName(), self.getName())
+
     # Getter/Setter
     #############################################################
 
