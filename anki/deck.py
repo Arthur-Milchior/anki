@@ -129,7 +129,6 @@ class Deck(DictAugmentedDyn):
         draggedDeckName = self.getName()
         ontoDeck = self.manager.get(ontoDeckDid)
         ontoDeckName = ontoDeck.getName()
-
         if ontoDeckDid is None or ontoDeckDid == '':
             #if the deck is dragged to toplevel
             if not self.isTopLevel():
@@ -179,43 +178,16 @@ class Deck(DictAugmentedDyn):
         return self.manager.byName(self.getParentName())
 
     def getAncestorsNames(self, includeSelf=False):
+        return map(lambda deck: deck.getName(), self.ancestors(includeSelf))
+
+    def getAncestors(self, includeSelf=False):
         l = []
-        lastName = ""
-        path = self.getPath()
-        if not includeSelf:
-            path = path[:-1]
-        for part in path:
-            lastName += "::" + part
-            l.append(lastName)
+        current = self if includeSelf else self.parent
+        while current != None:
+            l.append(current)
+            current = current.parent
+        l.reverse()
         return l
-
-    def getAncestors(self, nameMap=None, includeSelf=False):
-        """The list of all ancestors of did, as deck objects.
-
-        The list starts with the toplevel ancestors of did and its
-        i-th element is the ancestor with i times ::.
-
-        Keyword arguments:
-        did -- the id of the deck
-        nameMap -- dictionnary: deck id-> Node
-        """
-        ancestorsNames = []
-        last = ""
-        parts = self.getName().split("::")
-        if not includeSelf:
-            parts = parts[:-1]
-        for part in parts:
-            current = last + part
-            ancestorsNames.append(current)
-            last = current + "::"
-        # convert to objects
-        for index, ancestor in enumerate(ancestorsNames):
-            if nameMap:
-                deck = nameMap[ancestor]
-            else:
-                deck = self.manager.get(self.manager.id(ancestor))
-            ancestorsNames[index] = deck
-        return ancestorsNames
 
     def getBaseName(self):
         return self.manager._basename(self.getName())
