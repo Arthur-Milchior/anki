@@ -207,10 +207,7 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         It's used in order to import mnemosyn, and create the standard
         model during anki's first initialization. It's not used in day to day anki.
         """
-        template = defaultTemplate.copy()
-        template = Template(self, template)
-        template.setName(name)
-        return template
+        return Template(self, name=name)
 
     def _updateTemplOrds(self):
         """Change the value of 'ord' in each template of this model to reflect its new position"""

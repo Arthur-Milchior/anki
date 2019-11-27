@@ -21,6 +21,14 @@ class Template(DictAugmentedInModel):
 
     """
 
+    def new(self, model, name):
+        """A new template, whose content is the one of
+        defaultTemplate, and name is name.
+        It's used in order to import mnemosyn, and create the standard
+        model during anki's first initialization. It's not used in day to day anki.
+        """
+        super().new(model, name, defaultTemplate)
+
     # Tools
     ##################################################
 
