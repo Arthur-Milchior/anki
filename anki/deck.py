@@ -264,11 +264,11 @@ class Deck(DictAugmentedDyn):
             self.childrenBaseNames.pop(i)
         del self.childrenDict[baseName]
 
-    def getDescendants(self, includeSelf=False, sort=False):
-        name = self.getName()
-        actv = []
-        return [deck for deck in self.manager.all(sort=sort) if deck.getName().startswith(name+"::") or (includeSelf and deck.getName() == name)]
-    #todo, maybe sort only this smaller list, at least until all() memoize
+    def getDescendants(self, includeSelf=False):
+        l = [greatChildren for child in self.getChildren() for greatChildren in child.getDescendants(includeSelf=True)]
+        if includeSelf:
+            l = [self] + l
+        return l
 
     def getDescendantsIds(self, includeSelf=False, sort=False):
         #sort was True by default, but never used.
@@ -281,7 +281,7 @@ class Deck(DictAugmentedDyn):
         did -- the id of the deck we consider
         """
         # get ancestors names
-        return [deck.getId() for deck in self.getDescendants(includeSelf=includeSelf, sort=sort)]
+        return [deck.getId() for deck in self.getDescendants(includeSelf=includeSelf)]
 
     ## Tests:
     def isParentOf(self, other):
