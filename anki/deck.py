@@ -1,3 +1,4 @@
+import bisect
 import copy
 
 from anki.consts import *
@@ -10,9 +11,23 @@ from anki.utils import DictAugmentedDyn, ids2str, intTime
 
 
 class Deck(DictAugmentedDyn):
-    def __init__(self, manager, dict, parent):
+    """
+
+    childrenBaseNames -- the ordered list of base names
+    childrenDict -- dict from base name to children
+    parent -- parent deck. For top level, it's the set of toplevel elements. For this set, it's None.
+    """
+    def __init__(self, manager, dict, parent, exporting=False):
         self.parent = parent
+        self.childrenBaseNames = []
+        self.childrenDict = {}
+        self.exporting = exporting
         super().__init__(manager, dict)
+        if self.parent is not None:
+            self.parent.addChild(self)
+        else:
+            assert self.exporting or self.isTopLevel()
+            # no need for parent when exporting, since the deck won't be modified
 
     def addInModel(self):
         """Adding or replacing the deck with our id in the manager"""
@@ -52,6 +67,7 @@ class Deck(DictAugmentedDyn):
         cardsToo -- if set to true, delete its card.
         ChildrenToo -- if set to false,
         """
+        assert not self.exporting
         if str(self.getId()) == '1':
             # we won't allow the default deck to be deleted, but if it's a
             # child of an existing deck then it needs to be renamed
@@ -89,6 +105,8 @@ class Deck(DictAugmentedDyn):
                     "select id from cards where did=? or odid=?", self.getId(), self.getId())
                 self.manager.col.remCards(cids)
         # delete the deck and add a grave (it seems no grave is added)
+        if not self.isTopLevel():
+            self.parent.removeChild(self)
         del self.manager.decks[str(self.getId())]
         del self.manager.decksByNames[self.getNormalizedName()]
         # ensure we have an active deck.
@@ -103,6 +121,7 @@ class Deck(DictAugmentedDyn):
         If newName already exists or if it a descendant of a filtered
         deck, the operation is aborted."""
         # ensure we have parents
+        assert not self.exporting
         parent, newName = self.manager._ensureParents(newName)
         # make sure we're not nesting under a filtered deck
         if newName is False:
@@ -110,6 +129,8 @@ class Deck(DictAugmentedDyn):
         # make sure target node doesn't already exist
         if self.manager.byName(newName):
             raise DeckRenameError(_("That deck already exists."))
+        if self.parent is not None:
+            self.parent.removeChild(self)
         # rename children
         oldName = self.getName()
         for child in self.getDescendants(includeSelf=True):
@@ -120,12 +141,15 @@ class Deck(DictAugmentedDyn):
         # ensure we have parents again, as we may have renamed parent->child
         parent, newName = self.manager._ensureParents(newName)
         self.parent = parent
+        if self.parent is not None:
+            self.parent.addChild(self)
         # renaming may have altered active did order
         self.manager.maybeAddToActive()
 
     def renameForDragAndDrop(self, ontoDeckDid):
         """Rename the deck whose id is draggedDeckDid as a children of
         the deck whose id is ontoDeckDid."""
+        assert not self.exporting
         draggedDeckName = self.getName()
         ontoDeck = self.manager.get(ontoDeckDid)
         ontoDeckName = ontoDeck.getName()
@@ -195,10 +219,50 @@ class Deck(DictAugmentedDyn):
     def getNormalizedName(self):
         return self.manager.normalizeName(self.getName())
 
+    def getNormalizedBaseName(self):
+        return self.manager.normalizeName(self.getBaseName())
+
     def getPath(self):
         return self.manager._path(self.getName())
 
-    ## Descendants
+    ## Child
+
+    def getChildren(self):
+        return map(self.childrenDict.get, self.getChildrenNormalizedBaseNames())
+
+    def getChildrenIds(self):
+        return map(operator.itemgetter('id'), self.getChildren())
+
+    def getChildrenNormalizedBaseNames(self):
+        return self.childrenBaseNames
+
+    def addChild(self, child, loading=False):
+        if self.exporting:
+            return
+        childNormalizedBaseName = child.getNormalizedBaseName()
+        if self.isDyn():
+            if loading:
+                child.renameForDragOnto(self.manager.topLevel)
+            else:
+                raise DeckRenameError(_("A filtered deck cannot have subdecks. This action should have not gone so far."))
+        if childNormalizedBaseName in self.childrenDict:
+            if loading:
+                # two decks with the same name?
+                self.manager.col.log("fix duplicate deck name", deck['name'])
+                child.changeBaseName(child.getBaseName + "%d" % intTime(1000))
+            else:
+                raise DeckRenameError(_("We're trying to add twice the same child. This should not have gono so far."))
+        bisect.insort(self.childrenBaseNames, childNormalizedBaseName)
+        self.childrenDict[childNormalizedBaseName] = child
+
+    def removeChild(self, child):
+        # as in example https://docs.python.org/fr/3/library/bisect.html
+        assert not self.exporting
+        baseName = child.getNormalizedBaseName()
+        i = bisect.bisect_left(self.childrenBaseNames, baseName)
+        if i != len(self.childrenBaseNames) and self.childrenBaseNames[i] == baseName:
+            self.childrenBaseNames.pop(i)
+        del self.childrenDict[baseName]
 
     def getDescendants(self, includeSelf=False, sort=False):
         name = self.getName()

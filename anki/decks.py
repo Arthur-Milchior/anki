@@ -311,7 +311,9 @@ class DeckManager:
             # useful mostly in tests where decks are given directly as dic
             parentName = self.parentName(name)
             parent = self.byName(parentName, create=True) if parentName else None
-            deck = Deck(self, copy.deepcopy(deckToCopy), parent)
+            deckCopied = copy.deepcopy(deckToCopy)
+            deckCopied['name'] = name # useful because name is used in deck creation
+            deck = Deck(self, deckCopied, parent)
             deck.cleanCopy(name)
             return deck
         else:
