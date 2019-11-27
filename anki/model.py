@@ -4,6 +4,7 @@ import time
 
 from anki.consts import *
 from anki.fields import Field
+from anki.lang import _
 from anki.templates import Template
 from anki.utils import (DictAugmentedIdUsn, checksum, ids2str, intTime,
                         joinFields, splitFields)
@@ -123,6 +124,15 @@ select id from cards where nid in (select id from notes where mid = ?)""",
                 image = copy.deepcopy(self[key])
             dict[key] = image
         return self.__class__(self.manager, dict=dict)
+
+    def copy_(self):
+        "A copy of model, already in the collection."
+        # copy_ instead of copy; because it seems to override
+        # dictionnary's copy method, which seems to be used somewhere
+        m2 = self.deepcopy()
+        m2['name'] = _("%s copy") % m2.getName()
+        self.manager.add(m2)
+        return m2
 
     def useCount(self):
         """Number of note using the model model.

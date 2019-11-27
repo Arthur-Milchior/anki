@@ -226,16 +226,6 @@ class ModelManager:
         """The list of id of models"""
         return list(self.models.keys())
 
-    # Copying
-    ##################################################
-
-    def copy(self, model):
-        "A copy of model, already in the collection."
-        m2 = model.deepcopy()
-        m2['name'] = _("%s copy") % m2.getName()
-        self.add(m2)
-        return m2
-
     # Fields
     ##################################################
 

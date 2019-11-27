@@ -226,7 +226,7 @@ class AddModel(QDialog):
             self.model = model(self.col)
         else:
             # add copy to deck
-            self.model = self.mw.col.models.copy(model)
+            self.model = model.copy_()
             self.model.setCurrent()
         QDialog.accept(self)
 

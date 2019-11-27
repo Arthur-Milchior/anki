@@ -24,7 +24,7 @@ def test_modelDelete():
 def test_modelCopy():
     deck = getEmptyCol()
     m = deck.models.current()
-    m2 = deck.models.copy(m)
+    m2 = m.copy_()
     assert m2.getName() == "Basic copy"
     assert m2.getId() != m.getId()
     assert len(m2['flds']) == 2
