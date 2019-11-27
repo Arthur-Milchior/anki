@@ -24,3 +24,19 @@ class Field(DictAugmentedInModel):
     def new(self, manager, name):
         """A new field, similar to the default one, whose name is name."""
         super().new(manager, name, defaultField)
+
+    def add(self):
+        """Append the field field as last element of the model model.
+        todo
+        Keyword arguments
+        """
+        # only mod schema if model isn't new
+        if self.model['id']:
+            self.model.manager.col.modSchema(check=True)
+        self.model['flds'].append(self)
+        self.model._updateFieldOrds()
+        self.model.save()
+        def add(fieldsContents):
+            fieldsContents.append("")
+            return fieldsContents
+        self.model._transformFields(add)

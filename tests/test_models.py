@@ -49,7 +49,7 @@ def test_fields():
     h = m.scmhash()
     # add a field
     f = m.newField("foo")
-    d.models.addField(m, f)
+    f.add()
     assert d.getNote(m.nids()[0]).fields == ["1", "2", ""]
     assert m.scmhash() != h
     # rename it
@@ -66,7 +66,7 @@ def test_fields():
     assert d.getNote(m.nids()[0]).fields == ["1", ""]
     # add another and put in middle
     f = m.newField("baz")
-    d.models.addField(m, f)
+    f.add()
     f = d.getNote(m.nids()[0])
     f['baz'] = "2"
     f.flush()

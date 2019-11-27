@@ -216,26 +216,6 @@ class ModelManager:
     # Fields
     ##################################################
 
-    def addField(self, model, fieldType):
-        """Append the field field as last element of the model model.
-
-        todo
-
-        Keyword arguments
-        model -- a model
-        field -- a field object
-        """
-        # only mod schema if model isn't new
-        if model.getId():
-            self.col.modSchema(check=True)
-        model['flds'].append(fieldType)
-        model._updateFieldOrds()
-        model.save()
-        def add(fieldsContents):
-            fieldsContents.append("")
-            return fieldsContents
-        model._transformFields(add)
-
     def remField(self, model, fieldTypeToRemove):
         """Remove a field from a model.
         Also remove it from each note of this model
