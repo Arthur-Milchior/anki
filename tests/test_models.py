@@ -44,7 +44,7 @@ def test_fields():
     d.addNote(f)
     m = d.models.current()
     # make sure renaming a field updates the templates
-    d.models.renameField(m, m['flds'][0], "NewFront")
+    m['flds'][0].rename("NewFront")
     assert "{{NewFront}}" in m['tmpls'][0]['qfmt']
     h = m.scmhash()
     # add a field
@@ -53,7 +53,7 @@ def test_fields():
     assert d.getNote(m.nids()[0]).fields == ["1", "2", ""]
     assert m.scmhash() != h
     # rename it
-    d.models.renameField(m, f, "bar")
+    f.rename("bar")
     assert d.getNote(m.nids()[0])['bar'] == ''
     # delete back
     d.models.remField(m, m['flds'][1])
