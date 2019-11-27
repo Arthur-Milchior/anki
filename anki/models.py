@@ -165,7 +165,7 @@ class ModelManager:
         if model and model.getId():
             model['mod'] = intTime()
             model['usn'] = self.col.usn()
-            self._updateRequired(model)
+            model._updateRequired()
             if templates:
                 model._syncTemplates()
         self.changed = True
@@ -713,18 +713,6 @@ select id from notes where mid = ?)""" % " ".join(map),
 
     # Required field/text cache
     ##########################################################################
-
-    def _updateRequired(self, model):
-        """Entirely recompute the model's req value"""
-        if model['type'] == MODEL_CLOZE:
-            # nothing to do
-            return
-        req = []
-        flds = [fieldType.getName() for fieldType in model['flds']]
-        for template in model['tmpls']:
-            ret = template._req(flds)
-            req.append((template['ord'], ret[0], ret[1]))
-        model['req'] = req
 
     def _reqForTemplate(self, model, flds, template):
         """A rule which is supposed to determine whether a card should be
