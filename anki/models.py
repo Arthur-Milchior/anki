@@ -79,19 +79,6 @@ qfmt -- "question format string"
 # - careful not to add any lists/dicts/etc here, as they aren't deep copied
 
 
-defaultTemplate = {
-    'name': "",
-    'ord': None,
-    'qfmt': "",
-    'afmt': "",
-    'did': None,
-    'bqfmt': "",
-    'bafmt': "",
-    # we don't define these so that we pick up system font size until set
-    #'bfont': "Arial",
-    #'bsize': 12,
-}
-
 class ModelManager:
 
     """This object is usually denoted mm as a variable. Or .models in
@@ -214,18 +201,6 @@ class ModelManager:
 
     # Templates
     ##################################################
-
-    def newTemplate(self, model, name):
-        """A new template, whose content is the one of
-        defaultTemplate, and name is name.
-
-        It's used in order to import mnemosyn, and create the standard
-        model during anki's first initialization. It's not used in day to day anki.
-        """
-        template = defaultTemplate.copy()
-        template = Template(model, template)
-        template.setName(name)
-        return template
 
     def addTemplate(self, model, template):
         """Add a new template in model, as last element. This template is a copy

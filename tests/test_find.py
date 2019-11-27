@@ -42,7 +42,7 @@ def test_findCards():
     deck.addNote(f)
     catCard = f.cards()[0]
     m = deck.models.current(); mm = deck.models
-    t = mm.newTemplate(m, "Reverse")
+    t = m.newTemplate("Reverse")
     t['qfmt'] = "{{Back}}"
     t['afmt'] = "{{Front}}"
     mm.addTemplate(m, t)

@@ -140,7 +140,7 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""):
         model = addBasicModel(self.col)
         model.setName("Mnemosyne-FrontBack")
         mm = self.col.models
-        template = mm.newTemplate(model, "Back")
+        template = model.newTemplate("Back")
         template['qfmt'] = "{{Back}}"
         template['afmt'] = template['qfmt'] + "\n\n<hr id=answer>\n\n{{Front}}"
         mm.addTemplate(model, template)
@@ -152,12 +152,12 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""):
         for fieldName in "Expression", "Pronunciation", "Meaning", "Notes":
             fm = model.newField(fieldName)
             fm.add()
-        template = mm.newTemplate(model, "Recognition")
+        template = model.newTemplate("Recognition")
         template['qfmt'] = "{{Expression}}"
         template['afmt'] = template['qfmt'] + """\n\n<hr id=answer>\n\n\
 {{Pronunciation}}<br>\n{{Meaning}}<br>\n{{Notes}}"""
         mm.addTemplate(model, template)
-        template = mm.newTemplate(model, "Production")
+        template = model.newTemplate("Production")
         template['qfmt'] = "{{Meaning}}"
         template['afmt'] = template['qfmt'] + """\n\n<hr id=answer>\n\n\
 {{Expression}}<br>\n{{Pronunciation}}<br>\n{{Notes}}"""

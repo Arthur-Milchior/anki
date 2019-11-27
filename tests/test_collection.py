@@ -49,7 +49,7 @@ def test_noteAddDelete():
     assert n == 1
     # test multiple cards - add another template
     m = deck.models.current(); mm = deck.models
-    t = mm.newTemplate(m, "Reverse")
+    t = m.newTemplate("Reverse")
     t['qfmt'] = "{{Back}}"
     t['afmt'] = "{{Front}}"
     mm.addTemplate(m, t)

@@ -5,7 +5,7 @@ import time
 from anki.consts import *
 from anki.fields import Field
 from anki.lang import _
-from anki.templates import Template
+from anki.templates import Template, defaultTemplate
 from anki.utils import (DictAugmentedIdUsn, checksum, ids2str, intTime,
                         joinFields, splitFields)
 
@@ -199,6 +199,18 @@ select id from cards where nid in (select id from notes where mid = ?)""",
 
     # Templates
     ##################################################
+
+    def newTemplate(self, name):
+        """A new template, whose content is the one of
+        defaultTemplate, and name is name.
+
+        It's used in order to import mnemosyn, and create the standard
+        model during anki's first initialization. It's not used in day to day anki.
+        """
+        template = defaultTemplate.copy()
+        template = Template(self, template)
+        template.setName(name)
+        return template
 
     def _updateTemplOrds(self):
         """Change the value of 'ord' in each template of this model to reflect its new position"""

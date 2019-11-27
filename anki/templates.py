@@ -1,5 +1,17 @@
 from anki.utils import DictAugmentedInModel, joinFields
 
+defaultTemplate = {
+    'name': "",
+    'ord': None,
+    'qfmt': "",
+    'afmt': "",
+    'did': None,
+    'bqfmt': "",
+    'bafmt': "",
+    # we don't define these so that we pick up system font size until set
+    #'bfont': "Arial",
+    #'bsize': 12,
+}
 
 class Template(DictAugmentedInModel):
     """Templates are not necessarily in the model. If they are not, method add
