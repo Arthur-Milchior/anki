@@ -230,6 +230,10 @@ class Deck(DictAugmentedDyn):
     def getChildren(self):
         return map(self.childrenDict.get, self.getChildrenNormalizedBaseNames())
 
+    def getChild(self, name):
+        name = self.manager.normalizeName(name)
+        return self.childrenDict.get(name)
+
     def getChildrenIds(self):
         return map(operator.itemgetter('id'), self.getChildren())
 
