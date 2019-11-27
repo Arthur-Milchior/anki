@@ -722,7 +722,7 @@ select id from notes where mid = ?)""" % " ".join(map),
         req = []
         flds = [fieldType.getName() for fieldType in model['flds']]
         for template in model['tmpls']:
-            ret = self._reqForTemplate(model, flds, template)
+            ret = template._req(flds)
             req.append((template['ord'], ret[0], ret[1]))
         model['req'] = req
 
