@@ -92,10 +92,8 @@ def test_rename():
     for n in "yo", "yo::two", "yo::two::three":
         assert n in d.decks.allNames()
     # over filtered
-    filteredId = d.decks.newDyn("filtered")
-    filtered = d.decks.get(filteredId)
-    childId = d.decks.id("child")
-    child = d.decks.get(childId)
+    filtered = d.decks.newDyn("filtered")
+    child = d.decks.byName("child", create=True)
     assertException(DeckRenameError, lambda: d.decks.rename(child, "filtered::child"))
     assertException(DeckRenameError, lambda: d.decks.rename(child, "FILTERED::child"))
     # changing case

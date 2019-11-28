@@ -692,9 +692,9 @@ same id."""
 
     def newDyn(self, name):
         "Return a new dynamic deck and set it as the current deck."
-        did = self.id(name, deckToCopy=defaultDynamicDeck)
-        self.get(did).select()
-        return did
+        deck = self.byName(name, create=True, deckToCopy=defaultDynamicDeck)
+        deck.select()
+        return deck
 
     @staticmethod
     def normalizeName(name):

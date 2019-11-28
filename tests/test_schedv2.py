@@ -641,7 +641,7 @@ def test_suspend():
     # should cope with cards in cram decks
     c.due = 1
     c.flush()
-    cram = d.decks.newDyn("tmp")
+    d.decks.newDyn("tmp")
     d.sched.rebuildDyn()
     c.load()
     assert c.due != 1
@@ -669,7 +669,8 @@ def test_filt_reviewing_early_normal():
     d.reset()
     assert d.sched.counts() == (0,0,0)
     # create a dynamic deck and refresh it
-    did = d.decks.newDyn("Cram")
+    deck = d.decks.newDyn("Cram")
+    did = deck.getId()
     d.sched.rebuildDyn(did)
     d.reset()
     # should appear as normal in the deck list
@@ -732,7 +733,8 @@ def test_filt_keep_lrn_state():
     assert c.queue == QUEUE_LRN
 
     # create a dynamic deck and refresh it
-    did = d.decks.newDyn("Cram")
+    deck = d.decks.newDyn("Cram")
+    did = deck.getId()
     d.sched.rebuildDyn(did)
     d.reset()
 
@@ -767,7 +769,8 @@ def test_preview():
     f2['Front'] = "two"
     d.addNote(f2)
     # cram deck
-    did = d.decks.newDyn("Cram")
+    deck = d.decks.newDyn("Cram")
+    did = deck.getId()
     cram = d.decks.get(did)
     cram['resched'] = False
     d.sched.rebuildDyn(did)
@@ -1206,7 +1209,8 @@ def test_negativeDueFilter():
     c.flush()
 
     # into and out of filtered deck
-    did = d.decks.newDyn("Cram")
+    deck = d.decks.newDyn("Cram")
+    did = deck.getId()
     d.sched.rebuildDyn(did)
     d.sched.emptyDyn(did)
     d.reset()

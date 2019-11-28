@@ -538,7 +538,7 @@ def test_suspend():
     # should cope with cards in cram decks
     c.due = 1
     c.flush()
-    cram = d.decks.newDyn("tmp")
+    d.decks.newDyn("tmp")
     d.sched.rebuildDyn()
     c.load()
     assert c.due != 1
@@ -566,8 +566,9 @@ def test_cram():
     assert d.sched.counts() == (0,0,0)
     cardcopy = copy.copy(c)
     # create a dynamic deck and refresh it
-    did = d.decks.newDyn("Cram")
-    d.sched.rebuildDyn(did)
+    cram = d.decks.newDyn("Cram")
+    did = cram.getId()
+    d.sched.rebuildDyn(cram.getId())
     d.reset()
     # should appear as new in the deck list
     assert sorted(d.sched.deckDueList())[0][4] == 1
@@ -642,7 +643,8 @@ def test_cram():
     d.reset()
     assert d.sched.counts() == (0,0,1)
     # cram again
-    did = d.decks.newDyn("Cram")
+    deck = d.decks.newDyn("Cram")
+    did = deck.getId()
     d.sched.rebuildDyn(did)
     d.reset()
     assert d.sched.counts() == (0,0,1)
@@ -669,7 +671,8 @@ def test_cram_rem():
     f['Front'] = "one"
     d.addNote(f)
     oldDue = f.cards()[0].due
-    did = d.decks.newDyn("Cram")
+    deck = d.decks.newDyn("Cram")
+    did = deck.getId()
     d.sched.rebuildDyn(did)
     d.reset()
     c = d.sched.getCard()
@@ -692,7 +695,8 @@ def test_cram_resched():
     f['Front'] = "one"
     d.addNote(f)
     # cram deck
-    did = d.decks.newDyn("Cram")
+    deck = d.decks.newDyn("Cram")
+    did = deck.getId()
     cram = d.decks.get(did)
     cram['resched'] = False
     d.sched.rebuildDyn(did)

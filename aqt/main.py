@@ -1003,11 +1003,11 @@ QTreeWidget {
         while _("Filtered Deck %d") % index in decks:
             index += 1
         name = _("Filtered Deck %d") % index
-        did = self.col.decks.newDyn(name)
+        deck = self.col.decks.newDyn(name)
         diag = aqt.dyndeckconf.DeckConf(self, first=True, search=search)
         if not diag.ok:
             # user cancelled first config
-            self.col.decks.rem(did)
+            self.col.decks.rem(deck.getId())
             deck.select()
 
     # Menu, title bar & status

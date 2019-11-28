@@ -132,8 +132,7 @@ class CustomStudy(QDialog):
                 dyn = cur
                 cur.select()
         else:
-            did = self.mw.col.decks.newDyn(_("Custom Study Session"))
-            dyn = self.mw.col.decks.get(did)
+            dyn = self.mw.col.decks.newDyn(_("Custom Study Session"))
         # and then set various options
         if self.radioIdx == RADIO_FORGOT:
             dyn['terms'][0] = ['rated:%d:1' % spin, DYN_MAX_SIZE, DYN_RANDOM]
