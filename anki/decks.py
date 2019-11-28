@@ -458,19 +458,26 @@ class DeckManager:
         else:
             return True
 
-    def _isParent(self, parentDeckName, childDeckName):
+    def _isParent(self, parentDeckName, childDeckName, normalize=True):
         """Whether childDeckName is a direct child of parentDeckName."""
+        if normalize:
+            parentDeckName = self.normalizeName(parentDeckName)
+            childDeckName = self.normalizeName(childDeckName)
         return self._path(childDeckName) == self._path(parentDeckName) + [ self._basename(childDeckName) ]
 
-    def _isAncestor(self, ancestorDeckName, descendantDeckName):
+    def _isAncestor(self, ancestorDeckName, descendantDeckName, normalize=True):
         """Whether ancestorDeckName is an ancestor of
         descendantDeckName; or itself."""
+        if normalize:
+            ancestorDeckName = self.normalizeName(ancestorDeckName)
+            descendantDeckName = self.normalizeName(descendantDeckName)
         ancestorPath = self._path(ancestorDeckName)
         return ancestorPath == self._path(descendantDeckName)[0:len(ancestorPath)]
 
     def _path(self, name):
         """Given a name, split according to ::"""
         return name.split("::")
+
     def _basename(self, name):
         """The part of name after the last ::"""
         return self._path(name)[-1]
