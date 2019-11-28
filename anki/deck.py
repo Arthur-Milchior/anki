@@ -10,6 +10,10 @@ from anki.utils import DictAugmentedDyn, ids2str, intTime
 
 
 class Deck(DictAugmentedDyn):
+    def __init__(self, manager, dict, parent):
+        self.parent = parent
+        super().__init__(manager, dict)
+
     def addInModel(self):
         """Adding or replacing the deck with our id in the manager"""
         self.manager.decks[str(self.getId())] = self
@@ -115,6 +119,7 @@ class Deck(DictAugmentedDyn):
             child.save()
         # ensure we have parents again, as we may have renamed parent->child
         parent, newName = self.manager._ensureParents(newName)
+        self.parent = parent
         # renaming may have altered active did order
         self.manager.maybeAddToActive()
 
