@@ -791,22 +791,6 @@ same id."""
             ancestorsNames[index] = deck
         return ancestorsNames
 
-    def parentsByName(self, name):
-        "All existing parents of name"
-        if "::" not in name:
-            return []
-        names = name.split("::")[:-1]
-        head = []
-        ancestorsNames = []
-
-        while names:
-            head.append(names.pop(0))
-            deck = self.byName("::".join(head))
-            if deck:
-                ancestorsNames.append(deck)
-
-        return ancestorsNames
-
     def nameMap(self):
         """
         Dictionnary from deck name to deck object.

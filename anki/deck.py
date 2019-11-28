@@ -21,6 +21,17 @@ class Deck(DictAugmentedDyn):
     def getParent(self):
         return self.manager.byName(self.getParentName())
 
+    def getAncestorsNames(self, includeSelf=False):
+        l = []
+        lastName = ""
+        path = self._path()
+        if not includeSelf:
+            path = path[:-1]
+        for part in path:
+            lastName += "::" + part
+            l.append(lastName)
+        return l
+
     def getBaseName(self):
         return self.manager._basename(self.getName())
 
