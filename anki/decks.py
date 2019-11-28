@@ -403,13 +403,12 @@ class DeckManager:
         deck, the operation is aborted."""
         # ensure we have parents
         newName = self._ensureParents(newName)
+        # make sure we're not nesting under a filtered deck
+        if newName is False:
+            raise DeckRenameError(_("A filtered deck cannot have subdecks."))
         # make sure target node doesn't already exist
         if self.byName(newName):
             raise DeckRenameError(_("That deck already exists."))
-        # make sure we're not nesting under a filtered deck
-        for ancestor in self.parentsByName(newName):
-            if ancestor.isDyn():
-                raise DeckRenameError(_("A filtered deck cannot have subdecks."))
         # rename children
         oldName = deck.getName()
         for child in self.childrenDecks(deck.getId(), includeSelf=True):
@@ -492,6 +491,7 @@ class DeckManager:
         """Ensure parents exist, and return name with case matching parents.
 
         Parents are created if they do not already exists.
+        If a dynamic deck is found, return false
         """
         ancestorName = ""
         path = self._path(name)
@@ -504,6 +504,8 @@ class DeckManager:
                 ancestorName += "::" + pathPiece
             # fetch or create
             did = self.id(ancestorName)
+            if self.get(did).isDyn():
+                return False
             # get original case
             ancestorName = self.name(did)
         name = ancestorName + "::" + path[-1]
