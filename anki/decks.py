@@ -254,8 +254,6 @@ class DeckManager:
         not exists. Default true, otherwise return None
         deckToCopy -- A deck to copy in order to create this deck
         """
-        if deckToCopy is None:
-            deckToCopy = defaultDeck
         name = name.replace('"', '')
         name = unicodedata.normalize("NFC", name)
         deck = self.byName(name)
@@ -263,15 +261,17 @@ class DeckManager:
             return int(deck["id"])
         if not create:
             return None
-        deck = copy.deepcopy(deckToCopy)
         if "::" in name:
             # not top level; ensure all parents exist
             name = self._ensureParents(name)
-        deck['name'] = name
         while 1:
             id = intTime(1000)
             if str(id) not in self.decks:
                 break
+        if deckToCopy is None:
+            deckToCopy = defaultDeck
+        deck = copy.deepcopy(deckToCopy)
+        deck['name'] = name
         deck['id'] = id
         self.decks[str(id)] = deck
         self.save(deck)
