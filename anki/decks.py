@@ -165,11 +165,17 @@ class DeckManager:
         dconf -- json dic associating to each id (as string) its configuration(option)
         """
         self.changed = False
+        self.loadDeck(decks)
+        self.loadConf(dconf)
+
+    def loadDeck(self, decks):
         self.decks = {}
         self.decksByNames = {}
         for deck in json.loads(decks).values():
             deck = Deck(self, deck)
             deck.addInModel()
+
+    def loadConf(self, dconf):
         self.dconf = {}
         for dconf in json.loads(dconf).values():
             dconf = DConf(self, dconf)
