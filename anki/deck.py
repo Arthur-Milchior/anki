@@ -118,6 +118,42 @@ class Deck(DictAugmentedDyn):
         # renaming may have altered active did order
         self.manager.maybeAddToActive()
 
+    def renameForDragAndDrop(self, ontoDeckDid):
+        """Rename the deck whose id is draggedDeckDid as a children of
+        the deck whose id is ontoDeckDid."""
+        draggedDeckName = self.getName()
+        ontoDeck = self.manager.get(ontoDeckDid)
+        ontoDeckName = ontoDeck.getName()
+
+        if ontoDeckDid is None or ontoDeckDid == '':
+            #if the deck is dragged to toplevel
+            if not self.isTopLevel():
+                #And is not already at top level
+                self.rename(self.manager._basename(draggedDeckName))
+        elif self._canDragAndDrop(ontoDeck):
+            #The following three lines seems to be useless, as they
+            #repeat lines above
+            draggedDeckName = self.getName()
+            ontoDeckName = self.manager.get(ontoDeckDid).getName()
+            assert ontoDeckName.strip()
+            self.rename(ontoDeckName + "::" + self.manager._basename(draggedDeckName))
+
+    def _canDragAndDrop(self, ontoDeck):
+        """Whether draggedDeckName can be moved as a children of
+        ontoDeckName.
+
+        draggedDeckName should not be dragged onto a descendant of
+        itself (nor itself).
+        It should not either be dragged to its parent because the
+        action would be useless.
+        """
+        if self == ontoDeck \
+            or ontoDeck.isParentOf(self) \
+            or self.isAncestorOf(ontoDeck):
+            return False
+        else:
+            return True
+
     # Name family
     #############################################################
 

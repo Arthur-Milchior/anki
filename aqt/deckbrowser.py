@@ -301,7 +301,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
 
     def _dragDeckOnto(self, draggedDeckDid, ontoDeckDid):
         try:
-            self.mw.col.decks.renameForDragAndDrop(draggedDeckDid, ontoDeckDid)
+            self.mw.col.decks.get(draggedDeckDid).renameForDragAndDrop(ontoDeckDid)
         except DeckRenameError as e:
             return showWarning(e.description)
 

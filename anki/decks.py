@@ -351,44 +351,6 @@ class DeckManager:
         # mark registry changed, but don't bump mod time
         self.save()
 
-    def renameForDragAndDrop(self, draggedDeckDid, ontoDeckDid):
-        """Rename the deck whose id is draggedDeckDid as a children of
-        the deck whose id is ontoDeckDid."""
-        draggedDeck = self.get(draggedDeckDid)
-        draggedDeckName = draggedDeck.getName()
-        ontoDeck = self.get(ontoDeckDid)
-        ontoDeckName = ontoDeck.getName()
-
-        if ontoDeckDid is None or ontoDeckDid == '':
-            #if the deck is dragged to toplevel
-            if not draggedDeck.isTopLevel():
-                #And is not already at top level
-                draggedDeck.rename(self._basename(draggedDeckName))
-        elif self._canDragAndDrop(draggedDeck, ontoDeck):
-            #The following three lines seems to be useless, as they
-            #repeat lines above
-            draggedDeck = self.get(draggedDeckDid)
-            draggedDeckName = draggedDeck.getName()
-            ontoDeckName = self.get(ontoDeckDid).getName()
-            assert ontoDeckName.strip()
-            draggedDeck.rename(ontoDeckName + "::" + self._basename(draggedDeckName))
-
-    def _canDragAndDrop(self, draggedDeck, ontoDeck):
-        """Whether draggedDeckName can be moved as a children of
-        ontoDeckName.
-
-        draggedDeckName should not be dragged onto a descendant of
-        itself (nor itself).
-        It should not either be dragged to its parent because the
-        action would be useless.
-        """
-        if draggedDeck == ontoDeck \
-            or ontoDeck.isParentOf(draggedDeck) \
-            or draggedDeck.isAncestorOf(ontoDeck):
-            return False
-        else:
-            return True
-
     def _isParent(self, parentDeckName, childDeckName, normalize=True):
         """Whether childDeckName is a direct child of parentDeckName."""
         if normalize:
