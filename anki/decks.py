@@ -205,6 +205,7 @@ class DeckManager:
         """
         self.changed = False
         self.decks = {}
+        self.decksByNames = {}
         for deck in json.loads(decks).values():
             deck = Deck(self, deck)
             deck.addInModel()
@@ -302,6 +303,7 @@ class DeckManager:
                 self.col.remCards(cids)
         # delete the deck and add a grave (it seems no grave is added)
         del self.decks[str(did)]
+        del self.decksByNames[deck.getNormalizedName()]
         # ensure we have an active deck.
         if did in self.active():
             self.get(int(list(self.decks.keys())[0])).select()
@@ -364,9 +366,10 @@ class DeckManager:
         """
         name = name.replace('"', '')
         name = unicodedata.normalize("NFC", name)
-        for deck in list(self.decks.values()):
-            if self.equalName(deck.getName(), name):
-                return deck
+        normalized = self.normalizeName(name)
+        if normalized in self.decksByNames:
+            return self.decksByNames[normalized]
+
         if create is False:
             return None
         if deckToCopy is None:
@@ -404,7 +407,9 @@ class DeckManager:
         # rename children
         oldName = deck.getName()
         for child in deck.getDescendants(includeSelf=True):
+            del self.decksByNames[child.getNormalizedName()]
             child.setName(child.getName().replace(oldName, newName, 1))
+            child.addInModel()
             child.save()
         # ensure we have parents again, as we may have renamed parent->child
         newName = self._ensureParents(newName)
