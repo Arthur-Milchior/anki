@@ -356,14 +356,15 @@ class DeckManager:
         the deck whose id is ontoDeckDid."""
         draggedDeck = self.get(draggedDeckDid)
         draggedDeckName = draggedDeck.getName()
-        ontoDeckName = self.get(ontoDeckDid).getName()
+        ontoDeck = self.get(ontoDeckDid)
+        ontoDeckName = ontoDeck.getName()
 
         if ontoDeckDid is None or ontoDeckDid == '':
             #if the deck is dragged to toplevel
             if not draggedDeck.isTopLevel():
                 #And is not already at top level
                 draggedDeck.rename(self._basename(draggedDeckName))
-        elif self._canDragAndDrop(draggedDeckName, ontoDeckName):
+        elif self._canDragAndDrop(draggedDeck, ontoDeck):
             #The following three lines seems to be useless, as they
             #repeat lines above
             draggedDeck = self.get(draggedDeckDid)
@@ -372,7 +373,7 @@ class DeckManager:
             assert ontoDeckName.strip()
             draggedDeck.rename(ontoDeckName + "::" + self._basename(draggedDeckName))
 
-    def _canDragAndDrop(self, draggedDeckName, ontoDeckName):
+    def _canDragAndDrop(self, draggedDeck, ontoDeck):
         """Whether draggedDeckName can be moved as a children of
         ontoDeckName.
 
@@ -381,9 +382,9 @@ class DeckManager:
         It should not either be dragged to its parent because the
         action would be useless.
         """
-        if draggedDeckName == ontoDeckName \
-            or self._isParent(ontoDeckName, draggedDeckName) \
-            or self._isAncestor(draggedDeckName, ontoDeckName):
+        if draggedDeck == ontoDeck \
+            or ontoDeck.isParentOf(draggedDeck) \
+            or draggedDeck.isAncestorOf(ontoDeck):
             return False
         else:
             return True
