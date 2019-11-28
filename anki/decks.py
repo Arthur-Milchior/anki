@@ -495,11 +495,11 @@ class DeckManager:
             else:
                 ancestorName += "::" + pathPiece
             # fetch or create
-            did = self.id(ancestorName)
-            if self.get(did).isDyn():
+            deck = self.byName(ancestorName, create=True)
+            if deck.isDyn():
                 return False
             # get original case
-            ancestorName = self.name(did)
+            ancestorName = deck.getName()
         name = ancestorName + "::" + path[-1]
         return name
 

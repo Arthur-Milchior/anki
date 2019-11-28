@@ -11,8 +11,9 @@ def test_basic():
     # it should have an id of 1
     assert deck.decks.name(1)
     # create a new deck
-    parentId = deck.decks.id("new deck")
-    assert parentId
+    parent = deck.decks.byName("new deck", create=True)
+    assert parent
+    parentId = parent.getId()
     assert len(deck.decks.decks) == 2
     # should get the same id
     assert deck.decks.id("new deck") == parentId
@@ -20,16 +21,17 @@ def test_basic():
     assert deck.decks.selected() == 1
     assert deck.decks.active() == [1]
     # we can select a different deck
-    deck.decks.get(parentId).select()
+    parent.select()
     assert deck.decks.selected() == parentId
     assert deck.decks.active() == [parentId]
     # let's create a child
-    childId = deck.decks.id("new deck::child")
+    child = deck.decks.byName("new deck::child", create=True)
+    childId = child.getId()
     # it should have been added to the active list
     assert deck.decks.selected() == parentId
     assert deck.decks.active() == [parentId, childId]
     # we can select the child individually too
-    deck.decks.get(childId).select()
+    child.select()
     assert deck.decks.selected() == childId
     assert deck.decks.active() == [childId]
     # parents with a different case should be handled correctly
@@ -71,22 +73,22 @@ def test_remove():
 
 def test_rename():
     d = getEmptyCol()
-    id = d.decks.id("hello::world")
+    deck = d.decks.byName("hello::world", create=True)
     # should be able to rename into a completely different branch, creating
     # parents as necessary
-    d.decks.rename(d.decks.get(id), "foo::bar")
+    d.decks.rename(deck, "foo::bar")
     assert "foo" in d.decks.allNames()
     assert "foo::bar" in d.decks.allNames()
     assert "hello::world" not in d.decks.allNames()
     # create another deck
-    id = d.decks.id("tmp")
+    deck = d.decks.id("tmp", create=True)
     # we can't rename it if it conflicts
     assertException(
-        Exception, lambda: d.decks.rename(d.decks.get(id), "foo"))
+        Exception, lambda: d.decks.rename(deck, "foo"))
     # when renaming, the children should be renamed too
     d.decks.id("one::two::three")
-    id = d.decks.id("one")
-    d.decks.rename(d.decks.get(id), "yo")
+    deck = d.decks.byName("one", create=True)
+    d.decks.rename(deck, "yo")
     for n in "yo", "yo::two", "yo::two::three":
         assert n in d.decks.allNames()
     # over filtered
@@ -97,7 +99,7 @@ def test_rename():
     assertException(DeckRenameError, lambda: d.decks.rename(child, "filtered::child"))
     assertException(DeckRenameError, lambda: d.decks.rename(child, "FILTERED::child"))
     # changing case
-    parentId = d.decks.id("PARENT")
+    d.decks.id("PARENT")
     d.decks.id("PARENT::CHILD")
     assertException(DeckRenameError, lambda: d.decks.rename(child, "PARENT::CHILD"))
     assertException(DeckRenameError, lambda: d.decks.rename(child, "PARENT::child"))
@@ -110,9 +112,12 @@ def test_renameForDragAndDrop():
     def deckNames():
         return [ name for name in sorted(d.decks.allNames()) if name != 'Default' ]
 
-    languages_did = d.decks.id('Languages')
-    chinese_did = d.decks.id('Chinese')
-    hsk_did = d.decks.id('Chinese::HSK')
+    languages = d.decks.byName('Languages', create=True)
+    languages_did = languages.getId()
+    chinese = d.decks.byName('Chinese', create=True)
+    chinese_did = chinese.getId()
+    hsk = d.decks.byName('Chinese::HSK', create=True)
+    hsk_did = hsk.getId()
 
     # Renaming also renames children
     d.decks.renameForDragAndDrop(chinese_did, languages_did)
@@ -147,12 +152,14 @@ def test_renameForDragAndDrop():
     assert deckNames() == [ 'Chinese', 'Chinese::HSK', 'Languages' ]
 
     # can't drack a deck where sibling have same name
-    new_hsk_did = d.decks.id("HSK")
+    new_hsk = d.decks.byName("HSK", create=True)
+    new_hsk_did = new_hsk.getId()
     assertException(DeckRenameError, lambda: d.decks.renameForDragAndDrop(new_hsk_did, chinese_did))
     d.decks.rem(new_hsk_did)
 
     # can't drack a deck where sibling have same name different case
-    new_hsk_did = d.decks.id("hsk")
+    new_hsk = d.decks.byName("hsk", create=True)
+    new_hsk_did = new_hsk.getId()
     assertException(DeckRenameError, lambda: d.decks.renameForDragAndDrop(new_hsk_did, chinese_did))
     d.decks.rem(new_hsk_did)
 
@@ -163,9 +170,9 @@ def test_renameForDragAndDrop():
 def test_check():
     d = getEmptyCol()
 
-    foo_did = d.decks.id("foo")
-    FOO_did = d.decks.id("bar")
-    FOO = d.decks.byName("bar")
+    d.decks.id("foo")
+    d.decks.id("bar")
+    FOO = d.decks.byName("bar", create=True)
     FOO["name"] = "FOO"
     FOO.save()
     d.decks._checkDeckTree()

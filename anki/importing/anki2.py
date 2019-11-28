@@ -59,8 +59,8 @@ class Anki2Importer(Importer):
     def _import(self):
         self._decks = {}
         if self.deckPrefix:
-            id = self.dst.decks.id(self.deckPrefix)
-            self.dst.decks.get(id).select()
+            deck = self.dst.decks.byName(self.deckPrefix, create=True)
+            deck.select()
         self._prepareTS()
         self._prepareModels()
         self._importNotes()
@@ -296,17 +296,16 @@ class Anki2Importer(Importer):
         if localDeck and localDeck.isDyn():
             name = "%s %d" % (name, intTime())
         # create in local
-        newid = self.dst.decks.id(name)
+        localDeck = self.dst.decks.byName(name, create=True)
+        newid = localDeck.getId()
         # pull conf over
         if 'conf' in importedDeck and not importedDeck.isDefaultConf():
             conf = importedDeck.getConf()
             conf.save()
             self.dst.decks.updateConf(conf)
-            localDeck = self.dst.decks.get(newid)
             localDeck.setConf(importedDeck.getConfId())
             localDeck.save()
         # save desc
-        localDeck = self.dst.decks.get(newid)
         localDeck['desc'] = importedDeck['desc']
         localDeck.save()
         # add to deck map and return

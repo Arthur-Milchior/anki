@@ -450,24 +450,24 @@ class Finder:
         # deck types
         elif val == "filtered":
             return "card.odid"
-        def dids(did):
-            if not did:
+        def dids(deck):
+            if not deck:
                 return None
-            return self.col.decks.get(did).getDescendantsIds(includeSelf=True)
+            return deck.getDescendantsIds(includeSelf=True)
         # current deck?
         ids = None
         if val.lower() == "current":
-            ids = dids(self.col.decks.current().getId())
+            ids = dids(self.col.decks.current())
         elif "*" not in val:
             # single deck
-            ids = dids(self.col.decks.id(val, create=False))
+            ids = dids(self.col.decks.byName(val))
         else:
             # wildcard
             ids = set()
             val = re.escape(val).replace(r"\*", ".*")
             for deck in self.col.decks.all():
                 if re.match("(?i)"+val, unicodedata.normalize("NFC", deck.getName())):
-                    ids.update(dids(deck.getId()))
+                    ids.update(dids(deck))
         if not ids:
             return
         sids = ids2str(ids)

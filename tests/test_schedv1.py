@@ -70,12 +70,12 @@ def test_new():
 def test_newLimits():
     d = getEmptyCol()
     # add some notes
-    g2 = d.decks.id("Default::foo")
+    g2 = d.decks.byName("Default::foo", create=True)
     for i in range(30):
         f = d.newNote()
         f['Front'] = str(i)
         if i > 4:
-            f.model()['did'] = g2
+            f.model()['did'] = g2.getId()
         d.addNote(f)
     # give the child deck a different configuration
     c2 = d.decks.confId("new conf")
@@ -92,7 +92,7 @@ def test_newLimits():
     d.reset()
     assert d.sched.newCount == 10
     # if we limit child to 4, we should get 9
-    conf2 = d.decks.get(g2).getConf()
+    conf2 = g2.getConf()
     conf2['new']['perDay'] = 4
     d.reset()
     assert d.sched.newCount == 9
@@ -997,12 +997,12 @@ def test_deckFlow():
     # and one that's a child
     f = d.newNote()
     f['Front'] = "two"
-    default1 = f.model()['did'] = d.decks.id("Default::2")
+    f.model()['did'] = d.decks.id("Default::2")
     d.addNote(f)
     # and another that's higher up
     f = d.newNote()
     f['Front'] = "three"
-    default1 = f.model()['did'] = d.decks.id("Default::1")
+    f.model()['did'] = d.decks.id("Default::1")
     d.addNote(f)
     # should get top level one first, then ::1, then ::2
     d.reset()

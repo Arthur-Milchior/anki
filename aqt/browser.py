@@ -1715,8 +1715,8 @@ where id in %s""" % ids2str(sn))
             title=_("Change Deck"), help="browse", parent=self)
         if not ret.name:
             return
-        did = self.col.decks.id(ret.name)
-        deck = self.col.decks.get(did)
+        deck = self.col.decks.byName(ret.name, create=True)
+        did = deck.getId()
         if deck.isDyn():
             showWarning(_("Cards can't be manually moved into a filtered deck."))
             return

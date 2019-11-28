@@ -73,16 +73,16 @@ def test_new():
 def test_newLimits():
     d = getEmptyCol()
     # add some notes
-    g2 = d.decks.id("Default::foo")
+    g2 = d.decks.byName("Default::foo", create=True)
     for i in range(30):
         f = d.newNote()
         f['Front'] = str(i)
         if i > 4:
-            f.model()['did'] = g2
+            f.model()['did'] = g2.getId()
         d.addNote(f)
     # give the child deck a different configuration
     c2 = d.decks.confId("new conf")
-    d.decks.get(g2).setConf(c2)
+    g2.setConf(c2)
     d.reset()
     # both confs have defaulted to a limit of 20
     assert d.sched.newCount == 20
@@ -95,7 +95,7 @@ def test_newLimits():
     d.reset()
     assert d.sched.newCount == 10
     # if we limit child to 4, we should get 9
-    conf2 = d.decks.get(g2).getConf()
+    conf2 = g2.getConf()
     conf2['new']['perDay'] = 4
     d.reset()
     assert d.sched.newCount == 9
@@ -375,8 +375,8 @@ def test_reviews():
 def test_review_limits():
     d = getEmptyCol()
 
-    parent = d.decks.get(d.decks.id("parent"))
-    child = d.decks.get(d.decks.id("parent::child"))
+    parent = d.decks.byName("parent", create=True)
+    child = d.decks.byName("parent::child", create=True)
 
     pconf = d.decks.getConf(d.decks.confId("parentConf"))
     cconf = d.decks.getConf(d.decks.confId("childConf"))

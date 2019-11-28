@@ -1265,7 +1265,7 @@ will be lost. Continue?"""))
         ret = StudyDeck(
             self, dyn=True, current=self.col.decks.current().getName())
         if ret.name:
-            self.col.decks.get(self.col.decks.id(ret.name)).select()
+            self.col.decks.byName(ret.name, create=True).select()
             self.moveToState("overview")
 
     def onEmptyCards(self):

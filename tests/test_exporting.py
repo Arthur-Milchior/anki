@@ -31,8 +31,7 @@ def setup1():
 @nose.with_setup(setup1)
 def test_export_anki():
     # create a new deck with its own conf to test conf copying
-    did = deck.decks.id("test")
-    dobj = deck.decks.get(did)
+    dobj = deck.decks.byName("test", create=True)
     confId = deck.decks.confId("newconf")
     conf = deck.decks.getConf(confId)
     conf['new']['perDay'] = 5
@@ -52,11 +51,10 @@ def test_export_anki():
     d2 = aopen(newname)
     assert d2.cardCount() == 2
     # as scheduling was reset, should also revert decks to default conf
-    did = d2.decks.id("test", create=False)
-    assert did
-    conf2 = d2.decks.get(did).getConf()
+    dobj = d2.decks.byName("test")
+    assert dobj
+    conf2 = dobj.getConf()
     assert conf2['new']['perDay'] == 20
-    dobj = d2.decks.get(did)
     # conf should be 1
     assert dobj.isDefaultConf()
     # try again, limited to a deck
