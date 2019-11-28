@@ -206,7 +206,7 @@ class DeckManager:
         self.decks = {}
         for deck in json.loads(decks).values():
             deck = Deck(self, deck)
-            self.decks[str(deck['id'])] = deck
+            deck.addInModel()
         self.dconf = {}
         for dconf in json.loads(dconf).values():
             dconf = DConf(self, dconf)
@@ -282,7 +282,7 @@ class DeckManager:
             deck = deckToCopy.deepcopy()
         deck['name'] = name
         deck['id'] = id
-        self.decks[str(id)] = deck
+        deck.addInModel()
         self.save(deck)
         self.maybeAddToActive()
         runHook("newDeck")
@@ -417,7 +417,7 @@ class DeckManager:
 
     def update(self, deck):
         "Add or update an existing deck. Used for syncing and merging."
-        self.decks[str(deck['id'])] = deck
+        deck.addInModel()
         self.maybeAddToActive()
         # mark registry changed, but don't bump mod time
         self.save()

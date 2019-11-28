@@ -2,4 +2,6 @@ from anki.utils import DictAugmentedIdUsn
 
 
 class Deck(DictAugmentedIdUsn):
-    pass
+    def addInModel(self):
+        """Adding or replacing the deck with our id in the manager"""
+        self.manager.decks[str(self['id'])] = self
