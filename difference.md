@@ -14,3 +14,7 @@ instead of deleting the note» chage the behavior of anki when he finds
 a note which has no more card. This allow to lose the content of the
 note, and let you correct the note instead to generate cards.
 
+## See review instead of overview.
+Most of the time, I don't care for overview; so going directly to
+review is fine for me.
+

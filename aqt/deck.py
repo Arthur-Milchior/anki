@@ -51,7 +51,7 @@ class Deck(anki.deck.Deck):
 
     def _selDeck(self):
         self.select()
-        self.manager.mw.onOverview()
+        self.manager.mw.onReviewOrOverview()
 
     def _showOptions(self):
         menu = QMenu(self.manager.mw)

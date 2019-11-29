@@ -65,7 +65,7 @@ class Toolbar:
         if self.mw.state == "overview":
             self.mw.onReview()
         else:
-            self.mw.onOverview()
+            self.mw.onReviewOrOverview()
 
     def _addLinkHandler(self):
         self.mw.onAddCard()
