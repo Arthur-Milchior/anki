@@ -126,6 +126,12 @@ select id from cards where nid in (select id from notes where mid = ?)""",
             dict[key] = image
         return self.__class__(self.manager, dict=dict)
 
+    def copyInCol(self, col):
+        m2 = self.deepcopy()
+        m2.manager = col.models
+        m2.manager.update(m2)
+        return m2
+
     def copy_(self):
         "A copy of model, already in the collection."
         # copy_ instead of copy; because it seems to override
