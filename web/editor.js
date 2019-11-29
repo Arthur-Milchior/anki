@@ -268,6 +268,11 @@ function changeSize(fieldNumber){
 	pycmd("toggleLineAlone:"+fieldNumber);
 }
 
+function toggleFroze(fieldNumber){
+	saveNow(true);
+	pycmd("toggleFroze:"+fieldNumber);
+}
+
 function onBlur() {
 	/*Tells python that it must save. Either by key if current field
       is still active. Otherwise by blur.  If current field is not
@@ -376,7 +381,7 @@ function createNameTd(ord, fieldName, fieldSize, nbCol, sticky){
       <input type='button' tabIndex='-1' value='Change size' onClick='changeSize({0})'/>".format(ord);
 	}
 	txt+="\n\
-      <img width='15px' height='15px' title='{0}' src='/_anki/imgs/{1}'/>\n\
+      <img width='15px' height='15px' title='{0}' src='/_anki/imgs/{1}' onClick='toggleFroze({2})'/>\n\
     </td>".format(title, img, ord);
 	return txt;
 }

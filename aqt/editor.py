@@ -507,6 +507,20 @@ class Editor:
         self.outerLayout.addWidget(group)
         group.setLayout(tabLine)
 
+    # Column handling
+    ######################################################################
+
+
+    def onFroze(self, fieldNumber):
+        fieldNumber = int(fieldNumber)
+        fieldObject = self.model['flds'][fieldNumber]
+        fieldObject["sticky"] = not fieldObject.get("sticky", False)
+        self.model.save(recomputeReq=False)
+        self.loadNote()
+
+    # Tag handling
+    ######################################################################
+
     def setupTags(self, tabLine):
         import aqt.tagedit
         # tags
@@ -941,6 +955,7 @@ to a cloze type first, via Edit>Change Note Type."""))
         blur=onBlur,
         focus=onFocus,
         toggleLineAlone=onToggleLineAlone,
+        toggleFroze=onFroze,
     )
 
 # Pasting, drag & drop, and keyboard layouts
