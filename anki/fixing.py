@@ -51,6 +51,7 @@ class FixingManager:
         self.atMost1000000Due()
         self.setNextPos()
         self.reasonableRevueDue()
+        self.floatIvlInCard()
         self.remainingToSplit()
 
     def noteWithMissingModel(self):
@@ -187,12 +188,13 @@ and type = {CARD_NEW}""", [intTime(), self.col.usn()])
                 "update cards set due = ?, ivl = 1, mod = ?, usn = ? where id in %s"
                 % ids2str(ids), self.col.sched.today, intTime(), self.col.usn())
 
-    def remainingToSplit(self):
+    def floatIvlInCard(self):
         # v2 sched had a bug that could create decimal intervals
         self.curs.execute("update cards set ivl=round(ivl),due=round(due) where ivl!=round(ivl) or due!=round(due)")
         if self.curs.rowcount:
             self.problems.append("Fixed %d cards with v2 scheduler bug." % self.curs.rowcount)
 
+    def remainingToSplit(self):
         self.curs.execute("update revlog set ivl=round(ivl),lastIvl=round(lastIvl) where ivl!=round(ivl) or lastIvl!=round(lastIvl)")
         if self.curs.rowcount:
             self.problems.append("Fixed %d review history entries with v2 scheduler bug." % self.curs.rowcount)
