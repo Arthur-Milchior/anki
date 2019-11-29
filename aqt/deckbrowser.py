@@ -261,19 +261,20 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
 
     def _showOptions(self, did):
         menu = QMenu(self.mw)
+        deck = self.mw.col.decks.get(did)
         action = menu.addAction(_("Rename"))
         action.triggered.connect(lambda button, did=did: self._rename(did))
         action = menu.addAction(_("Options"))
         action.triggered.connect(lambda button, did=did: self._options(did))
         action = menu.addAction(_("Export"))
-        action.triggered.connect(lambda button, did=did: self._export(did))
+        action.triggered.connect(lambda button, deck=deck: self._export(deck))
         action = menu.addAction(_("Delete"))
         action.triggered.connect(lambda button, did=did: self._delete(did))
         runHook("showDeckOptions", menu, did)
         menu.exec_(QCursor.pos())
 
-    def _export(self, did):
-        self.mw.onExport(did=did)
+    def _export(self, deck):
+        self.mw.onExport(deck=deck)
 
     def _rename(self, did):
         self.mw.checkpoint(_("Rename Deck"))

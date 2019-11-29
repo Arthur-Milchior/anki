@@ -28,26 +28,26 @@ from aqt.utils import (checkInvalidFilename, getSaveFile, showInfo,
 
 class ExportDialog(QDialog):
 
-    def __init__(self, mw, did=None):
+    def __init__(self, mw, deck=None):
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
         self.col = mw.col
         self.frm = aqt.forms.exporting.Ui_ExportDialog()
         self.frm.setupUi(self)
         self.exporter = None
-        self.setup(did)
+        self.setup(deck)
         self.exec_()
 
-    def setup(self, did):
+    def setup(self, deck):
         """
 
         keyword arguments:
-        did -- if None, then export whole anki. If did, export this deck (at least as default).
+        deck -- if None, then export whole anki. If deck, export this deck (at least as default).
         """
         self.exporters = exporters()
         # if a deck specified, start with .apkg type selected
         idx = 0
-        if did:
+        if deck:
             for index, (exporterString,e) in enumerate(self.exporters):
                 if e.ext == ".apkg":
                     idx = index
@@ -63,8 +63,8 @@ class ExportDialog(QDialog):
         exportButton = QPushButton(_("Export..."))
         self.frm.buttonBox.addButton(exportButton, QDialogButtonBox.AcceptRole)
         # set default option if accessed through deck button
-        if did:
-            name = self.mw.col.decks.get(did).getName()
+        if deck:
+            name = deck.getName()
             index = self.frm.deck.findText(name)
             self.frm.deck.setCurrentIndex(index)
 
