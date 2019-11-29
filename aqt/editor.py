@@ -560,6 +560,13 @@ class Editor:
         self.ccSpin.setMinimum(1)
         self.ccSpin.valueChanged.connect(lambda value: self.onColumnCountChanged(value))
 
+    def onToggleLineAlone(self, fieldNumber):
+        fieldNumber = int(fieldNumber)
+        fieldObject = self.model['flds'][fieldNumber]
+        self.mw.col.models.save(self.model, recomputeReq=False)
+        fieldObject["Line alone"] = not fieldObject.get("Line alone", False)
+        self.saveNow(self.loadNote)
+
     # Format buttons
     ######################################################################
 
@@ -928,6 +935,7 @@ to a cloze type first, via Edit>Change Note Type."""))
         key=onKey,
         blur=onBlur,
         focus=onFocus,
+        toggleLineAlone=onToggleLineAlone,
     )
 
 # Pasting, drag & drop, and keyboard layouts
