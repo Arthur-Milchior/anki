@@ -41,6 +41,7 @@ class FixingManager:
         self.override()
         self.req()
         self.invalidCardOrdinal()
+        self.wrongNumberOfField()
         self.remainingToSplit()
 
     def noteWithMissingModel(self):
@@ -86,7 +87,7 @@ select id from notes where mid = ?)""" %
                              len(ids)) % len(ids))
                 self.col.remCards(ids)
 
-    def remainingToSplit(self):
+    def wrongNumberOfField(self):
         # notes with invalid field count
         for model in self.col.models.all():
             ids = []
@@ -100,6 +101,8 @@ select id from notes where mid = ?)""" %
                              "Deleted %d notes with wrong field count.",
                              len(ids)) % len(ids))
                 self.col.remNotes(ids)
+
+    def remainingToSplit(self):
         # delete any notes with missing cards
         ids = self.db.list("""
 select id from notes where id not in (select distinct nid from cards)""")
