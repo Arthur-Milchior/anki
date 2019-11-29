@@ -364,7 +364,9 @@ function createDiv(ord,  fieldValue, nbCol){
 }
 // no new line/space around {1} because otherwise they'd be saved in the note
 
-function createNameTd(ord, fieldName, fieldSize, nbCol){
+function createNameTd(ord, fieldName, fieldSize, nbCol, sticky){
+	img = (sticky?"":"un")+"frozen.png";
+	title =(sticky?"Unf":"F")+"reeze field "+fieldName;
 	txt = "    <td class='fname' colspan={1}>\n\
       <span>\n\
        {0}\n\
@@ -373,9 +375,10 @@ function createNameTd(ord, fieldName, fieldSize, nbCol){
       txt+= "\n\
       <input type='button' tabIndex='-1' value='Change size' onClick='changeSize({0})'/>".format(ord);
 	}
-	txt += "\n\
-    </td>"
-	return txt
+	txt+="\n\
+      <img width='15px' height='15px' title='{0}' src='/_anki/imgs/{1}'/>\n\
+    </td>".format(title, img, ord);
+	return txt;
 }
 
 function setFields(fields, nbCol) {
@@ -392,13 +395,14 @@ function setFields(fields, nbCol) {
         var fieldName = fields[i][0];
         var fieldValue = fields[i][1];
 		var alone = fields[i][2];
+		var sticky = fields[i][3];
         if (!fieldValue) {
             fieldValue = "<br>";
         }
 		//console.log("fieldName: "+fieldName+", fieldValue: "+fieldValue+", alone: "+alone);
 		fieldSize = (alone)?nbCol:1;
 		var fieldValueHtml = createDiv(i, fieldValue, fieldSize);
-		var fieldNameHtml = createNameTd(i, fieldName, fieldSize, nbCol)
+		var	fieldNameHtml = createNameTd(i, fieldName, fieldSize, nbCol, sticky)
 		if (alone) {
 			var nameTd = fieldNameHtml
 			txt += "  <tr>\n\

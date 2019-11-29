@@ -387,9 +387,14 @@ class Editor:
         if not self.note:
             return
 
-        data = [(fld, self.mw.col.media.escapeImages(val), self.model["flds"][ord].get("Line alone", False))
-                # field name, field content modified so that it's image's url can be used locally.
-                for ord, (fld, val) in enumerate(self.note.items())]
+        # Triple, for each fields, with (field name, field
+        # content modified so that it's image's url can be
+        # used locally, and whether it is on its own line)
+        data = [(fld,
+                 self.mw.col.media.escapeImages(val),
+                 self.model["flds"][ord].get("Line alone", False),
+                 self.model["flds"][ord].get("sticky", False)
+        ) for ord, (fld, val) in enumerate(self.note.items())]
         self.widget.show()
         self.updateTags()
 
