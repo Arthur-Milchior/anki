@@ -39,6 +39,7 @@ class FixingManager:
     def actualFix(self):
         self.noteWithMissingModel()
         self.override()
+        self.req()
         self.remainingToSplit()
 
     def noteWithMissingModel(self):
@@ -62,12 +63,14 @@ select id from notes where mid not in """ + ids2str(self.col.models.ids()))
                     self.problems.append(_("Fixed AnkiDroid deck override bug."))
                     model.save()
 
-    def remainingToSplit(self):
+    def req(self):
         for model in self.col.models.all(type=MODEL_STD):
             # model with missing req specification
             if 'req' not in model:
                 model._updateRequired()
                 self.problems.append(_("Fixed note type: %s") % model.getName())
+
+    def remainingToSplit(self):
         for model in self.col.models.all(type=MODEL_STD):
             # cards with invalid ordinal
             ids = self.db.list("""
