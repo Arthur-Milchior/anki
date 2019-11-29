@@ -269,8 +269,9 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         action = menu.addAction(_("Export"))
         action.triggered.connect(lambda button, deck=deck: self._export(deck))
         action = menu.addAction(_("Delete"))
-        action.triggered.connect(lambda button, did=did: self._delete(did))
+        action.triggered.connect(lambda button, deck=deck: self._delete(deck))
         runHook("showDeckOptions", menu, did)
+        # still passing did, as add-ons have not updated to my fork.
         menu.exec_(QCursor.pos())
 
     def _export(self, deck):
@@ -307,8 +308,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
 
         self.show()
 
-    def _delete(self, did):
-        deck = self.mw.col.decks.get(did)
+    def _delete(self, deck):
         if deck.isDefault():
             return showWarning(_("The default deck can't be deleted."))
         self.mw.checkpoint(_("Delete Deck"))
@@ -325,7 +325,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             (_("Are you sure you wish to delete %s?") % deck.getName()) +
             extra):
             self.mw.progress.start(immediate=True)
-            self.mw.col.decks.rem(did, True)
+            deck.rem(True)
             self.mw.progress.finish()
             self.show()
 
