@@ -217,6 +217,7 @@ class AnkiExporter(Exporter):
         for srcModel in self.src.models.all():
             if int(srcModel.getId()) in mids:
                 dstModel = srcModel.copyInCol(self.dst)
+                dstModel.removeLS()
                 dstModel.update()
         # decks
         if not self.did:
