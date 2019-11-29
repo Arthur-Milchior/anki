@@ -406,8 +406,9 @@ class Editor:
             #This occurs when action occurs just before the window is closed
             return
 
-        self.web.evalWithCallback("setFields(%s); setFonts(%s); focusField(%s); setNoteId(%s)" % (
+        self.web.evalWithCallback("setFields(%s, %d); setFonts(%s); focusField(%s); setNoteId(%s)" % (
             json.dumps(data),
+            self.model.get("number of columns", 1),
             json.dumps(self.fonts()),
             json.dumps(focusTo),
             json.dumps(self.note.id)),
