@@ -116,10 +116,8 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""):
         for orig in notes:
             # create a foreign note object
             note = ForeignNote()
-            note.fields = []
-            for fieldType in fields:
-                fld = self._mungeField(orig.get(fieldType, ''))
-                note.fields.append(fld)
+            note.fields = [ self._mungeField(orig.get(fieldType, ''))
+                            for fieldType in fields]
             note.tags = orig['tags']
             note.cards = orig.get('cards', {})
             data.append(note)

@@ -435,11 +435,11 @@ class Finder:
 
         """
         (val, args) = args
-        ids = []
         val = val.lower()
-        for model in self.col.models.all():
-            if unicodedata.normalize("NFC", model.getName().lower()) == val:
-                ids.append(model.getId())
+        ids = [model.getId()
+               for model in self.col.models.all()
+               if unicodedata.normalize("NFC", model.getName().lower()) == val
+        ]
         return "note.mid in %s" % ids2str(ids)
 
     def _findDeck(self, args):
@@ -542,12 +542,11 @@ where mid in %s and flds like ? escape '\\'""" % (
         except OSError:
             return
         csum = fieldChecksum(val)
-        nids = []
-        for nid, flds in self.col.db.execute(
-                "select id, flds from notes where mid=? and csum=?",
-                mid, csum):
-            if stripHTMLMedia(splitFields(flds)[0]) == val:
-                nids.append(nid)
+        nids = [
+            nid
+            for nid, flds in self.col.db.execute("select id, flds from notes where mid=? and csum=?", mid, csum)
+            if stripHTMLMedia(splitFields(flds)[0]) == val]
+
         return "note.id in %s" % ids2str(nids)
 
 # Find and replace

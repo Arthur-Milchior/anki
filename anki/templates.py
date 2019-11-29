@@ -88,9 +88,8 @@ update cards set ord = ord - 1, usn = ?, mod = ?
         self.model['tmpls'].insert(idx, self)
         self.model._updateTemplOrds()
         # generate change map
-        map = []
-        for self in self.model['tmpls']:
-            map.append("when ord = %d then %d" % (oldidxs[id(self)], self['ord']))
+        map = [("when ord = %d then %d" % (oldidxs[id(self)], self['ord']))
+               for self in self.model['tmpls']]
         # apply
         self.model.save()
         self.model.manager.col.db.execute("""

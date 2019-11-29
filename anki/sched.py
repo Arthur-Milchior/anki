@@ -767,11 +767,10 @@ due = odue, odue = 0, odid = 0, usn = ? where %s""" % (lim),
 
     def _moveToDyn(self, did, ids):
         deck = self.col.decks.get(did)
-        data = []
         time = intTime(); usn = self.col.usn()
-        for index, id in enumerate(ids):
-            # start at -100000 so that reviews are all due
-            data.append((did, -100000+index, usn, id))
+        # start at -100000 so that reviews are all due
+        data = [(did, -100000+index, usn, id)
+                for index, id in enumerate(ids)]
         # due reviews stay in the review queue. careful: can't use
         # "odid or did", as sqlite converts to boolean
         queue = f"""

@@ -455,7 +455,7 @@ from notes where %s""" % (self.maxUsn, lim))
                         raise UnexpectedSchemaChange()
                     if len(localModel['tmpls']) != len(serverModel['tmpls']):
                         raise UnexpectedSchemaChange()
-                self.col.models.update(serverModel)
+                serverModel.update()
 
     # Decks
     ##########################################################################
@@ -550,12 +550,12 @@ from notes where %s""" % (self.maxUsn, lim))
             "select id, mod from %s where id in %s and %s" % (
                 table, ids2str(ids), self.usnLim())):
             lmods[id] = mod
-        update = [] # lines from server (data), which either are not
+        # lines from server (data), which either are not
         # in the collection, or such that the mod time is greater on
         # the server than in the collection.
-        for datum in data:
-            if datum[0] not in lmods or lmods[datum[0]] < datum[modIdx]:
-                update.append(datum)
+        update = [datum for datum in data
+                  if (datum[0] not in lmods or
+                      lmods[datum[0]] < datum[modIdx])]
         self.col.log(table, data)
         return update
 

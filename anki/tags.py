@@ -80,9 +80,7 @@ class TagManager:
             query = basequery + " AND card.did=?"
             res = self.col.db.list(query, did)
             return list(set(self.split(" ".join(res))))
-        dids = [did]
-        for name, id in self.col.decks.children(did):
-            dids.append(id)
+        dids = [did] + [id for name, id in self.col.decks.children(did)]
         query = basequery + " AND card.did IN " + ids2str(dids)
         res = self.col.db.list(query)
         return list(set(self.split(" ".join(res))))
@@ -153,7 +151,8 @@ and trailing spaces."""
         for tag in self.split(addtags):
             if not self.inList(tag, currentTags):
                 currentTags.append(tag)
-        return self.join(self.canonify(currentTags))
+        canonified = self.canonify(currentTags)
+        return self.join(canonified)
 
     def remFromStr(self, deltags, tags):
         "Delete tags if they exist."
@@ -163,10 +162,8 @@ and trailing spaces."""
         currentTags = self.split(tags)
         for tag in self.split(deltags):
             # find tags, ignoring case
-            removes = []
-            for tx in currentTags:
-                if (tag.lower() == tx.lower()) or wildcard(tag, tx):
-                    removes.append(tx)
+            removes = [tx for tx in currentTags
+                       if (tag.lower() == tx.lower()) or wildcard(tag, tx)]
             # removes them
             for remove in removes:
                 currentTags.remove(remove)

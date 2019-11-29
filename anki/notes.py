@@ -179,10 +179,8 @@ space, with an initial and a final white space."""
     def delTag(self, tag):
         """Remove every occurence of tag in this note's tag. Case
         insensitive."""
-        rems = []
-        for tag in self.tags:
-            if tag.lower() == tag.lower():
-                rems.append(tag)
+        rems = [tag for tag in self.tags
+                if tag.lower() == tag.lower()]
         for rem in rems:
             self.tags.remove(rem)
 

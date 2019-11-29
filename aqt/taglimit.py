@@ -36,28 +36,26 @@ class TagLimit(QDialog):
         groupedTags = []
         usertags.sort()
         groupedTags.append(usertags)
-        self.tags = []
-        for tags in groupedTags:
-            for tag in tags:
-                self.tags.append(tag)
-                item = QListWidgetItem(tag.replace("_", " "))
-                self.dialog.activeList.addItem(item)
-                if tag in yesHash:
-                    mode = QItemSelectionModel.Select
-                    self.dialog.activeCheck.setChecked(True)
-                else:
-                    mode = QItemSelectionModel.Deselect
-                idx = self.dialog.activeList.indexFromItem(item)
-                self.dialog.activeList.selectionModel().select(idx, mode)
-                # inactive
-                item = QListWidgetItem(tag.replace("_", " "))
-                self.dialog.inactiveList.addItem(item)
-                if tag in noHash:
-                    mode = QItemSelectionModel.Select
-                else:
-                    mode = QItemSelectionModel.Deselect
-                idx = self.dialog.inactiveList.indexFromItem(item)
-                self.dialog.inactiveList.selectionModel().select(idx, mode)
+        self.tags = [tag for tags in groupedTags for tag in tags]
+        for tag in self.tags:
+            item = QListWidgetItem(tag.replace("_", " "))
+            self.dialog.activeList.addItem(item)
+            if tag in yesHash:
+                mode = QItemSelectionModel.Select
+                self.dialog.activeCheck.setChecked(True)
+            else:
+                mode = QItemSelectionModel.Deselect
+            idx = self.dialog.activeList.indexFromItem(item)
+            self.dialog.activeList.selectionModel().select(idx, mode)
+            # inactive
+            item = QListWidgetItem(tag.replace("_", " "))
+            self.dialog.inactiveList.addItem(item)
+            if tag in noHash:
+                mode = QItemSelectionModel.Select
+            else:
+                mode = QItemSelectionModel.Deselect
+            idx = self.dialog.inactiveList.indexFromItem(item)
+            self.dialog.inactiveList.selectionModel().select(idx, mode)
 
     def reject(self):
         self.tags = ""
@@ -87,14 +85,12 @@ class TagLimit(QDialog):
         # build query string
         self.tags = ""
         if yes:
-            arr = []
-            for req in yes:
-                arr.append("tag:'%s'" % req)
+            arr = ["tag:'%s'" % req
+                   for req in yes]
             self.tags += "(" + " or ".join(arr) + ")"
         if noes:
-            arr = []
-            for req in noes:
-                arr.append("-tag:'%s'" % req)
+            arr = ["-tag:'%s'" % req
+                   for req in noes]
             self.tags += " " + " ".join(arr)
         saveGeom(self, "tagLimit")
         QDialog.accept(self)

@@ -183,16 +183,9 @@ class ModelManager:
     def add(self, model):
         """Add a new model model in the database of models"""
         model._setID()
-        self.update(model)
+        model.update()
         model.setCurrent()
         model.save()
-
-    def update(self, model):
-        "Add or update an existing model. Used for syncing and merging."
-        model.ensureNameUnique()
-        self.models[str(model.getId())] = model
-        # mark registry changed, but don't bump mod time
-        self.save()
 
     def have(self, id):
         """Whether there exists a model whose id is did."""

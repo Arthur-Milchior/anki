@@ -465,13 +465,10 @@ from the profile screen."))
         self.BackupThread(newpath, data).start()
 
         # find existing backups
-        backups = []
-        for file in os.listdir(dir):
-            # only look for new-style format
-            match = re.match(r"backup-\d{4}-\d{2}-.+.colpkg", file)
-            if not match:
-                continue
-            backups.append(file)
+        backups = [file
+                   for file in os.listdir(dir)
+                   # only look for new-style format
+                   if not re.match(r"backup-\d{4}-\d{2}-.+.colpkg", file)]
         backups.sort()
 
         # remove old ones
@@ -823,11 +820,10 @@ QTreeWidget {
         Keyword arguments:
         shortcuts -- a list of pair (shortcut key, function called by the shortcut)
         """
-        qshortcuts = []
-        for key, fn in shortcuts:
-            scut = QShortcut(QKeySequence(key), self, activated=fn)
+        qshortcuts = [QShortcut(QKeySequence(key), self, activated=fn)
+                      for key, fn in shortcuts]
+        for scut in qshortcuts:
             scut.setAutoRepeat(False)
-            qshortcuts.append(scut)
         return qshortcuts
 
     def setStateShortcuts(self, shortcuts):

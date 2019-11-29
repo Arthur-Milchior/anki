@@ -67,6 +67,13 @@ class Model(DictAugmentedIdUsn):
                 self._syncTemplates()
         super().save()
 
+    def update(self):
+        "Add or update an existing model. Used for syncing and merging."
+        self.ensureNameUnique()
+        self.manager.models[str(self.getId())] = self
+        # mark registry changed, but don't bump mod time
+        self.manager.save()
+
     def setCurrent(self):
         """Change curModel value and marks the collection as modified."""
         self.manager.col.conf['curModel'] = self.getId()
@@ -129,7 +136,7 @@ select id from cards where nid in (select id from notes where mid = ?)""",
     def copyInCol(self, col):
         m2 = self.deepcopy()
         m2.manager = col.models
-        m2.manager.update(m2)
+        m2.update()
         return m2
 
     def copy_(self):
@@ -186,11 +193,13 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         # model hasn't been added yet?
         if not self.getId():
             return
-        notesUpdates = []
-        for (id, flds) in self.manager.col.db.execute(
-            "select id, flds from notes where mid = ?", self.getId()):
-            notesUpdates.append((joinFields(fn(splitFields(flds))),
-                      intTime(), self.manager.col.usn(), id))
+        notesUpdates = [(joinFields(fn(splitFields(flds))),
+                         intTime(),
+                         self.manager.col.usn(),
+                         id)
+                        for (id, flds) in
+                        self.manager.col.db.execute("select id, flds from notes where mid = ?", self.getId())
+        ]
         self.manager.col.db.executemany(
             "update notes set flds=?,mod=?,usn=? where id = ?", notesUpdates)
 
@@ -271,9 +280,8 @@ select id from cards where nid in (select id from notes where mid = ?)""",
             flds = splitFields(flds)
             for old, new in list(map.items()):
                 newflds[new] = flds[old]
-            flds = []
-            for index in range(nfields):
-                flds.append(newflds.get(index, ""))
+            flds = [newflds.get(index, "")
+                    for index in range(nfields)]
             flds = joinFields(flds)
             noteData.append(dict(nid=nid, flds=flds, mid=self.getId(),
                       mod=intTime(),usn=self.manager.col.usn()))

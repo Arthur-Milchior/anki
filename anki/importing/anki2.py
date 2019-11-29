@@ -244,7 +244,7 @@ class Anki2Importer(Importer):
                 dstModel = Model(self.dst.models, srcModel.copy())
                 dstModel.setId(mid)
                 dstModel['usn'] = self.col.usn()
-                self.dst.models.update(dstModel)
+                dstModel.update()
                 break
             # there's an existing model; do the schemas match?
             dstModel = self.dst.models.get(mid, orNone=False)
@@ -255,7 +255,7 @@ class Anki2Importer(Importer):
                     dstModel = Model(self.dst.models, srcModel.copy())
                     dstModel.setId(mid)
                     dstModel['usn'] = self.col.usn()
-                    self.dst.models.update(dstModel)
+                    dstModel.update()
                 break
             # as they don't match, try next id
             mid += 1

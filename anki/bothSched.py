@@ -778,10 +778,9 @@ usn=:usn,mod=:mod,factor=:fact where id=:id""",
 update cards set mod=?, usn=?, due=due+? where id not in %s
 and due >= ? and queue = {QUEUE_NEW}""" % (scids), now, self.col.usn(), shiftby, low)
         # reorder cards
-        cardData = []
-        for id, nid in self.col.db.execute(
-            (f"select id, nid from cards where type = {CARD_NEW} and id in ")+scids):
-            cardData.append(dict(now=now, due=due[nid], usn=self.col.usn(), cid=id))
+        cardData = [dict(now=now, due=due[nid], usn=self.col.usn(), cid=id)
+                    for id, nid in self.col.db.execute((f"select id, nid from cards where type = {CARD_NEW} and id in ")+scids)
+        ]
         self.col.db.executemany(
             "update cards set due=:due,mod=:now,usn=:usn where id = :cid", cardData)
 

@@ -461,12 +461,12 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     def _tmplsFromOrds(self, model, avail):
         """Given a list of ordinals, returns a list of templates
         corresponding to those position/cloze"""
-        ok = []
         if model['type'] == MODEL_STD:
-            for template in model['tmpls']:
-                if template['ord'] in avail:
-                    ok.append(template)
+            return [template
+                    for template in model['tmpls']
+                    if template['ord'] in avail]
         else:
+            ok = []
             # cloze - generate temporary templates from first
             for ord in avail:
                 template = copy.copy(model['tmpls'][0])
@@ -563,10 +563,8 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
             cms = note.model()['tmpls']
         if not cms:
             return []
-        cards = []
-        for template in cms:
-            cards.append(self._newCard(note, template, 1, flush=False, did=did))
-        return cards
+        return [self._newCard(note, template, 1, flush=False, did=did)
+                for template in cms]
 
     def _newCard(self, note, template, due, flush=True, did=None):
         """A new card object belonging to this collection.

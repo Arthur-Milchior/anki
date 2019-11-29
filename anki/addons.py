@@ -341,12 +341,9 @@ class AddonManager:
         client = AnkiRequestsClient()
 
         # ..of enabled items downloaded from ankiweb
-        addons = []
-        for dir in self.managedAddons():
-            meta = self.addonMeta(dir)
-            if not meta.get("disabled"):
-                addons.append(dir)
-
+        addons = [dir
+                  for dir in self.managedAddons()
+                  if not self.addonMeta(dir).get("disabled")]
         mods = []
         while addons:
             chunk = addons[:25]
@@ -370,11 +367,9 @@ class AddonManager:
     def _updatedIds(self, mods):
         """Given a list of (id,last mod on server), returns the sublist of
         add-ons not up to date."""
-        updated = []
-        for dir, ts in mods:
-            sid = str(dir)
-            if self.addonMeta(sid).get("mod", 0) < (ts or 0):
-                updated.append(sid)
+        updated = [str(dir)
+                   for dir, ts in mods
+                   if self.addonMeta(str(dir)).get("mod", 0) < (ts or 0)]
         return updated
 
     # Add-on Config

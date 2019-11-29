@@ -285,7 +285,6 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         There is also a text where each cloze are replaced by their value; i.e. the answer"""
         ords = set(re.findall(r"{{c(\d+)::.+?}}", string))
         #The set of clozes occurring in the string
-        strings = []
         from anki.template.template import clozeReg
         def qrepl(match):
             """The text by which the cloze m must be replaced in the question."""
@@ -296,12 +295,10 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         def arepl(match):
             """The text by which the cloze m must be replaced in the answer."""
             return match.group(2)
-        for ord in ords:
-            stringThisOrd = re.sub(clozeReg%ord, qrepl, string)
-            #Replace the cloze number ord by the deletion
-            stringThisOrd = re.sub(clozeReg%".+?", "\\2", stringThisOrd)
-            #Replace every other clozes by their content
-            strings.append(stringThisOrd)
+        strings = [ #Replace every other clozes by their content
+            (re.sub(clozeReg%".+?", "\\2", #Replace the cloze number #ord by the deletion
+                    re.sub(clozeReg%ord, qrepl, string)))
+            for ord in ords]
         strings.append(re.sub(clozeReg%".+?", arepl, string))
         return strings
 
@@ -528,11 +525,10 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
 
     def _logChanges(self):
         (added, removed) = self._changes()
-        media = []
-        for file, mtime in added:
-            media.append((file, self._checksum(file), mtime, 1))
-        for file in removed:
-            media.append((file, None, 0, 1))
+        media = ( [(file, self._checksum(file), mtime, 1)
+                   for file, mtime in added ]
+                  + [(file, None, 0, 1)
+                     for file in removed])
         # update media db
         self.db.executemany("insert or replace into media values (?,?,?,?)",
                             media)

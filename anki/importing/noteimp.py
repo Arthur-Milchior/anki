@@ -299,9 +299,9 @@ where id = ? and flds != ?""", rows)
         return ords
 
     def updateCards(self):
-        data = []
-        for nid, ord, card in self._cards:
-            data.append((card.ivl, card.due, card.factor, card.reps, card.lapses, nid, ord))
+        data = [
+            (card.ivl, card.due, card.factor, card.reps, card.lapses, nid, ord)
+            for nid, ord, card in self._cards]
         # we assume any updated cards are reviews
         self.col.db.executemany("""
 update cards set type = 2, queue = 2, ivl = ?, due = ?,

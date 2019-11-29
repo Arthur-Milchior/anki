@@ -145,7 +145,6 @@ class ButtonedDialog(QMessageBox):
         title -- Title of the window
         """
         QMessageBox.__init__(self, parent)
-        self.buttons = []
         self.setWindowTitle(title)
         self.help = help
         self.setIcon(QMessageBox.Warning)
@@ -154,9 +153,7 @@ class ButtonedDialog(QMessageBox):
         # layout.addWidget(QLabel(text))
         # box = QDialogButtonBox()
         # layout.addWidget(box)
-        for button in buttons:
-            self.buttons.append(
-                self.addButton(button, QMessageBox.AcceptRole))
+        self.buttons = [self.addButton(button, QMessageBox.AcceptRole) for button in buttons]
         if help:
             self.addButton(_("Help"), QMessageBox.HelpRole)
             buttons.append(_("Help"))

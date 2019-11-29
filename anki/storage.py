@@ -205,10 +205,8 @@ def _upgradeClozeModel(col, model):
         template[type] = re.sub("{{cloze:1:(.+?)}}", r"{{cloze:\1}}", template[type])
     template.setName(_("Cloze"))
     # delete non-cloze cards for the model
-    rems = []
-    for template in model['tmpls'][1:]:
-        if "{{cloze:" not in template['qfmt']:
-            rems.append(template)
+    rems = [template for template in model['tmpls'][1:]
+            if ("{{cloze:" not in template['qfmt'])]
     for rem in rems:
         model.rem(rem)
     del model['tmpls'][1:]
