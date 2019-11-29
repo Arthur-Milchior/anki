@@ -107,11 +107,10 @@ class Deck(anki.deck.Deck):
             self.manager.mw.deckBrowser.show()
 
     def _dragDeckOnto(self, ontoDeckDid):
-        try:
-            self.renameForDragAndDrop(ontoDeckDid)
-        except DeckRenameError as e:
-            return showWarning(e.description)
-
+        ontoDeckName = self.newNameForDragAndDrop(ontoDeckDid)
+        if ontoDeckName is None:
+            return
+        self._rename(newName=ontoDeckName)
         self.manager.mw.deckBrowser.show()
 
     def _collapse(self):
