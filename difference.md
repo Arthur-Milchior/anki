@@ -14,3 +14,7 @@ instead of deleting the note» chage the behavior of anki when he finds
 a note which has no more card. This allow to lose the content of the
 note, and let you correct the note instead to generate cards.
 
+## Multi column note editor (3491767031, 2064123047)
+Allow to have editors with multiple columns. Allow to keep some fields
+on their own line.
+

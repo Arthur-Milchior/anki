@@ -1,0 +1,7 @@
+.mceTable { table-layout: fixed; height: 1%%; width: 100%%;}
+.mceTable td .field { height: 100%%; }
+
+        /* Apply fixed width to first <td>, which is a Frozen Fields cell,
+         or it will take up too much space. From makeColumns2*/
+/*#fields td:first-child{width:28px}*/
+.fixedField{width:28px}
