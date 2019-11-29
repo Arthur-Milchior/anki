@@ -172,7 +172,7 @@ class CardLayout(QDialog):
         return str
 
     def _isCloze(self):
-        return self.model['type'] == MODEL_CLOZE
+        return self.model.isCloze()
 
     def setupMainArea(self):
         self.mainArea = QWidget()

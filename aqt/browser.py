@@ -323,7 +323,7 @@ class DataModel(QAbstractTableModel):
     def templateContent(card, row, col):
         """Name of the card type. With its number if it's a cloze card"""
         templateName = card.template().getName()
-        if card.model()['type'] == MODEL_CLOZE:
+        if card.model().isCloze():
             templateName += " %d" % (card.ord+1)
         return templateName
 

@@ -164,6 +164,12 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         return self.manager.col.db.scalar(
             "select count() from notes where mid = ?", self.getId())
 
+    def isStd(self):
+        return self['type'] == MODEL_STD
+
+    def isCloze(self):
+        return self['type'] == MODEL_CLOZE
+
     # Fields
     ##################################################
 
@@ -316,9 +322,9 @@ select id from cards where nid in (select id from notes where mid = ?)""",
             "select id, ord from cards where nid in "+ids2str(nids)):
             # if the src model is a cloze, we ignore the map, as the gui
             # doesn't currently support mapping them
-            if oldModel['type'] == MODEL_CLOZE:
+            if oldModel.isCloze():
                 new = ord
-                if self['type'] != MODEL_CLOZE:
+                if self.isStd():
                     # if we're mapping to a regular note, we need to check if
                     # the destination ord is valid
                     if len(self['tmpls']) <= ord:
@@ -356,7 +362,7 @@ select id from cards where nid in (select id from notes where mid = ?)""",
 
     def _updateRequired(self):
         """Entirely recompute the model's req value"""
-        if self['type'] == MODEL_CLOZE:
+        if self.isCloze():
             # nothing to do
             return
         req = []
@@ -374,7 +380,7 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         should be generated. See
         ../documentation/templates_generation_rules.md for the detail
         """
-        if self['type'] == MODEL_CLOZE:
+        if self.isCloze():
             return self._availClozeOrds(flds)
         fields = {}
         for index, fieldType in enumerate(splitFields(flds)):

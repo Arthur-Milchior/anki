@@ -250,7 +250,7 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
         """The card's template object. See models.py for a comment of this
         object."""
         model = self.model()
-        if model['type'] == MODEL_STD:
+        if model.isStd():
             return self.model()['tmpls'][self.ord]
         else: #In case of cloze
             return self.model()['tmpls'][0]

@@ -259,7 +259,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         filesInStr = []
         model = self.col.models.get(mid, orNone=False)
         strings = []
-        if model['type'] == MODEL_CLOZE and "{{c" in string:
+        if model.isCloze() and "{{c" in string:
             # if the field has clozes in it, we'll need to expand the
             # possibilities so we can render latex
             strings = self._expandClozes(string)

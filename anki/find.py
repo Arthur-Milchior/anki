@@ -487,7 +487,7 @@ class Finder:
         for model in self.col.models.all():
             for template in model['tmpls']:
                 if unicodedata.normalize("NFC", template.getName().lower()) == val.lower():
-                    if model['type'] == MODEL_CLOZE:
+                    if model.isCloze():
                         # if the user has asked for a cloze card, we want
                         # to give all ordinals, so we just limit to the
                         # model instead

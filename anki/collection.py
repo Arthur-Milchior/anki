@@ -461,7 +461,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     def _tmplsFromOrds(self, model, avail):
         """Given a list of ordinals, returns a list of templates
         corresponding to those position/cloze"""
-        if model['type'] == MODEL_STD:
+        if model.isStd():
             return [template
                     for template in model['tmpls']
                     if template['ord'] in avail]
@@ -732,7 +732,7 @@ where card.nid = note.id and card.id in %s group by nid""" % ids2str(cids)):
         # unpack fields and create dict
 
         model = self.models.get(mid, orNone=False)
-        if model['type'] == MODEL_STD:
+        if model.isStd():
             template = model['tmpls'][ord]
         else:
             template = model['tmpls'][0]
@@ -782,7 +782,7 @@ where card.nid = note.id and card.id in %s group by nid""" % ids2str(cids)):
         question = self.__renderQA(fields, model, data, format, "q")
         fields['FrontSide'] = stripSounds(question)
         # empty cloze?
-        if model['type'] == MODEL_CLOZE and not model._availClozeOrds(flds, False):
+        if model.isCloze() and not model._availClozeOrds(flds, False):
              question += ("<p>" + _(
                 "Please edit this note and add some cloze deletions. (%s)") % (
                     "<a href=%s#cloze>%s</a>" % (HELP_SITE, _("help"))))
@@ -972,7 +972,7 @@ or mid not in %s limit 1""" % ids2str(self.models.ids())):
         # invalid ords
         for model in self.models.all():
             # ignore clozes
-            if model['type'] != MODEL_STD:
+            if model.isStd():
                 continue
             if self.db.scalar("""
 select 1 from cards where ord not in %s and nid in (
