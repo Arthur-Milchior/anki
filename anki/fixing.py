@@ -38,6 +38,7 @@ class FixingManager:
 
     def actualFix(self):
         self.noteWithMissingModel()
+        self.override()
         self.remainingToSplit()
 
     def noteWithMissingModel(self):
@@ -51,7 +52,8 @@ select id from notes where mid not in """ + ids2str(self.col.models.ids()))
                          % len(ids))
             self.col.remNotes(ids)
 
-    def remainingToSplit(self):
+    def override(self):
+
         # for each model
         for model in self.col.models.all():
             for template in model['tmpls']:
@@ -59,6 +61,8 @@ select id from notes where mid not in """ + ids2str(self.col.models.ids()))
                     template['did'] = None
                     self.problems.append(_("Fixed AnkiDroid deck override bug."))
                     model.save()
+
+    def remainingToSplit(self):
         for model in self.col.models.all(type=MODEL_STD):
             # model with missing req specification
             if 'req' not in model:
