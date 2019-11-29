@@ -265,7 +265,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         action = menu.addAction(_("Rename"))
         action.triggered.connect(lambda button, deck=deck: self._rename(deck))
         action = menu.addAction(_("Options"))
-        action.triggered.connect(lambda button, did=did: self._options(did))
+        action.triggered.connect(lambda button, deck=deck: self._options(deck))
         action = menu.addAction(_("Export"))
         action.triggered.connect(lambda button, deck=deck: self._export(deck))
         action = menu.addAction(_("Delete"))
@@ -289,10 +289,10 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             return showWarning(e.description)
         self.show()
 
-    def _options(self, did):
+    def _options(self, deck):
         # select the deck first, because the dyn deck conf assumes the deck
         # we're editing is the current one
-        self.mw.col.decks.get(did).select()
+        deck.select()
         self.mw.onDeckConf()
 
     def _collapse(self, did):
