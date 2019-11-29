@@ -44,6 +44,7 @@ class FixingManager:
         self.wrongNumberOfField()
         self.noteWithoutCard()
         self.cardWithoutNote()
+        self.odueTypeLrnOrQueueDue()
         self.remainingToSplit()
 
     def noteWithMissingModel(self):
@@ -126,7 +127,7 @@ select id from cards where nid not in (select id from notes)""")
                          "Deleted %d cards with missing note.", cnt) % cnt)
             self.col.remCards(ids)
 
-    def remainingToSplit(self):
+    def odueTypeLrnOrQueueDue(self):
         # cards with odue set when it shouldn't be
         ids = self.db.list(f"""
 select id from cards where odue > 0 and (type={CARD_LRN} or queue={CARD_DUE}) and not odid""")
@@ -137,6 +138,8 @@ select id from cards where odue > 0 and (type={CARD_LRN} or queue={CARD_DUE}) an
                          "Fixed %d cards with invalid properties.", cnt) % cnt)
             self.db.execute("update cards set odue=0 where id in "+
                 ids2str(ids))
+
+    def remainingToSplit(self):
         # cards with odid set when not in a dyn deck
         dids = [id for id in self.col.decks.allIds() if not self.col.decks.get(id).isDyn()]
         ids = self.db.list("""
