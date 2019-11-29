@@ -42,6 +42,7 @@ class Model(DictAugmentedIdUsn):
         super().load(manager, dict)
         self['tmpls'] = list(map(lambda tmpl: Template(self, tmpl), self['tmpls']))
         self['flds'] = list(map(lambda fld: Field(self, fld), self['flds']))
+        self['ls'] = 0
 
     def new(self, manager, name):
         assert(isinstance(name, str))
@@ -53,6 +54,7 @@ class Model(DictAugmentedIdUsn):
         model['tags'] = []
         model['id'] = None
         self.load(manager, model)
+        model['ls'] = self.manager.col.ls
 
     def save(self, template=False, recomputeReq=True):
         """
