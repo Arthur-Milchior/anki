@@ -37,9 +37,10 @@ class FixingManager:
         return ("\n".join(self.problems), ok)
 
     def actualFix(self):
+        self.noteWithMissingModel()
         self.remainingToSplit()
 
-    def remainingToSplit(self):
+    def noteWithMissingModel(self):
         # note types with a missing model
         ids = self.db.list("""
 select id from notes where mid not in """ + ids2str(self.col.models.ids()))
@@ -50,6 +51,7 @@ select id from notes where mid not in """ + ids2str(self.col.models.ids()))
                          % len(ids))
             self.col.remNotes(ids)
 
+    def remainingToSplit(self):
         # for each model
         for model in self.col.models.all():
             for template in model['tmpls']:
