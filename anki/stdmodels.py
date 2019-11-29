@@ -26,7 +26,7 @@ def _newBasicModel(col, name=None):
 
 def addBasicModel(col):
     model = _newBasicModel(col)
-    col.models.add(model)
+    model.add()
     return model
 
 models.append((lambda: _("Basic"), addBasicModel))
@@ -40,7 +40,7 @@ def addBasicTypingModel(col):
     template = model['tmpls'][0]
     template['qfmt'] = "{{"+_("Front")+"}}\n\n{{type:"+_("Back")+"}}"
     template['afmt'] = "{{"+_("Front")+"}}\n\n<hr id=answer>\n\n{{type:"+_("Back")+"}}"
-    mm.add(model)
+    model.add()
     return model
 
 models.append((lambda: _("Basic (type in the answer)"), addBasicTypingModel))
@@ -59,7 +59,7 @@ def _newForwardReverse(col, name=None):
 
 def addForwardReverse(col):
     model = _newForwardReverse(col)
-    col.models.add(model)
+    model.add()
     return model
 
 models.append((lambda: _("Basic (and reversed card)"), addForwardReverse))
@@ -75,7 +75,7 @@ def addForwardOptionalReverse(col):
     fm.add()
     template = model['tmpls'][1]
     template['qfmt'] = "{{#%s}}%s{{/%s}}" % (av, template['qfmt'], av)
-    mm.add(model)
+    model.add()
     return model
 
 models.append((lambda: _("Basic (optional reversed card)"),
@@ -106,7 +106,7 @@ def addClozeModel(col):
     template['qfmt'] = fmt
     template['afmt'] = fmt + "<br>\n{{%s}}" % _("Extra")
     template.add()
-    mm.add(model)
+    model.add()
     return model
 
 models.append((lambda: _("Cloze"), addClozeModel))

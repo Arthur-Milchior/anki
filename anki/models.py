@@ -180,13 +180,6 @@ class ModelManager:
         # caller should call save() after modifying
         return Model(self, name=name)
 
-    def add(self, model):
-        """Add a new model model in the database of models"""
-        model._setID()
-        model.update()
-        model.setCurrent()
-        model.save()
-
     def have(self, id):
         """Whether there exists a model whose id is did."""
         return str(id) in self.models

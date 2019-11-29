@@ -67,6 +67,13 @@ class Model(DictAugmentedIdUsn):
                 self._syncTemplates()
         super().save()
 
+    def add(self):
+        """Add a new model model in the database of models"""
+        self._setID()
+        self.update()
+        self.setCurrent()
+        self.save()
+
     def update(self):
         "Add or update an existing model. Used for syncing and merging."
         self.ensureNameUnique()
@@ -145,7 +152,7 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         # dictionnary's copy method, which seems to be used somewhere
         m2 = self.deepcopy()
         m2['name'] = _("%s copy") % m2.getName()
-        self.manager.add(m2)
+        self.add()
         return m2
 
     def useCount(self):

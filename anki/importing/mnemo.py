@@ -160,7 +160,7 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""):
         template['afmt'] = template['qfmt'] + """\n\n<hr id=answer>\n\n\
 {{Expression}}<br>\n{{Pronunciation}}<br>\n{{Notes}}"""
         template.add()
-        mm.add(model)
+        model.add()
         self._addFronts(notes, model, fields=("f", "p_1", "m_1", "n"))
 
     def _addCloze(self, notes):
