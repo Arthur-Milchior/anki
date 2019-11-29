@@ -72,7 +72,7 @@ class Editor:
         self.setupOuter()
         self.setupWeb()
         self.setupShortcuts()
-        self.setupTags()
+        self.setupTagsLine()
 
     # Initial setup
     ############################################################
@@ -487,22 +487,27 @@ class Editor:
     # Tag handling
     ######################################################################
 
-    def setupTags(self):
-        import aqt.tagedit
+    def setupTagsLine(self):
         group = QGroupBox(self.widget)
         group.setFlat(True)
-        tb = QGridLayout()
-        tb.setSpacing(12)
-        tb.setContentsMargins(6,6,6,6)
+        tabLine = QHBoxLayout()
+        tabLine.setSpacing(12)
+        tabLine.setContentsMargins(6,6,6,6)
+
+        self.setupTags(tabLine)
+
+        self.outerLayout.addWidget(group)
+        group.setLayout(tabLine)
+
+    def setupTags(self, tabLine):
+        import aqt.tagedit
         # tags
         label = QLabel(_("Tags"))
-        tb.addWidget(label, 1, 0)
+        tabLine.addWidget(label)
         self.tags = aqt.tagedit.TagEdit(self.widget)
         self.tags.lostFocus.connect(self.saveTags)
         self.tags.setToolTip(shortcut(_("Jump to tags with Ctrl+Shift+T")))
-        tb.addWidget(self.tags, 1, 1)
-        group.setLayout(tb)
-        self.outerLayout.addWidget(group)
+        tabLine.addWidget(self.tags)
 
     def updateTags(self):
         if self.tags.col != self.mw.col:
