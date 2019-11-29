@@ -78,7 +78,7 @@ class Models(QDialog):
         txt = getText(_("New name:"), default=self.model.getName())
         if txt[1] and txt[0]:
             self.model.setName(txt[0])
-            self.model.save()
+            self.model.save(recomputeReq=False)
         self.updateModelsList()
 
     def updateModelsList(self):
@@ -143,9 +143,9 @@ class Models(QDialog):
         self.model['latexPre'] = str(frm.latexHeader.toPlainText())
         self.model['latexPost'] = str(frm.latexFooter.toPlainText())
 
-    def saveModel(self):
+    def saveModel(self, *args, **kwargs):
         """Similar to "save the model" in anki/models.py"""
-        self.model.save()
+        self.model.save(*args, **kwargs)
 
     def _tmpNote(self):
         self.model.setCurrent()
@@ -177,7 +177,7 @@ class Models(QDialog):
     # need to flush model on change or reject
 
     def reject(self):
-        self.saveModel()
+        self.saveModel(recomputeReq=False)
         self.mw.reset()
         saveGeom(self, "models")
         QDialog.reject(self)

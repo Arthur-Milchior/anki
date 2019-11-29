@@ -72,7 +72,7 @@ update cards set ord = ord - 1, usn = ?, mod = ?
             # True except for quite new models, especially in tests.
             self.model['req'].pop(ord)
         self.model._updateTemplOrds()
-        self.model.save()
+        self.model.save(recomputeReq=False)
         return True
 
     def move(self, idx):
@@ -91,7 +91,7 @@ update cards set ord = ord - 1, usn = ?, mod = ?
         map = [("when ord = %d then %d" % (oldidxs[id(self)], self['ord']))
                for self in self.model['tmpls']]
         # apply
-        self.model.save()
+        self.model.save(recomputeReq=False)
         self.model.manager.col.db.execute("""
 update cards set ord = (case %s end),usn=?,mod=? where nid in (
 select id from notes where mid = ?)""" % " ".join(map),

@@ -37,7 +37,7 @@ class Field(DictAugmentedInModel):
             self.model.manager.col.modSchema(check=True)
         self.model['flds'].append(self)
         self.model._updateFieldOrds()
-        self.model.save()
+        self.model.save()#recompute req, because the field may already be used in a template
         def add(fieldsContents):
             fieldsContents.append("")
             return fieldsContents
@@ -65,7 +65,7 @@ class Field(DictAugmentedInModel):
                     template[fmt] = re.sub(
                         pat  % re.escape(self.getName()), "", template[fmt])
         self.setName(newName)
-        self.model.save()
+        self.model.save()#recompute req, because the field may already be used in a template
 
     def move(self, idx):
         """Move the field to position idx
@@ -84,7 +84,7 @@ class Field(DictAugmentedInModel):
         # restore sort self
         self.model['sortf'] = self.model['flds'].index(sortf)
         self.model._updateFieldOrds()
-        self.model.save()
+        self.model.save()#TODO: use the fact that new req is same as old req, with different order
         def move(fields, oldidx=oldidx):
             val = fields[oldidx]
             del fields[oldidx]

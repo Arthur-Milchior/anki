@@ -74,7 +74,7 @@ select id from notes where mid not in """ + ids2str(self.col.models.ids()))
                 if template['did'] == "None":
                     template['did'] = None
                     self.problems.append(_("Fixed AnkiDroid deck override bug."))
-                    model.save()
+                    model.save(recomputeReq=False)
 
     def req(self):
         for model in self.col.models.all(type=MODEL_STD):

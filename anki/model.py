@@ -54,17 +54,19 @@ class Model(DictAugmentedIdUsn):
         model['id'] = None
         self.load(manager, model)
 
-    def save(self, template=False):
+    def save(self, template=False, recomputeReq=True):
         """
         * Mark model modified.
         Keyword arguments:
         model -- A Model
-        templates -- whether to check for cards not generated in this model
+        recomputeReq -- whether to update requirements. Usually, you want to; however, if we changed only something such as the font or stickyness, it's useless.
+        templates -- whether to check for cards not generated in this model. It's not done if requirement is not updated, as it would be useless.
         """
         if self.getId():
-            self._updateRequired()
-            if template:
-                self._syncTemplates()
+            if recomputeReq:
+                self._updateRequired()
+                if template:
+                    self._syncTemplates()
         super().save()
 
     def add(self):
@@ -190,7 +192,7 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         self.manager.col.modSchema(check=True)
         self['sortf'] = idx
         self.manager.col.updateFieldCache(self.nids())
-        self.save()
+        self.save(recomputeReq=False)
 
     def _transformFields(self, fn):
         """For each note of the model self, apply fn to the set of field's
