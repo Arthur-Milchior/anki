@@ -49,6 +49,7 @@ class FixingManager:
         self.col.tags.registerNotes()
         self.updateAllFieldcache()
         self.atMost1000000Due()
+        self.setNextPos()
         self.remainingToSplit()
 
     def noteWithMissingModel(self):
@@ -170,10 +171,12 @@ and type = {CARD_NEW}""", [intTime(), self.col.usn()])
         if self.curs.rowcount:
             self.problems.append("Found %d new cards with a due number >= 1,000,000 - consider repositioning them in the Browse screen." % self.curs.rowcount)
 
-    def remainingToSplit(self):
+    def setNextPos(self):
         # new card position
         self.col.conf['nextPos'] = self.db.scalar(
             f"select max(due)+1 from cards where type = {CARD_NEW}") or 0
+
+    def remainingToSplit(self):
         # reviews should have a reasonable due #
         ids = self.db.list(
             "select id from cards where queue = 2 and due > 100000")
