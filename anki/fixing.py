@@ -52,6 +52,7 @@ class FixingManager:
         self.setNextPos()
         self.reasonableRevueDue()
         self.floatIvlInCard()
+        self.floatIvlInRevLog()
         self.remainingToSplit()
 
     def noteWithMissingModel(self):
@@ -194,10 +195,12 @@ and type = {CARD_NEW}""", [intTime(), self.col.usn()])
         if self.curs.rowcount:
             self.problems.append("Fixed %d cards with v2 scheduler bug." % self.curs.rowcount)
 
-    def remainingToSplit(self):
+    def floatIvlInRevLog(self):
         self.curs.execute("update revlog set ivl=round(ivl),lastIvl=round(lastIvl) where ivl!=round(ivl) or lastIvl!=round(lastIvl)")
         if self.curs.rowcount:
             self.problems.append("Fixed %d review history entries with v2 scheduler bug." % self.curs.rowcount)
+
+    def remainingToSplit(self):
         # models
         if self.col.models.ensureNotEmpty():
             self.problems.append("Added missing note type.")
