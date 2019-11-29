@@ -43,6 +43,7 @@ class FixingManager:
         self.invalidCardOrdinal()
         self.wrongNumberOfField()
         self.noteWithoutCard()
+        self.cardWithoutNote()
         self.remainingToSplit()
 
     def noteWithMissingModel(self):
@@ -114,7 +115,7 @@ select id from notes where id not in (select distinct nid from cards)""")
                          "Deleted %d notes with no cards.", cnt) % cnt)
             self.col._remNotes(ids)
 
-    def remainingToSplit(self):
+    def cardWithoutNote(self):
         # cards with missing notes
         ids = self.db.list("""
 select id from cards where nid not in (select id from notes)""")
@@ -124,6 +125,8 @@ select id from cards where nid not in (select id from notes)""")
                 ngettext("Deleted %d card with missing note.",
                          "Deleted %d cards with missing note.", cnt) % cnt)
             self.col.remCards(ids)
+
+    def remainingToSplit(self):
         # cards with odue set when it shouldn't be
         ids = self.db.list(f"""
 select id from cards where odue > 0 and (type={CARD_LRN} or queue={CARD_DUE}) and not odid""")
