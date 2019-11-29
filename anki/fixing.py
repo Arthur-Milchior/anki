@@ -22,6 +22,24 @@ class FixingManager:
         if self.db.scalar("pragma integrity_check") != "ok":
             return (_("Collection is corrupt. Please see the manual."), False)
 
+        self.actualFix()
+
+        # and finally, optimize
+        self.col.optimize()
+        newSize = os.stat(self.col.path)[stat.ST_SIZE]
+        txt = _("Database rebuilt and optimized.")
+        ok = not self.problems
+        self.problems.append(txt)
+        # if any problems were found, force a full sync
+        if not ok:
+            self.col.modSchema(check=False)
+        self.col.save()
+        return ("\n".join(self.problems), ok)
+
+    def actualFix(self):
+        self.remainingToSplit()
+    
+    def remainingToSplit(self):
         # note types with a missing model
         ids = self.db.list("""
 select id from notes where mid not in """ + ids2str(self.col.models.ids()))
@@ -141,14 +159,3 @@ and type = {CARD_NEW}""", [intTime(), self.col.usn()])
         # models
         if self.col.models.ensureNotEmpty():
             self.problems.append("Added missing note type.")
-        # and finally, optimize
-        self.col.optimize()
-        newSize = os.stat(self.col.path)[stat.ST_SIZE]
-        txt = _("Database rebuilt and optimized.")
-        ok = not self.problems
-        self.problems.append(txt)
-        # if any problems were found, force a full sync
-        if not ok:
-            self.col.modSchema(check=False)
-        self.col.save()
-        return ("\n".join(self.problems), ok)
