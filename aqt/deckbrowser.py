@@ -263,7 +263,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         menu = QMenu(self.mw)
         deck = self.mw.col.decks.get(did)
         action = menu.addAction(_("Rename"))
-        action.triggered.connect(lambda button, did=did: self._rename(did))
+        action.triggered.connect(lambda button, deck=deck: self._rename(deck))
         action = menu.addAction(_("Options"))
         action.triggered.connect(lambda button, did=did: self._options(did))
         action = menu.addAction(_("Export"))
@@ -276,9 +276,8 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
     def _export(self, deck):
         self.mw.onExport(deck=deck)
 
-    def _rename(self, did):
+    def _rename(self, deck):
         self.mw.checkpoint(_("Rename Deck"))
-        deck = self.mw.col.decks.get(did)
         oldName = deck.getName()
         newName = getOnlyText(_("New deck name:"), default=oldName)
         newName = newName.replace('"', "")
