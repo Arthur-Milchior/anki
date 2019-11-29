@@ -47,6 +47,7 @@ class FixingManager:
         self.odueTypeLrnOrQueueDue()
         # tags
         self.col.tags.registerNotes()
+        self.updateAllFieldcache()
         self.remainingToSplit()
 
     def noteWithMissingModel(self):
@@ -154,10 +155,12 @@ select id from cards where odue > 0 and (type={CARD_LRN} or queue={CARD_DUE}) an
             self.db.execute("update cards set odid=0, odue=0 where id in "+
                 ids2str(ids))
 
-    def remainingToSplit(self):
+    def updateAllFieldcache(self):
         # field cache
         for model in self.col.models.all():
             self.col.updateFieldCache(model.nids())
+
+    def remainingToSplit(self):
         # new cards can't have a due position > 32 bits, so wrap items over
         # 2 million back to 1 million
         self.curs.execute(f"""
