@@ -369,6 +369,7 @@ class Editor:
         self.currentField = None
         if self.note:
             self.model = note.model()
+            self.ccSpin.setValue(self.model.get("number of columns", 1))
             self.loadNote(focusTo=focusTo)
         else:
             self.model = None
@@ -495,6 +496,7 @@ class Editor:
         tabLine.setContentsMargins(6,6,6,6)
 
         self.setupTags(tabLine)
+        self.setupNumberColum(tabLine)
 
         self.outerLayout.addWidget(group)
         group.setLayout(tabLine)
@@ -539,6 +541,23 @@ class Editor:
 
     def onFocusTags(self):
         self.tags.setFocus()
+
+    # Column handling
+    ######################################################################
+
+    def onColumnCountChanged(self, count):
+        "Save column count to settings and re-draw with new count."
+        self.model["number of columns"] = count
+        self.mw.col.models.save(self.model, recomputeReq=False)
+        self.loadNote()
+
+    def setupNumberColum(self, tabLine):
+        label = QLabel("Columns:", self.widget)
+        tabLine.addWidget(label)
+        self.ccSpin = QSpinBox(self.widget)
+        tabLine.addWidget(self.ccSpin)
+        self.ccSpin.setMinimum(1)
+        self.ccSpin.valueChanged.connect(lambda value: self.onColumnCountChanged(value))
 
     # Format buttons
     ######################################################################
