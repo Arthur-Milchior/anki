@@ -57,24 +57,26 @@ select id from notes where mid not in """ + ids2str(self.col.models.ids()))
                     template['did'] = None
                     self.problems.append(_("Fixed AnkiDroid deck override bug."))
                     model.save()
-            if model['type'] == MODEL_STD:
-                # model with missing req specification
-                if 'req' not in model:
-                    model._updateRequired()
-                    self.problems.append(_("Fixed note type: %s") % model.getName())
-                # cards with invalid ordinal
-                ids = self.db.list("""
+        for model in self.col.models.all(type=MODEL_STD):
+            # model with missing req specification
+            if 'req' not in model:
+                model._updateRequired()
+                self.problems.append(_("Fixed note type: %s") % model.getName())
+        for model in self.col.models.all(type=MODEL_STD):
+            # cards with invalid ordinal
+            ids = self.db.list("""
 select id from cards where ord not in %s and nid in (
 select id from notes where mid = ?)""" %
-                                   ids2str([template['ord'] for template in model['tmpls']]),
-                                   model.getId())
-                if ids:
-                    self.problems.append(
-                        ngettext("Deleted %d card with missing template.",
-                                 "Deleted %d cards with missing template.",
-                                 len(ids)) % len(ids))
-                    self.col.remCards(ids)
-            # notes with invalid field count
+                               ids2str([template['ord'] for template in model['tmpls']]),
+                               model.getId())
+            if ids:
+                self.problems.append(
+                    ngettext("Deleted %d card with missing template.",
+                             "Deleted %d cards with missing template.",
+                             len(ids)) % len(ids))
+                self.col.remCards(ids)
+        # notes with invalid field count
+        for model in self.col.models.all():
             ids = []
             for id, flds in self.db.execute(
                     "select id, flds from notes where mid = ?", model.getId()):
