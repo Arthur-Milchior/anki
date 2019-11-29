@@ -2201,15 +2201,12 @@ class ChangeModel(QDialog):
         self.rebuildTemplateMap()
         self.rebuildFieldMap()
 
-    def rebuildTemplateMap(self, key=None, attr=None):
+    def rebuildMap(self, key, attr):
         """Change the "Cards" subwindow of the Change Note Type.
 
         Actually, if key and attr are given, it may change another
         subwindow, so the same code is reused for fields.
         """
-        if not key:
-            key = "t"
-            attr = "tmpls"
         map = getattr(self, key + "widg")
         lay = getattr(self, key + "layout")
         src = self.oldModel[attr]
@@ -2241,9 +2238,13 @@ class ChangeModel(QDialog):
         setattr(self, key + "combos", combos)
         setattr(self, key + "indices", indices)
 
+    def rebuildTemplateMap(self):
+        """Change the "Template" subwindow of the Change Note Type."""
+        return self.rebuildMap(key="t", attr="tmpls")
+
     def rebuildFieldMap(self):
         """Change the "Fields" subwindow of the Change Note Type."""
-        return self.rebuildTemplateMap(key="f", attr="flds")
+        return self.rebuildMap(key="f", attr="flds")
 
     def onComboChanged(self, i, cb, key):
         indices = getattr(self, key + "indices")
@@ -2265,38 +2266,41 @@ class ChangeModel(QDialog):
                 break
         indices[cb] = i
 
-    def getTemplateMap(self, old=None, combos=None, new=None):
-        """A map from template's ord of the old model to template's ord of the new
-        model. Or None if no template
-
-        Contrary to what this name indicates, the method may be used
-        without templates. In getFieldMap it is used for fields
+    def getMap(self, old, combos, new):
+        """A map from elements's ord of the old model to elements's ord of the
+        new model. Or to None if it's sent to no element
 
         keywords parameter:
         old -- the list of templates of the old model
         combos -- the python list of gui's list of template
         new -- the list of templates of the new model
-        If old is not given, the other two arguments are not used.
+
         """
-        if not old:
-            old = self.oldModel['tmpls']
-            combos = self.tcombos
-            new = self.targetModel['tmpls']
         map = {}
-        for i, fldType in enumerate(old):
+        for i, eltType in enumerate(old):
             idx = combos[i].currentIndex()
             if idx == len(new):
                 # ignore. len(new) corresponds probably to nothing in the list
-                map[fldType['ord']] = None
+                map[eltType['ord']] = None
             else:
                 f2 = new[idx]
-                map[fldType['ord']] = f2['ord']
+                map[eltType['ord']] = f2['ord']
         return map
+
+    def getTemplateMap(self, old=None, combos=None, new=None):
+        """Associating to each field's ord of the source model a template's
+        ord (or None) of the new model.
+
+        """
+        return self.getMap(
+            old=self.oldModel['tmpls'],
+            combos=self.tcombos,
+            new=self.targetModel['tmpls'])
 
     def getFieldMap(self):
         """Associating to each field's ord of the source model a field's
         ord (or None) of the new model."""
-        return self.getTemplateMap(
+        return self.getMap(
             old=self.oldModel['flds'],
             combos=self.fcombos,
             new=self.targetModel['flds'])
