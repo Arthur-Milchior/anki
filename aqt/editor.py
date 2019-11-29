@@ -387,9 +387,9 @@ class Editor:
         if not self.note:
             return
 
-        data = [(fld, self.mw.col.media.escapeImages(val))
+        data = [(fld, self.mw.col.media.escapeImages(val), self.model["flds"][ord].get("Line alone", False))
                 # field name, field content modified so that it's image's url can be used locally.
-                for fld, val in list(self.note.items())]
+                for ord, (fld, val) in enumerate(self.note.items())]
         self.widget.show()
         self.updateTags()
 

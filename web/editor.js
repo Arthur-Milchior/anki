@@ -364,11 +364,11 @@ function createDiv(ord,  fieldValue, nbCol){
 }
 // no new line/space around {1} because otherwise they'd be saved in the note
 
-function createNameTd(ord, fieldName, nbCol){
-	txt = "    <td class='fname'>\n\
+function createNameTd(ord, fieldName, fieldSize, nbCol){
+	txt = "    <td class='fname' colspan={1}>\n\
       <span>\n\
        {0}\n\
-      </span>".format(fieldName);
+      </span>".format(fieldName, fieldSize);
 	if (nbCol>1) {
       txt+= "\n\
       <input type='button' tabIndex='-1' value='Change size' onClick='changeSize({0})'/>".format(ord);
@@ -391,16 +391,27 @@ function setFields(fields, nbCol) {
     for (var i = 0; i < fields.length; i++) {
         var fieldName = fields[i][0];
         var fieldValue = fields[i][1];
+		var alone = fields[i][2];
         if (!fieldValue) {
             fieldValue = "<br>";
         }
 		//console.log("fieldName: "+fieldName+", fieldValue: "+fieldValue+", alone: "+alone);
-		var fieldValueHtml = createDiv(i, fieldValue, nbCol);
-		var fieldNameHtml = createNameTd(i, fieldName, nbCol)
-		var nameTd = fieldNameHtml
-		lengthLine ++;
-		partialNames += fieldNameHtml
-		partialFields += fieldValueHtml
+		fieldSize = (alone)?nbCol:1;
+		var fieldValueHtml = createDiv(i, fieldValue, fieldSize);
+		var fieldNameHtml = createNameTd(i, fieldName, fieldSize, nbCol)
+		if (alone) {
+			var nameTd = fieldNameHtml
+			txt += "  <tr>\n\
+"+fieldNameHtml+"\n\
+  </tr>\n\
+  <tr>\n\
+"+fieldValueHtml+"\n\
+  </tr>";
+		} else {
+			lengthLine ++;
+			partialNames += fieldNameHtml
+			partialFields += fieldValueHtml
+		}
 		//When a line is full, or last field, append it to txt.
 		if (lengthLine == nbCol || ( i == fields.length -1 && lengthLine>0)){
 			txt+= "\n\
