@@ -260,14 +260,14 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
         """Time limit for answering in milliseconds.
 
         According to the deck's information."""
-        conf = self.col.decks.get(self.originalDid()).getConf()
+        conf = self.originalDeck().getConf()
         return conf['maxTaken']*1000
 
     def shouldShowTimer(self):
         """Whether timer should be shown.
 
         According to the deck's information."""
-        conf = self.col.decks.getConf(self.originalDid())
+        conf = self.originalDeck()
         return conf['timer']
 
     def timeTaken(self):
@@ -303,3 +303,7 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
     def originalDid(self):
         """Independantly of whether the card is filtered or not."""
         return self.odid or self.did
+
+    def originalDeck(self):
+        """Independantly of whether the card is filtered or not."""
+        return self.col.decks.get(self.originalDid())

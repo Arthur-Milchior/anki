@@ -186,11 +186,11 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
         runHook('showQuestion')
 
     def autoplay(self, card):
-        return self.mw.col.decks.get(card.originalDid()).getConf()['autoplay']
+        return card.originalDeck().getConf()['autoplay']
 
     def _replayq(self, card, previewer=None):
         cardOwner = previewer if previewer else self
-        return cardOwner.mw.col.decks.get(cardOwner.card.originalDid()).getConf().get('replayq', True)
+        return cardOwner.originalDeck().getConf().get('replayq', True)
 
     def _drawFlag(self):
         self.web.eval("_drawFlag(%s);" % self.card.userFlag())
@@ -643,8 +643,7 @@ time = %(time)d;
             action.triggered.connect(func)
 
     def onOptions(self):
-        self.mw.onDeckConf(self.mw.col.decks.get(
-            self.card.originalDid()))
+        self.mw.onDeckConf(self.card.originalDeck())
 
     def setFlag(self, flag):
         # need to toggle off?

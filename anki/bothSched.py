@@ -526,7 +526,7 @@ select id from cards where did in %s and queue = {QUEUE_REV} and due <= ? limit 
         if not card.isFiltered():
             return conf['new']
         # dynamic deck; override some attributes, use original deck for others
-        oconf = self.col.decks.get(card.odid).getConf()
+        oconf = card.originalDeck().getConf()
         return dict(
             # original deck
             ints=oconf['new']['ints'],
@@ -549,7 +549,7 @@ select id from cards where did in %s and queue = {QUEUE_REV} and due <= ? limit 
         if not card.isFiltered():
             return conf['lapse']
         # dynamic deck; override some attributes, use original deck for others
-        oconf = self.col.decks.get(card.odid).getConf()
+        oconf = card.originalDeck().getConf()
         delays = self._delays(conf, oconf, "lapse")
         return dict(
             # original deck
@@ -572,7 +572,7 @@ select id from cards where did in %s and queue = {QUEUE_REV} and due <= ? limit 
         if not card.isFiltered():
             return conf['rev']
         # dynamic deck
-        return self.col.decks.get(card.odid).getConf()['rev']
+        return card.originalDeck().getConf()['rev']
 
     # Daily cutoff
     ##########################################################################
