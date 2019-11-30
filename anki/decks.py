@@ -471,6 +471,11 @@ class DeckManager:
         self._recoverOrphans()
         self._checkDeckTree()
 
+    def _deckLimit(self):
+        """The list of active decks, as comma separated parenthesized
+        string"""
+        return ids2str(self.active())
+
     # Deck selection
     #############################################################
 

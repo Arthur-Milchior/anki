@@ -83,7 +83,7 @@ select due, count() from cards
 where did in %s and queue = {QUEUE_REV}
 and due between ? and ?
 group by due
-order by due""" % (self._deckLimit()),
+order by due""" % (self.col.decks._deckLimit()),
                             self.today,
                             self.today+days-1))
         for day in range(days):
@@ -286,7 +286,7 @@ select id from cards where did in %s and queue = {QUEUE_NEW} limit ?)"""
         self._lrnQueue = self.col.db.all(f"""
 select due, id from cards where
 did in %s and queue in {queueIn} and due < :lim
-limit %d""" % (self._deckLimit(), self.reportLimit), lim=self.dayCutoff)
+limit %d""" % (self.col.decks._deckLimit(), self.reportLimit), lim=self.dayCutoff)
         # as it arrives sorted by did first, we need to sort it
         self._lrnQueue.sort()
         return self._lrnQueue
@@ -573,11 +573,6 @@ select id from cards where did in %s and queue = {QUEUE_REV} and due <= ? limit 
         # dynamic deck
         return self.col.decks.get(card.odid).getConf()['rev']
 
-    def _deckLimit(self):
-        """The list of active decks, as comma separated parenthesized
-        string"""
-        return ids2str(self.col.decks.active())
-
     # Daily cutoff
     ##########################################################################
 
@@ -625,14 +620,14 @@ To study outside of the normal schedule, click the Custom Study button below."""
         "True if there are any rev cards due."
         return self.col.db.scalar(
             (f"select 1 from cards where did in %s and queue = {QUEUE_REV} "
-             "and due <= ? limit 1") % self._deckLimit(),
+             "and due <= ? limit 1") % self.col.decks._deckLimit(),
             self.today)
 
     def newDue(self):
         "True if there are any new cards due."
         return self.col.db.scalar(
             (f"select 1 from cards where did in %s and queue = {QUEUE_NEW} "
-             "limit 1") % (self._deckLimit(),))
+             "limit 1") % (self.col.decks._deckLimit(),))
 
     def haveBuriedSiblings(self):
         sdids = ids2str(self.col.decks.active())

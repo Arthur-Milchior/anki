@@ -891,7 +891,7 @@ $(function () {
     def _limit(self):
         if self.wholeCollection:
             return ids2str([deck.getId() for deck in self.col.decks.all()])
-        return self.col.sched._deckLimit()
+        return self.col.decks._deckLimit()
 
     def _revlogLimit(self):
         """A query ensuring that cards are in an active deck"""
