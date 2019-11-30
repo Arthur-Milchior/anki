@@ -231,7 +231,10 @@ limit 1""" % ids2str(cids)):
 update cards set ord = ord - 1, usn = ?, mod = ?
  where nid in (select id from notes where mid = ?) and ord > ?""",
                              self.col.usn(), intTime(), model.getId(), ord)
-        model['tmpls'].remove(template)
+        model['tmpls'].pop(ord)
+        if 'req' in model:
+            # True except for quite new models, especially in tests.
+            model['req'].pop(ord)
         model._updateTemplOrds()
         model.save()
         return True
