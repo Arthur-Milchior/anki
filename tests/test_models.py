@@ -1,9 +1,15 @@
 # coding: utf-8
 
 import anki.template
+from anki.consts import *
 from anki.utils import joinFields, stripHTML
 from tests.shared import getEmptyCol
 
+
+def reqSize(model):
+    if model['type'] == MODEL_CLOZE:
+        return
+    assert (len(model['tmpls']) == len(model['req']))
 
 def test_modelDelete():
     deck = getEmptyCol()
@@ -27,6 +33,8 @@ def test_modelCopy():
     assert len(m['tmpls']) == 1
     assert len(m2['tmpls']) == 1
     assert deck.models.scmhash(m) == deck.models.scmhash(m2)
+    reqSize(m)
+    reqSize(m2)
 
 def test_fields():
     d = getEmptyCol()
@@ -81,6 +89,7 @@ def test_templates():
     t['afmt'] = "{{Front}}"
     mm.addTemplate(m, t)
     mm.save(m)
+    reqSize(m)
     f = d.newNote()
     f['Front'] = '1'
     f['Back'] = '2'
@@ -92,12 +101,14 @@ def test_templates():
     assert c2.ord == 1
     # switch templates
     d.models.moveTemplate(m, c.template(), 1)
+    reqSize(m)
     c.load(); c2.load()
     assert c.ord == 1
     assert c2.ord == 0
     # removing a template should delete its cards
     assert d.models.remTemplate(m, m['tmpls'][0])
     assert d.cardCount() == 1
+    reqSize(m)
     # and should have updated the other cards' ordinals
     c = f.cards()[0]
     assert c.ord == 0
@@ -105,7 +116,9 @@ def test_templates():
     # it shouldn't be possible to orphan notes by removing templates
     t = mm.newTemplate("template name")
     mm.addTemplate(m, t)
+    reqSize(m)
     assert not d.models.remTemplate(m, m['tmpls'][0])
+    reqSize(m)
 
 def test_cloze_ordinals():
     d = getEmptyCol()
@@ -226,6 +239,8 @@ def test_modelChange():
     deck = getEmptyCol()
     basic = deck.models.byName("Basic")
     cloze = deck.models.byName("Cloze")
+    reqSize(basic)
+    reqSize(cloze)
     # enable second template and add a note
     m = deck.models.current(); mm = deck.models
     t = mm.newTemplate("Reverse")
@@ -233,6 +248,7 @@ def test_modelChange():
     t['afmt'] = "{{Front}}"
     mm.addTemplate(m, t)
     mm.save(m)
+    reqSize(basic)
     f = deck.newNote()
     f['Front'] = 'f'
     f['Back'] = 'b123'
@@ -298,6 +314,7 @@ def test_modelChange():
     assert len(f.cards()) == 2
     # back the other way, with deletion of second ord
     deck.models.remTemplate(basic, basic['tmpls'][1])
+    reqSize(basic)
     assert deck.db.scalar("select count() from cards where nid = ?", f.id) == 2
     deck.models.change(cloze, [f.id], basic, map, map)
     f.load()
