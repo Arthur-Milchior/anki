@@ -461,16 +461,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     def _tmplsFromOrds(self, model, avail):
         """Given a list of ordinals, returns a list of templates
         corresponding to those position/cloze"""
-        if model.isStd():
-            return [template
-                    for template in model['tmpls']
-                    if template['ord'] in avail]
-        else:
-            ok = []
-            # cloze - generate temporary templates from first
-            for ord in avail:
-                ok.append(model.getTemplate(ord))
-        return ok
+        return [model.getTemplate(ord) for ord in avail]
 
     def genCards(self, nids):
         """Ids of cards which needs to be removed.
