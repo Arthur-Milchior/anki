@@ -850,7 +850,7 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?""" % queue, data)
     def _resched(self, card):
         """Whether this review must be taken into account when this
         card to reschedule the card"""
-        conf = self._cardConf(card)
+        conf = card.currentConf()
         if not conf.isDyn():
             return True
         return conf['resched']

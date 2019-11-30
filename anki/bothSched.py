@@ -511,17 +511,12 @@ select id from cards where did in %s and queue = {QUEUE_REV} and due <= ? limit 
     # Tools
     ##########################################################################
 
-    def _cardConf(self, card):
-        """The configuration of this card's deck. See decks.py
-        documentation to read more about them."""
-        return card.currentDeck().getConf()
-
     def _newConf(self, card):
         """The configuration for "new" of this card's deck.See decks.py
         documentation to read more about them.
 
         """
-        conf = self._cardConf(card)
+        conf = card.currentConf()
         # normal deck
         if not card.isFiltered():
             return conf['new']
@@ -544,7 +539,7 @@ select id from cards where did in %s and queue = {QUEUE_REV} and due <= ? limit 
         documentation to read more about them.
 
         """
-        conf = self._cardConf(card)
+        conf = card.currentConf()
         # normal deck
         if not card.isFiltered():
             return conf['lapse']

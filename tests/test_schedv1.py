@@ -104,10 +104,10 @@ def test_newBoxes():
     d.addNote(f)
     d.reset()
     c = d.sched.getCard()
-    d.sched._cardConf(c)['new']['delays'] = [1,2,3,4,5]
+    c.currentConf()['new']['delays'] = [1,2,3,4,5]
     d.sched.answerCard(c, 2)
     # should handle gracefully
-    d.sched._cardConf(c)['new']['delays'] = [1]
+    c.currentConf()['new']['delays'] = [1]
     d.sched.answerCard(c, 2)
 
 def test_learn():
@@ -122,7 +122,7 @@ def test_learn():
     # sched.getCard should return it, since it's due in the past
     c = d.sched.getCard()
     assert c
-    d.sched._cardConf(c)['new']['delays'] = [0.5, 3, 10]
+    c.currentConf()['new']['delays'] = [0.5, 3, 10]
     # fail it
     d.sched.answerCard(c, 1)
     # it should have three reps left to graduation
@@ -218,7 +218,7 @@ def test_learn_day():
     f = d.addNote(f)
     d.sched.reset()
     c = d.sched.getCard()
-    d.sched._cardConf(c)['new']['delays'] = [1, 10, 1440, 2880]
+    c.currentConf()['new']['delays'] = [1, 10, 1440, 2880]
     # pass it
     d.sched.answerCard(c, 2)
     # two reps to graduate, 1 more today
@@ -263,7 +263,7 @@ def test_learn_day():
     c.flush()
     d.reset()
     assert d.sched.counts() == (0, 0, 1)
-    d.sched._cardConf(c)['lapse']['delays'] = [1440]
+    c.currentConf()['lapse']['delays'] = [1440]
     c = d.sched.getCard()
     d.sched.answerCard(c, 1)
     assert c.queue == QUEUE_DAY_LRN
@@ -292,7 +292,7 @@ def test_reviews():
     ##################################################
     # different delay to new
     d.reset()
-    d.sched._cardConf(c)['lapse']['delays'] = [2, 20]
+    c.currentConf()['lapse']['delays'] = [2, 20]
     d.sched.answerCard(c, 1)
     assert c.queue == QUEUE_LRN
     # it should be due tomorrow, with an interval of 1
@@ -481,7 +481,7 @@ def test_nextIvl():
     # failing it should put it at 60s
     assert ni(c, 1) == 60
     # or 1 day if relearn is false
-    d.sched._cardConf(c)['lapse']['delays']=[]
+    c.currentConf()['lapse']['delays']=[]
     assert ni(c, 1) == 1*86400
     # (* 100 1.2 86400)10368000.0
     assert ni(c, 2) == 10368000
@@ -787,7 +787,7 @@ def test_cram_resched():
     assert c.ivl == 100
     assert c.due == -25
     # lapsed card pulled into cram
-    # d.sched._cardConf(c)['lapse']['mult']=0.5
+    # c.currentConf()['lapse']['mult']=0.5
     # d.sched.answerCard(c, 1)
     # d.sched.rebuildDyn(did)
     # d.reset()
@@ -909,7 +909,7 @@ def test_timing():
     d.reset()
     c = d.sched.getCard()
     # set a a fail delay of 1 second so we don't have to wait
-    d.sched._cardConf(c)['lapse']['delays'][0] = 1/60.0
+    c.currentConf()['lapse']['delays'][0] = 1/60.0
     d.sched.answerCard(c, 1)
     # the next card should be another review
     c = d.sched.getCard()
@@ -1103,7 +1103,7 @@ def test_norelearn():
     c.flush()
     d.reset()
     d.sched.answerCard(c, 1)
-    d.sched._cardConf(c)['lapse']['delays'] = []
+    c.currentConf()['lapse']['delays'] = []
     d.sched.answerCard(c, 1)
 
 def test_failmult():
@@ -1121,7 +1121,7 @@ def test_failmult():
     c.lapses = 1
     c.startTimer()
     c.flush()
-    d.sched._cardConf(c)['lapse']['mult'] = 0.5
+    c.currentConf()['lapse']['mult'] = 0.5
     c = d.sched.getCard()
     d.sched.answerCard(c, 1)
     assert c.ivl == 50

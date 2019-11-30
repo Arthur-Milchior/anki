@@ -314,3 +314,6 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
     def originalConf(self):
         """Independantly of whether the card is filtered or not."""
         return self.originalDeck().getConf()
+
+    def currentConf(self):
+        return self.currentDeck().getConf()

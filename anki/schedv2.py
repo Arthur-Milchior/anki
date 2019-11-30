@@ -102,7 +102,7 @@ class Scheduler(BothScheduler):
 
     def answerButtons(self, card):
         """The number of buttons to show in the reviewer for `card`"""
-        conf = self._cardConf(card)
+        conf = card.currentConf()
         if card.isFiltered() and not conf['resched']:
             return 2
         return 4
@@ -747,11 +747,11 @@ where id = ?
         return oconf[type]['delays']
 
     def _previewingCard(self, card):
-        conf = self._cardConf(card)
+        conf = card.currentConf()
         return conf.isDyn() and not conf['resched']
 
     def _previewDelay(self, card):
-        return self._cardConf(card).get("previewDelay", 10)*60
+        return card.currentConf().get("previewDelay", 10)*60
 
     # Daily cutoff
     ##########################################################################
