@@ -650,7 +650,7 @@ select id from notes where mid = ?)""" % " ".join(map),
             for index in range(nfields):
                 flds.append(newflds.get(index, ""))
             flds = joinFields(flds)
-            noteData.append(dict(nid=nid, flds=flds, mid=newModel['id'],
+            noteData.append(dict(nid=nid, flds=flds, mid=str(newModel['id']),
                       mod=intTime(),usn=self.col.usn()))
         self.col.db.executemany(
             "update notes set flds=:flds,mid=:mid,mod=:mod,usn=:usn where id = :nid", noteData)

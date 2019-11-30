@@ -236,11 +236,13 @@ def test_modelChange():
     f = deck.newNote()
     f['Front'] = 'f'
     f['Back'] = 'b123'
+    assert str(f.mid) == basic['id']
     deck.addNote(f)
     # switch fields
     map = {0: 1, 1: 0}
     deck.models.change(basic, [f.id], basic, map, None)
     f.load()
+    assert str(f.mid) == basic['id']
     assert f['Front'] == 'b123'
     assert f['Back'] == 'f'
     # switch cards
@@ -252,6 +254,7 @@ def test_modelChange():
     assert c1.ord == 1
     deck.models.change(basic, [f.id], basic, None, map)
     f.load(); c0.load(); c1.load()
+    assert str(f.mid) == basic['id']
     assert "f" in c0.q()
     assert "b123" in c1.q()
     assert c0.ord == 1
@@ -262,6 +265,7 @@ def test_modelChange():
     map = {0: None, 1: 1}
     deck.models.change(basic, [f.id], basic, None, map)
     f.load()
+    assert str(f.mid) == basic['id']
     c0.load()
     # the card was deleted
     try:
@@ -276,6 +280,7 @@ def test_modelChange():
     assert f['Back'] == 'f'
     deck.models.change(basic, [f.id], basic, map, None)
     f.load()
+    assert str(f.mid) == basic['id']
     assert f['Front'] == ''
     assert f['Back'] == 'f'
     # another note to try model conversion
@@ -288,12 +293,15 @@ def test_modelChange():
     map = {0: 0, 1: 1}
     deck.models.change(basic, [f.id], cloze, map, map)
     f.load()
+    assert str(f.mid) == cloze['id']
     assert f['Text'] == "f2"
     assert len(f.cards()) == 2
     # back the other way, with deletion of second ord
     deck.models.remTemplate(basic, basic['tmpls'][1])
     assert deck.db.scalar("select count() from cards where nid = ?", f.id) == 2
     deck.models.change(cloze, [f.id], basic, map, map)
+    f.load()
+    assert str(f.mid) == basic['id']
     assert deck.db.scalar("select count() from cards where nid = ?", f.id) == 1
 
 def test_templates():
