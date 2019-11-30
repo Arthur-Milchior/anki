@@ -581,7 +581,7 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
             else:
                 card.did = note.model()['did']
         # if invalid did, use default instead
-        deck = self.decks.get(card.did)
+        deck = card.currentDeck()
         if deck.isDyn():
             # must not be a filtered deck
             card.did = 1

@@ -99,7 +99,7 @@ order by due""" % (self.col.decks._deckLimit()),
 
     def _updateStats(self, card, type, cnt=1):
         key = type+"Today"
-        for ancestor in self.col.decks.get(card.did).getAncestors(includeSelf=True):
+        for ancestor in card.currentDeck().getAncestors(includeSelf=True):
             # add
             ancestor[key][1] += cnt
             ancestor.save()
@@ -514,7 +514,7 @@ select id from cards where did in %s and queue = {QUEUE_REV} and due <= ? limit 
     def _cardConf(self, card):
         """The configuration of this card's deck. See decks.py
         documentation to read more about them."""
-        return self.col.decks.get(card.did).getConf()
+        return card.currentDeck().getConf()
 
     def _newConf(self, card):
         """The configuration for "new" of this card's deck.See decks.py
