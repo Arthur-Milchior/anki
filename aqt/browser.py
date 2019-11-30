@@ -2201,7 +2201,7 @@ class ChangeModel(QDialog):
         self.rebuildTemplateMap()
         self.rebuildFieldMap()
 
-    def rebuildMap(self, key, attr):
+    def rebuildMap(self, key, src, dst):
         """Change the "Cards" subwindow of the Change Note Type.
 
         Actually, if key and attr are given, it may change another
@@ -2209,8 +2209,6 @@ class ChangeModel(QDialog):
         """
         map = getattr(self, key + "widg")
         lay = getattr(self, key + "layout")
-        src = self.oldModel[attr]
-        dst = self.targetModel[attr]
         if map:
             lay.removeWidget(map)
             map.deleteLater()
@@ -2240,11 +2238,11 @@ class ChangeModel(QDialog):
 
     def rebuildTemplateMap(self):
         """Change the "Template" subwindow of the Change Note Type."""
-        return self.rebuildMap(key="t", attr="tmpls")
+        return self.rebuildMap("t", self.oldModel["tmpls"], self.targetModel["tmpls"])
 
     def rebuildFieldMap(self):
         """Change the "Fields" subwindow of the Change Note Type."""
-        return self.rebuildMap(key="f", attr="flds")
+        return self.rebuildMap("f", self.oldModel["flds"], self.targetModel["flds"])
 
     def onComboChanged(self, i, cb, key):
         indices = getattr(self, key + "indices")
