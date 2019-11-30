@@ -528,6 +528,8 @@ select id from notes where mid = ?)""" % " ".join(map),
         """
         self.col.modSchema(check=True)
         assert newModel.getId() == model.getId() or (fmap and cmap)
+        assert not self.col.db.list("select id from notes where mid <> ? and id in "+ids2str(nids), model.getId())
+
         if fmap:
             self._changeNotes(nids, newModel, fmap)
         if cmap:
