@@ -453,4 +453,6 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         if not ords and allowEmpty:
             # empty clozes use first ord
             return [0]
-        return list(ords)
+        l = list(ords)
+        l.sort()
+        return l
