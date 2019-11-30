@@ -45,7 +45,7 @@ def test_fields():
     m = d.models.current()
     # make sure renaming a field updates the templates
     m['flds'][0].rename("NewFront")
-    assert "{{NewFront}}" in m['tmpls'][0]['qfmt']
+    assert "{{NewFront}}" in m.getTemplate()['qfmt']
     h = m.scmhash()
     # add a field
     f = m.newField("foo")
@@ -106,7 +106,7 @@ def test_templates():
     assert c.ord == 1
     assert c2.ord == 0
     # removing a template should delete its cards
-    assert m['tmpls'][0].rem()
+    assert m.getTemplate().rem()
     assert d.cardCount() == 1
     reqSize(m)
     # and should have updated the other cards' ordinals
@@ -117,7 +117,7 @@ def test_templates():
     t = m.newTemplate("tmpl name")
     t.add()
     reqSize(m)
-    assert not m['tmpls'][0].rem()
+    assert not m.getTemplate().rem()
     reqSize(m)
 
 def test_cloze_ordinals():
@@ -131,7 +131,7 @@ def test_cloze_ordinals():
     t['afmt'] = "{{text:cloze:Text}}"
     t.add()
     m.save()
-    m['tmpls'][0].rem()
+    m.getTemplate().rem()
     
     f = d.newNote()
     f['Text'] = '{{c1::firstQ::firstA}}{{c2::secondQ::secondA}}'
@@ -146,7 +146,7 @@ def test_cloze_ordinals():
 def test_text():
     d = getEmptyCol()
     m = d.models.current()
-    m['tmpls'][0]['qfmt'] = "{{text:Front}}"
+    m.getTemplate()['qfmt'] = "{{text:Front}}"
     m.save()
     f = d.newNote()
     f['Front'] = 'hello<b>world'
@@ -223,7 +223,7 @@ def test_chained_mods():
     t['afmt'] = "{{cloze:text:Text}}"
     t.add()
     m.save()
-    m['tmpls'][0].rem()
+    m.getTemplate().rem()
     
     f = d.newNote()
     q1 = '<span style=\"color:red\">phrase</span>'
@@ -332,7 +332,7 @@ def test_templates():
 def test_availOrds():
     d = getEmptyCol()
     m = d.models.current(); mm = d.models
-    t = m['tmpls'][0]
+    t = m.getTemplate()
     f = d.newNote()
     f['Front'] = "1"
     # simple templates

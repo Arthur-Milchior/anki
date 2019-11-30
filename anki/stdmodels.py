@@ -37,7 +37,7 @@ models.append((lambda: _("Basic"), addBasicModel))
 def addBasicTypingModel(col):
     mm = col.models
     model = _newBasicModel(col, _("Basic (type in the answer)"))
-    template = model['tmpls'][0]
+    template = model.getTemplate(0)
     template['qfmt'] = "{{"+_("Front")+"}}\n\n{{type:"+_("Back")+"}}"
     template['afmt'] = "{{"+_("Front")+"}}\n\n<hr id=answer>\n\n{{type:"+_("Back")+"}}"
     model.add()
@@ -73,7 +73,7 @@ def addForwardOptionalReverse(col):
     av = _("Add Reverse")
     fm = model.newField(av)
     fm.add()
-    template = model['tmpls'][1]
+    template = model.getTemplate(1)
     template['qfmt'] = "{{#%s}}%s{{/%s}}" % (av, template['qfmt'], av)
     model.add()
     return model

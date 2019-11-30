@@ -252,6 +252,21 @@ select id from cards where nid in (select id from notes where mid = ?)""",
     def newField(self, name):
         return Field(self, name=name)
 
+    def getTemplate(self, ord=0):
+        """Template at position ord. A cloze template for {{c7 (called by
+        getTemplate(6)) would return a copy of the unique template,
+        where "ord" is set to 6.
+
+        """
+        if self.isStd() or ord==0:
+            return self['tmpls'][ord]
+        else:
+            template = self['tmpls'][0]
+            template = template.deepcopy()
+            template['ord'] = ord
+            template['name'] = _("Card %d") % (ord+1)
+            return template
+
     # Model changing
     ##########################################################################
     # - maps are ord->ord, and there should not be duplicate targets
@@ -421,8 +436,8 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         sflds = splitFields(flds)
         map = self.fieldMap()
         ords = set()
-        matches = re.findall("{{[^}]*?cloze:(?:[^}]?:)*(.+?)}}", self['tmpls'][0]['qfmt'])
-        matches += re.findall("<%cloze:(.+?)%>", self['tmpls'][0]['qfmt'])
+        matches = re.findall("{{[^}]*?cloze:(?:[^}]?:)*(.+?)}}", self.getTemplate()['qfmt'])
+        matches += re.findall("<%cloze:(.+?)%>", self.getTemplate()['qfmt'])
         for fname in matches:
             if fname not in map:
                 continue#Do not consider cloze not related to an existing field

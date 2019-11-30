@@ -250,10 +250,7 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
         """The card's template object. See models.py for a comment of this
         object."""
         model = self.model()
-        if model.isStd():
-            return self.model()['tmpls'][self.ord]
-        else: #In case of cloze
-            return self.model()['tmpls'][0]
+        return self.model().getTemplate(self.ord)
 
     def startTimer(self):
         """Start the timer of the card"""

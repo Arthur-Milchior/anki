@@ -469,9 +469,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             ok = []
             # cloze - generate temporary templates from first
             for ord in avail:
-                template = copy.copy(model['tmpls'][0])
-                template['ord'] = ord
-                ok.append(template)
+                ok.append(model.getTemplate(ord))
         return ok
 
     def genCards(self, nids):
@@ -732,10 +730,7 @@ where card.nid = note.id and card.id in %s group by nid""" % ids2str(cids)):
         # unpack fields and create dict
 
         model = self.models.get(mid, orNone=False)
-        if model.isStd():
-            template = model['tmpls'][ord]
-        else:
-            template = model['tmpls'][0]
+        template = model.getTemplate(ord)
         fields = self._extendedFields(flds, tags, ord, cardFlags, model, template, did)
         # render q & a
         d = dict()
