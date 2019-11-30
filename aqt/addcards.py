@@ -183,7 +183,7 @@ class AddCards(QDialog):
                 help="AddItems#AddError")
             return
         if '{{cloze:' in note.model().getTemplate()['qfmt']:
-            if not note.model()._availClozeOrds(note.joinedFields(), False):
+            if not note.model()._availClozeOrds(note.joinedFields(), False, onlyFirst=True):
                 if not askUser(_("You have a cloze deletion note type "
                 "but have not made any cloze deletions. Proceed?")):
                     return

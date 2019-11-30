@@ -427,11 +427,12 @@ select id from cards where nid in (select id from notes where mid = ?)""",
             avail.append(ord)
         return avail
 
-    def _availClozeOrds(self, flds, allowEmpty=True):
+    def _availClozeOrds(self, flds, allowEmpty=True, onlyFirst=False):
         """The list of fields F which are used in some {{cloze:F}} in a template
         keyword arguments:
         flds: a list of fields as in the database
         allowEmpty: allows to treat a note without cloze field as a note with a cloze number 1
+        onlyFirst -- return a list with one element. Usefull when we only want to test emptyness.
         """
         sflds = splitFields(flds)
         map = self.fieldMap()
@@ -442,10 +443,13 @@ select id from cards where nid in (select id from notes where mid = ?)""",
             if fname not in map:
                 continue#Do not consider cloze not related to an existing field
             ord = map[fname][0]
-            ords.update([int(match)-1 for match in re.findall(
-                r"(?s){{c(\d+)::.+?}}", sflds[ord])])#The number of the cloze of this field, minus one
-        if -1 in ords:#remove cloze 0
-            ords.remove(-1)
+            matches = re.findall(r"(?s){{c(\d+)::.+?}}", sflds[ord])
+            if onlyFirst:
+                for match in matches:
+                    if int(match) != 0:
+                        return [int(match)-1]
+            else:
+                ords.update([int(match)-1 for match in matches if int(match) != 0])#The number of the cloze of this field, minus one
         if not ords and allowEmpty:
             # empty clozes use first ord
             return [0]

@@ -777,7 +777,7 @@ where card.nid = note.id and card.id in %s group by nid""" % ids2str(cids)):
         question = self.__renderQA(fields, model, data, format, "q")
         fields['FrontSide'] = stripSounds(question)
         # empty cloze?
-        if model.isCloze() and not model._availClozeOrds(flds, False):
+        if model.isCloze() and not model._availClozeOrds(flds, False, onlyFirst=True):
              question += ("<p>" + _(
                 "Please edit this note and add some cloze deletions. (%s)") % (
                     "<a href=%s#cloze>%s</a>" % (HELP_SITE, _("help"))))
