@@ -229,9 +229,10 @@ did = ? and queue = {QUEUE_NEW} limit ?)""", did, lim)
         elif self.newCardModulus:
             return self.reps and self.reps % self.newCardModulus == 0
 
-    def _deckNewLimit(self, did, fn=None):
-        if not fn:
-            fn = self._deckNewLimitSingle
+    def _deckNewLimit(self, did):
+        return self._deckLimit(did, self._deckNewLimitSingle)
+
+    def _deckLimit(self, did, fn):
         lim = -1
         # for the deck and each of its parents
         for ancestor in self.col.decks.get(did).getAncestors(includeSelf=True):
