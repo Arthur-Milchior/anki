@@ -1076,19 +1076,19 @@ by clicking on one on the left."""))
             item.setIcon(0, QIcon(":/icons/tag.svg"))
 
     def _decksTree(self, root):
-        grps = self.col.sched.deckDueTree()
-        def fillGroups(root, grps, head=""):
-            for grp in grps:
-                deck = self.mw.col.decks.get(grp[1])
+        deck = self.col.decks.topLevel
+        def fillGroups(root, decks, head=""):
+            for deck in decks:
+                children = deck.getBaseName()
                 item = self.CallbackItem(
-                    root, grp[0],
-                    lambda grp=grp: self.setFilter("deck", head+grp[0]),
-                    lambda grp=grp: deck.collapseBrowser(),
+                    root, children,
+                    lambda deck=deck: self.setFilter("deck", head+deck.getId()),
+                    lambda deck=deck: deck.collapseBrowser(),
                     not deck.get('browserCollapsed', False))
                 item.setIcon(0, QIcon(":/icons/deck.svg"))
-                newhead = head + grp[0]+"::"
-                fillGroups(item, grp[5], newhead)
-        fillGroups(root, grps)
+                newhead = head + deck.getBaseName() + "::"
+                fillGroups(item, deck.getChildren(), newhead)
+        fillGroups(root, deck.getChildren())
 
     def _modelTree(self, root):
         for model in sorted(self.col.models.all(), key=itemgetter("name")):
