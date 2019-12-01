@@ -1210,9 +1210,10 @@ by clicking on one on the left."""))
 
     def _deckFilters(self):
         def addDecks(parent, decks):
-            for head, did, rev, lrn, new, children in decks:
-                name = self.mw.col.decks.get(did).getName()
-                shortname = DeckManager._basename(name)
+            for deck in decks:
+                name = deck.getName()
+                shortname = deck.getBaseName()
+                children = deck.getChildren()
                 if children:
                     subm = parent.addMenu(shortname)
                     subm.addItem(_("Filter"), self._filterFunc("deck", name))
@@ -1222,7 +1223,7 @@ by clicking on one on the left."""))
                     parent.addItem(shortname, self._filterFunc("deck", name))
 
         # fixme: could rewrite to avoid calculating due # in the future
-        alldecks = self.col.sched.deckDueTree()
+        alldecks = self.col.decks.topLevel.getChildren()
         ml = MenuList()
         addDecks(ml, alldecks)
 
