@@ -26,7 +26,7 @@ class Deck(DictAugmentedDyn):
         if self.parent is not None:
             self.parent.addChild(self)
         else:
-            assert self.exporting or self.isTopLevel()
+            assert self.exporting or self.isAboveTopLevel()
             # no need for parent when exporting, since the deck won't be modified
 
     def addInModel(self):
@@ -105,13 +105,13 @@ class Deck(DictAugmentedDyn):
                     "select id from cards where did=? or odid=?", self.getId(), self.getId())
                 self.manager.col.remCards(cids)
         # delete the deck and add a grave (it seems no grave is added)
-        if not self.isTopLevel():
+        if not self.isAboveTopLevel():
             self.parent.removeChild(self)
         del self.manager.decks[str(self.getId())]
         del self.manager.decksByNames[self.getNormalizedName()]
         # ensure we have an active deck.
         if self.getId() in self.manager.active():
-            self.manager.get(int(list(self.manager.decks.keys())[0])).select()
+            self.manager.all()[0].select()
         self.manager.save()
 
     def rename(self, newName):
@@ -129,8 +129,7 @@ class Deck(DictAugmentedDyn):
         # make sure target node doesn't already exist
         if self.manager.byName(newName):
             raise DeckRenameError(_("That deck already exists."))
-        if self.parent is not None:
-            self.parent.removeChild(self)
+        self.parent.removeChild(self)
         # rename children
         oldName = self.getName()
         for child in self.getDescendants(includeSelf=True):
@@ -141,8 +140,7 @@ class Deck(DictAugmentedDyn):
         # ensure we have parents again, as we may have renamed parent->child
         parent, newName = self.manager._ensureParents(newName)
         self.parent = parent
-        if self.parent is not None:
-            self.parent.addChild(self)
+        self.parent.addChild(self)
         # renaming may have altered active did order
         self.manager.maybeAddToActive()
 
@@ -193,7 +191,10 @@ class Deck(DictAugmentedDyn):
     #############################################################
 
     def isTopLevel(self):
-        return "::" not in self.getName()
+        return "::" not in self.getName() and not self.isAboveTopLevel()
+
+    def isAboveTopLevel(self):
+        return self.getName() == ""
 
     def getParentName(self):
         return self.manager.parentName(self.getName())
@@ -207,7 +208,7 @@ class Deck(DictAugmentedDyn):
     def getAncestors(self, includeSelf=False):
         l = []
         current = self if includeSelf else self.parent
-        while current != None:
+        while not current.isAboveTopLevel() :
             l.append(current)
             current = current.parent
         l.reverse()
@@ -334,7 +335,7 @@ class Deck(DictAugmentedDyn):
         return self.get('conf')
 
     def getConf(self):
-        if 'conf' in self:
+        if self.isStd():
             conf = self.manager.getConf(self['conf'])
             conf.setStd()
             return conf
@@ -391,6 +392,7 @@ class Deck(DictAugmentedDyn):
         of its children.
 
         Also mark the manager as changed."""
+        assert not self.isAboveTopLevel()
         # make sure arg is an int
         did = int(self.getId())
         # current deck

@@ -7,14 +7,14 @@ from tests.shared import assertException, getEmptyCol
 def test_basic():
     deck = getEmptyCol()
     # we start with a standard deck
-    assert len(deck.decks.decks) == 1
+    assert len(deck.decks.all()) == 1
     # it should have an id of 1
     assert deck.decks.name(1)
     # create a new deck
     parent = deck.decks.byName("new deck", create=True)
     assert parent
     parentId = parent.getId()
-    assert len(deck.decks.decks) == 2
+    assert len(deck.decks.all()) == 2
     # should get the same id
     assert deck.decks.id("new deck") == parentId
     # we start with the default deck selected

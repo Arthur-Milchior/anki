@@ -960,7 +960,7 @@ def test_deckDue():
     foobaz = f.model()['did'] = d.decks.id("foo::baz")
     d.addNote(f)
     d.reset()
-    assert len(d.decks.decks) == 5
+    assert len(d.decks.all()) == 5
     cnts = d.sched.deckDueList()
     assert cnts[0] == ["Default", 1, 0, 0, 1]
     assert cnts[1] == ["Default::1", default1, 1, 0, 0]
