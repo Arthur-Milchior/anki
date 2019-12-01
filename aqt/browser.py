@@ -1076,9 +1076,8 @@ by clicking on one on the left."""))
             item.setIcon(0, QIcon(":/icons/tag.svg"))
 
     def _decksTree(self, root):
-        deck = self.col.decks.topLevel
-        def fillGroups(root, decks, head=""):
-            for deck in decks:
+        def fillGroups(root, processedDeck, head=""):
+            for deck in processedDeck.getChildren():
                 children = deck.getBaseName()
                 item = self.CallbackItem(
                     root, children,
@@ -1087,8 +1086,8 @@ by clicking on one on the left."""))
                     not deck.get('browserCollapsed', False))
                 item.setIcon(0, QIcon(":/icons/deck.svg"))
                 newhead = head + deck.getBaseName() + "::"
-                fillGroups(item, deck.getChildren(), newhead)
-        fillGroups(root, deck.getChildren())
+                fillGroups(item, deck, newhead)
+        fillGroups(root, self.col.decks.topLevel)
 
     def _modelTree(self, root):
         for model in sorted(self.col.models.all(), key=itemgetter("name")):
