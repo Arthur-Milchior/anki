@@ -398,6 +398,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     def reset(self):
         """See sched's reset documentation"""
         self.sched.reset()
+        self.decks.reset()
 
     # Deletion logging
     ##########################################################################

@@ -4,7 +4,8 @@ import copy
 import time
 
 from anki.consts import *
-from anki.hooks import addHook
+from anki.deck import *
+from anki.hooks import addHook, runHook
 from anki.utils import intTime
 from tests.shared import getEmptyCol
 
@@ -25,14 +26,22 @@ def test_basics():
 
 def test_new():
     d = getEmptyCol()
+    deck = d.decks.current()
+    assert deck.resetted == NO_VALUES
     d.reset()
-    assert d.sched.newCount == 0
+    assert d.sched.newCount() == 0
+    assert deck.resetted == NUMS
     # add a note
     f = d.newNote()
     f['Front'] = "one"; f['Back'] = "two"
     d.addNote(f)
     d.reset()
-    assert d.sched.newCount == 1
+    assert d.db.scalar(f"select count() from cards where queue = {QUEUE_NEW}") == 1
+    assert d.db.scalar(f"select count() from cards where queue = {QUEUE_NEW} and did = 1") == 1
+    assert deck.getId() == 1
+    assert deck.resetted == NO_VALUES
+    assert deck.getCount('new') == 1
+    assert d.sched.newCount() == 1
     # fetch it
     c = d.sched.getCard()
     assert c
@@ -70,6 +79,7 @@ def test_new():
 def test_newLimits():
     d = getEmptyCol()
     # add some notes
+    g1 = d.decks.byName("Default", create=False)
     g2 = d.decks.byName("Default::foo", create=True)
     for i in range(30):
         f = d.newNote()
@@ -79,23 +89,30 @@ def test_newLimits():
         d.addNote(f)
     # give the child deck a different configuration
     c2 = d.decks.newConf("new conf")
-    d.decks.get(g2).setConf(c2)
+    g2.setConf(c2)
     d.reset()
     # both confs have defaulted to a limit of 20
-    assert d.sched.newCount == 20
+    assert d.sched.newCount() == 20
     # first card we get comes from parent
     c = d.sched.getCard()
     assert c.did == 1
     # limit the parent to 10 cards, meaning we get 10 in total
-    conf1 = d.decks.get(1).getConf()
+    conf1 = g1.getConf()
     conf1['new']['perDay'] = 10
     d.reset()
-    assert d.sched.newCount == 10
+    assert g1.getCount('new') == 10
+    assert d.sched.newCount() == 10
     # if we limit child to 4, we should get 9
     conf2 = g2.getConf()
     conf2['new']['perDay'] = 4
     d.reset()
-    assert d.sched.newCount == 9
+    assert g1.getCount('new', 'lim') == 10
+    assert g2.getCount('new', 'lim') == 4
+    assert g2.getCount('new') == 4
+    # assert g2.count['single']['unseen'] == 25
+    assert g2.count['']['new'] == 4
+    # assert g1.count['single']['unseen'] == 5
+    assert d.sched.newCount() == 9
 
 def test_newBoxes():
     d = getEmptyCol()
@@ -418,19 +435,32 @@ def test_overdue_lapse():
 
 def test_finished():
     d = getEmptyCol()
+    assert d.sched.allRevDue() == 0
+    assert d.sched.unseenDue() == 0
+    assert d.sched.haveBuried() == 0
+    assert d.sched.newCount() == 0
     # nothing due
     assert "Congratulations" in d.sched.finishedMsg()
     assert "limit" not in d.sched.finishedMsg()
     f = d.newNote()
     f['Front'] = "one"; f['Back'] = "two"
     d.addNote(f)
+    d.reset()
     # have a new card
     assert "new cards available" in d.sched.finishedMsg()
     # turn it into a review
-    d.reset()
-    c = f.cards()[0]
+    assert d.sched.allRevDue() == 0
+    assert d.sched.unseenDue() == 1
+    assert d.sched.haveBuried() == 0
+    assert d.sched.newCount() == 1
+    c = d.sched.getCard()
     c.startTimer()
     d.sched.answerCard(c, 3)
+    d.reset()
+    assert d.sched.allRevDue() == 0
+    assert d.sched.unseenDue() == 0
+    assert d.sched.haveBuried() == 0
+    assert d.sched.newCount() == 0
     # nothing should be due tomorrow, as it's due in a week
     assert "Congratulations" in d.sched.finishedMsg()
     assert "limit" not in d.sched.finishedMsg()
@@ -496,7 +526,7 @@ def test_misc():
     f = d.newNote()
     f['Front'] = "one"
     d.addNote(f)
-    c = f.cards()[0]
+    c = d.sched.getCard()
     # burying
     d.sched.buryNote(c.nid)
     d.reset()
@@ -510,7 +540,7 @@ def test_suspend():
     f = d.newNote()
     f['Front'] = "one"
     d.addNote(f)
-    c = f.cards()[0]
+    c = d.sched.getCard()
     # suspending
     d.reset()
     assert d.sched.getCard()
@@ -553,7 +583,7 @@ def test_cram():
     f = d.newNote()
     f['Front'] = "one"
     d.addNote(f)
-    c = f.cards()[0]
+    c = d.sched.getCard()
     c.ivl = 100
     c.type = c.queue = QUEUE_REV
     # due in 25 days, so it's been waiting 75 days
@@ -571,7 +601,7 @@ def test_cram():
     d.sched.rebuildDyn(cram.getId())
     d.reset()
     # should appear as new in the deck list
-    assert sorted(d.sched.deckDueList())[0][4] == 1
+    assert d.decks.all(sort=True)[0].getCount('new') == 1
     # and should appear in the counts
     assert d.sched.counts() == (1,0,0)
     # grab it and check estimates
@@ -617,6 +647,7 @@ def test_cram():
     d.reset()
     c = d.sched.getCard()
     # check ivls again - passing should be idempotent
+    assert c
     assert d.sched.nextIvl(c, 1) == 60
     assert d.sched.nextIvl(c, 2) == 600
     assert d.sched.nextIvl(c, 3) == 138*60*60*24
@@ -630,7 +661,7 @@ def test_cram():
     assert d.sched.nextIvl(c, 3) == 86400
     # delete the deck, returning the card mid-study
     d.decks.get(d.decks.selected()).rem()
-    assert len(d.sched.deckDueList()) == 1
+    assert len(d.decks.all()) == 1
     c.load()
     assert c.ivl == 1
     assert c.due == d.sched.today+1
@@ -670,7 +701,7 @@ def test_cram_rem():
     f = d.newNote()
     f['Front'] = "one"
     d.addNote(f)
-    oldDue = f.cards()[0].due
+    oldDue = d.sched.getCard().due
     deck = d.decks.newDyn("Cram")
     did = deck.getId()
     d.sched.rebuildDyn(did)
@@ -721,6 +752,7 @@ def test_cram_resched():
     d.sched.rebuildDyn(did)
     d.reset()
     c = d.sched.getCard()
+    assert c
     assert ni(c, 1) == 600
     assert ni(c, 2) == 0
     assert ni(c, 3) == 0
@@ -883,7 +915,9 @@ def test_repCounts():
     f = d.newNote()
     f['Front'] = "three"
     d.addNote(f)
-    c = f.cards()[0]
+    d.reset()
+    c = d.sched.getCard()
+    assert c
     c.type = CARD_DUE
     c.queue = QUEUE_REV
     c.due = d.sched.today
@@ -901,6 +935,7 @@ def test_timing():
         f['Front'] = "num"+str(i)
         d.addNote(f)
         c = f.cards()[0]
+        assert c
         c.type = CARD_DUE
         c.queue = QUEUE_REV
         c.due = 0
@@ -958,37 +993,40 @@ def test_deckDue():
     f = d.newNote()
     f['Front'] = "three"
     foobaz = f.model()['did'] = d.decks.id("foo::baz")
+    foo = d.decks.id("foo")
     d.addNote(f)
     d.reset()
-    assert len(d.decks.all()) == 5
-    cnts = d.sched.deckDueList()
-    assert cnts[0] == ["Default", 1, 0, 0, 1]
-    assert cnts[1] == ["Default::1", default1, 1, 0, 0]
-    assert cnts[2] == ["foo", d.decks.id("foo"), 0, 0, 0]
-    assert cnts[3] == ["foo::bar", foobar, 0, 0, 1]
-    assert cnts[4] == ["foo::baz", foobaz, 0, 0, 1]
-    tree = d.sched.deckDueTree()
-    assert tree[0][0] == "Default"
+    cnts = d.decks.all(sort=True)
+    assert len(cnts) == 5
+    def l(i):
+        d = cnts[i]
+        return [d.getName(), d.getId(), d.getCount('rev', 'single'), d.getCount('lrn', 'single'), d.getCount('new', 'single')]
+    assert l(1) == ["Default::1", default1, 1, 0, 0]
+    assert l(0) == ["Default",           1, 0, 0, 1]
+    assert l(3) == ["foo::bar",     foobar, 0, 0, 1]
+    assert l(4) == ["foo::baz",     foobaz, 0, 0, 1]
+    assert l(2) == ["foo",             foo, 0, 0, 0]
+    tree = d.decks.topLevel.getChildren()
+    assert tree[0].getBaseName() == "Default"
     # sum of child and parent
-    assert tree[0][1] == 1
-    assert tree[0][2] == 1
-    assert tree[0][4] == 1
+    assert tree[0].getId() == 1
+    assert tree[0].getCount('rev') == 1
+    assert tree[0].getCount('new') == 1
     # child count is just review
-    assert tree[0][5][0][0] == "1"
-    assert tree[0][5][0][1] == default1
-    assert tree[0][5][0][2] == 1
-    assert tree[0][5][0][4] == 0
+    assert tree[0].getChildren()[0].getBaseName() == "1"
+    assert tree[0].getChildren()[0].getId() == default1
+    assert tree[0].getChildren()[0].getCount('rev') == 1
+    assert tree[0].getChildren()[0].getCount('new') == 0
     # code should not fail if a card has an invalid deck
     c.did = 12345; c.flush()
-    d.sched.deckDueList()
-    d.sched.deckDueTree()
+    d.decks.setAll()
 
 def test_deckTree():
     d = getEmptyCol()
     d.decks.id("new::b::c")
     d.decks.id("new2")
     # new should not appear twice in tree
-    names = [x[0] for x in d.sched.deckDueTree()]
+    names = list(d.decks.allNames())
     names.remove("new")
     assert "new" not in names
 
@@ -1030,12 +1068,13 @@ def test_reorder():
     # 50/50 chance of being reordered
     for i in range(20):
         d.sched.randomizeCards(1)
-        if f.cards()[0].due != f.id:
+        if d.sched.getCard().due != f.id:
             found=True
             break
     assert found
     d.sched.orderCards(1)
-    assert f.cards()[0].due == 1
+    d.reset()
+    assert d.sched.getCard().due == 1
     # shifting
     f3 = d.newNote()
     f3['Front'] = "three"
@@ -1043,6 +1082,7 @@ def test_reorder():
     f4 = d.newNote()
     f4['Front'] = "four"
     d.addNote(f4)
+    d.reset()
     assert f.cards()[0].due == 1
     assert f2.cards()[0].due == 2
     assert f3.cards()[0].due == 3
@@ -1059,7 +1099,7 @@ def test_forget():
     f = d.newNote()
     f['Front'] = "one"
     d.addNote(f)
-    c = f.cards()[0]
+    c = d.sched.getCard()
     c.queue = QUEUE_REV; c.type = CARD_DUE; c.ivl = 100; c.due = 0
     c.flush()
     d.reset()
@@ -1073,7 +1113,7 @@ def test_resched():
     f = d.newNote()
     f['Front'] = "one"
     d.addNote(f)
-    c = f.cards()[0]
+    c = d.sched.getCard()
     d.sched.reschedCards([c.id], 0, 0)
     c.load()
     assert c.due == d.sched.today
@@ -1091,7 +1131,7 @@ def test_norelearn():
     f = d.newNote()
     f['Front'] = "one"
     d.addNote(f)
-    c = f.cards()[0]
+    c = d.sched.getCard()
     c.type = CARD_DUE
     c.queue = QUEUE_REV
     c.due = 0
@@ -1111,7 +1151,8 @@ def test_failmult():
     f = d.newNote()
     f['Front'] = "one"; f['Back'] = "two"
     d.addNote(f)
-    c = f.cards()[0]
+    d.reset()
+    c = d.sched.getCard()
     c.type = CARD_DUE
     c.queue = QUEUE_REV
     c.ivl = 100
@@ -1122,7 +1163,9 @@ def test_failmult():
     c.startTimer()
     c.flush()
     c.currentConf()['lapse']['mult'] = 0.5
+    d.reset()
     c = d.sched.getCard()
+    assert c
     d.sched.answerCard(c, 1)
     assert c.ivl == 50
     d.sched.answerCard(c, 1)

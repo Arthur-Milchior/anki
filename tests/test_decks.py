@@ -43,7 +43,7 @@ def test_basic():
     n['Front'] = "abc"
     deck.addNote(n)
     # this will error if child and parent case don't match
-    deck.sched.deckDueList()
+    deck.decks.setAll()
 
 def test_remove():
     deck = getEmptyCol()

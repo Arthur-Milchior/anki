@@ -11,7 +11,7 @@ from anki.consts import *
 from anki.dconf import DConf, defaultConf
 from anki.deck import Deck
 from anki.errors import DeckRenameError
-from anki.hooks import runHook
+from anki.hooks import addHook, runHook
 from anki.lang import _
 from anki.utils import ids2str, intTime, json
 
@@ -167,6 +167,12 @@ class DeckManager:
         self.changed = False
         self.loadDeck(decks)
         self.loadConf(dconf)
+    #     addHook('reset', self.reset)
+
+    def reset(self):
+        # hook is not in deck; because otherwise it would be called even on deleted decks.
+        for deck in self.all():
+            deck.reset()
 
     def loadDeck(self, decks):
         self.decks = {}
@@ -274,7 +280,7 @@ class DeckManager:
         """A list of all deck's id.
 
         sort -- whether to sort by name"""
-        return map(operator.itemgetter("id"), self.all(sort=sort, dyn=dyn))
+        return [deck["id"] for deck in self.all(sort=sort, dyn=dyn)]
 
     def count(self):
         """The number of decks."""
@@ -521,3 +527,26 @@ class DeckManager:
     @staticmethod
     def equalName(name1, name2):
         return DeckManager.normalizeName(name1) == DeckManager.normalizeName(name2)
+
+    # Cards informations
+    #############################################################
+
+    def setLimits(self, decks=None):
+        """Computes limits and numbers for decks.
+
+        if decks is a list, they must be in alphabetical
+        order. Otherwise, all decks are considered"""
+        if decks is None:
+            decks = self.all()
+        for deck in decks:
+            deck.setLims()
+
+    def setNum(self, decks=None):
+        if decks is None:
+            decks = self.all()
+        for deck in reversed(decks):
+            deck.setNums()
+
+    def setAll(self, decks=None):
+        self.setLimits(decks)
+        self.setNum(decks)

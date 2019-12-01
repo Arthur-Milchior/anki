@@ -88,13 +88,12 @@ class DeckBrowser:
     def _renderPage(self, reuse=False):
         """Write the HTML of the deck browser. Move to the last vertical position."""
         if not reuse:
-            self._dueTree = self.mw.col.sched.deckDueTree()
             self.__renderPage(None)
             return
         self.web.evalWithCallback("window.pageYOffset", self.__renderPage)
 
     def __renderPage(self, offset):
-        tree = self._renderDeckTree(self._dueTree)
+        tree = self._renderDeckTree(self.mw.col.decks.topLevel.getChildren())
         stats = self._renderStats()
         self.web.stdHtml(self._body%dict(
             tree=tree, stats=stats, countwarn=self._countWarn()),
@@ -139,13 +138,13 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
                     """
   </div>""")))
 
-    def _renderDeckTree(self, nodes, depth=0):
+    def _renderDeckTree(self, decks, depth=0):
         """Html used to show the deck tree.
 
         keyword arguments
         depth -- the number of ancestors, excluding itself
-        nodes -- A list of nodes, to render, with the same parent. See top of this file for detail"""
-        if not nodes:
+        decks -- A list of decks, to render, with the same parent. See top of this file for detail"""
+        if not decks:
             return ""
         if depth == 0:
             #Toplevel
@@ -164,21 +163,26 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             buf += self._topLevelDragRow()
         else:
             buf = ""
-        for node in nodes:
-            buf += self._deckRow(node, depth, len(nodes))
+        for deck in decks:
+            buf += self._deckRow(deck, depth, len(decks))
         if depth == 0:
             buf += self._topLevelDragRow()
         return buf
 
-    def _deckRow(self, node, depth, cnt):
+    def _deckRow(self, deck, depth, cnt):
         """The HTML for a single deck (and its descendant)
 
         Keyword arguments:
-        node -- see in the introduction of the file for a node description
+        deck -- see in the introduction of the file for a deck description
         depth -- indentation argument (number of ancestors)
         cnt --  the number of sibling, counting itself
         """
-        name, did, rev, lrn, new, children = node
+        name = deck.getName()
+        did = deck.getId()
+        rev = deck.getCount('rev')
+        lrn = deck.getCount('lrn')
+        new = deck.getCount('new')
+        children = deck.getChildren()
         deck = self.mw.col.decks.get(did)
         if deck.isDefault() and cnt > 1 and not children:
             # if the default deck is empty, hide it

@@ -54,7 +54,7 @@ class CustomStudy(QDialog):
                 num = "1000+"
             return "<b>"+str(num)+"</b>"
         if idx == RADIO_NEW:
-            new = self.mw.col.sched.totalNewForCurrentDeck()
+            new = self.mw.col.decks.current().getCount('new')
             # get the number of new cards in deck that exceed the new cards limit
             newUnderLearning = min(new, self.conf['new']['perDay'] - self.deck['newToday'][1])
             newExceeding = min(new, new - newUnderLearning)

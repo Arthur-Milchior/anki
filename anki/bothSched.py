@@ -9,6 +9,7 @@ import time
 from heapq import *
 from operator import itemgetter
 
+import anki.consts
 from anki.consts import *
 from anki.hooks import runHook
 from anki.lang import _
@@ -114,66 +115,14 @@ order by due""" % (self.col.decks._deckLimit()),
             deck['revToday'][1] -= rev
             deck.save()
 
-    def _walkingCount(self, limFn=None, cntFn=None):
-        tot = 0
-        pcounts = {}
-        # for each of the active decks
-        for did in self.col.decks.active():
-            # early alphas were setting the active ids as a str
-            did = int(did)
-            # get the individual deck's limit
-            lim = limFn(self.col.decks.get(did))
-            if not lim:
-                continue
-            # check the parents
-            ancestors = self.col.decks.get(did).getAncestors()
-            for ancestor in ancestors:
-                # add if missing
-                if ancestor.getId() not in pcounts:
-                    pcounts[ancestor.getId()] = limFn(ancestor)
-                # take minimum of child and parent
-                lim = min(pcounts[ancestor.getId()], lim)
-            # see how many cards we actually have
-            cnt = cntFn(did, lim)
-            # if non-zero, decrement from parent counts
-            for ancestor in ancestors:
-                pcounts[ancestor.getId()] -= cnt
-            # we may also be a parent
-            pcounts[did] = lim - cnt
-            # and add to running total
-            tot += cnt
-        return tot
-
-    # Deck list
-    ##########################################################################
-
-    def _groupChildren(self, decks):
-        """[subdeck name without parent parts,
-        did, rev, lrn, new (counting subdecks)
-        [recursively the same things for the children]]
-
-        Keyword arguments:
-        decks -- [deckname, did, rev, lrn, new]
-        """
-        # first, split the group names into components
-        for deck in decks:
-            deck[0] = deck[0].split("::")
-        # and sort based on those components
-        decks.sort(key=itemgetter(0))
-        # then run main function
-        return self._groupChildrenMain(decks)
-
     # New cards
     ##########################################################################
 
-    def _resetNewCount(self):
-        cntFn = lambda did, lim: self.col.db.scalar(f"""
-select count() from (select 1 from cards where
-did = ? and queue = {QUEUE_NEW} limit ?)""", did, lim)
-        self.newCount = self._walkingCount(self._deckNewLimitSingle, cntFn)
+    def newCount(self):
+        return self.col.decks.current().getCount('new')
 
     def _resetNew(self):
-        self._resetNewCount()
+        self.newCount()# Allow to reset the new count in deck.
         self._newDids = self.col.decks.active()[:]
         self._newQueue = []
         self._updateNewCardRatio()
@@ -181,11 +130,12 @@ did = ? and queue = {QUEUE_NEW} limit ?)""", did, lim)
     def _fillNew(self):
         if self._newQueue:
             return True
-        if not self.newCount:
+        if not self.newCount():
             return False
         while self._newDids:
             did = self._newDids[0]
-            lim = min(self.queueLimit, self._deckNewLimit(did))
+            deck = self.col.decks.get(did, default=False)
+            lim = min(self.queueLimit, deck.getCount('new', 'lim'))
             if lim:
                 # fill the queue with the current did
                 self._newQueue = self.col.db.list(f"""
@@ -195,7 +145,7 @@ did = ? and queue = {QUEUE_NEW} limit ?)""", did, lim)
                     return True
             # nothing left in the deck; move to next
             self._newDids.pop(0)
-        if self.newCount:
+        if self.newCount():
             # if we didn't get a card but the count is non-zero,
             # we need to check again for any cards that were
             # removed from the queue but not buried
@@ -204,23 +154,23 @@ did = ? and queue = {QUEUE_NEW} limit ?)""", did, lim)
 
     def _getNewCard(self):
         if self._fillNew():
-            self.newCount -= 1
+            self.applyAncestors(lambda deck:deck.increaseValue("new", -1))
             return self.col.getCard(self._newQueue.pop())
 
     def _updateNewCardRatio(self):
         if self.col.conf['newSpread'] == NEW_CARDS_DISTRIBUTE:
-            if self.newCount:
+            if self.newCount():
                 self.newCardModulus = (
-                    (self.newCount + self.revCount) // self.newCount)
+                    (self.newCount() + self.revCount()) // self.newCount())
                 # if there are cards to review, ensure modulo >= 2
-                if self.revCount:
+                if self.revCount():
                     self.newCardModulus = max(2, self.newCardModulus)
                 return
         self.newCardModulus = 0
 
     def _timeForNewCard(self):
         "True if it's time to display a new card when distributing."
-        if not self.newCount:
+        if not self.newCount():
             return False
         if self.col.conf['newSpread'] == NEW_CARDS_LAST:
             return False
@@ -229,58 +179,24 @@ did = ? and queue = {QUEUE_NEW} limit ?)""", did, lim)
         elif self.newCardModulus:
             return self.reps and self.reps % self.newCardModulus == 0
 
-    def _deckNewLimit(self, did):
-        return self._deckLimit(did, self._deckNewLimitSingle)
-
-    def _deckLimit(self, did, fn):
-        lim = -1
-        # for the deck and each of its parents
-        for ancestor in self.col.decks.get(did).getAncestors(includeSelf=True):
-            rem = fn(ancestor)
-            if lim == -1:
-                lim = rem
-            else:
-                lim = min(rem, lim)
-        return lim
-
-    def _newForDeck(self, did, lim):
-        "New count for a single deck."
-        if not lim:
-            return 0
-        lim = min(lim, self.reportLimit)
-        return self.col.db.scalar(f"""
-select count() from
-(select 1 from cards where did = ? and queue = {QUEUE_NEW} limit ?)""", did, lim)
-
-    def _deckNewLimitSingle(self, deck):
-        "Limit for deck without parent limits."
-        if deck.isDyn():
-            return self.reportLimit
-        conf = deck.getConf()
-        return max(0, conf['new']['perDay'] - deck['newToday'][1])
-
-    def totalNewForCurrentDeck(self):
-        return self.col.db.scalar(
-            f"""
-select count() from cards where id in (
-select id from cards where did in %s and queue = {QUEUE_NEW} limit ?)"""
-            % ids2str(self.col.decks.active()), self.reportLimit)
-
-
-
     # Learning queues
     ##########################################################################
 
+    def lrnCount(self):
+        return self.col.decks.current().getCount('lrn')
+
     def _resetLrn(self):
         """Set lrnCount and _lrnDids. Empty _lrnQueue, lrnDayQueu."""
-        self._resetLrnCount()
+        anki.consts.debug = True
+        self.lrnCount() # Allow to reset the lrn count in deck.
+        anki.consts.debug = False
         self._lrnQueue = []
         self._lrnDayQueue = []
         self._lrnDids = self.col.decks.active()[:]
 
     # sub-day learning
     def _fillLrn(self, cutoff, queueIn):
-        if not self.lrnCount:
+        if not self.lrnCount():
             return False
         if self._lrnQueue:
             return True
@@ -294,7 +210,7 @@ limit %d""" % (self.col.decks._deckLimit(), self.reportLimit), lim=self.dayCutof
 
     # daily learning
     def _fillLrnDay(self):
-        if not self.lrnCount:
+        if not self.lrnCount():
             return False
         if self._lrnDayQueue:
             return True
@@ -319,7 +235,7 @@ did = ? and queue = {QUEUE_DAY_LRN} and due <= ? limit ?""",
 
     def _getLrnDayCard(self):
         if self._fillLrnDay():
-            self.lrnCount -= 1
+            self.applyAncestors(lambda deck:deck.increaseValue("lrn", -1))
             return self.col.getCard(self._lrnDayQueue.pop())
 
     def _leftToday(self, delays, left, now=None):
@@ -393,26 +309,20 @@ did = ? and queue = {QUEUE_DAY_LRN} and due <= ? limit ?""",
     # Reviews
     ##########################################################################
 
-    def _deckRevLimitSingle(self, deck):
-        """Maximum number of card to review today in deck d.
+    def revCount(self):
+        return self.col.decks.current().getCount('rev')
 
-        self.reportLimit for dynamic deck. Otherwise the number of review according to deck option, plus the number of review added in custom study today.
-        keyword arguments:
-        d -- a deck object"""
-        # invalid deck selected?
-        if deck.isDyn():
-            return self.reportLimit
-        conf = deck.getConf()
-        return max(0, conf['rev']['perDay'] - deck['revToday'][1])
+    def revLim(self):
+        return self.col.decks.current().getCount('rev', 'lim')
 
     def _resetRev(self):
         """Set revCount, empty _revQueue, _revDids"""
-        self._resetRevCount()
+        self.revCount() # Allow to reset the rev count in deck.
         self._revQueue = []
 
     def _getRevCard(self):
         if self._fillRev():
-            self.revCount -= 1
+            self.applyAncestors(lambda deck: deck.increaseValue('rev', -1))
             return self.col.getCard(self._revQueue.pop())
 
     def totalRevForCurrentDeck(self):
@@ -511,6 +421,10 @@ select id from cards where did in %s and queue = {QUEUE_REV} and due <= ? limit 
     # Tools
     ##########################################################################
 
+    def applyAncestors(self, fn):
+        for deck in self.col.decks.current().getAncestors(includeSelf=True):
+            fn(deck)
+
     def _newConf(self, card):
         """The configuration for "new" of this card's deck.See decks.py
         documentation to read more about them.
@@ -584,12 +498,12 @@ select id from cards where did in %s and queue = {QUEUE_REV} and due <= ? limit 
         line = []
         # the new line replacements are so we don't break translations
         # in a point release
-        if self.revDue():
+        if self.allRevDue():
             line.append(_("""\
 Today's review limit has been reached, but there are still cards
 waiting to be reviewed. For optimum memory, consider increasing
 the daily limit in the options.""").replace("\n", " "))
-        if self.newDue():
+        if self.unseenDue():
             line.append(_("""\
 There are more new cards available, but the daily limit has been
 reached. You can increase the limit in the options, but please
@@ -607,18 +521,13 @@ Some related or buried cards were delayed until a later session.""")+now)
 To study outside of the normal schedule, click the Custom Study button below."""))
         return "<p>".join(line)
 
-    def revDue(self):
-        "True if there are any rev cards due."
-        return self.col.db.scalar(
-            (f"select 1 from cards where did in %s and queue = {QUEUE_REV} "
-             "and due <= ? limit 1") % self.col.decks._deckLimit(),
-            self.today)
+    def allRevDue(self):
+        "True if there are any rev cards due in current deck."
+        return self.col.decks.current().getCount('allRev')
 
-    def newDue(self):
-        "True if there are any new cards due."
-        return self.col.db.scalar(
-            (f"select 1 from cards where did in %s and queue = {QUEUE_NEW} "
-             "limit 1") % (self.col.decks._deckLimit(),))
+    def unseenDue(self):
+        "True if there are any cards unseen in current deck."
+        return self.col.decks.current().getCount('unseen')
 
     def haveBuriedSiblings(self):
         sdids = ids2str(self.col.decks.active())

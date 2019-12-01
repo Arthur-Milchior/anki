@@ -82,14 +82,14 @@ class Scheduler(BothScheduler):
             # repeat after delay
             card.queue = QUEUE_PREVIEW
             card.due = intTime() + self._previewDelay(card)
-            self.lrnCount += 1
+            self.applyAncestors(lambda deck:deck.increaseValue('lrn', 1))
         else: #BUTTON_TWO
             # restore original card state and remove from filtered deck
             self._restorePreviewCard(card)
             self._removeFromFiltered(card)
 
     def counts(self, card=None):
-        counts = [self.newCount, self.lrnCount, self.revCount]
+        counts = [self.newCount(), self.lrnCount(), self.revCount()]
         if card:
             idx = self.countIdx(card)
             counts[idx] += 1
@@ -106,77 +106,6 @@ class Scheduler(BothScheduler):
         if card.isFiltered() and not conf['resched']:
             return 2
         return 4
-
-    # Deck list
-    ##########################################################################
-
-    def deckDueList(self):
-        "Returns [deckname, did, rev, lrn, new]"
-        self._checkDay()
-        self.col.decks.checkIntegrity()
-        decks = self.col.decks.all(sort=True)
-        lims = {}
-        data = []
-        for deck in decks:
-            parentName = deck.getParentName()
-            # new
-            nlim = self._deckNewLimitSingle(deck)
-            if parentName:
-                nlim = min(nlim, lims[parentName][0])
-            new = self._newForDeck(deck.getId(), nlim)
-            # learning
-            lrn = self._lrnForDeck(deck.getId())
-            # reviews
-            if parentName:
-                plim = lims[parentName][1]
-            else:
-                plim = None
-            rlim = self._deckRevLimitSingle(deck, parentLimit=plim)
-            rev = self._revForDeck(deck.getId(), rlim)
-            # save to list
-            data.append([deck.getName(), deck.getId(), rev, lrn, new])
-            # add deck as a parent
-            lims[deck.getName()] = [nlim, rlim]
-        return data
-
-    def deckDueTree(self):
-        return self._groupChildren(self.deckDueList())
-
-    def _groupChildrenMain(self, decks):
-        tree = []
-        # group and recurse
-        def key(deck):
-            return deck[0][0]
-        for (head, tail) in itertools.groupby(decks, key=key):
-            tail = list(tail)
-            did = None
-            rev = 0
-            new = 0
-            lrn = 0
-            children = []
-            for node in tail:
-                if len(node[0]) == 1:
-                    # current node
-                    did = node[1]
-                    rev += node[2]
-                    lrn += node[3]
-                    new += node[4]
-                else:
-                    # set new string to tail
-                    node[0] = node[0][1:]
-                    children.append(node)
-            children = self._groupChildrenMain(children)
-            # tally up children counts
-            for ch in children:
-                lrn += ch[3]
-                new += ch[4]
-            # limit the counts to the deck's limits
-            conf = self.col.decks.get(did).getConf()
-            deck = self.col.decks.get(did)
-            if conf.isStd():
-                new = max(0, min(new, conf['new']['perDay']-deck['newToday'][1]))
-            tree.append((head, did, rev, lrn, new, children))
-        return tuple(tree)
 
     # Getting the next card
     ##########################################################################
@@ -233,23 +162,6 @@ class Scheduler(BothScheduler):
         if self._updateLrnCutoff(force):
             self._resetLrn()
 
-    def _resetLrnCount(self):
-        # sub-day
-        self.lrnCount = self.col.db.scalar(f"""
-select count() from cards where did in %s and queue = {QUEUE_LRN}
-and due < ?""" %
-            self.col.decks._deckLimit(),
-            self._lrnCutoff) or 0
-        # day
-        self.lrnCount += self.col.db.scalar(f"""
-select count() from cards where did in %s and queue = {QUEUE_DAY_LRN}
-and due <= ?""" % self.col.decks._deckLimit(),
-                                            self.today)
-        # previews
-        self.lrnCount += self.col.db.scalar(f"""
-select count() from cards where did in %s and queue = {QUEUE_PREVIEW}
-""" % self.col.decks._deckLimit())
-
     def _resetLrn(self):
         self._updateLrnCutoff(force=True)
         return super()._resetLrn()
@@ -259,7 +171,7 @@ select count() from cards where did in %s and queue = {QUEUE_PREVIEW}
         return super()._fillLrn(intTime() + self.col.conf['collapseTime'], f"({QUEUE_LRN},{QUEUE_PREVIEW})")
 
     def _getLrnCard(self, collapse=False):
-        self._maybeResetLrn(force=collapse and self.lrnCount == 0)
+        self._maybeResetLrn(force=collapse and self.lrnCount() == 0)
         if self._fillLrn():
             cutoff = time.time()
             if collapse:
@@ -267,7 +179,7 @@ select count() from cards where did in %s and queue = {QUEUE_PREVIEW}
             if self._lrnQueue[0][0] < cutoff:
                 id = heappop(self._lrnQueue)[1]
                 card = self.col.getCard(id)
-                self.lrnCount -= 1
+                self.applyAncestors(lambda deck:deck.increaseValue('lrn', -1))
                 return card
 
 
@@ -340,11 +252,11 @@ select count() from cards where did in %s and queue = {QUEUE_PREVIEW}
             card.due = min(self.dayCutoff-1, card.due + fuzz)
             card.queue = QUEUE_LRN
             if card.due < (intTime() + self.col.conf['collapseTime']):
-                self.lrnCount += 1
+                self.applyAncestors(lambda deck:deck.increaseValue('lrn', 1))
                 # if the queue is not empty and there's nothing else to do, make
                 # sure we don't put it at the head of the queue and end up showing
                 # it twice in a row
-                if self._lrnQueue and not self.revCount and not self.newCount:
+                if self._lrnQueue and not self.revCount() and not self.newCount():
                     smallestDue = self._lrnQueue[0][0]
                     card.due = max(card.due, smallestDue+1)
                 heappush(self._lrnQueue, (card.due, card.id))
@@ -432,25 +344,6 @@ and due <= ? limit ?)""",
     # Reviews
     ##########################################################################
 
-    def _currentRevLimit(self):
-        deck = self.col.decks.get(self.col.decks.selected(), default=False)
-        return self._deckRevLimitSingle(deck)
-
-    def _deckRevLimitSingle(self, deck, parentLimit=None):
-        # invalid deck selected?
-        if not deck:
-            return 0
-        lim = super()._deckRevLimitSingle(deck)
-        if parentLimit is not None:
-            return min(parentLimit, lim)
-        elif '::' not in deck.getName():
-            return lim
-        else:
-            for parent in deck.getAncestors():
-                # pass in dummy parentLimit so we don't do parent lookup again
-                lim = min(lim, self._deckRevLimitSingle(parent, parentLimit=lim))
-            return lim
-
     def _revForDeck(self, did, lim, sort=True):
         dids = self.col.decks.get(did).getDescendantsIds(includeSelf=True)
         lim = min(lim, self.reportLimit)
@@ -461,21 +354,13 @@ select count() from
 and due <= ? limit ?)""" % ids2str(dids),
             self.today, lim)
 
-    def _resetRevCount(self):
-        lim = self._currentRevLimit()
-        self.revCount = self.col.db.scalar(f"""
-select count() from (select id from cards where
-did in %s and queue = {QUEUE_REV} and due <= ? limit {lim})""" %
-                                           ids2str(self.col.decks.active()),
-                                           self.today)
-
     def _fillRev(self):
         if self._revQueue:
             return True
-        if not self.revCount:
+        if not self.revCount():
             return False
 
-        lim = min(self.queueLimit, self._currentRevLimit())
+        lim = min(self.queueLimit, self.revLim())
         if lim:
             self._revQueue = self.col.db.list(f"""
 select id from cards where
@@ -489,7 +374,7 @@ limit ?""" % ids2str(self.col.decks.active()),
                 self._revQueue.reverse()
                 return True
 
-        if self.revCount:
+        if self.revCount():
             # if we didn't get a card but the count is non-zero,
             # we need to check again for any cards that were
             # removed from the queue but not buried

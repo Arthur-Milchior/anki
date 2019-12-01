@@ -74,7 +74,7 @@ class Scheduler(BothScheduler):
 
         If cards, then the tuple takes into account the card.
         """
-        counts = [self.newCount, self.lrnCount, self.revCount]
+        counts = [self.newCount(), self.lrnCount(), self.revCount()]
         if card:
             idx = self.countIdx(card)
             if idx == QUEUE_LRN:
@@ -122,97 +122,6 @@ class Scheduler(BothScheduler):
             f"update cards set mod=?,usn=?,queue=type where queue = {QUEUE_SCHED_BURIED} and did in %s"
             % (sids), intTime(), self.col.usn())
 
-    # Deck list
-    ##########################################################################
-
-    def deckDueList(self):
-        """
-        Similar to nodes, without the recursive counting, with the full deck name
-
-        [deckname (with ::),
-        did, rev, lrn, new (not counting subdeck)]"""
-        self._checkDay()
-        self.col.decks.checkIntegrity()
-        decks = self.col.decks.all()
-        decks.sort(key=itemgetter('name'))
-        #lims -- associating to each deck maximum number of new card and of review. Taking custom study into account
-        lims = {}
-        data = []
-        for deck in decks:
-            parentName = deck.getParentName()
-            # new
-            #nlim -- maximal number of new card, taking parent into account
-            nlim = self._deckNewLimitSingle(deck)
-            if parentName:
-                nlim = min(nlim, lims[parentName][0])
-            new = self._newForDeck(deck.getId(), nlim)
-            # learning
-            lrn = self._lrnForDeck(deck.getId())
-            # reviews
-            #rlim -- maximal number of review, taking parent into account
-            rlim = self._deckRevLimitSingle(deck)
-            if parentName:
-                rlim = min(rlim, lims[parentName][1])
-            rev = self._revForDeck(deck.getId(), rlim)
-            # save to list
-            data.append([deck.getName(), deck.getId(), rev, lrn, new])
-            # add deck as a parent
-            lims[deck.getName()] = [nlim, rlim]
-        return data
-
-    def deckDueTree(self):
-        """Generate the node of the main deck. See deckbroser introduction to see what a node is
-        """
-        #something similar to nodes, but without the recursive part
-        nodes_=self.deckDueList()
-        #the actual nodes
-        nodes=self._groupChildren(nodes_)
-        return nodes
-
-    def _groupChildrenMain(self, decks):
-        """
-        [subdeck name without parent parts,
-        did, rev, lrn, new (counting subdecks)
-        [recursively the same things for the children]]
-
-        keyword arguments:
-        grps -- [[subdeck], did, rev, lrn, new] sorted according to the list subdeck. Number for the subdeck precisely"""
-        tree = []
-        # group and recurse
-        def key(deck):
-            return deck[0][0]
-        for (head, tail) in itertools.groupby(decks, key=key):
-            tail = list(tail)
-            did = None
-            rev = 0
-            new = 0
-            lrn = 0
-            children = []
-            for node in tail:
-                if len(node[0]) == 1:
-                    # current node
-                    did = node[1]
-                    rev += node[2]
-                    lrn += node[3]
-                    new += node[4]
-                else:
-                    # set new string to tail
-                    node[0] = node[0][1:]
-                    children.append(node)
-            children = self._groupChildrenMain(children)
-            # tally up children counts
-            for ch in children:
-                rev += ch[2]
-                lrn += ch[3]
-                new += ch[4]
-            # limit the counts to the deck's limits
-            conf = self.col.decks.get(did).getConf()
-            deck = self.col.decks.get(did)
-            if conf.isStd():
-                rev = max(0, min(rev, conf['rev']['perDay']-deck['revToday'][1]))
-                new = max(0, min(new, conf['new']['perDay']-deck['newToday'][1]))
-            tree.append((head, did, rev, lrn, new, children))
-        return tuple(tree)
 
     # Getting the next card
     ##########################################################################
@@ -246,20 +155,6 @@ class Scheduler(BothScheduler):
     # Learning queues
     ##########################################################################
 
-    def _resetLrnCount(self):
-        """Set lrnCount"""
-        # Number of reps which are due today, last seen today caped by report limit, in the selected decks
-        self.lrnCount = self.col.db.scalar(f"""
-select sum(left/1000) from (select left from cards where
-did in %s and queue = {QUEUE_LRN} and due < ? limit %d)""" % (
-            self.col.decks._deckLimit(), self.reportLimit),
-            self.dayCutoff) or 0
-        # Number of cards in learning which are due today, last seen another day caped by report limit, in the selected decks
-        self.lrnCount += self.col.db.scalar(f"""
-select count() from cards where did in %s and queue = {QUEUE_DAY_LRN}
-and due <= ? limit %d""" % (self.col.decks._deckLimit(),  self.reportLimit),
-                                            self.today)
-
     # sub-day learning
     def _fillLrn(self):
         return super()._fillLrn(self.dayCutoff, f"({QUEUE_LRN})")
@@ -272,7 +167,7 @@ and due <= ? limit %d""" % (self.col.decks._deckLimit(),  self.reportLimit),
             if self._lrnQueue[0][0] < cutoff:
                 id = heappop(self._lrnQueue)[1]
                 card = self.col.getCard(id)
-                self.lrnCount -= card.left // 1000
+                self.applyAncestors(lambda deck:deck.increaseValue('lrn', - (card.left // 1000)))
                 return card
 
     def _answerLrnCard(self, card, ease):
@@ -320,12 +215,12 @@ and due <= ? limit %d""" % (self.col.decks._deckLimit(),  self.reportLimit),
             card.due = int(time.time() + delay)
             # due today?
             if card.due < self.dayCutoff:
-                self.lrnCount += card.left // 1000
+                self.applyAncestors(lambda deck:deck.increaseValue('lrn', card.left // 1000))
                 # if the queue is not empty and there's nothing else to do, make
                 # sure we don't put it at the head of the queue and end up showing
                 # it twice in a row
                 card.queue = QUEUE_LRN
-                if self._lrnQueue and not self.revCount and not self.newCount:
+                if self._lrnQueue and not self.revCount() and not self.newCount():
                     smallestDue = self._lrnQueue[0][0]
                     card.due = max(card.due, smallestDue+1)
                 heappush(self._lrnQueue, (card.due, card.id))
@@ -450,25 +345,8 @@ where queue in ({QUEUE_LRN},{QUEUE_DAY_LRN}) and type = {CARD_DUE}
         self.forgetCards(self.col.db.list(
             f"select id from cards where queue in ({QUEUE_LRN}, {QUEUE_DAY_LRN}) %s" % extra))
 
-    def _lrnForDeck(self, did):
-        """Number of review of cards in learing of deck did. """
-        cnt = self.col.db.scalar(
-            f"""
-select sum(left/1000) from
-(select left from cards where did = ? and queue = {QUEUE_LRN} and due < ? limit ?)""",
-            did, intTime() + self.col.conf['collapseTime'], self.reportLimit) or 0
-        return cnt + self.col.db.scalar(
-            f"""
-select count() from
-(select 1 from cards where did = ? and queue = {QUEUE_DAY_LRN}
-and due <= ? limit ?)""" ,
-            did, self.today, self.reportLimit)
-
     # Reviews
     ##########################################################################
-
-    def _deckRevLimit(self, did):
-        return self._deckLimit(did, self._deckRevLimitSingle)
 
     def _revForDeck(self, did, lim):
         """number of cards to review today for deck did
@@ -482,17 +360,6 @@ select count() from
 and due <= ? limit ?)""",
             did, self.today, lim)
 
-    def _resetRevCount(self):
-        """Set revCount"""
-        def cntFn(did, lim):
-            """Number of review cards to see today for deck with id did. At most equal to lim."""
-            return self.col.db.scalar(f"""
-select count() from (select id from cards where
-did = ? and queue = {QUEUE_REV} and due <= ? limit %d)""" % (lim),
-                                      did, self.today)
-        self.revCount = self._walkingCount(
-            self._deckRevLimitSingle, cntFn)
-
     def _resetRev(self):
         super()._resetRev()
         self._revDids = self.col.decks.active()[:]
@@ -500,11 +367,11 @@ did = ? and queue = {QUEUE_REV} and due <= ? limit %d)""" % (lim),
     def _fillRev(self):
         if self._revQueue:
             return True
-        if not self.revCount:
+        if not self.revCount():
             return False
         while self._revDids:
             did = self._revDids[0]
-            lim = min(self.queueLimit, self._deckRevLimit(did))
+            lim = min(self.queueLimit, self.col.decks.get(did).getCount('rev', 'lim'))
             if lim:
                 # fill the queue with the current did
                 self._revQueue = self.col.db.list(f"""
@@ -527,7 +394,7 @@ did = ? and queue = {QUEUE_REV} and due <= ? limit ?""",
                     return True
             # nothing left in the deck; move to next
             self._revDids.pop(0)
-        if self.revCount:
+        if self.revCount():
             # if we didn't get a card but the count is non-zero,
             # we need to check again for any cards that were
             # removed from the queue but not buried
@@ -536,7 +403,7 @@ did = ? and queue = {QUEUE_REV} and due <= ? limit ?""",
 
     def _getRevCard(self):
         if self._fillRev():
-            self.revCount -= 1
+            self.applyAncestors(lambda deck:deck.increaseValue('rev', -1))
             return self.col.getCard(self._revQueue.pop())
 
     def totalRevForCurrentDeck(self):
@@ -615,7 +482,7 @@ select id from cards where did in %s and queue = {QUEUE_REV} and due <= ? limit 
         card.left = self._startingLeft(card)
         # queue LRN
         if card.due < self.dayCutoff:
-            self.lrnCount += card.left // 1000
+            self.applyAncestors(lambda deck:deck.increaseValue('lrn',  card.left // 1000))
             card.queue = QUEUE_LRN
             heappush(self._lrnQueue, (card.due, card.id))
         else:

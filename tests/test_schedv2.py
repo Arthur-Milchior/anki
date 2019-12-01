@@ -4,6 +4,7 @@ import copy
 import time
 
 from anki.consts import *
+from anki.deck import NO_VALUES
 from anki.hooks import addHook
 from anki.utils import intTime
 from tests.shared import getEmptyCol as _getEmptyCol
@@ -29,13 +30,13 @@ def test_basics():
 def test_new():
     d = getEmptyCol()
     d.reset()
-    assert d.sched.newCount == 0
+    assert d.sched.newCount() == 0
     # add a note
     f = d.newNote()
     f['Front'] = "one"; f['Back'] = "two"
     d.addNote(f)
     d.reset()
-    assert d.sched.newCount == 1
+    assert d.sched.newCount() == 1
     # fetch it
     c = d.sched.getCard()
     assert c
@@ -60,6 +61,7 @@ def test_new():
     # f = d.newNote()
     # f['Front'] = u"2"; f['Back'] = u"2"
     # d.addNote(f)
+    # d.reset()
     # f = d.newNote()
     # f['Front'] = u"3"; f['Back'] = u"3"
     # d.addNote(f)
@@ -85,7 +87,7 @@ def test_newLimits():
     g2.setConf(c2)
     d.reset()
     # both confs have defaulted to a limit of 20
-    assert d.sched.newCount == 20
+    assert d.sched.newCount() == 20
     # first card we get comes from parent
     c = d.sched.getCard()
     assert c.did == 1
@@ -93,12 +95,12 @@ def test_newLimits():
     conf1 = d.decks.get(1).getConf()
     conf1['new']['perDay'] = 10
     d.reset()
-    assert d.sched.newCount == 10
+    assert d.sched.newCount() == 10
     # if we limit child to 4, we should get 9
     conf2 = g2.getConf()
     conf2['new']['perDay'] = 4
     d.reset()
-    assert d.sched.newCount == 9
+    assert d.sched.newCount() == 9
 
 def test_newBoxes():
     d = getEmptyCol()
@@ -177,7 +179,8 @@ def test_relearn():
     f = d.newNote()
     f['Front'] = "one"
     d.addNote(f)
-    c = f.cards()[0]
+    d.reset()
+    c = d.sched.getCard()
     c.ivl = 100
     c.due = d.sched.today
     c.type = c.queue = QUEUE_REV
@@ -202,7 +205,8 @@ def test_relearn_no_steps():
     f = d.newNote()
     f['Front'] = "one"
     d.addNote(f)
-    c = f.cards()[0]
+    d.reset()
+    c = d.sched.getCard()
     c.ivl = 100
     c.due = d.sched.today
     c.type = c.queue = QUEUE_REV
@@ -250,7 +254,7 @@ def test_learn_day():
     f = d.newNote()
     f['Front'] = "one"
     f = d.addNote(f)
-    d.sched.reset()
+    d.reset()
     c = d.sched.getCard()
     c.currentConf()['new']['delays'] = [1, 10, 1440, 2880]
     # pass it
@@ -309,7 +313,7 @@ def test_reviews():
     f['Front'] = "one"; f['Back'] = "two"
     d.addNote(f)
     # set the card up as a review card, due 8 days ago
-    c = f.cards()[0]
+    c = d.sched.getCard()
     c.type = CARD_DUE
     c.queue = QUEUE_REV
     c.due = d.sched.today - 8
@@ -397,6 +401,7 @@ def test_review_limits():
         f = d.newNote()
         f['Front'] = "one"; f['Back'] = "two"
         d.addNote(f)
+        d.reset()
 
         # make them reviews
         c = f.cards()[0]
@@ -404,35 +409,32 @@ def test_review_limits():
         c.due = 0
         c.flush()
 
-    tree = d.sched.deckDueTree()
+    d.reset()
     # (('Default', 1, 0, 0, 0, ()), ('parent', 1514457677462, 5, 0, 0, (('child', 1514457677463, 5, 0, 0, ()),)))
-    assert tree[1][2] == 5 # parent
-    assert tree[1][5][0][2] == 5 # child
+    assert parent.getCount('rev') == 5 # parent
+    assert child.getCount('rev') == 5 # child
 
     # .counts() should match
     child.select()
-    d.sched.reset()
     assert d.sched.counts() == (0, 0, 5)
 
     # answering a card in the child should decrement parent count
     c = d.sched.getCard()
     d.sched.answerCard(c, 3)
+    d.reset()
     assert d.sched.counts() == (0, 0, 4)
 
-    tree = d.sched.deckDueTree()
-    assert tree[1][2] == 4 # parent
-    assert tree[1][5][0][2] == 4 # child
+    assert parent.getCount('rev') == 4
+    assert child.getCount('rev') == 4
 
     # switch limits
     parent.setConf(cconf.getId())
     child.setConf(pconf.getId())
-    parent.select()
-    d.sched.reset()
+    assert parent.resetted == NO_VALUES
 
     # child limits do not affect the parent
-    tree = d.sched.deckDueTree()
-    assert tree[1][2] == 9 # parent
-    assert tree[1][5][0][2] == 4 # child
+    assert child.getCount('rev') == 4 # child
+    assert parent.getCount('rev') == 9 # parent
 
 def test_button_spacing():
     d = getEmptyCol()
@@ -440,7 +442,7 @@ def test_button_spacing():
     f['Front'] = "one"
     d.addNote(f)
     # 1 day ivl review card due now
-    c = f.cards()[0]
+    c = d.sched.getCard()
     c.type = CARD_DUE
     c.queue = QUEUE_REV
     c.due = d.sched.today
@@ -468,9 +470,9 @@ def test_overdue_lapse():
     f['Front'] = "one"
     d.addNote(f)
     # simulate a review that was lapsed and is now due for its normal review
-    c = f.cards()[0]
+    c = d.sched.getCard()
     c.type = CARD_DUE
-    c.queue = QUEUE_LRN
+    c.queue = 1
     c.due = -1
     c.odue = -1
     c.factor = STARTING_FACTOR
@@ -480,7 +482,7 @@ def test_overdue_lapse():
     d.sched._clearOverdue = False
     # checkpoint
     d.save()
-    d.sched.reset()
+    d.reset()
     assert d.sched.counts() == (0, 2, 0)
     c = d.sched.getCard()
     d.sched.answerCard(c, 3)
@@ -491,24 +493,37 @@ def test_overdue_lapse():
     d.sched._clearOverdue = True
     # with the default settings, the overdue card should be removed from the
     # learning queue
-    d.sched.reset()
+    d.reset()
     assert d.sched.counts() == (0, 0, 1)
 
 def test_finished():
     d = getEmptyCol()
+    assert d.sched.allRevDue() == 0
+    assert d.sched.unseenDue() == 0
+    assert d.sched.haveBuried() == 0
+    assert d.sched.newCount() == 0
     # nothing due
     assert "Congratulations" in d.sched.finishedMsg()
     assert "limit" not in d.sched.finishedMsg()
     f = d.newNote()
     f['Front'] = "one"; f['Back'] = "two"
     d.addNote(f)
-    # have a new card
+    d.reset()
+    assert d.sched.allRevDue() == 0
+    assert d.sched.unseenDue() == 1
+    assert d.sched.haveBuried() == 0
+    assert d.sched.newCount() == 1
+     # have a new card
     assert "new cards available" in d.sched.finishedMsg()
     # turn it into a review
-    d.reset()
-    c = f.cards()[0]
+    c = d.sched.getCard()
     c.startTimer()
     d.sched.answerCard(c, 3)
+    d.reset()
+    assert d.sched.allRevDue() == 0
+    assert d.sched.unseenDue() == 0
+    assert d.sched.haveBuried() == 0
+    assert d.sched.newCount() == 0
     # nothing should be due tomorrow, as it's due in a week
     assert "Congratulations" in d.sched.finishedMsg()
     assert "limit" not in d.sched.finishedMsg()
@@ -577,11 +592,15 @@ def test_bury():
     f = d.newNote()
     f['Front'] = "one"
     d.addNote(f)
-    c = f.cards()[0]
-    f = d.newNote()
-    f['Front'] = "two"
-    d.addNote(f)
-    c2 = f.cards()[0]
+    f2 = d.newNote()
+    f2['Front'] = "two"
+    d.addNote(f2)
+    c = d.sched.getCard()
+    assert c
+    assert c.nid == f.id
+    c2 = d.sched.getCard()
+    assert c2
+    assert c2.nid == f2.id
     # burying
     d.sched.buryCards([c.id], manual=True)
     c.load()
@@ -590,7 +609,6 @@ def test_bury():
     c2.load()
     assert c2.queue == QUEUE_SCHED_BURIED
 
-    d.reset()
     assert not d.sched.getCard()
 
     d.sched.unburyCardsForDeck(type="manual")
@@ -612,10 +630,10 @@ def test_suspend():
     f = d.newNote()
     f['Front'] = "one"
     d.addNote(f)
-    c = f.cards()[0]
-    # suspending
     d.reset()
-    assert d.sched.getCard()
+    c = d.sched.getCard()
+    # suspending
+    assert c
     d.sched.suspendCards([c.id])
     d.reset()
     assert not d.sched.getCard()
@@ -657,7 +675,8 @@ def test_filt_reviewing_early_normal():
     f = d.newNote()
     f['Front'] = "one"
     d.addNote(f)
-    c = f.cards()[0]
+    d.reset()
+    c = d.sched.getCard()
     c.ivl = 100
     c.type = c.queue = QUEUE_REV
     # due in 25 days, so it's been waiting 75 days
@@ -674,7 +693,7 @@ def test_filt_reviewing_early_normal():
     d.sched.rebuildDyn(did)
     d.reset()
     # should appear as normal in the deck list
-    assert sorted(d.sched.deckDueList())[0][2] == 1
+    assert d.decks.all(sort=True)[0].getCount('rev') == 1
     # and should appear in the counts
     assert d.sched.counts() == (0,0,1)
     # grab it and check estimates
@@ -706,6 +725,7 @@ def test_filt_reviewing_early_normal():
     d.reset()
     c = d.sched.getCard()
 
+    assert c
     assert d.sched.nextIvl(c, 2) == 60*86400
     assert d.sched.nextIvl(c, 3) == 100*86400
     assert d.sched.nextIvl(c, 4) == 114*86400
@@ -763,7 +783,7 @@ def test_preview():
     f = d.newNote()
     f['Front'] = "one"
     d.addNote(f)
-    c = f.cards()[0]
+    c = d.sched.getCard()
     orig = copy.copy(c)
     f2 = d.newNote()
     f2['Front'] = "two"
@@ -879,7 +899,9 @@ def test_repCounts():
     d.addNote(f)
     d.reset()
     # initial pass should be correct too
-    d.sched.answerCard(d.sched.getCard(), 3)
+    c = d.sched.getCard()
+    assert c is not None
+    d.sched.answerCard(c, 3)
     assert d.sched.counts() == (0, 1, 0)
     d.sched.answerCard(d.sched.getCard(), 1)
     assert d.sched.counts() == (0, 1, 0)
@@ -896,7 +918,9 @@ def test_repCounts():
     f = d.newNote()
     f['Front'] = "three"
     d.addNote(f)
-    c = f.cards()[0]
+    d.reset()
+    c = d.sched.getCard()
+    assert c
     c.type = CARD_DUE
     c.queue = QUEUE_REV
     c.due = d.sched.today
@@ -914,12 +938,16 @@ def test_timing():
         f['Front'] = "num"+str(i)
         d.addNote(f)
         c = f.cards()[0]
+        assert c
         c.type = CARD_DUE
         c.queue = QUEUE_REV
         c.due = 0
         c.flush()
     # fail the first one
     d.reset()
+    assert d.sched.newCount() == 0
+    assert d.sched.revCount() == 5
+    assert d.sched.lrnCount() == 0
     c = d.sched.getCard()
     d.sched.answerCard(c, 1)
     # the next card should be another review
@@ -973,35 +1001,38 @@ def test_deckDue():
     foobaz = f.model()['did'] = d.decks.id("foo::baz")
     d.addNote(f)
     d.reset()
-    assert len(d.decks.all()) == 5
-    cnts = d.sched.deckDueList()
-    assert cnts[0] == ["Default", 1, 1, 0, 1]
-    assert cnts[1] == ["Default::1", default1, 1, 0, 0]
-    assert cnts[2] == ["foo", d.decks.id("foo"), 0, 0, 0]
-    assert cnts[3] == ["foo::bar", foobar, 0, 0, 1]
-    assert cnts[4] == ["foo::baz", foobaz, 0, 0, 1]
-    tree = d.sched.deckDueTree()
-    assert tree[0][0] == "Default"
+    foo = d.decks.id("foo")
+    cnts = d.decks.all(sort=True)
+    assert len(cnts) == 5
+    def l(i):
+        d = cnts[i]
+        return [d.getName(), d.getId(), d.getCount('rev'), d.getCount('lrn', 'single'), d.getCount('new', 'single')]
+    assert l(1) == ["Default::1", default1, 1, 0, 0]
+    assert l(0) == ["Default",           1, 1, 0, 1]
+    assert l(3) == ["foo::bar",     foobar, 0, 0, 1]
+    assert l(4) == ["foo::baz",     foobaz, 0, 0, 1]
+    assert l(2) == ["foo",          foo,    0, 0, 0]
+    tree = d.decks.all(sort=True)
+    assert tree[0].getBaseName() == "Default"
     # sum of child and parent
-    assert tree[0][1] == 1
-    assert tree[0][2] == 1
-    assert tree[0][4] == 1
+    assert tree[0].getId() == 1
+    assert tree[0].getCount('rev') == 1
+    assert tree[0].getCount('new') == 1
     # child count is just review
-    assert tree[0][5][0][0] == "1"
-    assert tree[0][5][0][1] == default1
-    assert tree[0][5][0][2] == 1
-    assert tree[0][5][0][4] == 0
+    assert tree[0].getChildren()[0].getBaseName() == "1"
+    assert tree[0].getChildren()[0].getId() == default1
+    assert tree[0].getChildren()[0].getCount('rev') == 1
+    assert tree[0].getChildren()[0].getCount('new') == 0
     # code should not fail if a card has an invalid deck
     c.did = 12345; c.flush()
-    d.sched.deckDueList()
-    d.sched.deckDueTree()
+    d.decks.setAll()
 
 def test_deckTree():
     d = getEmptyCol()
     d.decks.id("new::b::c")
     d.decks.id("new2")
     # new should not appear twice in tree
-    names = [x[0] for x in d.sched.deckDueTree()]
+    names = d.decks.allNames()
     names.remove("new")
     assert "new" not in names
 
@@ -1043,12 +1074,13 @@ def test_reorder():
     # 50/50 chance of being reordered
     for i in range(20):
         d.sched.randomizeCards(1)
-        if f.cards()[0].due != f.id:
+        if d.sched.getCard().due != f.id:
             found=True
             break
     assert found
     d.sched.orderCards(1)
-    assert f.cards()[0].due == 1
+    d.reset()
+    assert d.sched.getCard().due == 1
     # shifting
     f3 = d.newNote()
     f3['Front'] = "three"
@@ -1056,6 +1088,7 @@ def test_reorder():
     f4 = d.newNote()
     f4['Front'] = "four"
     d.addNote(f4)
+    d.reset()
     assert f.cards()[0].due == 1
     assert f2.cards()[0].due == 2
     assert f3.cards()[0].due == 3
@@ -1072,7 +1105,7 @@ def test_forget():
     f = d.newNote()
     f['Front'] = "one"
     d.addNote(f)
-    c = f.cards()[0]
+    c = d.sched.getCard()
     c.queue = QUEUE_REV; c.type = CARD_DUE; c.ivl = 100; c.due = 0
     c.flush()
     d.reset()
@@ -1086,7 +1119,7 @@ def test_resched():
     f = d.newNote()
     f['Front'] = "one"
     d.addNote(f)
-    c = f.cards()[0]
+    c = d.sched.getCard()
     d.sched.reschedCards([c.id], 0, 0)
     c.load()
     assert c.due == d.sched.today
@@ -1103,7 +1136,7 @@ def test_norelearn():
     f = d.newNote()
     f['Front'] = "one"
     d.addNote(f)
-    c = f.cards()[0]
+    c = d.sched.getCard()
     c.type = CARD_DUE
     c.queue = QUEUE_REV
     c.due = 0
@@ -1123,6 +1156,7 @@ def test_failmult():
     f = d.newNote()
     f['Front'] = "one"; f['Back'] = "two"
     d.addNote(f)
+    d.reset()
     c = f.cards()[0]
     c.type = CARD_DUE
     c.queue = QUEUE_REV
@@ -1134,7 +1168,10 @@ def test_failmult():
     c.startTimer()
     c.flush()
     c.currentConf()['lapse']['mult'] = 0.5
+    d.sched.revCount() == 1
+    d.reset()
     c = d.sched.getCard()
+    assert c
     d.sched.answerCard(c, 1)
     assert c.ivl == 50
     d.sched.answerCard(c, 1)
@@ -1161,6 +1198,7 @@ def test_moveVersions():
     # fail it again, and manually bury it
     col.reset()
     c = col.sched.getCard()
+    assert c is not None
     col.sched.answerCard(c, 1)
     col.sched.buryCards([c.id])
     c.load()
@@ -1185,8 +1223,9 @@ def test_moveVersions():
     col.sched.reschedCards([c.id], 100, 100)
     c.load(); c.due = 0; c.flush()
     c.currentConf()['lapse']['mult'] = 0.5
-    col.sched.reset()
+    col.reset()
     c = col.sched.getCard()
+    assert c
     col.sched.answerCard(c, 1)
     # due should be correctly set when removed from learning early
     col.changeSchedulerVer(1)
@@ -1202,7 +1241,7 @@ def test_negativeDueFilter():
     f = d.newNote()
     f['Front'] = "one"; f['Back'] = "two"
     d.addNote(f)
-    c = f.cards()[0]
+    c = d.sched.getCard()
     c.due = -5
     c.queue = QUEUE_REV
     c.ivl = 5

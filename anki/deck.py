@@ -1,6 +1,7 @@
 import bisect
 import copy
 
+import anki.consts
 from anki.consts import *
 from anki.dconf import DConf
 from anki.errors import DeckRenameError
@@ -9,6 +10,9 @@ from anki.lang import _
 from anki.model import Model
 from anki.utils import DictAugmentedDyn, ids2str, intTime
 
+NO_VALUES = 0
+LIMS = 1
+NUMS = 2
 
 class Deck(DictAugmentedDyn):
     """
@@ -18,10 +22,12 @@ class Deck(DictAugmentedDyn):
     parent -- parent deck. For top level, it's the set of toplevel elements. For this set, it's None.
     """
     def __init__(self, manager, dict, parent, exporting=False):
+        self.resetted = NO_VALUES
         self.parent = parent
         self.childrenBaseNames = []
         self.childrenDict = {}
         self.exporting = exporting
+        self.count = {}
         super().__init__(manager, dict)
         if self.parent is not None:
             self.parent.addChild(self)
@@ -196,6 +202,9 @@ class Deck(DictAugmentedDyn):
     def isAboveTopLevel(self):
         return self.getName() == ""
 
+    def directLine(self):
+        return self.getAncestors(includeSelf=True) + self.getDescendants()
+
     def getParentName(self):
         return self.manager.parentName(self.getName())
 
@@ -203,7 +212,7 @@ class Deck(DictAugmentedDyn):
         return self.manager.byName(self.getParentName())
 
     def getAncestorsNames(self, includeSelf=False):
-        return map(lambda deck: deck.getName(), self.ancestors(includeSelf))
+        return [deck.getName() for deck in self.getAncestors(includeSelf)]
 
     def getAncestors(self, includeSelf=False):
         l = []
@@ -229,14 +238,14 @@ class Deck(DictAugmentedDyn):
     ## Child
 
     def getChildren(self):
-        return map(self.childrenDict.get, self.getChildrenNormalizedBaseNames())
+        return [self.childrenDict.get(name) for name in self.getChildrenNormalizedBaseNames()]
 
     def getChild(self, name):
         name = self.manager.normalizeName(name)
         return self.childrenDict.get(name)
 
     def getChildrenIds(self):
-        return map(operator.itemgetter('id'), self.getChildren())
+        return [child.getId() for child in self.getChildren()]
 
     def getChildrenNormalizedBaseNames(self):
         return self.childrenBaseNames
@@ -347,12 +356,18 @@ class Deck(DictAugmentedDyn):
         edited.
 
         Currently used in tests only."""
+        assert not self.isAboveTopLevel()
         if isinstance(conf, int):
             self['conf'] = conf
         else:
             assert isinstance(conf, DConf)
             self['conf'] = conf.getId()
         self.save()
+        # if limit changed, it may change actual limits of
+        # descendants, and thus the total number of cards of ancestors
+        if not self.exporting:
+            for deck in self.directLine():
+                deck.resetted = NO_VALUES
 
     def isDefaultConf(self):
         return self.getConfId() == 1
@@ -400,3 +415,87 @@ class Deck(DictAugmentedDyn):
         # and active decks (current + all children)
         self.manager.col.conf['activeDecks'] = self.getDescendantsIds(sort=True, includeSelf=True)
         self.manager.changed = True
+
+    # Cards informations
+    #############################################################
+
+    def setLims(self):
+        """Set all limits.
+
+        """
+        if self.resetted >= LIMS:
+            return
+        if not self.isTopLevel():
+            self.parent.setLims()
+        self.count['lim'] = {}
+        for what in ('rev', 'new'):
+            limName = f'_{what}Lim'
+            if self.isDyn():
+                self.count['lim'][what] = self.manager.col.sched.reportLimit
+            else:
+                self.count['lim'][what] = max(0, self.getConf()[what]['perDay'] - self[what+'Today'][1])
+            if not self.isTopLevel():
+                self.count['lim'][what] = min(self.count['lim'][what], self.parent.count['lim'][what])
+        self.resetted = LIMS
+
+    def setNums(self):
+        """Set numbers related to this deck.
+
+        """
+        if self.resetted < LIMS:
+            self.setLims()
+        if self.resetted >= NUMS:
+            return
+        self.resetted = NUMS # this can create a problem in case of asynchronous. Currently ok.
+        self.count['single'] = dict()
+        # unseen: cards which never graduated and are not in learning.
+        # new: unseen cards to see today (limits are are applied below)
+        self.count['single']['unseen'] = self.count['single']['new'] = self.manager.col.db.scalar(f"""select count() from cards where did = ? and queue = {QUEUE_NEW}""", self.getId())
+        # allrev: number of cards already seen that should be reviewed
+        # today and are not in learning
+        # rev: same as due, with deck limit taken into account
+        self.count['single']['allRev'] = self.count['single']['rev'] = self.manager.col.db.scalar(f"""select count() from cards where did = ? and queue = {QUEUE_REV} and due <= ? """, self.getId(), self.manager.col.sched.today)
+        # lrn today/other day: cards in learning mode to see now,
+        # where next review is the same day/another day as last review
+        self.count['single']['lrn today'] = self.manager.col.db.scalar(f""" select sum(left/1000) from
+        (select left from cards where did = ? and queue = {QUEUE_LRN}
+        and due < ?)""", self.getId(), self.manager.col.sched.dayCutoff) or 0
+        self.count['single']['lrn other day'] = self.manager.col.db.scalar(f"""
+        select count() from cards where did = ? and queue = {QUEUE_DAY_LRN}
+        and due <= ?""", self.getId(), self.manager.col.sched.today)
+        # lrn: cards that must be learn now
+        self.count['single']['lrn'] = self.count['single']['lrn today'] + self.count['single']['lrn other day']
+
+        self.count[''] = self.count['single'].copy()
+        for child in self.childrenDict.values():
+            child.setNums()
+            for kind in self.count['single']:
+                self.count[''][kind] += child.count[''][kind]
+
+        self.count['']['new'] = min(self.count['']['new'], self.getCount('new', 'lim'))
+        if self.manager.col.sched.name == "std2":
+            self.count['']['rev'] =  self.count['']['allRev']
+            # in scheduler 2, we don't respect children limit of review
+        self.count['']['rev'] =  min(self.count['']['rev'], self.getCount('rev', 'lim'))
+
+
+    def getCount(self, key, key1=''):
+        if self.resetted < LIMS:
+            self.setLims()
+        if key1 != 'lim' and self.resetted < NUMS:
+            self.setNums()
+        try:
+            return self.count[key1][key]
+        except KeyError:
+            print(f"Error in deck {self.getName()} with key1={key1}")
+            raise
+
+    def reset(self):
+        self.resetted = NO_VALUES
+
+    def increaseValue(self, key, value):
+        self.count['single'][key] += value
+        for ancestor in self.getAncestors(includeSelf=True):
+            self.count[''][key] += value
+            if key in self.count['lim']:
+                self.count['lim'][key] += value
