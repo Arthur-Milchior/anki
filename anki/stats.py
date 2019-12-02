@@ -6,6 +6,7 @@ import time
 import datetime
 import json
 
+from anki.consts import *
 from anki.utils import fmtTimeSpan, ids2str
 from anki.lang import _, ngettext
 

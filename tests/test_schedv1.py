@@ -3,7 +3,7 @@
 import time
 import copy
 
-from anki.consts import STARTING_FACTOR
+from anki.consts import *
 from tests.shared import  getEmptyCol
 from anki.utils import  intTime
 from anki.hooks import addHook
@@ -36,13 +36,13 @@ def test_new():
     # fetch it
     c = d.sched.getCard()
     assert c
-    assert c.queue == 0
+    assert c.queue == QUEUE_NEW
     assert c.type == 0
     # if we answer it, it should become a learn card
     t = intTime()
     d.sched.answerCard(c, 1)
-    assert c.queue == 1
-    assert c.type == 1
+    assert c.queue == QUEUE_LRN
+    assert c.type == CARD_LRN
     assert c.due >= t
 
     # disabled for now, as the learn fudging makes this randomly fail
@@ -149,39 +149,39 @@ def test_learn():
     assert c.left%1000 == 1
     assert c.left//1000 == 1
     # the next pass should graduate the card
-    assert c.queue == 1
-    assert c.type == 1
+    assert c.queue == QUEUE_LRN
+    assert c.type == CARD_LRN
     d.sched.answerCard(c, 2)
-    assert c.queue == 2
-    assert c.type == 2
+    assert c.queue == QUEUE_REV
+    assert c.type == CARD_DUE
     # should be due tomorrow, with an interval of 1
     assert c.due == d.sched.today+1
     assert c.ivl == 1
     # or normal removal
     c.type = 0
-    c.queue = 1
+    c.queue = QUEUE_LRN
     d.sched.answerCard(c, 3)
-    assert c.type == 2
-    assert c.queue == 2
+    assert c.type == CARD_DUE
+    assert c.queue == QUEUE_REV
     assert checkRevIvl(d, c, 4)
     # revlog should have been updated each time
     assert d.db.scalar("select count() from revlog where type = 0") == 5
     # now failed card handling
-    c.type = 2
-    c.queue = 1
+    c.type = CARD_DUE
+    c.queue = QUEUE_LRN
     c.odue = 123
     d.sched.answerCard(c, 3)
     assert c.due == 123
-    assert c.type == 2
-    assert c.queue == 2
+    assert c.type == CARD_DUE
+    assert c.queue == QUEUE_REV
     # we should be able to remove manually, too
-    c.type = 2
-    c.queue = 1
+    c.type = CARD_DUE
+    c.queue = QUEUE_LRN
     c.odue = 321
     c.flush()
     d.sched.removeLrn()
     c.load()
-    assert c.queue == 2
+    assert c.queue == QUEUE_REV
     assert c.due == 321
 
 def test_learn_collapsed():
@@ -231,7 +231,7 @@ def test_learn_day():
     # answering it will place it in queue 3
     d.sched.answerCard(c, 2)
     assert c.due == d.sched.today+1
-    assert c.queue == 3
+    assert c.queue == QUEUE_DAY_LRN
     assert not d.sched.getCard()
     # for testing, move it back a day
     c.due -= 1
@@ -243,7 +243,7 @@ def test_learn_day():
     assert ni(c, 2) == 86400*2
     # if we fail it, it should be back in the correct queue
     d.sched.answerCard(c, 1)
-    assert c.queue == 1
+    assert c.queue == QUEUE_LRN
     d.undo()
     d.reset()
     c = d.sched.getCard()
@@ -255,7 +255,8 @@ def test_learn_day():
     # the last pass should graduate it into a review card
     assert ni(c, 2) == 86400
     d.sched.answerCard(c, 2)
-    assert c.queue == c.type == 2
+    assert c.queue == QUEUE_REV
+    assert c.type == CARD_DUE
     # if the lapse step is tomorrow, failing it should handle the counts
     # correctly
     c.due = 0
@@ -265,7 +266,7 @@ def test_learn_day():
     d.sched._cardConf(c)['lapse']['delays'] = [1440]
     c = d.sched.getCard()
     d.sched.answerCard(c, 1)
-    assert c.queue == 3
+    assert c.queue == QUEUE_DAY_LRN
     assert d.sched.counts() == (0, 0, 0)
 
 def test_reviews():
@@ -276,8 +277,8 @@ def test_reviews():
     d.addNote(f)
     # set the card up as a review card, due 8 days ago
     c = f.cards()[0]
-    c.type = 2
-    c.queue = 2
+    c.type = CARD_DUE
+    c.queue = QUEUE_REV
     c.due = d.sched.today - 8
     c.factor = STARTING_FACTOR
     c.reps = 3
@@ -293,7 +294,7 @@ def test_reviews():
     d.reset()
     d.sched._cardConf(c)['lapse']['delays'] = [2, 20]
     d.sched.answerCard(c, 1)
-    assert c.queue == 1
+    assert c.queue == QUEUE_LRN
     # it should be due tomorrow, with an interval of 1
     assert c.odue == d.sched.today + 1
     assert c.ivl == 1
@@ -315,7 +316,7 @@ def test_reviews():
     c = copy.copy(cardcopy)
     c.flush()
     d.sched.answerCard(c, 2)
-    assert c.queue == 2
+    assert c.queue == QUEUE_REV
     # the new interval should be (100 + 8/4) * 1.2 = 122
     assert checkRevIvl(d, c, 122)
     assert c.due == d.sched.today + c.ivl
@@ -356,9 +357,9 @@ def test_reviews():
     addHook("leech", onLeech)
     d.sched.answerCard(c, 1)
     assert hooked
-    assert c.queue == -1
+    assert c.queue == QUEUE_SUSPENDED
     c.load()
-    assert c.queue == -1
+    assert c.queue == QUEUE_SUSPENDED
 
 def test_button_spacing():
     d = getEmptyCol()
@@ -367,8 +368,8 @@ def test_button_spacing():
     d.addNote(f)
     # 1 day ivl review card due now
     c = f.cards()[0]
-    c.type = 2
-    c.queue = 2
+    c.type = CARD_DUE
+    c.queue = QUEUE_REV
     c.due = d.sched.today
     c.reps = 1
     c.ivl = 1
@@ -390,8 +391,8 @@ def test_overdue_lapse():
     d.addNote(f)
     # simulate a review that was lapsed and is now due for its normal review
     c = f.cards()[0]
-    c.type = 2
-    c.queue = 1
+    c.type = CARD_DUE
+    c.queue = QUEUE_LRN
     c.due = -1
     c.odue = -1
     c.factor = STARTING_FACTOR
@@ -466,7 +467,7 @@ def test_nextIvl():
     assert ni(c, 3) == 4*86400
     # lapsed cards
     ##################################################
-    c.type = 2
+    c.type = CARD_DUE
     c.ivl = 100
     c.factor = STARTING_FACTOR
     assert ni(c, 1) == 60
@@ -474,7 +475,7 @@ def test_nextIvl():
     assert ni(c, 3) == 100*86400
     # review cards
     ##################################################
-    c.queue = 2
+    c.queue = QUEUE_REV
     c.ivl = 100
     c.factor = STARTING_FACTOR
     # failing it should put it at 60s
@@ -521,18 +522,18 @@ def test_suspend():
     d.reset()
     assert d.sched.getCard()
     # should cope with rev cards being relearnt
-    c.due = 0; c.ivl = 100; c.type = 2; c.queue = 2; c.flush()
+    c.due = 0; c.ivl = 100; c.type = CARD_DUE; c.queue = QUEUE_REV; c.flush()
     d.reset()
     c = d.sched.getCard()
     d.sched.answerCard(c, 1)
     assert c.due >= time.time()
-    assert c.queue == 1
-    assert c.type == 2
+    assert c.queue == QUEUE_LRN
+    assert c.type == CARD_DUE
     d.sched.suspendCards([c.id])
     d.sched.unsuspendCards([c.id])
     c.load()
-    assert c.queue == 2
-    assert c.type == 2
+    assert c.queue == QUEUE_REV
+    assert c.type == CARD_DUE
     assert c.due == 1
     # should cope with cards in cram decks
     c.due = 1
@@ -554,7 +555,7 @@ def test_cram():
     d.addNote(f)
     c = f.cards()[0]
     c.ivl = 100
-    c.type = c.queue = 2
+    c.type = c.queue = QUEUE_REV
     # due in 25 days, so it's been waiting 75 days
     c.due = d.sched.today + 25
     c.mod = 1
@@ -589,7 +590,7 @@ def test_cram():
     # int(75*1.85) = 138
     assert c.ivl == 138
     assert c.odue == 138
-    assert c.queue == 1
+    assert c.queue == QUEUE_LRN
     # should be logged as a cram rep
     assert d.db.scalar(
         "select type from revlog order by id desc limit 1") == 3
@@ -602,7 +603,7 @@ def test_cram():
     d.sched.answerCard(c, 2)
     assert c.ivl == 138
     assert c.due == 138
-    assert c.queue == 2
+    assert c.queue == QUEUE_REV
     # and it will have moved back to the previous deck
     assert c.did == 1
     # cram the deck again
@@ -669,12 +670,14 @@ def test_cram_rem():
     c = d.sched.getCard()
     d.sched.answerCard(c, 2)
     # answering the card will put it in the learning queue
-    assert c.type == c.queue == 1
+    assert c.type == CARD_LRN
+    assert c.queue == QUEUE_LRN
     assert c.due != oldDue
     # if we terminate cramming prematurely it should be set back to new
     d.sched.emptyDyn(did)
     c.load()
-    assert c.type == c.queue == 0
+    assert c.type == 0
+    assert c.queue == QUEUE_NEW
     assert c.due == oldDue
 
 def test_cram_resched():
@@ -697,10 +700,11 @@ def test_cram_resched():
     assert ni(c, 3) == 0
     assert d.sched.nextIvlStr(c, 3) == "(end)"
     d.sched.answerCard(c, 3)
-    assert c.queue == c.type == 0
+    assert c.queue == QUEUE_NEW
+    assert c.type == CARD_NEW
     # undue reviews should also be unaffected
     c.ivl = 100
-    c.type = c.queue = 2
+    c.type = c.queue = QUEUE_REV
     c.due = d.sched.today + 25
     c.factor = STARTING_FACTOR
     c.flush()
@@ -871,8 +875,8 @@ def test_repCounts():
     f['Front'] = "three"
     d.addNote(f)
     c = f.cards()[0]
-    c.type = 2
-    c.queue = 2
+    c.type = CARD_DUE
+    c.queue = QUEUE_REV
     c.due = d.sched.today
     c.flush()
     d.reset()
@@ -888,8 +892,8 @@ def test_timing():
         f['Front'] = "num"+str(i)
         d.addNote(f)
         c = f.cards()[0]
-        c.type = 2
-        c.queue = 2
+        c.type = CARD_DUE
+        c.queue = QUEUE_REV
         c.due = 0
         c.flush()
     # fail the first one
@@ -900,11 +904,11 @@ def test_timing():
     d.sched.answerCard(c, 1)
     # the next card should be another review
     c = d.sched.getCard()
-    assert c.queue == 2
+    assert c.queue == QUEUE_REV
     # but if we wait for a second, the failed card should come back
     time.sleep(1)
     c = d.sched.getCard()
-    assert c.queue == 1
+    assert c.queue == QUEUE_LRN
 
 def test_collapse():
     d = getEmptyCol()
@@ -933,7 +937,7 @@ def test_deckDue():
     d.addNote(f)
     # make it a review card
     c = f.cards()[0]
-    c.queue = 2
+    c.queue = QUEUE_REV
     c.due = 0
     c.flush()
     # add one more with a new deck
@@ -1047,7 +1051,7 @@ def test_forget():
     f['Front'] = "one"
     d.addNote(f)
     c = f.cards()[0]
-    c.queue = 2; c.type = 2; c.ivl = 100; c.due = 0
+    c.queue = QUEUE_REV; c.type = CARD_DUE; c.ivl = 100; c.due = 0
     c.flush()
     d.reset()
     assert d.sched.counts() == (0, 0, 1)
@@ -1065,7 +1069,8 @@ def test_resched():
     c.load()
     assert c.due == d.sched.today
     assert c.ivl == 1
-    assert c.queue == c.type == 2
+    assert c.queue == QUEUE_REV
+    assert c.type == CARD_DUE
     d.sched.reschedCards([c.id], 1, 1)
     c.load()
     assert c.due == d.sched.today+1
@@ -1078,8 +1083,8 @@ def test_norelearn():
     f['Front'] = "one"
     d.addNote(f)
     c = f.cards()[0]
-    c.type = 2
-    c.queue = 2
+    c.type = CARD_DUE
+    c.queue = QUEUE_REV
     c.due = 0
     c.factor = STARTING_FACTOR
     c.reps = 3
@@ -1098,8 +1103,8 @@ def test_failmult():
     f['Front'] = "one"; f['Back'] = "two"
     d.addNote(f)
     c = f.cards()[0]
-    c.type = 2
-    c.queue = 2
+    c.type = CARD_DUE
+    c.queue = QUEUE_REV
     c.ivl = 100
     c.due = d.sched.today - c.ivl
     c.factor = STARTING_FACTOR

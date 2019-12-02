@@ -1,6 +1,7 @@
 # coding: utf-8
 from nose.tools import assert_raises
 
+from anki.consts import *
 from anki.find import Finder
 from tests.shared import getEmptyCol
 
@@ -81,16 +82,17 @@ def test_findCards():
     assert len(deck.findCards('"goats are"')) == 1
     # card states
     c = f.cards()[0]
-    c.queue = c.type = 2
+    c.queue = QUEUE_REV
+    c.type = CARD_DUE
     assert deck.findCards("is:review") == []
     c.flush()
     assert deck.findCards("is:review") == [c.id]
     assert deck.findCards("is:due") == []
-    c.due = 0; c.queue = 2
+    c.due = 0; c.queue = QUEUE_REV
     c.flush()
     assert deck.findCards("is:due") == [c.id]
     assert len(deck.findCards("-is:due")) == 4
-    c.queue = -1
+    c.queue = QUEUE_SUSPENDED
     # ensure this card gets a later mod time
     c.flush()
     deck.db.execute("update cards set mod = mod + 1 where id = ?", c.id)
