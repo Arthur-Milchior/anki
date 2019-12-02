@@ -228,6 +228,7 @@ Not currently enabled; click the sync button in the main window to enable."""))
         # Backup
         {"name":"numBackups", "kind":"numeric", "sync":False},
         # advanced option
+        "complexTemplates",
         {"name":"pastePNG", "sync":False},
     ]
 

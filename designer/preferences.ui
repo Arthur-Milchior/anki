@@ -460,6 +460,16 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="complexTemplates">
+         <property name="toolTip">
+          <string>This option allow you to create complex card type. Cards risks not to be seen on smartphone, and to be erased by «Empty cards».</string>
+         </property>
+         <property name="text">
+          <string>Cards are generated if and only if they show a field.</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <spacer name="verticalSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
