@@ -778,7 +778,7 @@ where card.nid = note.id and card.id in %s group by nid""" % ids2str(cids)):
         format = re.sub("{{(?!type:)(.*?)cloze:", r"{{\1cq-%d:" % (ord+1), format)
         #Replace <%cloze: by <%%cq:(ord+1)
         format = format.replace("<%cloze:", "<%%cq:%d:" % (ord+1))
-        question = self.__renderQA(fields, model, data, format, "q")
+        question, showAField = self.__renderQA(fields, model, data, format, "q")
         fields['FrontSide'] = stripSounds(question)
         # empty cloze?
         if model.isCloze() and not model._availClozeOrds(flds, False, onlyFirst=True):
@@ -794,14 +794,16 @@ where card.nid = note.id and card.id in %s group by nid""" % ids2str(cids)):
         format = re.sub("{{(.*?)cloze:", r"{{\1ca-%d:" % (ord+1), format)
         #Replace <%cloze: by <%%ca:(ord+1)
         format = format.replace("<%cloze:", "<%%ca:%d:" % (ord+1))
-        return self.__renderQA(fields, model, data, format, "a")
+        answer, showAField = self.__renderQA(fields, model, data, format, "a")
+        return answer
 
     def __renderQA(self, fields, model, data, format, type):
         """apply fields to format. Use munge hooks before and after"""
         fields = runFilter("mungeFields", fields, model, data, self)
-        html = anki.template.render(format, fields)
-        return runFilter(
+        html, showAField = anki.template.renderAndIsFieldPresent(format, fields)
+        html = runFilter(
             "mungeQA", html, type, fields, model, data, self)
+        return html, showAField
 
     def _qaData(self, where=""):
         """The list of [cid, nid, mid, did, ord, tags, flds, cardFlags] for each pair cards satisfying where.
