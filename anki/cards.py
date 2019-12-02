@@ -206,6 +206,10 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
         """Return the card answer with its css"""
         return self.css() + self._getQA()['a']
 
+    def isEmpty(self):
+        """Whether the card question is empty (i.e. show no field)"""
+        return not self._getQA()["showAField"]
+
     def css(self):
         """Return the css of the card's model, as html code"""
         return "<style>%s</style>" % self.model()['css']
