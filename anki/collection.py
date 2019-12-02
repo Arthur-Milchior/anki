@@ -720,14 +720,14 @@ where card.nid = note.id and card.id in %s group by nid""" % ids2str(cids)):
                 for row in self._qaData(where)]
 
     def _renderQA(self, data, qfmt=None, afmt=None):
-        """Returns hash of id, question, answer.
+        """Returns dict with id, question, answer, and whether a field is shown in question.
+
         Keyword arguments:
         data -- [cid, nid, mid, did, ord, tags, flds] (see db
         documentation for more information about those values)
         This corresponds to the information you can obtain in templates, using {{Tags}}, {{Type}}, etc..
         qfmt -- question format string (as in template)
         afmt -- answer format string (as in template)
-        Return a dictionnary associating the question, the answer and the card id
         """
         cid, nid, mid, did, ord, tags, flds, cardFlags = data
         # data is [cid, nid, mid, did, ord, tags, flds, cardFlags]
@@ -739,7 +739,9 @@ where card.nid = note.id and card.id in %s group by nid""" % ids2str(cids)):
         # render q & a
         d = dict()
         d['id'] = cid
-        d['q'] = self._renderQuestion(data, fields, flds, ord, template, model, qfmt)
+        question, showAField = self._renderQuestion(data, fields, flds, ord, template, model, qfmt)
+        d['q'] = question
+        d['showAField'] = showAField
         d['a'] = self._renderAnswer(data, fields, ord, template, model, afmt)
         return d
 
@@ -772,7 +774,10 @@ where card.nid = note.id and card.id in %s group by nid""" % ids2str(cids)):
         return fields
 
     def _renderQuestion(self, data, fields, flds, ord, template, model, qfmt=None):
-        """The question for this template, given those fields."""
+        """A pair with:
+        * The question for this template, given those fields.
+        * whether a field is shown
+        """
         format = qfmt or template['qfmt']
         #Replace {{'foo'cloze: by {{'foo'cq-(ord+1), where 'foo' does not begins with "type:"
         format = re.sub("{{(?!type:)(.*?)cloze:", r"{{\1cq-%d:" % (ord+1), format)
@@ -785,7 +790,7 @@ where card.nid = note.id and card.id in %s group by nid""" % ids2str(cids)):
              question += ("<p>" + _(
                 "Please edit this note and add some cloze deletions. (%s)") % (
                     "<a href=%s#cloze>%s</a>" % (HELP_SITE, _("help"))))
-        return question
+        return question, showAField
 
     def _renderAnswer(self, data, fields, ord, template, model, afmt=None):
         """The answer for this template, given those fields."""
