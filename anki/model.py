@@ -417,6 +417,39 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         should be generated. See
         ../documentation/templates_generation_rules.md for the detail
         """
+        if self.manager.col.conf.get("complexTemplates", False):
+            return self._availOrdsReal(flds, changedOrNewReq)
+        else:
+            return self._availOrdsOriginal(flds, changedOrNewReq)
+
+    def _availOrdsReal(self, flds, changedOrNewReq):
+        """
+        self -- model manager
+        model -- a model object
+        """
+        available = []
+        flist = splitFields(flds)
+        fields = {} #
+        for (name, (idx, conf)) in list(self.fieldMap().items()):#conf is not used
+            fields[name] = flist[idx]
+        if self.isCloze():
+            potentialOrds = self._availClozeOrds(flds)
+        else:
+            potentialOrds = changedOrNewReq if changedOrNewReq is not None else range(len(self["tmpls"]))
+        for ord in potentialOrds:
+            template = self["tmpls"][ord]
+            format = template['qfmt']
+            html, showAField = anki.template.renderAndIsFieldPresent(format, fields) #replace everything of the form {{ by its value TODO check
+            if showAField:
+                available.append(ord)
+        return available
+
+    def _availOrdsOriginal(self, flds, changedOrNewReq):
+        """Given a joined field string, return ordinal of card type which
+        should be generated. See
+        ../documentation/templates_generation_rules.md for the detail
+
+        """
         if self.isCloze():
             return self._availClozeOrds(flds)
         fields = {}
