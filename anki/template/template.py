@@ -77,6 +77,7 @@ class Template:
 
     def render(self):
         """Turns a Mustache template into something wonderful."""
+        self.showAField = False
         self.render_sections()
         self.render_tags()
         if self.encoding is not None:
@@ -163,7 +164,9 @@ class Template:
             # some field names could have colons in them
             # avoid interpreting these as field modifiers
             # better would probably be to put some restrictions on field names
-            return txt
+            if bool(txt.strip()):### MODIFIED
+                self.showAField = True
+            return txt### MODIFIED
 
         # field modifiers
         parts = tag_name.split(':')
@@ -174,6 +177,10 @@ class Template:
             mods, tag = parts[:-1], parts[-1] #py3k has *mods, tag = parts
 
         txt = get_or_attr(self.context, tag)
+        if txt is None:
+            return '{unknown field %s}' % tag_name
+        elif bool(txt.strip()):### MODIFIED
+            self.showAField = True
 
         #Since 'text:' and other mods can affect html on which Anki relies to
         #process clozes, we need to make sure clozes are always
@@ -202,8 +209,7 @@ class Template:
                 mod, extra = re.search(r"^(.*?)(?:\((.*)\))?$", mod).groups()
                 txt = runFilter('fmod_' + mod, txt or '', extra or '', self.context,
                                 tag, tag_name)
-                if txt is None:
-                    return '{unknown field %s}' % tag_name
+
         return txt
 
     def clozeText(self, txt, ord, type):
