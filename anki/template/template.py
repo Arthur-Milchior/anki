@@ -77,11 +77,11 @@ class Template:
 
     def render(self):
         """Turns a Mustache template into something wonderful."""
-        self.template = self.render_sections(self.template, self.context)
-        result = self.render_tags(self.template, self.context)
+        self.render_sections(self.context)
+        self.render_tags(self.context)
         if self.encoding is not None:
-            result = result.encode(self.encoding)
-        return result
+            self.template = self.template.encode(self.encoding)
+        return self.template
 
     def compile_regexps(self):
         """Compiles our section and tag regular expressions."""
@@ -96,11 +96,11 @@ class Template:
         tag = r"%(otag)s(#|=|&|!|>|\{)?(.+?)\1?%(ctag)s+"
         self.tag_re = re.compile(tag % tags)
 
-    def render_sections(self, template, context):
+    def render_sections(self, context):
         """replace {{#foo}}bar{{/foo}} and {{^foo}}bar{{/foo}} by
         their normal value."""
         while 1:
-            match = self.section_re.search(template)
+            match = self.section_re.search(self.template)
             if match is None:
                 break
 
@@ -129,11 +129,9 @@ class Template:
             if bool(val) != inverted:
                 replacer = inner
 
-            template = template.replace(section, replacer)
+            self.template = self.template.replace(section, replacer)
 
-        return template
-
-    def render_tags(self, template, context):
+    def render_tags(self, context):
         """Renders all the tags in a template for a context. Normally
         {{# and {{^ are already removed."""
         repCount = 0
@@ -144,7 +142,7 @@ class Template:
             repCount += 1
 
             # search for some {{foo}}
-            match = self.tag_re.search(template)
+            match = self.tag_re.search(self.template)
             if match is None:
                 break
 
@@ -154,11 +152,9 @@ class Template:
             try:
                 func = modifiers[tag_type]
                 replacement = func(self, tag_name, context)
-                template = template.replace(tag, replacement)
+                self.template = self.template.replace(tag, replacement)
             except (SyntaxError, KeyError):
                 return "{{invalid template}}"
-
-        return template
 
     # {{{ functions just like {{ in anki
     @modifier('{')
