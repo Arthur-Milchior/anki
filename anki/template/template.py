@@ -77,8 +77,8 @@ class Template:
 
     def render(self):
         """Turns a Mustache template into something wonderful."""
-        self.render_sections(self.context)
-        self.render_tags(self.context)
+        self.render_sections()
+        self.render_tags()
         if self.encoding is not None:
             self.template = self.template.encode(self.encoding)
         return self.template
@@ -96,7 +96,7 @@ class Template:
         tag = r"%(otag)s(#|=|&|!|>|\{)?(.+?)\1?%(ctag)s+"
         self.tag_re = re.compile(tag % tags)
 
-    def render_sections(self, context):
+    def render_sections(self):
         """replace {{#foo}}bar{{/foo}} and {{^foo}}bar{{/foo}} by
         their normal value."""
         while 1:
@@ -113,12 +113,12 @@ class Template:
             match = re.match(r"c[qa]:(\d+):(.+)", section_name)
             if match:
                 # get full field text
-                txt = get_or_attr(context, match.group(2), None)
+                txt = get_or_attr(self.context, match.group(2), None)
                 match = re.search(clozeReg%match.group(1), txt)
                 if match:
                     val = match.group(1)
             else:
-                val = get_or_attr(context, section_name, None)
+                val = get_or_attr(self.context, section_name, None)
 
             replacer = ''
             # Whether it's {{^
@@ -131,7 +131,7 @@ class Template:
 
             self.template = self.template.replace(section, replacer)
 
-    def render_tags(self, context):
+    def render_tags(self):
         """Renders all the tags in a template for a context. Normally
         {{# and {{^ are already removed."""
         repCount = 0
@@ -151,25 +151,25 @@ class Template:
             tag_name = tag_name.strip()
             try:
                 func = modifiers[tag_type]
-                replacement = func(self, tag_name, context)
+                replacement = func(self, tag_name)
                 self.template = self.template.replace(tag, replacement)
             except (SyntaxError, KeyError):
                 return "{{invalid template}}"
 
     # {{{ functions just like {{ in anki
     @modifier('{')
-    def render_tag(self, tag_name, context):
-        return self.render_unescaped(tag_name, context)
+    def render_tag(self, tag_name):
+        return self.render_unescaped(tag_name)
 
     @modifier('!')
-    def render_comment(self, tag_name=None, context=None):
+    def render_comment(self, tag_name=None):
         """Rendering a comment always returns nothing."""
         return ''
 
     @modifier(None)
-    def render_unescaped(self, tag_name=None, context=None):
+    def render_unescaped(self, tag_name=None):
         """Render a tag without escaping it."""
-        txt = get_or_attr(context, tag_name)
+        txt = get_or_attr(self.context, tag_name)
         if txt is not None:
             # some field names could have colons in them
             # avoid interpreting these as field modifiers
@@ -184,7 +184,7 @@ class Template:
         else:
             mods, tag = parts[:-1], parts[-1] #py3k has *mods, tag = parts
 
-        txt = get_or_attr(context, tag)
+        txt = get_or_attr(self.context, tag)
 
         #Since 'text:' and other mods can affect html on which Anki relies to
         #process clozes, we need to make sure clozes are always
@@ -211,7 +211,7 @@ class Template:
             else:
                 # hook-based field modifier
                 mod, extra = re.search(r"^(.*?)(?:\((.*)\))?$", mod).groups()
-                txt = runFilter('fmod_' + mod, txt or '', extra or '', context,
+                txt = runFilter('fmod_' + mod, txt or '', extra or '', self.context,
                                 tag, tag_name)
                 if txt is None:
                     return '{unknown field %s}' % tag_name
@@ -262,7 +262,7 @@ class Template:
         return txt
 
     @modifier('=')
-    def render_delimiter(self, tag_name=None, context=None):
+    def render_delimiter(self, tag_name=None):
         """Changes the Mustache delimiter."""
         try:
             self.otag, self.ctag = tag_name.split(' ')
