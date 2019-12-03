@@ -448,21 +448,30 @@ class Deck(DictAugmentedDyn):
             return
         self.resetted = NUMS # this can create a problem in case of asynchronous. Currently ok.
         self.count['single'] = dict()
-        # unseen: cards which never graduated and are not in learning.
-        # new: unseen cards to see today (limits are are applied below)
-        self.count['single']['unseen'] = self.count['single']['new'] = self.manager.col.db.scalar(f"""select count() from cards where did = ? and queue = {QUEUE_NEW}""", self.getId())
-        # allrev: number of cards already seen that should be reviewed
-        # today and are not in learning
-        # rev: same as due, with deck limit taken into account
-        self.count['single']['allRev'] = self.count['single']['rev'] = self.manager.col.db.scalar(f"""select count() from cards where did = ? and queue = {QUEUE_REV} and due <= ? """, self.getId(), self.manager.col.sched.today)
-        # lrn today/other day: cards in learning mode to see now,
-        # where next review is the same day/another day as last review
-        self.count['single']['lrn today'] = self.manager.col.db.scalar(f""" select sum(left/1000) from
-        (select left from cards where did = ? and queue = {QUEUE_LRN}
-        and due < ?)""", self.getId(), self.manager.col.sched.dayCutoff) or 0
-        self.count['single']['lrn other day'] = self.manager.col.db.scalar(f"""
-        select count() from cards where did = ? and queue = {QUEUE_DAY_LRN}
-        and due <= ?""", self.getId(), self.manager.col.sched.today)
+        d = {'did': self.getId(),
+             'today': self.manager.col.sched.today,
+             'cutoff': self.manager.col.sched.dayCutoff
+        }
+        for keys, query in [
+                # unseen: cards which never graduated and are not in learning.
+                # new: unseen cards to see today (limits are are applied below)
+                (['unseen', 'new'], f"""select count() from cards where did = :did and queue = {QUEUE_NEW}"""),
+                # allrev: number of cards already seen that should be reviewed
+                # today and are not in learning
+                # rev: same as due, with deck limit taken into account
+                (['allRev', 'rev'], f"""select count() from cards where did = :did and queue = {QUEUE_REV} and due <= :today """),
+                # lrn today/other day: cards in learning mode to see now,
+                # where next review is the same day/another day as last review
+                (['lrn today'], f""" select sum(left/1000) from
+        (select left from cards where did = :did and queue = {QUEUE_LRN}
+        and due < :cutoff)"""),
+                (['lrn other day'], f"""
+        select count() from cards where did = :did and queue = {QUEUE_DAY_LRN}
+        and due <= :today """),
+                ]:
+            value = self.manager.col.db.scalar(query, **d) or 0
+            for key in keys:
+                self.count['single'][key] = value
         # lrn: cards that must be learn now
         self.count['single']['lrn'] = self.count['single']['lrn today'] + self.count['single']['lrn other day']
 
