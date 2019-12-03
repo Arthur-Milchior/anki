@@ -74,12 +74,10 @@ class Template:
         self.context = context or {}
         self.compile_regexps()
 
-    def render(self, template=None, encoding=None):
+    def render(self, encoding=None):
         """Turns a Mustache template into something wonderful."""
-        template = template or self.template
-
-        template = self.render_sections(template, self.context)
-        result = self.render_tags(template, self.context)
+        self.template = self.render_sections(self.template, self.context)
+        result = self.render_tags(self.template, self.context)
         if encoding is not None:
             result = result.encode(encoding)
         return result
