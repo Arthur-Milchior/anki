@@ -144,11 +144,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         keyword arguments
         depth -- the number of ancestors, excluding itself
         decks -- A list of decks, to render, with the same parent. See top of this file for detail"""
-        if deck.isLeaf():
-            return ""
-        if depth == 0:
-            #Toplevel
-            buf = """
+        buf = """
   <tr>
     <th colspan=5 align=left>%s
     </th>
@@ -160,104 +156,19 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
     </th>
   </tr>""" % (
             _("Deck"), _("Due"), _("New"))
-            buf += self._topLevelDragRow()
-        else:
-            buf = ""
-        for child in deck.getChildren():
-            buf += self._deckRow(child, depth)
-        if depth == 0:
-            buf += self._topLevelDragRow()
+        buf += self._topLevelDragRow()
+        buf += self.mw.col.decks.topLevel._renderDeckTree()
+        buf += self._topLevelDragRow()
         return buf
 
-    def _deckRow(self, deck, depth):
-        """The HTML for a single deck (and its descendant)
-
-        Keyword arguments:
-        deck -- see in the introduction of the file for a deck description
-        depth -- indentation argument (number of ancestors)
-        """
-        name = deck.getName()
-        did = deck.getId()
-        rev = deck.getCount('rev')
-        lrn = deck.getCount('lrn')
-        new = deck.getCount('new')
-        deck = self.mw.col.decks.get(did)
-        if deck.isDefault() and (not deck.parent.isLeaf()) and deck.isLeaf():
-            # if the default deck is empty, hide it
-            if not self.mw.col.db.scalar("select 1 from cards where did = 1 limit 1"):
-                return ""
-        # parent toggled for collapsing
-        for ancestor in self.mw.col.decks.get(did).getAncestors():
-            if ancestor['collapsed']:
-                buff = ""
-                return buff
-        prefix = "-"
-        if self.mw.col.decks.get(did)['collapsed']:
-            prefix = "+"
-        due = rev + lrn
-        def indent():
-            return "&nbsp;"*6*depth
-        if did == self.mw.col.conf['curDeck']:
-            klass = 'deck current'
-        else:
-            klass = 'deck'
-        buf = """
-  <tr class='%s' id='%d'>""" % (klass, did)
-        # deck link
-        if not deck.isLeaf():
-            collapse = """
-      <a class=collapse href=# onclick='return pycmd(\"collapse:%d\")'>%s</a>""" % (did, prefix)
-        else:
-            collapse = """
-      <span class=collapse></span>"""
-        if deck.isDyn():
-            extraclass = "filtered"
-        else:
-            extraclass = ""
-        buf += """
-
-    <td class=decktd colspan=5>%s%s
-       <a class="deck %s" href=# onclick="return pycmd('open:%d')">%s
-       </a>
-    </td>"""% (
-            indent(), collapse, extraclass, did, name)
-        # due counts
-        def nonzeroColour(cnt, colour):
-            if not cnt:
-                colour = "#e0e0e0"
-            if cnt >= 1000:
-                cnt = "1000+"
-            return """
-      <font color='%s'>
-         %s
-      </font>""" % (colour, cnt)
-        buf += """
-    <td align=right>%s
-    </td>
-    <td align=right>%s
-    </td>""" % (
-            nonzeroColour(due, colDue),
-            nonzeroColour(new, colNew))
-        # options
-        buf += ("""
-    <td align=center class=opts>
-      <a onclick='return pycmd(\"opts:%d\");'>
-        <img src='/_anki/imgs/gears.svg' class=gears>
-      </a>
-    </td>
-  </tr>""" % did)
-        # children
-        buf += self._renderDeckTree(deck, depth+1)
-        return buf
-
-    def _topLevelDragRow(self):
+    @staticmethod
+    def _topLevelDragRow():
         return """
   <tr class='top-level-drag-row'>
     <td colspan='6'>
       &nbsp;
     </td>
   </tr>"""
-
     # Options
     ##########################################################################
 
