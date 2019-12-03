@@ -16,7 +16,7 @@ from anki.stdmodels import (addBasicModel, addBasicTypingModel, addClozeModel,
 from anki.utils import intTime, isWin
 
 
-def Collection(path, lock=True, server=False, log=False):
+def Collection(path, lock=True, server=False, log=False, DeckManager=None):
     """Open a new or existing collection. Path must be unicode.
 
     server -- always False in anki without add-on.
@@ -42,7 +42,7 @@ def Collection(path, lock=True, server=False, log=False):
         db.execute("pragma journal_mode = wal")
     db.setAutocommit(False)
     # add db to col and do any remaining upgrades
-    col = _Collection(db, server, log)
+    col = _Collection(db, server, log, DeckManager=DeckManager)
     if ver < SCHEMA_VERSION:
         _upgrade(col, ver)
     elif ver > SCHEMA_VERSION:

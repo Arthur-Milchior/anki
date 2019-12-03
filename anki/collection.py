@@ -13,12 +13,12 @@ import time
 import traceback
 
 import anki.cards
+import anki.decks
 import anki.find
 import anki.latex  # sets up hook
 import anki.notes
 import anki.template
 from anki.consts import *
-from anki.decks import DeckManager
 from anki.errors import AnkiError
 from anki.fixing import FixingManager
 from anki.hooks import runFilter, runHook
@@ -133,7 +133,7 @@ class _Collection:
     * the usn returned by self.usn is self._usn, otherwise -1.
     * media manager does not connect nor close database connexion (I've no idea why)
     """
-    def __init__(self, db, server=False, log=False):
+    def __init__(self, db, server=False, log=False, DeckManager=None):
         self._debugLog = log
         self.db = db
         self.path = db._path
@@ -144,6 +144,7 @@ class _Collection:
         self.clearUndo()
         self.media = MediaManager(self, server)
         self.models = ModelManager(self)
+        DeckManager = DeckManager or anki.decks.DeckManager
         self.decks = DeckManager(self)
         self.tags = TagManager(self)
         self.load()

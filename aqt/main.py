@@ -16,6 +16,7 @@ from send2trash import send2trash
 import anki.mpv
 import anki.sound
 import aqt
+import aqt.decks
 import aqt.mediasrv
 import aqt.progress
 import aqt.stats
@@ -384,7 +385,10 @@ Debug info:
     def _loadCollection(self):
         cpath = self.pm.collectionPath()
 
-        self.col = Collection(cpath, log=True)
+        def DeckManager(*args, **kwargs):
+            return aqt.decks.DeckManager(self, *args, **kwargs)
+        self.col = Collection(cpath, log=True, DeckManager=DeckManager)
+        self.col.decks.mw = self
 
         self.setEnabled(True)
         self.progress.setupDB(self.col.db)
