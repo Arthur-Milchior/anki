@@ -69,17 +69,18 @@ class Template:
     # Closing tag delimiter
     ctag = '}}'
 
-    def __init__(self, template, context=None):
+    def __init__(self, template, context=None, encoding=None):
         self.template = template
         self.context = context or {}
         self.compile_regexps()
+        self.encoding = encoding
 
-    def render(self, encoding=None):
+    def render(self):
         """Turns a Mustache template into something wonderful."""
         self.template = self.render_sections(self.template, self.context)
         result = self.render_tags(self.template, self.context)
-        if encoding is not None:
-            result = result.encode(encoding)
+        if self.encoding is not None:
+            result = result.encode(self.encoding)
         return result
 
     def compile_regexps(self):

@@ -112,7 +112,7 @@ class View:
 
     def render(self, encoding=None):
         template = self.load_template()
-        return Template(template, self).render(encoding=encoding)
+        return Template(template, self, encoding=encoding).render()
 
     def __str__(self):
         return self.render()
