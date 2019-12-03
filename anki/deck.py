@@ -472,8 +472,11 @@ class Deck(DictAugmentedDyn):
             value = self.manager.col.db.scalar(query, **d) or 0
             for key in keys:
                 self.count['single'][key] = value
+        for (res, left, right) in [
+                ('lrn', 'lrn today', 'lrn other day'),
+        ]:
         # lrn: cards that must be learn now
-        self.count['single']['lrn'] = self.count['single']['lrn today'] + self.count['single']['lrn other day']
+            self.count['single'][res] = self.count['single'][left] + self.count['single'][right]
 
         self.count[''] = self.count['single'].copy()
         for child in self.childrenDict.values():
