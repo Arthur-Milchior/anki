@@ -269,7 +269,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         action = menu.addAction(_("Rename"))
         action.triggered.connect(lambda button, deck=deck: self._rename(deck))
         action = menu.addAction(_("Options"))
-        action.triggered.connect(lambda button, deck=deck: self._options(deck))
+        action.triggered.connect(lambda button, deck=deck: deck._options())
         action = menu.addAction(_("Export"))
         action.triggered.connect(lambda button, deck=deck: self._export(deck))
         action = menu.addAction(_("Delete"))
@@ -293,12 +293,6 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         except DeckRenameError as e:
             return showWarning(e.description)
         self.show()
-
-    def _options(self, deck):
-        # select the deck first, because the dyn deck conf assumes the deck
-        # we're editing is the current one
-        deck.select()
-        self.mw.onDeckConf()
 
     def _collapse(self, did):
         self.mw.col.decks.get(did).collapse()
