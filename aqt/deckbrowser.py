@@ -180,7 +180,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         action = menu.addAction(_("Export"))
         action.triggered.connect(lambda button, deck=deck: deck._export())
         action = menu.addAction(_("Delete"))
-        action.triggered.connect(lambda button, deck=deck: self._delete(deck))
+        action.triggered.connect(lambda button, deck=deck: deck._delete())
         runHook("showDeckOptions", menu, did)
         # still passing did, as add-ons have not updated to my fork.
         menu.exec_(QCursor.pos())
@@ -196,27 +196,6 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             return showWarning(e.description)
 
         self.show()
-
-    def _delete(self, deck):
-        if deck.isDefault():
-            return showWarning(_("The default deck can't be deleted."))
-        self.mw.checkpoint(_("Delete Deck"))
-        if deck.isStd():
-            dids = deck.getDescendantsIds(includeSelf=True)
-            cnt = self.mw.col.db.scalar(
-                "select count() from cards where did in {0} or "
-                "odid in {0}".format(ids2str(dids)))
-            if cnt:
-                extra = ngettext(" It has %d card.", " It has %d cards.", cnt) % cnt
-            else:
-                extra = None
-        if deck.isDyn() or not extra or askUser(
-            (_("Are you sure you wish to delete %s?") % deck.getName()) +
-            extra):
-            self.mw.progress.start(immediate=True)
-            deck.rem(True)
-            self.mw.progress.finish()
-            self.show()
 
     # Top buttons
     ######################################################################

@@ -128,3 +128,24 @@ class Deck(anki.deck.Deck):
         except DeckRenameError as e:
             return showWarning(e.description)
         self.manager.mw.deckBrowser.show()
+
+    def _delete(self):
+        if self.isDefault():
+            return showWarning(_("The default deck can't be deleted."))
+        self.manager.mw.checkpoint(_("Delete Deck"))
+        if self.isStd():
+            dids = self.getDescendantsIds(includeSelf=True)
+            cnt = self.manager.mw.col.db.scalar(
+                "select count() from cards where did in {0} or "
+                "odid in {0}".format(ids2str(dids)))
+            if cnt:
+                extra = ngettext(" It has %d card.", " It has %d cards.", cnt) % cnt
+            else:
+                extra = None
+        if self.isDyn() or not extra or askUser(
+            (_("Are you sure you wish to delete %s?") % self.getName()) +
+            extra):
+            self.manager.mw.progress.start(immediate=True)
+            self.rem(True)
+            self.manager.mw.progress.finish()
+            self.manager.mw.deckBrowser.show()
