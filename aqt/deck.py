@@ -36,10 +36,6 @@ class Deck(anki.deck.Deck):
 
         Keyword arguments:
         """
-        name = self.getBaseName()
-        did = self.getId()
-        new = self.getCount('new')
-        due = self.getCount('due')
         if self.isDefault() and (not self.getParent().isLeaf()) and self.isLeaf():
             # if the default deck is empty, hide it
             if not self.manager.col.db.scalar("select 1 from cards where did = 1 limit 1"):
@@ -51,19 +47,19 @@ class Deck(anki.deck.Deck):
                 return buff
         prefix = "+" if self['collapsed'] else "-"
         indent = "&nbsp;"*6*self.depth()
-        klass = 'deck current' if did == self.manager.col.conf['curDeck'] else 'deck'
+        klass = 'deck current' if self.getId() == self.manager.col.conf['curDeck'] else 'deck'
         buf = f"""
-  <tr class='{klass}' id='{did}'>"""
+  <tr class='{klass}' id='{self.getId()}'>"""
         # deck link
 
         collapse = f"""
-      <a class=collapse href=# onclick='return pycmd(\"collapse:{did}\")'>{prefix}</a>""" if not self.isLeaf() else """
+      <a class=collapse href=# onclick='return pycmd(\"collapse:{self.getId()}\")'>{prefix}</a>""" if not self.isLeaf() else """
       <span class=collapse></span>"""
         extraclass = "filtered" if self.isDyn() else ""
         buf += f"""
 
     <td class=decktd colspan=5>{indent}{collapse}
-       <a class="deck {extraclass}" href=# onclick="return pycmd('open:{did}')">{name}
+       <a class="deck {extraclass}" href=# onclick="return pycmd('open:{self.getId()}')">{self.getBaseName()}
        </a>
     </td>"""
         # due counts
@@ -77,14 +73,14 @@ class Deck(anki.deck.Deck):
          {cnt}
       </font>"""
         buf += f"""
-    <td align=right>{nonzeroColour(due, colDue)}
+    <td align=right>{nonzeroColour(self.getCount('due'), colDue)}
     </td>
-    <td align=right>{nonzeroColour(new, colNew)}
+    <td align=right>{nonzeroColour(self.getCount('new'), colNew)}
     </td>"""
         # options
         buf += (f"""
     <td align=center class=opts>
-      <a onclick='return pycmd(\"opts:{did}\");'>
+      <a onclick='return pycmd(\"opts:{self.getId()}\");'>
         <img src='/_anki/imgs/gears.svg' class=gears>
       </a>
     </td>
