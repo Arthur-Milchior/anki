@@ -100,11 +100,11 @@ class DeckBrowser:
 
     _body = """
 <center>
-<table cellspacing=0 cellpading=3>
+  <table cellspacing=0 cellpading=3>
 %(tree)s
-</table>
+  </table>
 
-<br>
+  <br>
 %(stats)s
 </center>
 """
@@ -150,8 +150,19 @@ where id > ?""",
 
     def _renderDeckTree(self, top: DeckTreeNode) -> str:
         buf = """
-<tr><th colspan=5 align=left>%s</th><th class=count>%s</th>
-<th class=count>%s</th><th class=optscol></th></tr>""" % (
+  <tr>
+    <th colspan=5 align=left>
+%s
+    </th>
+    <th class=count>
+%s
+    </th>
+    <th class=count>
+%s
+    </th>
+    <th class=optscol>
+    </th>
+  </tr>""" % (
             _("Deck"),
             tr(TR.STATISTICS_DUE_COUNT),
             _("New"),
@@ -181,23 +192,32 @@ where id > ?""",
         else:
             klass = "deck"
 
-        buf = "<tr class='%s' id='%d'>" % (klass, node.deck_id)
+        buf = """
+  <tr class='%s' id='%d'>""" % (
+            klass,
+            node.deck_id,
+        )
         # deck link
         if node.children:
-            collapse = (
-                "<a class=collapse href=# onclick='return pycmd(\"collapse:%d\")'>%s</a>"
-                % (node.deck_id, prefix)
+            collapse = """
+      <a class=collapse href=# onclick='return pycmd(\"collapse:%d\")'>%s</a>""" % (
+                node.deck_id,
+                prefix,
             )
         else:
-            collapse = "<span class=collapse></span>"
+            collapse = """
+      <span class=collapse></span>"""
         if node.filtered:
             extraclass = "filtered"
         else:
             extraclass = ""
         buf += """
 
-        <td class=decktd colspan=5>%s%s<a class="deck %s"
-        href=# onclick="return pycmd('open:%d')">%s</a></td>""" % (
+    <td class=decktd colspan=5>%s%s
+      <a class="deck %s" href=# onclick="return pycmd('open:%d')">
+%s
+      </a>
+    </td>""" % (
             indent(),
             collapse,
             extraclass,
@@ -208,16 +228,31 @@ where id > ?""",
         def nonzeroColour(cnt, klass):
             if not cnt:
                 klass = "zero-count"
-            return f'<span class="{klass}">{cnt}</span>'
+            return f"""
+        <span class="{klass}">
+{cnt}
+        </span>"""
 
-        buf += "<td align=right>%s</td><td align=right>%s</td>" % (
+        buf += """
+    <td align=right>
+%s
+    </td>
+    <td align=right>
+%s
+    </td>""" % (
             nonzeroColour(due, "review-count"),
             nonzeroColour(node.new_count, "new-count"),
         )
         # options
         buf += (
-            "<td align=center class=opts><a onclick='return pycmd(\"opts:%d\");'>"
-            "<img src='/_anki/imgs/gears.svg' class=gears></a></td></tr>" % node.deck_id
+            """
+    <td align=center class=opts>
+      <a onclick='return pycmd(\"opts:%d\");'>
+        <img src='/_anki/imgs/gears.svg' class=gears>
+      </a>
+    </td>
+  </tr>"""
+            % node.deck_id
         )
         # children
         if not node.collapsed:
@@ -226,7 +261,12 @@ where id > ?""",
         return buf
 
     def _topLevelDragRow(self):
-        return "<tr class='top-level-drag-row'><td colspan='6'>&nbsp;</td></tr>"
+        return """
+  <tr class='top-level-drag-row'>
+    <td colspan='6'>
+      &nbsp;
+    </td>
+  </tr>"""
 
     # Options
     ##########################################################################
