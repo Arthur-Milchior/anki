@@ -178,15 +178,12 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         action = menu.addAction(_("Options"))
         action.triggered.connect(lambda button, deck=deck: deck._options())
         action = menu.addAction(_("Export"))
-        action.triggered.connect(lambda button, deck=deck: self._export(deck))
+        action.triggered.connect(lambda button, deck=deck: deck._export())
         action = menu.addAction(_("Delete"))
         action.triggered.connect(lambda button, deck=deck: self._delete(deck))
         runHook("showDeckOptions", menu, did)
         # still passing did, as add-ons have not updated to my fork.
         menu.exec_(QCursor.pos())
-
-    def _export(self, deck):
-        self.mw.onExport(deck=deck)
 
     def _rename(self, deck):
         self.mw.checkpoint(_("Rename Deck"))

@@ -110,3 +110,6 @@ class Deck(anki.deck.Deck):
     def _selDeck(self):
         self.select()
         self.manager.mw.onOverview()
+
+    def _export(self):
+        self.manager.mw.onExport(deck=self)
