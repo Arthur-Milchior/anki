@@ -39,6 +39,9 @@ class DeckBrowser:
     def _linkHandler(self, url):
         if ":" in url:
             (cmd, arg) = url.split(":")
+            if "," in arg:
+                arg, arg2 = arg.split(',')
+            deck = self.mw.col.decks.get(arg2)
         else:
             cmd = url
         if cmd == "open":
@@ -60,8 +63,7 @@ class DeckBrowser:
                 self.mw.col.decks.id(deck)
                 self.refresh()
         elif cmd == "drag":
-            draggedDeckDid, ontoDeckDid = arg.split(',')
-            self._dragDeckOnto(draggedDeckDid, ontoDeckDid)
+            self._dragDeckOnto(arg, arg2)
         elif cmd == "collapse":
             self._collapse(arg)
         return False
