@@ -618,7 +618,7 @@ def fieldNamesForNotes(col, nids):
     fields = set()
     mids = col.db.list("select distinct mid from notes where id in %s" % ids2str(nids))
     for mid in mids:
-        model = col.models.get(mid)
+        model = col.models.get(mid, orNone=False)
         for name in model.fieldNames():
             if name not in fields: #slower w/o
                 fields.add(name)
@@ -638,7 +638,7 @@ def findDupes(col, fieldName, search=""):
     fields = {}
     def ordForMid(mid):
         if mid not in fields:
-            model = col.models.get(mid)
+            model = col.models.get(mid, orNone=False)
             for fieldIndex, fieldType in enumerate(model['flds']):
                 if fieldType.getName().lower() == fieldName.lower():
                     fields[mid] = fieldIndex

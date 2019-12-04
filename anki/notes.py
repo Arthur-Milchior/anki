@@ -75,7 +75,7 @@ select guid, mid, mod, usn, tags, flds, flags, data
 from notes where id = ?""", self.id)
         self.fields = splitFields(self.fields)
         self.tags = self.col.tags.split(self.tags)
-        self._model = self.col.models.get(self.mid)
+        self._model = self.col.models.get(self.mid, orNone=False)
         self._fmap = self._model.fieldMap()
         self.scm = self.col.scm
 

@@ -38,7 +38,7 @@ class FixingManager:
 
     def actualFix(self):
         self.remainingToSplit()
-    
+
     def remainingToSplit(self):
         # note types with a missing model
         ids = self.db.list("""

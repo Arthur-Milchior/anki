@@ -244,7 +244,7 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
     def model(self):
         """The card's note's model (note type) object. This object is
         described in models.py."""
-        return self.col.models.get(self.note().mid)
+        return self.col.models.get(self.note().mid, orNone=False)
 
     def template(self):
         """The card's template object. See models.py for a comment of this

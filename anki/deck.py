@@ -363,7 +363,7 @@ class Deck(DictAugmentedDyn):
     #############################################################
 
     def getModel(self):
-        self.manager.col.models.get(self.get('mid'))
+        self.manager.col.models.get(self.get('mid'), orNone=True)
 
     def setModel(self, model):
         if isinstance(model, int):

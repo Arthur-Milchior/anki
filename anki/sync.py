@@ -444,7 +444,7 @@ from notes where %s""" % (self.maxUsn, lim))
         Each note type whose mod time is greater on server, or which does not exists in collection, is copied into the collection.
         """
         for serverModel in serverChanges:
-            localModel = self.col.models.get(serverModel.getId())
+            localModel = self.col.models.get(serverModel.getId(), orNone=True)
             # if missing locally or server is newer, update
             if not localModel or serverModel['mod'] > localModel['mod']:
                 # This is a hack to detect when the note type has been altered

@@ -257,7 +257,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         includeRemote -- whether the list should include contents which is with http, https or ftp
         """
         filesInStr = []
-        model = self.col.models.get(mid)
+        model = self.col.models.get(mid, orNone=False)
         strings = []
         if model['type'] == MODEL_CLOZE and "{{c" in string:
             # if the field has clozes in it, we'll need to expand the

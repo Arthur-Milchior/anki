@@ -2179,7 +2179,7 @@ class ChangeModel(QDialog):
         import aqt.modelchooser
         self.oldModel = self.browser.col.models.get(
             self.browser.col.db.scalar(
-                "select mid from notes where id = ?", self.nids[0]))
+                "select mid from notes where id = ?", self.nids[0]), orNone=False)
         self.form.oldModelLabel.setText(self.oldModel.getName())
         self.modelChooser = aqt.modelchooser.ModelChooser(
             self.browser.mw, self.form.modelChooserWidget, label=False)

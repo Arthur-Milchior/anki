@@ -143,14 +143,17 @@ class ModelManager:
         "Get current model."
         model = self.col.decks.current().getModel()
         if not forDeck or not model:
-            model = self.get(self.col.conf['curModel'])
+            model = self.get(self.col.conf['curModel'], orNone=True)
         return model or list(self.models.values())[0]
 
-    def get(self, id):
+    def get(self, id, orNone=False):
         "Get model object with ID, or None."
         id = str(id)
         if id in self.models:
             return self.models[id]
+        if orNone:
+            return None
+        raise Exception(f"Model {id} not found")
 
     def all(self, type=None):
         "Get all model objects."
