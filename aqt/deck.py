@@ -40,11 +40,6 @@ class Deck(anki.deck.Deck):
             # if the default deck is empty, hide it
             if not self.manager.col.db.scalar("select 1 from cards where did = 1 limit 1"):
                 return ""
-        # parent toggled for collapsing
-        for ancestor in self.getAncestors():
-            if ancestor['collapsed']:
-                buff = ""
-                return buff
         prefix = "+" if self['collapsed'] else "-"
         indent = "&nbsp;"*6*self.depth()
         klass = 'deck current' if self.getId() == self.manager.col.conf['curDeck'] else 'deck'
