@@ -205,6 +205,11 @@ class Deck(DictAugmentedDyn):
     def isLeaf(self):
         return not self.getChildren()
 
+    def depth(self):
+        if self.isAboveTopLevel():
+            return -1
+        return self.getName().count("::")
+
     def directLine(self):
         return self.getAncestors(includeSelf=True) + self.getDescendants()
 

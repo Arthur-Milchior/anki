@@ -18,7 +18,7 @@ class Deck(anki.deck.Deck):
         </a>
       </td>"""
 
-    def _renderDeckTree(self, depth=0):
+    def _renderDeckTree(self):
         """Html used to show the deck tree.
 
         keyword arguments
@@ -28,15 +28,13 @@ class Deck(anki.deck.Deck):
             return ""
         buf = ""
         for child in self.getChildren():
-            buf += child._deckRow(depth)
+            buf += child._deckRow()
         return buf
 
-    def _deckRow(self, depth):
+    def _deckRow(self):
         """The HTML for a single deck (and its descendant)
 
         Keyword arguments:
-        deck -- see in the introduction of the file for a deck description
-        depth -- indentation argument (number of ancestors)
         """
         name = self.getBaseName()
         did = self.getId()
@@ -57,7 +55,7 @@ class Deck(anki.deck.Deck):
             prefix = "+"
         due = rev + lrn
         def indent():
-            return "&nbsp;"*6*depth
+            return "&nbsp;"*6*self.depth()
         if did == self.manager.col.conf['curDeck']:
             klass = 'deck current'
         else:
@@ -108,7 +106,7 @@ class Deck(anki.deck.Deck):
     </td>
   </tr>""" % did)
         # children
-        buf += self._renderDeckTree(depth+1)
+        buf += self._renderDeckTree()
         return buf
 
     def _selDeck(self):
