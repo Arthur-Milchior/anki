@@ -482,6 +482,7 @@ class Deck(DictAugmentedDyn):
                 self.count['single'][key] = value
         for (res, left, right) in [
                 ('lrn', 'lrn today', 'lrn other day'),
+                ('due', 'rev', 'lrn'),
         ]:
         # lrn: cards that must be learn now
             self.count['single'][res] = self.count['single'][left] + self.count['single'][right]
@@ -497,7 +498,6 @@ class Deck(DictAugmentedDyn):
             self.count['']['rev'] =  self.count['']['allRev']
             # in scheduler 2, we don't respect children limit of review
         self.count['']['rev'] =  min(self.count['']['rev'], self.getCount('rev', 'lim'))
-
 
     def getCount(self, key, key1=''):
         if self.resetted < LIMS:

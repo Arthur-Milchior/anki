@@ -38,9 +38,8 @@ class Deck(anki.deck.Deck):
         """
         name = self.getBaseName()
         did = self.getId()
-        rev = self.getCount('rev')
-        lrn = self.getCount('lrn')
         new = self.getCount('new')
+        due = self.getCount('due')
         if self.isDefault() and (not self.getParent().isLeaf()) and self.isLeaf():
             # if the default deck is empty, hide it
             if not self.manager.col.db.scalar("select 1 from cards where did = 1 limit 1"):
@@ -53,7 +52,6 @@ class Deck(anki.deck.Deck):
         prefix = "-"
         if self['collapsed']:
             prefix = "+"
-        due = rev + lrn
         def indent():
             return "&nbsp;"*6*self.depth()
         if did == self.manager.col.conf['curDeck']:
