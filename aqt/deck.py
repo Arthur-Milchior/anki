@@ -165,3 +165,11 @@ class Deck(anki.deck.Deck):
             self.rem(True)
             self.manager.mw.progress.finish()
             self.manager.mw.deckBrowser.show()
+
+    def _dragDeckOnto(self, ontoDeckDid):
+        try:
+            self.renameForDragAndDrop(ontoDeckDid)
+        except DeckRenameError as e:
+            return showWarning(e.description)
+
+        self.manager.mw.deckBrowser.show()

@@ -6,7 +6,6 @@ from copy import deepcopy
 
 import aqt
 from anki.consts import *
-from anki.errors import DeckRenameError
 from anki.lang import _, ngettext
 from anki.sound import clearAudioQueue
 from anki.utils import fmtTimeSpan, ids2str
@@ -62,7 +61,7 @@ class DeckBrowser:
                 self.mw.col.decks.id(deck)
                 self.refresh()
         elif cmd == "drag":
-            self._dragDeckOnto(arg, arg2)
+            deck._dragDeckOnto(arg2)
         elif cmd == "collapse":
             self._collapse(arg)
         return False
@@ -172,14 +171,6 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
     def _collapse(self, did):
         self.mw.col.decks.get(did).collapse()
         self._renderPage(reuse=True)
-
-    def _dragDeckOnto(self, draggedDeckDid, ontoDeckDid):
-        try:
-            self.mw.col.decks.get(draggedDeckDid).renameForDragAndDrop(ontoDeckDid)
-        except DeckRenameError as e:
-            return showWarning(e.description)
-
-        self.show()
 
     # Top buttons
     ######################################################################
