@@ -60,12 +60,12 @@ class Deck(anki.deck.Deck):
             klass = 'deck current'
         else:
             klass = 'deck'
-        buf = """
-  <tr class='%s' id='%d'>""" % (klass, did)
+        buf = f"""
+  <tr class='{klass}' id='{did}'>"""
         # deck link
         if not self.isLeaf():
-            collapse = """
-      <a class=collapse href=# onclick='return pycmd(\"collapse:%d\")'>%s</a>""" % (did, prefix)
+            collapse = f"""
+      <a class=collapse href=# onclick='return pycmd(\"collapse:{did}\")'>{prefix}</a>"""
         else:
             collapse = """
       <span class=collapse></span>"""
@@ -73,38 +73,35 @@ class Deck(anki.deck.Deck):
             extraclass = "filtered"
         else:
             extraclass = ""
-        buf += """
+        buf += f"""
 
-    <td class=decktd colspan=5>%s%s
-       <a class="deck %s" href=# onclick="return pycmd('open:%d')">%s
+    <td class=decktd colspan=5>{indent()}{collapse}
+       <a class="deck {extraclass}" href=# onclick="return pycmd('open:{did}')">{name}
        </a>
-    </td>"""% (
-            indent(), collapse, extraclass, did, name)
+    </td>"""
         # due counts
         def nonzeroColour(cnt, colour):
             if not cnt:
                 colour = "#e0e0e0"
             if cnt >= 1000:
                 cnt = "1000+"
-            return """
-      <font color='%s'>
-         %s
-      </font>""" % (colour, cnt)
-        buf += """
-    <td align=right>%s
+            return f"""
+      <font color='{colour}'>
+         {cnt}
+      </font>"""
+        buf += f"""
+    <td align=right>{nonzeroColour(due, colDue)}
     </td>
-    <td align=right>%s
-    </td>""" % (
-            nonzeroColour(due, colDue),
-            nonzeroColour(new, colNew))
+    <td align=right>{nonzeroColour(new, colNew)}
+    </td>"""
         # options
-        buf += ("""
+        buf += (f"""
     <td align=center class=opts>
-      <a onclick='return pycmd(\"opts:%d\");'>
+      <a onclick='return pycmd(\"opts:{did}\");'>
         <img src='/_anki/imgs/gears.svg' class=gears>
       </a>
     </td>
-  </tr>""" % did)
+  </tr>""")
         # children
         buf += self._renderDeckTree()
         return buf
