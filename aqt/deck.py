@@ -106,3 +106,7 @@ class Deck(anki.deck.Deck):
         # children
         buf += self._renderDeckTree(depth+1)
         return buf
+
+    def _selDeck(self):
+        self.select()
+        self.manager.mw.onOverview()

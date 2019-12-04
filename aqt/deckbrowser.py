@@ -45,7 +45,7 @@ class DeckBrowser:
         else:
             cmd = url
         if cmd == "open":
-            self._selDeck(arg)
+            deck._selDeck()
         elif cmd == "opts":
             self._showOptions(arg)
         elif cmd == "shared":
@@ -67,10 +67,6 @@ class DeckBrowser:
         elif cmd == "collapse":
             self._collapse(arg)
         return False
-
-    def _selDeck(self, did):
-        self.mw.col.decks.get(did).select()
-        self.mw.onOverview()
 
     # HTML generation
     ##########################################################################
