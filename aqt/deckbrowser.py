@@ -174,7 +174,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         menu = QMenu(self.mw)
         deck = self.mw.col.decks.get(did)
         action = menu.addAction(_("Rename"))
-        action.triggered.connect(lambda button, deck=deck: self._rename(deck))
+        action.triggered.connect(lambda button, deck=deck: deck._rename())
         action = menu.addAction(_("Options"))
         action.triggered.connect(lambda button, deck=deck: deck._options())
         action = menu.addAction(_("Export"))
@@ -184,19 +184,6 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         runHook("showDeckOptions", menu, did)
         # still passing did, as add-ons have not updated to my fork.
         menu.exec_(QCursor.pos())
-
-    def _rename(self, deck):
-        self.mw.checkpoint(_("Rename Deck"))
-        oldName = deck.getName()
-        newName = getOnlyText(_("New deck name:"), default=oldName)
-        newName = newName.replace('"', "")
-        if not newName or newName == oldName:
-            return
-        try:
-            deck.rename(newName)
-        except DeckRenameError as e:
-            return showWarning(e.description)
-        self.show()
 
     def _collapse(self, did):
         self.mw.col.decks.get(did).collapse()

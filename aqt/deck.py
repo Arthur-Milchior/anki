@@ -1,6 +1,8 @@
 import anki.deck
 from anki.consts import *
-
+from anki.errors import DeckRenameError
+from anki.lang import _
+from aqt.utils import getOnlyText
 
 class Deck(anki.deck.Deck):
     ## Deck Browser
@@ -113,3 +115,16 @@ class Deck(anki.deck.Deck):
 
     def _export(self):
         self.manager.mw.onExport(deck=self)
+
+    def _rename(self):
+        self.manager.mw.checkpoint(_("Rename Deck"))
+        oldName = self.getName()
+        newName = getOnlyText(_("New deck name:"), default=oldName)
+        newName = newName.replace('"', "")
+        if not newName or newName == oldName:
+            return
+        try:
+            self.rename(newName)
+        except DeckRenameError as e:
+            return showWarning(e.description)
+        self.manager.mw.deckBrowser.show()
