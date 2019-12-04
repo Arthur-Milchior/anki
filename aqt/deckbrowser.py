@@ -75,11 +75,11 @@ class DeckBrowser:
 
     _body = """
 <center>
-<table cellspacing=0 cellpading=3>
+  <table cellspacing=0 cellpading=3>
 %(tree)s
-</table>
+  </table>
 
-<br>
+  <br>
 %(stats)s
 %(countwarn)s
 </center>
@@ -123,13 +123,21 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         if (self.mw.col.decks.count() < 25 or
                 self.mw.pm.profile.get("hideDeckLotsMsg")):
             return ""
-        return "<br><div style='width:50%;border: 1px solid #000;padding:5px;'>"+(
+        return """
+  <br>
+  <div style='width:50%;border: 1px solid #000;padding:5px;'>"""+(
             _("You have aButton lot of decks. Please see %(aButton)s. %(hide)s") % dict(
-                aButton=("<a href=# onclick=\"return pycmd('lots')\">%s</a>" % _(
+                aButton=("""<a href=# onclick=\"return pycmd('lots')\">%s</a>""" % _(
                     "this page")),
-                hide=("<br><small><a href=# onclick='return pycmd(\"hidelots\")'>("
-                   "%s)</a></small>" % (_("hide"))+
-                    "</div>")))
+                hide=("""
+    <br>
+    <small>
+      <a href=# onclick='return pycmd(\"hidelots\")'>
+        ("%s)
+      </a>
+    </small>""" % (_("hide"))+
+                    """
+  </div>""")))
 
     def _renderDeckTree(self, nodes, depth=0):
         """Html used to show the deck tree.
@@ -142,8 +150,16 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         if depth == 0:
             #Toplevel
             buf = """
-<tr><th colspan=5 align=left>%s</th><th class=count>%s</th>
-<th class=count>%s</th><th class=optscol></th></tr>""" % (
+  <tr>
+    <th colspan=5 align=left>%s
+    </th>
+    <th class=count>%s
+    </th>
+    <th class=count>%s
+    </th>
+    <th class=optscol>
+    </th>
+  </tr>""" % (
             _("Deck"), _("Due"), _("New"))
             buf += self._topLevelDragRow()
         else:
@@ -185,20 +201,25 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             klass = 'deck current'
         else:
             klass = 'deck'
-        buf = "<tr class='%s' id='%d'>" % (klass, did)
+        buf = """
+  <tr class='%s' id='%d'>""" % (klass, did)
         # deck link
         if children:
-            collapse = "<a class=collapse href=# onclick='return pycmd(\"collapse:%d\")'>%s</a>" % (did, prefix)
+            collapse = """
+      <a class=collapse href=# onclick='return pycmd(\"collapse:%d\")'>%s</a>""" % (did, prefix)
         else:
-            collapse = "<span class=collapse></span>"
+            collapse = """
+      <span class=collapse></span>"""
         if deck['dyn']:
             extraclass = "filtered"
         else:
             extraclass = ""
         buf += """
 
-        <td class=decktd colspan=5>%s%s<a class="deck %s"
-        href=# onclick="return pycmd('open:%d')">%s</a></td>"""% (
+    <td class=decktd colspan=5>%s%s
+       <a class="deck %s" href=# onclick="return pycmd('open:%d')">%s
+       </a>
+    </td>"""% (
             indent(), collapse, extraclass, did, name)
         # due counts
         def nonzeroColour(cnt, colour):
@@ -206,19 +227,36 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
                 colour = "#e0e0e0"
             if cnt >= 1000:
                 cnt = "1000+"
-            return "<font color='%s'>%s</font>" % (colour, cnt)
-        buf += "<td align=right>%s</td><td align=right>%s</td>" % (
+            return """
+      <font color='%s'>
+         %s
+      </font>""" % (colour, cnt)
+        buf += """
+    <td align=right>%s
+    </td>
+    <td align=right>%s
+    </td>""" % (
             nonzeroColour(due, colDue),
             nonzeroColour(new, colNew))
         # options
-        buf += ("<td align=center class=opts><a onclick='return pycmd(\"opts:%d\");'>"
-        "<img src='/_anki/imgs/gears.svg' class=gears></a></td></tr>" % did)
+        buf += ("""
+    <td align=center class=opts>
+      <a onclick='return pycmd(\"opts:%d\");'>
+        <img src='/_anki/imgs/gears.svg' class=gears>
+      </a>
+    </td>
+  </tr>""" % did)
         # children
         buf += self._renderDeckTree(children, depth+1)
         return buf
 
     def _topLevelDragRow(self):
-        return "<tr class='top-level-drag-row'><td colspan='6'>&nbsp;</td></tr>"
+        return """
+  <tr class='top-level-drag-row'>
+    <td colspan='6'>
+      &nbsp;
+    </td>
+  </tr>"""
 
     # Options
     ##########################################################################
