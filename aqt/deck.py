@@ -173,3 +173,7 @@ class Deck(anki.deck.Deck):
             return showWarning(e.description)
 
         self.manager.mw.deckBrowser.show()
+
+    def _collapse(self):
+        self.collapse()
+        self.manager.mw.deckBrowser._renderPage(reuse=True)
