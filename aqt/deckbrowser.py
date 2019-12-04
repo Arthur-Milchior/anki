@@ -7,7 +7,6 @@ from copy import deepcopy
 import aqt
 from anki.consts import *
 from anki.errors import DeckRenameError
-from anki.hooks import runHook
 from anki.lang import _, ngettext
 from anki.sound import clearAudioQueue
 from anki.utils import fmtTimeSpan, ids2str
@@ -47,7 +46,7 @@ class DeckBrowser:
         if cmd == "open":
             deck._selDeck()
         elif cmd == "opts":
-            self._showOptions(arg)
+            deck._showOptions()
         elif cmd == "shared":
             self._onShared()
         elif cmd == "import":
@@ -169,21 +168,6 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
   </tr>"""
     # Options
     ##########################################################################
-
-    def _showOptions(self, did):
-        menu = QMenu(self.mw)
-        deck = self.mw.col.decks.get(did)
-        action = menu.addAction(_("Rename"))
-        action.triggered.connect(lambda button, deck=deck: deck._rename())
-        action = menu.addAction(_("Options"))
-        action.triggered.connect(lambda button, deck=deck: deck._options())
-        action = menu.addAction(_("Export"))
-        action.triggered.connect(lambda button, deck=deck: deck._export())
-        action = menu.addAction(_("Delete"))
-        action.triggered.connect(lambda button, deck=deck: deck._delete())
-        runHook("showDeckOptions", menu, did)
-        # still passing did, as add-ons have not updated to my fork.
-        menu.exec_(QCursor.pos())
 
     def _collapse(self, did):
         self.mw.col.decks.get(did).collapse()
