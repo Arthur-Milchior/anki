@@ -40,21 +40,17 @@ class Deck(anki.deck.Deck):
             # if the default deck is empty, hide it
             if not self.manager.col.db.scalar("select 1 from cards where did = 1 limit 1"):
                 return ""
-        prefix = "+" if self['collapsed'] else "-"
-        indent = "&nbsp;"*6*self.depth()
-        klass = 'deck current' if self.getId() == self.manager.col.conf['curDeck'] else 'deck'
         buf = f"""
-  <tr class='{klass}' id='{self.getId()}'>"""
+  <tr class='{'deck current' if self.getId() == self.manager.col.conf['curDeck'] else 'deck'}' id='{self.getId()}'>"""
         # deck link
 
         collapse = f"""
-      <a class=collapse href=# onclick='return pycmd(\"collapse:{self.getId()}\")'>{prefix}</a>""" if not self.isLeaf() else """
+      <a class=collapse href=# onclick='return pycmd(\"collapse:{self.getId()}\")'>{"+" if self['collapsed'] else "-"}</a>""" if not self.isLeaf() else """
       <span class=collapse></span>"""
-        extraclass = "filtered" if self.isDyn() else ""
         buf += f"""
 
-    <td class=decktd colspan=5>{indent}{collapse}
-       <a class="deck {extraclass}" href=# onclick="return pycmd('open:{self.getId()}')">{self.getBaseName()}
+    <td class=decktd colspan=5>{"&nbsp;"*6*self.depth()}{collapse}
+       <a class="deck {"filtered" if self.isDyn() else ""}" href=# onclick="return pycmd('open:{self.getId()}')">{self.getBaseName()}
        </a>
     </td>"""
         # due counts
