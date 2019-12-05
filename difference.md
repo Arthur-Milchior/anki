@@ -100,6 +100,10 @@ cards.
 ## Refresh browser (1347728560, 832679841)
 Add the short-cut CTRL-F5 in browser to update the search
 
+## Remove "Map to" in item import window for CSV (46741504)
+Because of this text, the keyboard can't be used to search a field. I
+thus remove it.
+
 ## Update add-ons (1847544206)
 
 While syncing collection, add-ons will be updated. Updates are exactly

@@ -22,7 +22,8 @@ from anki.sound import allSounds, clearAudioQueue, play
 from anki.utils import (bodyClass, fmtTimeSpan, htmlToTextLine, ids2str,
                         intTime, isMac, isWin)
 from aqt.browserColumn import (BrowserColumn, ColumnList, advancedColumns,
-                               basicColumns, fieldColumn, internalColumns, unknownColumn)
+                               basicColumns, fieldColumn, internalColumns,
+                               unknownColumn)
 from aqt.exporting import ExportDialog
 from aqt.qt import *
 from aqt.utils import (MenuList, SubMenu, askUser, getOnlyText, getTag,

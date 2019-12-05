@@ -31,7 +31,7 @@ class ChangeMap(QDialog):
         count = 0
         setCurrent = False
         for field in self.model['flds']:
-            item = QListWidgetItem(_("Map to %s") % field.getName())
+            item = QListWidgetItem(field.getName())
             self.frm.fields.addItem(item)
             if current == field.getName():
                 setCurrent = True
