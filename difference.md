@@ -115,6 +115,13 @@ In order to lead configurations be easier to edit, this add-on allow
 newline in json strings. It allow add newlines in the add-on
 configuration editor.
 
+## Open a window multiple time (354407385)
+Allows to open multiple copy of the same window.
+
+In the preferences, you can decide which you can open multiple time.
+
+TODO: do it better than using stacks
+
 ## Refresh browser (1347728560, 832679841)
 Add the short-cut CTRL-F5 in browser to update the search
 

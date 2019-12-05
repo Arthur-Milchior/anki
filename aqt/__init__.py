@@ -8,6 +8,7 @@ import gettext
 import locale
 import sys
 import tempfile
+from inspect import stack
 
 import anki.lang
 from anki import version as _version
@@ -78,8 +79,25 @@ class DialogManager:
         "Preferences": [preferences.Preferences, None],
     }
 
+    """List of opened window. In order to close them all"""
+    _openDialogs = list()
+
+    def isMultiple(self, name):
+        if "name" not in {"AddCards", "Browser", "EditCurrent"}:
+            name = "OtherWindows"
+        # no need to import mw, we are already in the aqt module
+        return mw.col.conf.get(f"{name}MultipleTime", True)
 
     def open(self, name, *args, **kwargs):
+        """Open a new window, with name and args.
+
+        Or reopen the window name, if it should be single in the
+        config, and is already opened.
+        """
+        function = self.openMany if self.isMultiple(name) else self.openSingle
+        return function(name,*args)
+
+    def openSingle(self, name, *args, **kwargs):
         """Open a window of kind name.
 
         Open (and show) the one already opened, if it
@@ -103,16 +121,46 @@ class DialogManager:
             self._dialogs[name][1] = instance
             return instance
 
+    def openMany(self, name, *args, **kwargs):
+        """Open a new window whose kind is name.
+
+        keyword arguments:
+        args -- values passed to the opener.
+        name -- the name of the window to open
+        """
+        (creator, _) = self._dialogs[name]
+        instance = creator(*args, **kwargs)
+        self._openDialogs.append(instance)
+        return instance
+
     def markClosed(self, name):
+        """Remove the window of windowName from the set of windows. """
+        # If it is a window of kind single, then call super
+        # Otherwise, use inspect to figure out which is the caller
+        if self.isMultiple(name):
+            self.markClosedMultiple()
+        else:
+            self.markClosedSingle(name)
+
+    def markClosedSingle(self, name):
         """Window name is now considered as closed. It removes the element from _dialogs."""
         self._dialogs[name] = [self._dialogs[name][0], None]
+
+    def markClosedMultiple(self):
+        caller = stack()[2].frame.f_locals['self']
+        if caller in self._openDialogs:
+            #caller found
+            self._openDialogs.remove(caller)
+        else:
+            pass
+            #caller not found
 
     def allClosed(self):
         """
         Whether all windows (except the main window) are marked as
         closed.
         """
-        return not any(windowInstance for (windowClass, windowInstance) in self._dialogs.values())
+        return self._openDialogs==[] and (not any(x[1] for x in self._dialogs.values()))
 
     def closeAll(self, onsuccess):
         """Close all windows (except the main one). Call onsuccess when it's done.
@@ -124,24 +172,32 @@ class DialogManager:
         onsuccess -- the function to call when the last window is closed.
         """
 
+        def callback():
+            """Call onsuccess if all window (except main) are closed."""
+            if self.allClosed():
+                onsuccess()
+            else:
+                # still waiting for others to close
+                pass
         # can we close immediately?
         if self.allClosed():
             onsuccess()
             return
 
         # ask all windows to close and await a reply
+        ## Windows opened multiple time
+        for instance in self._openDialogs:
+            if not sip.isdeleted(instance):#It should be useless. I prefer to keep it to avoid erros
+                if getattr(instance, "silentlyClose", False):
+                    instance.close()
+                    callback()
+                else:
+                    instance.closeWithCallback(callback)
+
+        ## Windows opened a single time
         for (name, (creator, instance)) in self._dialogs.items():
             if not instance:
                 continue
-
-            def callback():
-                """Call onsuccess if all window (except main) are closed."""
-                if self.allClosed():
-                    onsuccess()
-                else:
-                    # still waiting for others to close
-                    pass
-
             if getattr(instance, "silentlyClose", False):
                 instance.close()
                 callback()
