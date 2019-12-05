@@ -230,6 +230,7 @@ Not currently enabled; click the sync button in the main window to enable."""))
         # advanced option
         "exportSiblings",
         {"name":"pastePNG", "sync":False},
+        "minutesInBrowser",
     ]
 
     def setupOneSetting(self, name, default=False, kind="check", sync=True, fromCol=identity, toCol=identity):

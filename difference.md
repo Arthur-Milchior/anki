@@ -19,6 +19,11 @@ a note which has no more card. This allow to lose the content of the
 note, and let you correct the note instead to generate cards.
 This add-on adds many features to the browser.
 
+### Improvment for dev
+To add a column, you only need to add one more object of type BrowserColumn.
+This add-on adds many features. In particular, for devs, it adds a
+class for browser's column, in order to add more columns easily
+
 ### Sorting everything
 You can sort any columns. Including decks, cards, notes, tags.
 
@@ -46,4 +51,8 @@ Add the short-cut CTRL-F5 in browser to update the search
 
 ## Usable card report (25425599)
 Add more informations in the «empty card» report.
+### Minutes in the browser
+Allow the columns in browser to show hours and minutes. It may helps
+to see more precisely when cards in learning are due, and see in which
+order cards and notes where added/edited.
 
