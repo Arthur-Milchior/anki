@@ -691,3 +691,9 @@ def opengl_vendor():
 def gfxDriverIsBroken():
     driver = opengl_vendor()
     return driver == "nouveau"
+
+def flushNote(note):
+    """Flush note. Tooltip if there is an error message."""
+    msg = note.flush()
+    if msg:
+        tooltip(msg)

@@ -474,6 +474,13 @@
         </widget>
        </item>
        <item>
+        <widget class="Line" name="line">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QCheckBox" name="allowEmptyFirstField">
          <property name="text">
           <string>Allow empty first field</string>
@@ -484,12 +491,26 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="compileLaTeX">
+         <property name="text">
+          <string>Compile LaTeX as soon as it is written</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QCheckBox" name="allowDuplicateFirstField">
          <property name="text">
           <string>Allow duplicate of first field in imports</string>
          </property>
          <property name="checked">
           <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>This option adds a tag LaTeXError to cards with faulty LaTeX. </string>
          </property>
         </widget>
        </item>

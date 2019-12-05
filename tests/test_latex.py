@@ -27,6 +27,7 @@ def test_latex():
         print("aborting test; latex or dvipng is not installed")
         return
     # fix path
+    d.buggedLatex.clear()
     anki.latex.pngCommands[0][0] = "latex"
     # check media db should cause latex to be generated
     d.media.check()

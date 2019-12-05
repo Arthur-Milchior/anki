@@ -29,6 +29,12 @@ old text and the added one.
 
 ## Browser from reviewer: open directly the deck (1555020859)
 
+## Compile LaTeX as soon as possible (769835008)
+
+As soon as a note with LaTeX is saved, its latex is compiled. A
+message warns when there is an error. To save time, once an expression
+failed, it's not tried again.
+
 ## Explain errors
 You obtain more detailled error message if a sync fail, and if you try
 do do a «Check database».

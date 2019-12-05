@@ -149,6 +149,7 @@ class _Collection:
         self.decks = DeckManager(self)
         self.tags = TagManager(self)
         self.load()
+        self.buggedLatex ={} # Ensure that the same image is never compiled twice with the same compiler
         if not self.crt:
             dt = datetime.datetime.today()
             dt -= datetime.timedelta(hours=4)

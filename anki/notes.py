@@ -2,6 +2,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from anki.lang import _
 from anki.utils import (fieldChecksum, guid64, intTime, joinFields,
                         splitFields, stripHTMLMedia, timestampID)
 
@@ -79,6 +80,29 @@ from notes where id = ?""", self.id)
         self._fmap = self._model.fieldMap()
         self.scm = self.col.scm
 
+    def tagTex(self, mod=None):
+        """Add tag LaTeXError if the note has a LaTeX error. Remove it
+        otherwise.
+
+        Alert when an error appear, tooltip when it disappears.
+
+        """
+        someError=False
+        for field in self.fields:
+            error = self.col.media.filesInStrOrErr(self.mid, field)[1]
+            someError = someError or error
+        from aqt import mw
+        if someError:
+            if self.hasTag("LaTeXError"):
+                return(_("Some LaTex compilation error remains."))
+            else:
+                self.addTag("LaTeXError")
+                return(_("There was some LaTex compilation error."))
+        else:
+            if self.hasTag("LaTeXError"):
+                self.delTag("LaTeXError")
+                return(_("There are no more LaTeX error."))
+
     def flush(self, mod=None):
         """If fields or tags have changed, write changes to disk.
 
@@ -93,6 +117,9 @@ from notes where id = ?""", self.id)
         mod -- A modification timestamp"""
         assert self.scm == self.col.scm
         self._preFlush()
+        texError = None
+        if self.col.conf.get("compileLaTeX", True):
+            texError = self.tagTex(mod)
         sfld = stripHTMLMedia(self.fields[self._model.sortIdx()])
         tags = self.stringTags()
         fields = self.joinedFields()
@@ -111,6 +138,7 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
                             self.data)
         self.col.tags.register(self.tags)
         self._postFlush()
+        return texError
 
     def joinedFields(self):
         """The list of fields, separated by \x1f (\\x1f)."""
