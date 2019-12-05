@@ -100,7 +100,6 @@ def test_rename():
     d.decks.id("PARENT")
     d.decks.id("PARENT::CHILD")
     assertException(DeckRenameError, lambda: child.rename("PARENT::CHILD"))
-    assertException(DeckRenameError, lambda: child.rename("PARENT::child"))
 
 
 
@@ -151,12 +150,6 @@ def test_renameForDragAndDrop():
 
     # can't drack a deck where sibling have same name
     new_hsk = d.decks.byName("HSK", create=True)
-    new_hsk_did = new_hsk.getId()
-    assertException(DeckRenameError, lambda: new_hsk.renameForDragAndDrop(chinese_did))
-    d.decks.get(new_hsk_did).rem()
-
-    # can't drack a deck where sibling have same name different case
-    new_hsk = d.decks.byName("hsk", create=True)
     new_hsk_did = new_hsk.getId()
     assertException(DeckRenameError, lambda: new_hsk.renameForDragAndDrop(chinese_did))
     d.decks.get(new_hsk_did).rem()

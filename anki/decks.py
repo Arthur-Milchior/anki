@@ -469,6 +469,13 @@ class DeckManager:
         deck = self.current()
         deck.select()
 
+    def cards(self, did, children=False):
+        """Return the list of cards whose deck's id is did.
+
+        If Children is set to true, returns also the list of the cards
+        of the descendant."""
+        return [self.col.getCard(cid) for cid in self.cids(did, children)]
+
     def _recoverOrphans(self):
         """Move the cards whose deck does not exists to the default
         deck, without changing the mod date."""

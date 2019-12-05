@@ -4,7 +4,7 @@ from anki.errors import DeckRenameError
 from anki.hooks import runHook
 from anki.lang import _
 from aqt.qt import *
-from aqt.utils import getOnlyText, getText
+from aqt.utils import askUser, getOnlyText, getText
 
 
 class Deck(anki.deck.Deck):
@@ -81,15 +81,17 @@ class Deck(anki.deck.Deck):
     def _export(self):
         self.manager.mw.onExport(deck=self)
 
-    def _rename(self):
-        self.manager.mw.checkpoint(_("Rename Deck"))
+    def _rename(self, newName=None):
         oldName = self.getName()
-        newName = getOnlyText(_("New deck name:"), default=oldName)
-        newName = newName.replace('"', "")
+        if newName is None:
+            newName = getOnlyText(_("New deck name:"), default=oldName)
+            newName = newName.replace('"', "")
         if not newName or newName == oldName:
             return
         try:
-            self.rename(newName)
+            if (newName not in self.manager.mw.col.decks.allNames() or
+                askUser(_("The deck %s already exists. Do you want to merge %s in it ?")%(newName, oldName))):
+                self.rename(newName)
         except DeckRenameError as e:
             return showWarning(e.description)
         self.manager.mw.deckBrowser.show()
@@ -128,11 +130,10 @@ class Deck(anki.deck.Deck):
         self.manager.mw.col.sched.sortDid(deck(), f"[{params}]")
 
     def _dragDeckOnto(self, ontoDeckDid):
-        try:
-            self.renameForDragAndDrop(ontoDeckDid)
-        except DeckRenameError as e:
-            return showWarning(e.description)
-
+        ontoDeckName = self.newNameForDragAndDrop(ontoDeckDid)
+        if ontoDeckName is None:
+            return
+        self._rename(newName=ontoDeckName, merge=True)
         self.manager.mw.deckBrowser.show()
 
     def _collapse(self):
