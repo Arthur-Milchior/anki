@@ -129,6 +129,10 @@ def dynOrderLabels():
         }
 
 # colors
+colNew = "#000099"
+colRev = "#007700"
+colDue = "#007700"
+
 colYoung = "#7c7"
 colMature = "#070"
 colCum = "rgba(0,0,0,0.9)"
@@ -137,12 +141,43 @@ colRelearn = "#c00"
 colCram = "#ff0"
 colIvl = "#077"
 colHour = "#ccc"
-colTime = "#770"
 colUnseen = "#000"
-colSusp = "#ff0"
-colNew = "#000099"
-colRev = "#007700"
-colDue = "#007700"
+colSusp = "#FFFFB2"
+colMarked = "#ccc"
+#kept for compatibility
+COLOUR_SUSPENDED = colSusp
+COLOUR_MARKED = colMarked
+flagColours = {
+    1: "#ffaaaa",
+    2: "#ffb347",
+    3: "#82E0AA",
+    4: "#85C1E9",
+}
+
+defaultColors = dict(
+    young = colYoung,
+    grad = colDue,
+    mature = colMature,
+    cum = colCum,
+    learn = colLearn,
+    relearn = colRelearn,
+    cram = colCram,
+    ivl = colIvl,
+    hour = colHour,
+    unseen = colUnseen,
+    susp = colSusp,
+    new = colNew,
+    rev = colRev,
+    due = colDue,
+    userBuried = colSusp,
+    buried = colSusp,
+    schedBuried = colSusp,
+    marked = colMarked,
+    flag1 = flagColours[1],
+    flag2 = flagColours[2],
+    flag3 = flagColours[3],
+    flag4 = flagColours[4],
+)
 
 # Websites' page
 appWebsite="http://ankisrs.net/"
