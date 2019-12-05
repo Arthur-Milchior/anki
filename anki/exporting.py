@@ -27,6 +27,7 @@ class Exporter:
         #Currently, did is never set during initialisation.
         self.col = col
         self.did = did
+        self.cids = None
 
     def doExport(self, path):
         raise Exception("not implemented")
@@ -77,11 +78,15 @@ class Exporter:
 
     def cardIds(self):
         """card ids of cards in deck self.did if it is set, all ids otherwise."""
-        if not self.did:
+        if self.cids is not None:
+            cids = self.cids
+        elif not self.did:
             cids = self.col.db.list("select id from cards")
         else:
             cids = self.col.decks.get(self.did).getCids(children=True)
         self.count = len(cids)
+        if self.col.conf.get("exportSiblings", False):
+            cids = self.col.siblings(cids)
         return cids
 
 # Cards as TSV
