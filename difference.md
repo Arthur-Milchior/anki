@@ -2,6 +2,10 @@
 This files list the difference between regular anki and this forked
 version. It also lists the different options in the Preferences's extra page.
 
+## Advanced browser (874215009)
+This add-on adds many features. In particular, for devs, it adds a
+class for browser's column, in order to add more columns easily
+
 ## Explain errors
 You obtain more detailled error message if a sync fail, and if you try
 do do a «Check database».
@@ -13,6 +17,13 @@ In the preferences, the button «Note with no card: create card 1
 instead of deleting the note» chage the behavior of anki when he finds
 a note which has no more card. This allow to lose the content of the
 note, and let you correct the note instead to generate cards.
+This add-on adds many features to the browser.
+
+### Sorting everything
+You can sort any columns. Including decks, cards, notes, tags.
+
+### Improvment for dev
+To add a column, you only need to add one more object of type BrowserColumn.
 
 ## Export notes selected in the Browser (1983204951)
 Selects some cards in the browser. Then `Cards>Export cards` allow you
