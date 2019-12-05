@@ -98,6 +98,9 @@ exported cards. The problem being, of course, that you may export
 cards in decks you did not select. Thus, importing those cards may
 potentially create more decks than expected.
 
+## Frozen Fields (516643804)
+Add a small icon near the name of the field to make it sticky or not.
+
 ## Keep seen card.
 By default, this version of anki does not delete a card if it has
 already been seen once. Because, it should probably not be empty, and
@@ -115,6 +118,10 @@ their fields.
 
 If you want to remove this feature, and have anki's default, uncheck
 «Keep note without any card and warn» in the preferences.
+
+## Multi column note editor (3491767031, 2064123047)
+Allow to have editors with multiple columns. Allow to keep some fields
+on their own line.
 
 ## New line in Json (112201952)
 In order to lead configurations be easier to edit, this add-on allow

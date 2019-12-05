@@ -72,7 +72,7 @@ class Editor:
         self.setupOuter()
         self.setupWeb()
         self.setupShortcuts()
-        self.setupTags()
+        self.setupTagsLine()
 
     # Initial setup
     ############################################################
@@ -369,6 +369,7 @@ class Editor:
         self.currentField = None
         if self.note:
             self.model = note.model()
+            self.ccSpin.setValue(self.model.get("number of columns", 1))
             self.loadNote(focusTo=focusTo)
         else:
             self.model = None
@@ -386,9 +387,14 @@ class Editor:
         if not self.note:
             return
 
-        data = [(fld, self.mw.col.media.escapeImages(val))
-                # field name, field content modified so that it's image's url can be used locally.
-                for fld, val in list(self.note.items())]
+        # Triple, for each fields, with (field name, field
+        # content modified so that it's image's url can be
+        # used locally, and whether it is on its own line)
+        data = [(fld,
+                 self.mw.col.media.escapeImages(val),
+                 self.model["flds"][ord].get("Line alone", False),
+                 self.model["flds"][ord].get("sticky", False)
+        ) for ord, (fld, val) in enumerate(self.note.items())]
         self.widget.show()
         self.updateTags()
 
@@ -405,8 +411,9 @@ class Editor:
             #This occurs when action occurs just before the window is closed
             return
 
-        self.web.evalWithCallback("setFields(%s); setFonts(%s); focusField(%s); setNoteId(%s)" % (
+        self.web.evalWithCallback("setFields(%s, %d); setFonts(%s); focusField(%s); setNoteId(%s)" % (
             json.dumps(data),
+            self.model.get("number of columns", 1),
             json.dumps(self.fonts()),
             json.dumps(focusTo),
             json.dumps(self.note.id)),
@@ -487,22 +494,42 @@ class Editor:
     # Tag handling
     ######################################################################
 
-    def setupTags(self):
-        import aqt.tagedit
+    def setupTagsLine(self):
         group = QGroupBox(self.widget)
         group.setFlat(True)
-        tb = QGridLayout()
-        tb.setSpacing(12)
-        tb.setContentsMargins(6,6,6,6)
+        tabLine = QHBoxLayout()
+        tabLine.setSpacing(12)
+        tabLine.setContentsMargins(6,6,6,6)
+
+        self.setupTags(tabLine)
+        self.setupNumberColum(tabLine)
+
+        self.outerLayout.addWidget(group)
+        group.setLayout(tabLine)
+
+    # Column handling
+    ######################################################################
+
+
+    def onFroze(self, fieldNumber):
+        fieldNumber = int(fieldNumber)
+        fieldObject = self.model['flds'][fieldNumber]
+        fieldObject["sticky"] = not fieldObject.get("sticky", False)
+        self.model.save(recomputeReq=False)
+        self.loadNote()
+
+    # Tag handling
+    ######################################################################
+
+    def setupTags(self, tabLine):
+        import aqt.tagedit
         # tags
         label = QLabel(_("Tags"))
-        tb.addWidget(label, 1, 0)
+        tabLine.addWidget(label)
         self.tags = aqt.tagedit.TagEdit(self.widget)
         self.tags.lostFocus.connect(self.saveTags)
         self.tags.setToolTip(shortcut(_("Jump to tags with Ctrl+Shift+T")))
-        tb.addWidget(self.tags, 1, 1)
-        group.setLayout(tb)
-        self.outerLayout.addWidget(group)
+        tabLine.addWidget(self.tags)
 
     def updateTags(self):
         if self.tags.col != self.mw.col:
@@ -534,6 +561,30 @@ class Editor:
 
     def onFocusTags(self):
         self.tags.setFocus()
+
+    # Column handling
+    ######################################################################
+
+    def onColumnCountChanged(self, count):
+        "Save column count to settings and re-draw with new count."
+        self.model["number of columns"] = count
+        self.mw.col.models.save(self.model, recomputeReq=False)
+        self.loadNote()
+
+    def setupNumberColum(self, tabLine):
+        label = QLabel("Columns:", self.widget)
+        tabLine.addWidget(label)
+        self.ccSpin = QSpinBox(self.widget)
+        tabLine.addWidget(self.ccSpin)
+        self.ccSpin.setMinimum(1)
+        self.ccSpin.valueChanged.connect(lambda value: self.onColumnCountChanged(value))
+
+    def onToggleLineAlone(self, fieldNumber):
+        fieldNumber = int(fieldNumber)
+        fieldObject = self.model['flds'][fieldNumber]
+        self.mw.col.models.save(self.model, recomputeReq=False)
+        fieldObject["Line alone"] = not fieldObject.get("Line alone", False)
+        self.saveNow(self.loadNote)
 
     # Format buttons
     ######################################################################
@@ -903,6 +954,8 @@ to a cloze type first, via Edit>Change Note Type."""))
         key=onKey,
         blur=onBlur,
         focus=onFocus,
+        toggleLineAlone=onToggleLineAlone,
+        toggleFroze=onFroze,
     )
 
 # Pasting, drag & drop, and keyboard layouts
