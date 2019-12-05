@@ -20,6 +20,8 @@ field, or adding text after/before it.
 In preferences, you can decide whether you add a new line between the
 old text and the added one.
 
+## Browser from reviewer: open directly the deck (1555020859)
+
 ## Explain errors
 You obtain more detailled error message if a sync fail, and if you try
 do do a «Check database».

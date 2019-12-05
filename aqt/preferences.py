@@ -234,6 +234,7 @@ Not currently enabled; click the sync button in the main window to enable."""))
         "allowEmptyFirstField",
         "minutesInBrowser",
         "newLineInBatchEdit",
+        {"name":"browserFromReviewer", "default":"note", "fromCol": (lambda x: {"cid":0,"nid":1,"did":2}.get(x, 1)), "toCol": (lambda x: {0:"cid",1:"nid",2:"did"}[x]), "kind": "combo"},
         {"name":"syncAddons", "sync":False},
     ]
 

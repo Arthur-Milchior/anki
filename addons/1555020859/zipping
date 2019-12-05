@@ -1,0 +1,2 @@
+rm fromReviewer.zip
+zip fromReviewer.zip config.* *py  LICENSE *.md zipping --exclude \*~ \*zip
