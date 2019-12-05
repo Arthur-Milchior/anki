@@ -80,7 +80,6 @@ class AddCards(QDialog):
         button.setShortcut(QKeySequence(sc))
         button.setToolTip(_("Shortcut: %s") % shortcut(sc))
         button.clicked.connect(self.onHistory)
-        button.setEnabled(False)
         self.historyButton = button
 
     def setAndFocusNote(self, note):
@@ -166,7 +165,19 @@ class AddCards(QDialog):
                 action = menu.addAction(_("(Note deleted)"))
                 action.setEnabled(False)
         runHook("AddCards.onHistory", self, menu)
+        m.addSeparator()
+        a = m.addAction("Open Browser on 'Added &Today'")
+        a.triggered.connect(lambda: self.show_browser_on_added_today())
         menu.exec_(self.historyButton.mapToGlobal(QPoint(0,0)))
+
+    def show_browser_on_added_today(self):
+        browser = aqt.dialogs.open("Browser", self.mw)
+        browser.form.searchEdit.lineEdit().setText("added:1")
+        browser.onSearchActivated()
+        if u'noteCrt' in browser.model.activeCols:
+            col_index = browser.model.activeCols.index(u'noteCrt')
+            browser.onSortChanged(col_index, True)
+        browser.form.tableView.selectRow(0)
 
     def editHistory(self, nid):
         browser = aqt.dialogs.open("Browser", self.mw, f"nid:{nid}")
