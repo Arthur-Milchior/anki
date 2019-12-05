@@ -98,7 +98,7 @@ class ModelManager:
             model = Model(self, model)
             self.models[str(model['id'])] = model
 
-    def save(self):
+    def save(self, model=None, templates=False):
         """
         * Mark model modified if provided.
         * Schedule registry flush.
@@ -108,8 +108,11 @@ class ModelManager:
         model -- A Model
         templates -- whether to check for cards not generated in this model
         """
-        self.changed = True
-        runHook("newModel") # By default, only refresh side bar of browser
+        if model:
+            model.save(template=template)
+        else:
+            self.changed = True
+            runHook("newModel") # By default, only refresh side bar of browser
 
     def flush(self):
         "Flush the registry if any models were changed."
@@ -226,3 +229,70 @@ class ModelManager:
         for model in self.all():
             model.beforeUpload()
         self.save()
+
+    # Methods in Anki, here only to be compatible with add-ons
+    #############################################################
+    def setCurrent(self, model):
+        return model.setCurrent()
+    def rem(self, model):
+        return model.rem()
+    def add(self, model):
+        return model.add()
+    def ensureNameUnique(self, model):
+        return model.ensureNameUnique()
+    def update(self, model):
+        return model.update()
+    def _setID(self, model):
+        return model._setID()
+    def nids(self, model):
+        return model.nids()
+    def useCount(self, model):
+        return model.useCount()
+    def tmplUseCount(self, model, ord):
+        return model.getTemplate(ord).useCount()
+    def copy(self, model):
+        return model.copy()
+    def fieldMap(self, model):
+        return model.fieldMap()
+    def fieldNames(self, model):
+        return model.fieldNames()
+    def sortIdx(self, model):
+        return model.sortIdx()
+    def setSortIdx(self, model, idx):
+        return model.setSortIdx(idx)
+    def addField(self, model, fieldType):
+        assert fieldType.model == model
+        return fieldType.add()
+    def remField(self, model, fieldTypeToRemove):
+        return fieldTypeToRemove.rem()
+    def moveField(self, model, fieldType, idx):
+        return fieldType.move(idx)
+    def renameField(self, model, fieldType, newName):
+        return fieldType.rename(newName)
+    def _updateFieldOrds(self, model):
+        return model._updateFieldOrds()
+    def _transformFields(self, model, fn):
+        return model._transformFields(fn)
+    def addTemplate(self, model, template):
+        assert template.model == model
+        return template.add()
+    def remTemplate(self, model, template):
+        return template.rem()
+    def _updateTemplOrds(self, model):
+        return model._updateTemplOrds()
+    def moveTemplate(self, model, template, idx):
+        return template.move(idx)
+    def _syncTemplates(self, model):
+        return model._syncTemplates()
+    def change(self, model, nids, newModel, fmap, cmap):
+        return newModel.change(model, nids, fmap, cmap)
+    def scmhash(self, model):
+        return model.scmhash()
+    def _updateRequired(self, model):
+        return model._updateRequired()
+    def _reqForTemplate(self, model, flds, template):
+        return template._req(flds)
+    def availOrds(self, model, flds):
+        return model.availOrds(flds)
+    def _availClozeOrds(self, model, flds, allowEmpty=True):
+        model._availClozeOrds(flds, allowEmpty)

@@ -195,13 +195,15 @@ class DeckManager:
             dconf = DConf(self, dconf)
             self.dconf[str(dconf['id'])] = dconf
 
-    def save(self):
+    def save(self, deckOrOption=None):
         """State that the DeckManager has been changed. Changes the
         mod and usn of the potential argument.
 
         The potential argument can be either a deck or a deck
         configuration.
         """
+        if deckOrOption:
+            deckOrOption.save()
         self.changed = True
 
     def flush(self):
@@ -588,3 +590,61 @@ class DeckManager:
 
     def createDeck(self, *args, **kwargs):
         return Deck(self, *args, **kwargs)
+
+    # Methods in Anki, here only to be compatible with add-ons
+    #############################################################
+    #def save(self, deckOrOption=None):
+    def collapse(self, did):
+        self.get(did).collapse()
+    def collapseBrowser(self, did):
+        self.get(did).collapseBrowser()
+    def update(self, deck):
+        deck.update()
+    def rename(self, deck, newName):
+        return deck.rename(newName)
+    def renameForDragAndDrop(self, draggedDeckDid, ontoDeckDid):
+        return self.get(draggedDeckDid).renameForDragAndDrop(ontoDeckDid)
+    def confForDid(self, did):
+        return self.get(did).getConf()
+    def updateConf(self, conf):
+        return conf.update()
+    def confId(self, name, cloneFrom=None):
+        return self.newConf(name, cloneFrom)
+    def remConf(self, id):
+        return self.getConf(id).rem()
+    def setConf(self, deck, id):
+        return deck.setConf(id)
+    def didsForConf(self, conf):
+        return conf.getDids()
+    def restoreToDefault(self, conf):
+        return conf.restoreToDefault()
+    def setDeck(self, cids, did):
+        """Change the deck of the cards of cids to did.
+
+        Keyword arguments:
+        did -- the id of the new deck
+        cids -- a list of ids of cards
+        """
+        self.col.db.execute(
+            "update cards set did=?,usn=?,mod=? where id in "+
+            ids2str(cids), did, self.col.usn(), intTime())
+    def cids(self, did, children=False):
+        return self.get(did).getCids(children)
+    def select(self, did):
+        return self.get(did).select()
+    def children(self, did):
+        return self.get(did).getDescendants()
+    def childDids(self, did, childMap):
+        return self.get(did).getDescendantsIds()
+    #def childMap(self):
+    def parents(self, did, nameMap=None):
+        return self.get(did).getAncestors()
+    def parentsByName(self, name):
+        return self.byName(name).getAncestors()
+    def nameMap(self):
+        """
+        Dictionnary from deck name to deck object.
+        """
+        return dict((deck['name'], deck) for deck in self.decks.values())
+    def isDyn(self, did):
+        return self.get(did).isDyn()

@@ -2689,3 +2689,7 @@ Are you sure you want to continue?""")):
 
     def onHelp(self):
         openHelp("browsermisc")
+
+    # Methods in Anki, here only to be compatible with add-ons
+    #############################################################
+    # def nexDue(self, card, index)
