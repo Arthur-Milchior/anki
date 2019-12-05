@@ -756,12 +756,26 @@
         </widget>
        </item>
        <item>
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>Files to keep in add-on folder, space separated:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QCheckBox" name="keepSeenCard">
          <property name="toolTip">
           <string>When you do &quot;Check &gt; Cards...&quot;, you won't delete cards you already reviewed once. This will allow you to correct their template if necessary without loosing your review history.</string>
          </property>
          <property name="text">
           <string>Delete empty cards only if they are new</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="filesToKeep">
+         <property name="text">
+          <string>user_files .git .gitignore .svn .github</string>
          </property>
         </widget>
        </item>

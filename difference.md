@@ -6,6 +6,12 @@ version. It also lists the different options in the Preferences's extra page.
 Yeah, this description seems ridiculous. But actually, anki does not
 respect this.
 
+## Add-on folder: keep more files (225953877)
+When add-on are updated, all files are deleted, with some
+exceptions. You can decide in the preferences which files are
+kepts. Anki's default contains only config.json and the folder
+user_files. This also adds `.git` `.gitignore` `.svn` and `.github`.
+
 ## Add/remove deck prefix (683170394)
 In the browser, you can select cards, and then do `Decks > Add
 prefix`, to add the same prefix to the deck name of all of those

@@ -267,6 +267,7 @@ Not currently enabled; click the sync button in the main window to enable."""))
         {"name": "factorAddDay", "kind":"numeric"},
         {"name": "factorRemoveDay", "kind": "numeric"},
         {"name":"browserFromReviewer", "default":"note", "fromCol": (lambda x: {"cid":0,"nid":1,"did":2}.get(x, 1)), "toCol": (lambda x: {0:"cid",1:"nid",2:"did"}[x]), "kind": "combo"},
+        {"name":"filesToKeep", "kind":"text", "default":"user_files .git .gitignore .svn .github"},
         {"name":"longTermBackUp", "default":True, "sync":False},
         {"name":"syncAddons", "sync":False},
     ]
@@ -296,6 +297,7 @@ Not currently enabled; click the sync button in the main window to enable."""))
             "text": "setText"
         }.get(kind)
         getattr(widget, function)(fromCol(value))
+            
 
     def updateOneSetting(self, name, default=False, kind="check", sync=True, fromCol=identity, toCol=identity):
         """Save the value from the preference manager' widget
