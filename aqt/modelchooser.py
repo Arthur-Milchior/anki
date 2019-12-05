@@ -20,10 +20,11 @@ class ModelChooser(QHBoxLayout):
     widget -- the button used to open this window. It contains the
     name of the current model.
     """
-    def __init__(self, mw, widget, label=True):
+    def __init__(self, mw, widget, label=True, addCardWindow = None):
         QHBoxLayout.__init__(self)
         self.widget = widget
         self.mw = mw
+        self.addCardWindow = addCardWindow
         self.deck = mw.col
         self.label = label
         self.setContentsMargins(0,0,0,0)
@@ -92,8 +93,16 @@ class ModelChooser(QHBoxLayout):
         cdeck.save()
         runHook("currentModelChanged")
         self.mw.reset()
+        if self.addCardWindow:
+            self.addCardWindow.onModelChange() #this is onModelChange from card, and note from ModelChange
+            self.updateModels()
 
     def updateModels(self):
         """Change the button's text so that it has the name of the current
         model."""
-        self.models.setText(self.deck.models.current().getName())
+        if hasattr(self,"editor") or (self.addCardWindow is not None):#self's init has ended
+            modelName = self.addCardWindow.editor.note._model["name"]
+        else:# initialisation of the window
+            modelName = self.deck.models.current().getName()
+
+        self.models.setText(modelName)
