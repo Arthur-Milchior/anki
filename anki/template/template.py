@@ -69,19 +69,28 @@ class Template:
     # Closing tag delimiter
     ctag = '}}'
 
-    def __init__(self, template, context=None, encoding=None):
+    def __init__(self, template, context=None, ord=None, encoding=None):
         self.template = template
         self.context = context or {}
         self.compile_regexps()
+        self.ord = ord
+        self.showAField = False
         self.encoding = encoding
 
     def render(self):
         """Turns a Mustache template into something wonderful."""
+        return self.renderAndIsFieldPresent(*args, **kwargs)[0]
+
+    def renderAndIsFieldPresent(self):
+        """A pair with:
+        * Turns a Mustache template into something wonderful.
+        * whether a field was shown"""
+
         self.render_sections()
         self.render_tags()
         if self.encoding is not None:
             self.template = self.template.encode(self.encoding)
-        return self.template
+        return self.template, self.showAField
 
     def compile_regexps(self):
         """Compiles our section and tag regular expressions."""
@@ -107,6 +116,7 @@ class Template:
     def sub_section(self, match):
         section, section_name, inner = match.group(0, 1, 2)
         section_name = section_name.strip()
+        symbol = section[2]
 
         # val will contain the content of the field considered
         # right now
@@ -122,12 +132,14 @@ class Template:
             val = get_or_attr(self.context, section_name, None)
         replacer = ''
         # Whether it's {{^
-        inverted = section[2] == "^"
+        inverted = symbol == "^"
         # Ensuring we don't consider whitespace in val
         if val:
             val = stripHTMLMedia(val).strip()
         if bool(val) != inverted:
             replacer = inner
+        if section_name in self.fieldsForbiddenInSection():
+            replacer = _("<b>Please don't use {{%s%s}} in card type/field.</b>%s") % (symbol, section_name, inner)
         return replacer
 
     def render_tags(self):
@@ -155,6 +167,19 @@ class Template:
         """Rendering a comment always returns nothing."""
         return ''
 
+    def fieldsNotJustifyingCreation(self):
+        """Set of fields which have a special value, and should not be enough
+        to justify to show a card"""
+        s = self.fieldsForbiddenInSection()
+        if self.ord is not None:
+            s.add(f'c{self.ord+1}')
+        return s
+
+    def fieldsForbiddenInSection(self):
+        """Set of fields which have a special value, and can't be used to
+        decide whether a card is created or not."""
+        return {'Tags', 'Type', 'Deck', 'Subdeck', 'CardFlag', 'Card', 'FrontSide'}
+
     @modifier(None)
     def render_unescaped(self, tag_name=None):
         """Render a tag without escaping it."""
@@ -163,7 +188,9 @@ class Template:
             # some field names could have colons in them
             # avoid interpreting these as field modifiers
             # better would probably be to put some restrictions on field names
-            return txt
+            if bool(txt.strip()) and tag_name not in self.fieldsNotJustifyingCreation():### MODIFIED
+                self.showAField = True
+            return txt### MODIFIED
 
         # field modifiers
         parts = tag_name.split(':')
@@ -174,6 +201,10 @@ class Template:
             mods, tag = parts[:-1], parts[-1] #py3k has *mods, tag = parts
 
         txt = get_or_attr(self.context, tag)
+        if txt is None:
+            return '{unknown field %s}' % tag_name
+        elif bool(txt.strip()) and tag_name not in self.fieldsNotJustifyingCreation():### MODIFIED
+            self.showAField = True
 
         #Since 'text:' and other mods can affect html on which Anki relies to
         #process clozes, we need to make sure clozes are always
@@ -202,8 +233,7 @@ class Template:
                 mod, extra = re.search(r"^(.*?)(?:\((.*)\))?$", mod).groups()
                 txt = runFilter('fmod_' + mod, txt or '', extra or '', self.context,
                                 tag, tag_name)
-                if txt is None:
-                    return '{unknown field %s}' % tag_name
+
         return txt
 
     def clozeText(self, txt, ord, type):

@@ -486,10 +486,12 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     def isCardNew(self, id):
         return self.db.scalar(f"select id from cards where id = ? and type = {CARD_NEW}", id)
 
-    def genCards(self, nids):
+    def genCards(self, nids, changedOrNewReq=None):
         """Ids of cards which needs to be removed.
 
-        Generate missing cards of a note with id in nids.
+        Generate missing cards of a note with id in nids and with ord in changedOrNewReq.
+
+        changedOrNewReq -- set of index of templates which needs to be recomputed
         """
         # build map of (nid,ord) so we don't create dupes
         snids = ids2str(nids)
@@ -529,7 +531,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         for nid, mid, flds in self.db.execute(
             "select id, mid, flds from notes where id in "+snids):
             model = self.models.get(mid, orNone=False)
-            avail = model.availOrds(flds)
+            avail = model.availOrds(flds, changedOrNewReq)
             did = dids.get(nid) or model['did']
             due = dues.get(nid)
             # add any missing cards
@@ -551,12 +553,12 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             # note any cards that need removing
             removeSeenCard = not self.conf.get("keepSeenCard", True)
             if nid in have:
-                for ord, id in list(have[nid].items()):
+                for ord, cid in list(have[nid].items()):
                     if ord in avail:
                         continue
-                    if not (removeSeenCard or self.isCardNew(id)):
+                    if changedOrNewReq is not None and ord not in changedOrNewReq:
                         continue
-                    rem.append(id)
+                    rem.append(cid)
         # bulk update
         self.db.executemany("""
 insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
@@ -760,14 +762,14 @@ select id from notes where id in %s and id not in (select nid from cards)""" %
                 for row in self._qaData(where)]
 
     def _renderQA(self, data, qfmt=None, afmt=None):
-        """Returns hash of id, question, answer.
+        """Returns dict with id, question, answer, and whether a field is shown in question.
+
         Keyword arguments:
         data -- [cid, nid, mid, did, ord, tags, flds] (see db
         documentation for more information about those values)
         This corresponds to the information you can obtain in templates, using {{Tags}}, {{Type}}, etc..
         qfmt -- question format string (as in template)
         afmt -- answer format string (as in template)
-        Return a dictionnary associating the question, the answer and the card id
         """
         cid, nid, mid, did, ord, tags, flds, cardFlags = data
         # data is [cid, nid, mid, did, ord, tags, flds, cardFlags]
@@ -779,7 +781,9 @@ select id from notes where id in %s and id not in (select nid from cards)""" %
         # render q & a
         d = dict()
         d['id'] = cid
-        d['q'] = self._renderQuestion(data, fields, flds, ord, template, model, qfmt)
+        question, showAField = self._renderQuestion(data, fields, flds, ord, template, model, qfmt)
+        d['q'] = question
+        d['showAField'] = showAField
         d['a'] = self._renderAnswer(data, fields, ord, template, model, afmt)
         return d
 
@@ -812,20 +816,23 @@ select id from notes where id in %s and id not in (select nid from cards)""" %
         return fields
 
     def _renderQuestion(self, data, fields, flds, ord, template, model, qfmt=None):
-        """The question for this template, given those fields."""
+        """A pair with:
+        * The question for this template, given those fields.
+        * whether a field is shown
+        """
         format = qfmt or template['qfmt']
         #Replace {{'foo'cloze: by {{'foo'cq-(ord+1), where 'foo' does not begins with "type:"
         format = re.sub("{{(?!type:)(.*?)cloze:", r"{{\1cq-%d:" % (ord+1), format)
         #Replace <%cloze: by <%%cq:(ord+1)
         format = format.replace("<%cloze:", "<%%cq:%d:" % (ord+1))
-        question = self.__renderQA(fields, model, data, format, "q")
+        question, showAField = self.__renderQA(fields, model, data, format, "q")
         fields['FrontSide'] = stripSounds(question)
         # empty cloze?
         if model.isCloze() and not model._availClozeOrds(flds, False, onlyFirst=True):
              question += ("<p>" + _(
                 "Please edit this note and add some cloze deletions. (%s)") % (
                     "<a href=%s#cloze>%s</a>" % (HELP_SITE, _("help"))))
-        return question
+        return question, showAField
 
     def _renderAnswer(self, data, fields, ord, template, model, afmt=None):
         """The answer for this template, given those fields."""
@@ -834,14 +841,16 @@ select id from notes where id in %s and id not in (select nid from cards)""" %
         format = re.sub("{{(.*?)cloze:", r"{{\1ca-%d:" % (ord+1), format)
         #Replace <%cloze: by <%%ca:(ord+1)
         format = format.replace("<%cloze:", "<%%ca:%d:" % (ord+1))
-        return self.__renderQA(fields, model, data, format, "a")
+        answer, showAField = self.__renderQA(fields, model, data, format, "a")
+        return answer
 
     def __renderQA(self, fields, model, data, format, type):
         """apply fields to format. Use munge hooks before and after"""
         fields = runFilter("mungeFields", fields, model, data, self)
-        html = anki.template.render(format, fields)
-        return runFilter(
+        html, showAField = anki.template.renderAndIsFieldPresent(format, fields)
+        html = runFilter(
             "mungeQA", html, type, fields, model, data, self)
+        return html, showAField
 
     def _qaData(self, where=""):
         """The list of [cid, nid, mid, did, ord, tags, flds, cardFlags] for each pair cards satisfying where.

@@ -251,6 +251,9 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
         if a.startswith(q):
             return a[len(q):].strip()
         return a
+    def isEmpty(self):
+        """Whether the card question is empty (i.e. show no field)"""
+        return not self._getQA()["showAField"]
 
     def css(self):
         """Return the css of the card's model, as html code"""

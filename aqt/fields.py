@@ -58,12 +58,15 @@ class FieldDialog(QDialog):
     def _uniqueName(self, prompt, ignoreOrd=None, old=""):
         """Ask for a new name using prompt, and default value old. Return it.
 
-        Unless this name is already used elsewhere, in this case, return None and show a warning. """
+        Unless this name is already used elsewhere, in this case, return None and show a warning.
+        If default name is given, return None."""
         txt = getOnlyText(prompt, default=old)
         if not txt:
             return
         for fldType in self.model['flds']:
             if ignoreOrd is not None and fldType['ord'] == ignoreOrd:
+                if fldType['name'] == txt:
+                    return
                 continue
             if fldType.getName() == txt:
                 showWarning(_("That field name is already used."))

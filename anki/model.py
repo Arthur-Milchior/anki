@@ -45,13 +45,6 @@ class Model(DictAugmentedIdUsn):
         self['ls'] = 0
         self._addTmp()
 
-    def _addTmp(self):
-        self.fieldNameToOrd = {}
-        for field in self['flds']:
-            name = field['name']
-            ord = field['ord']
-            self.fieldNameToOrd[name] = ord
-
     def new(self, manager, name):
         assert(isinstance(name, str))
         model = defaultModel.copy()
@@ -270,10 +263,17 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         for index, template in enumerate(self['tmpls']):
             template['ord'] = index
 
-    def _syncTemplates(self):
+    def _syncTemplates(self, changedOrNewReq=None):
         """Generate all cards not yet generated, whose note's model is model.
-        It's called only when model is saved, a new model is given and template is asked to be computed"""
-        self.manager.col.genCards(self.nids())
+
+         It's called only when model is saved, a new model is given
+        and template is asked to be computed
+
+        changedOrNewReq -- set of index of templates which needs to be
+        recomputed
+
+        """
+        rem = self.manager.col.genCards(self.nids(), changedOrNewReq)
 
     def newField(self, name):
         return Field(self, name=name)
@@ -402,32 +402,82 @@ select id from cards where nid in (select id from notes where mid = ?)""",
     ##########################################################################
 
     def _updateRequired(self):
-        """Entirely recompute the model's req value"""
+        """Entirely recompute the model's req value
+
+        Return positions idx such that the card type is new or has its
+        question changed if its a standard model
+        """
         if self.isCloze():
             # nothing to do
             return
         req = []
+        changedOrNewReq = set()
         flds = [fieldType.getName() for fieldType in self['flds']]
-        for template in self['tmpls']:
-            ret = template._req(flds)
-            req.append((template['ord'], ret[0], ret[1]))
+        for idx, template in enumerate(self['tmpls']):
+            if (hasattr(template, 'old_req') and
+                hasattr(template, 'old_type') and
+                hasattr(template, 'old_qfmt') and
+                template.old_qfmt == template['qfmt']):
+                req.append((idx, template.old_type, template.old_req))
+                if getattr(template, "is_new", True):
+                    changedOrNewReq.add(idx)
+            else:
+                ret = template._req(flds)
+                req.append((idx, ret[0], ret[1]))
+                changedOrNewReq.add(idx)
         self['req'] = req
+        return changedOrNewReq
 
     # Required field/text cache
     ##########################################################################
 
-    def availOrds(self, flds):
+    def availOrds(self, flds, changedOrNewReq=None):
         """Given a joined field string, return ordinal of card type which
         should be generated. See
         ../documentation/templates_generation_rules.md for the detail
+        """
+        if self.manager.col.conf.get("complexTemplates", False):
+            return self._availOrdsReal(flds, changedOrNewReq)
+        else:
+            return self._availOrdsOriginal(flds, changedOrNewReq)
+
+    def _availOrdsReal(self, flds, changedOrNewReq):
+        """
+        self -- model manager
+        model -- a model object
+        """
+        available = []
+        flist = splitFields(flds)
+        fields = {} #
+        for (name, (idx, conf)) in list(self.fieldMap().items()):#conf is not used
+            fields[name] = flist[idx]
+        if self.isCloze():
+            potentialOrds = self._availClozeOrds(flds)
+        else:
+            potentialOrds = changedOrNewReq if changedOrNewReq is not None else range(len(self["tmpls"]))
+        for ord in potentialOrds:
+            template = self["tmpls"][ord]
+            format = template['qfmt']
+            html, showAField = anki.template.renderAndIsFieldPresent(format, context=fields, ord=ord) #replace everything of the form {{ by its value TODO check
+            if showAField:
+                available.append(ord)
+        return available
+
+    def _availOrdsOriginal(self, flds, changedOrNewReq):
+        """Given a joined field string, return ordinal of card type which
+        should be generated. See
+        ../documentation/templates_generation_rules.md for the detail
+
         """
         if self.isCloze():
             return self._availClozeOrds(flds)
         fields = {}
         for index, fieldType in enumerate(splitFields(flds)):
             fields[index] = fieldType.strip()
-        avail = []
-        for ord, type, req in self['req']:
+        avail = []#List of ord cards which would be generated
+        ords = changedOrNewReq if changedOrNewReq is not None else range(len(self['req']))
+        for ord in ords:
+            ord, type, req = self['req'][ord]
             # unsatisfiable template
             if type == "none":
                 continue
@@ -513,3 +563,20 @@ select id from cards where nid in (select id from notes where mid = ?)""",
     def _modSchemaIfRequired(self):
         if self.getId() and self.get('ls', 0) != self.manager.col.ls:
             self.manager.col.modSchema(check=True)
+
+    def _addTmp(self):
+        self.fieldNameToOrd = {}
+        self.templateNameToOrd = {}
+        for field in self['flds']:
+            name = field['name']
+            ord = field['ord']
+            self.fieldNameToOrd[name] = ord
+        for idx, template in enumerate(self['tmpls']):
+            name = template['name']
+            ord = template['ord']
+            self.templateNameToOrd[name] = ord
+            if self['type'] == MODEL_STD:
+                template.old_type = self['req'][idx][1]
+                template.old_req = self['req'][idx][2]
+            template.old_qfmt = template['qfmt']
+            template.is_new = False

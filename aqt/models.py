@@ -97,8 +97,6 @@ class Models(QDialog):
 
     def modelChanged(self):
         """Called if the selected model has changed, in order to change self.model"""
-        if self.model:
-            self.saveModel()
         idx = self.form.modelsList.currentRow()
         self.model = self.models[idx]
 
@@ -177,7 +175,6 @@ class Models(QDialog):
     # need to flush model on change or reject
 
     def reject(self):
-        self.saveModel(recomputeReq=False)
         self.mw.reset()
         saveGeom(self, "models")
         QDialog.reject(self)

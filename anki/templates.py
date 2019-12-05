@@ -75,17 +75,17 @@ update cards set ord = ord - 1, usn = ?, mod = ?
         self.model.save(recomputeReq=False)
         return True
 
-    def move(self, idx):
-        """Move input self to position idx in model.
+    def move(self, newidx):
+        """Move input self to position newidx in model.
         Move also every other self to make this consistent.
         Comment again after that TODODODO
         """
         oldidx = self.model['tmpls'].index(self)
-        if oldidx == idx:
+        if oldidx == newidx:
             return
         oldidxs = dict((id(self), self['ord']) for self in self.model['tmpls'])
         self.model['tmpls'].remove(self)
-        self.model['tmpls'].insert(idx, self)
+        self.model['tmpls'].insert(newidx, self)
         self.model._updateTemplOrds()
         # generate change map
         map = [("when ord = %d then %d" % (oldidxs[id(self)], self['ord']))
@@ -93,8 +93,19 @@ update cards set ord = ord - 1, usn = ?, mod = ?
         # apply
         self.model.save(recomputeReq=False)
         self.model.manager.col.db.execute("""
-update cards set ord = (case %s end),usn=?,mod=? where nid in (
-select id from notes where mid = ?)""" % " ".join(map),
+update cards
+  set
+    `ord` = (case
+      when `ord` == :oldidx then :newidx
+      when :mini<= `ord` and `ord` <= :maxi then (`ord` + (:diff))
+      else `ord` end
+    ),
+    usn = :usn,
+    mod = :mod
+  where
+    :mini <= `ord` and
+     `ord` <= :maxi and
+     nid in (select id from notes where mid = :mid)""" % " ".join(map),
                              self.model.manager.col.usn(), intTime(), self.model.getId())
 
     # Tools

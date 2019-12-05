@@ -34,6 +34,17 @@ class for browser's column, in order to add more columns easily
 
 ## Allow to keep first field empty (46741504)
 
+## Allowing complex card template (1713990897)
+All version of anki bugs if you have a complex card template. For example,
+if your template is enclosed in {{^field}} and {{/field}}. This option
+allow complex card template. The only problem is that official anki
+and smartphone apps won't be able to display those cards, and may want
+to remove them if you press «check cards».
+
+## Anki quicker (802285486)
+Those modification makes anki quicker. Technical details are on the
+add-on page.
+
 ## Batch Edit (291119185)
 Allow to make the same edit to multiple cards. Either changing a
 field, or adding text after/before it.
