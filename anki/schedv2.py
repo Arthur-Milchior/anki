@@ -111,7 +111,7 @@ class Scheduler(BothScheduler):
     ##########################################################################
 
     def _getCard(self):
-        "Return the next due card id, or None."
+        "Return the next due card, or None."
         # learning card due?
         card = self._getLrnCard()
         if card:
