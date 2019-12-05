@@ -2,6 +2,10 @@
 This files list the difference between regular anki and this forked
 version. It also lists the different options in the Preferences's extra page.
 
+## "Close and lose current input ?" (1574383623)
+Anki will ask you to confirm whether you want to close a card where
+a sticky field did change.
+
 ## Add card: change note only if you ask for it (424778276)
 Yeah, this description seems ridiculous. But actually, anki does not
 respect this.
