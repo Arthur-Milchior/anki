@@ -63,6 +63,8 @@ class Deck(anki.deck.Deck):
         action.triggered.connect(lambda button, deck=self: deck._export())
         action = menu.addAction(_("Delete"))
         action.triggered.connect(lambda button, deck=self: deck._delete())
+        action = menu.addAction(_("Adding delay"))
+        action.triggered.connect(lambda button, deck=self: deck._onAddDelay())
         runHook("showDeckOptions", menu, self.getId())
         # still passing did, as add-ons have not updated to my fork.
         menu.exec_(QCursor.pos())
@@ -103,6 +105,9 @@ class Deck(anki.deck.Deck):
             self.rem(True)
             self.manager.mw.progress.finish()
             self.manager.mw.deckBrowser.show()
+
+    def _onAddDelay(self):
+        self.manager.mw.addDelay(self.getCids())
 
     def _dragDeckOnto(self, ontoDeckDid):
         try:

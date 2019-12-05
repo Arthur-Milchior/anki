@@ -697,6 +697,20 @@ select id from notes where id in %s and id not in (select nid from cards)""" %
             rep.append(line)
         return "\n".join(rep)
 
+    def addDelay(self, cids, delay):
+        ivlDelay = round(delay * (self.conf.get("factorAddDay", 0.33) if delay >0 else self.conf.get("factorRemoveDay", 0.33)))
+        for cid in cids:
+            card = mw.col.getCard(cid)
+            if card.type !=2:
+                continue
+            card.ivl += ivlDelay
+            if card.odid: # Also update cards in filtered decks
+                card.odue += delay
+            else:
+                card.due += delay
+            card.flush()
+
+
     # Field checksums and sorting fields
     ##########################################################################
 
@@ -865,6 +879,9 @@ where card.nid == note.id
 
     def findDupes(self, *args, **kwargs):
         return anki.find.findDupes(self, *args, **kwargs)
+
+    def getReviewCards(self):
+        return self.findCards("is:review")
 
     # Stats
     ##########################################################################

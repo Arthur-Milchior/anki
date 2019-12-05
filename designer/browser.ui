@@ -297,6 +297,7 @@
     <addaction name="separator"/>
     <addaction name="action_Info"/>
     <addaction name="action_Export"/>
+    <addaction name="actionPostpone_reviews"/>
    </widget>
    <widget class="QMenu" name="menu_Notes">
     <property name="title">
@@ -696,6 +697,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Alt+C</string>
+   </property>
+  </action>
+  <action name="actionPostpone_reviews">
+   <property name="text">
+    <string>P&amp;ostpone reviews</string>
    </property>
   </action>
  </widget>
