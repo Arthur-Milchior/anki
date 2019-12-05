@@ -110,6 +110,11 @@ their fields.
 If you want to remove this feature, and have anki's default, uncheck
 «Keep note without any card and warn» in the preferences.
 
+## New line in Json (112201952)
+In order to lead configurations be easier to edit, this add-on allow
+newline in json strings. It allow add newlines in the add-on
+configuration editor.
+
 ## Refresh browser (1347728560, 832679841)
 Add the short-cut CTRL-F5 in browser to update the search
 
