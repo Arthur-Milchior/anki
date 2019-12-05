@@ -54,6 +54,8 @@ class FixingManager:
         self.floatIvlInCard()
         self.floatIvlInRevLog()
         self.ensureSomeNoteType()
+        self.checkDeck()
+        self.uniqueGuid()
 
     def noteWithMissingModel(self):
         # note types with a missing model
@@ -204,3 +206,29 @@ and type = {CARD_NEW}""", [intTime(), self.col.usn()])
         # models
         if self.col.models.ensureNotEmpty():
             self.problems.append("Added missing note type.")
+
+    def checkDeck(self):
+        """check that all default confs/decks option are set in all deck's related object"""
+        for paramsSet, defaultParam, what, kind in [(self.col.decks.dconf.values(), defaultDeckConf, "'s option", "deck configuration"),
+                                                    (self.col.decks.all(sort=False, standard=True, dyn=False), defaultDeck, "", "standard deck"),
+                                                    (self.col.decks.all(sort=False, standard=False, dyn=True), defaultDynamicDeck, " (dynamic)", "dynamic deck"),
+                                                    (self.col.decks.all(sort=False, standard=False, dyn=True), defaultDeckConf, " (dynamic)", "dynamic deck as conf"),
+        ]:
+            for key in defaultParam:
+                for params in paramsSet:
+                    if key not in params:
+                        params[key] = defaultParam[key]
+                        self.col.decks.save(params)
+                        self.problems.append(f"Adding some «{key}» which was missing in deck{what} {params['name']}")
+
+    def uniqueGuid(self):
+        lastGuid = None
+        nids = []
+        lastNid = None
+        for guid, nid in self.db.all("select guid, id from notes order by guid"):
+            if lastGuid == guid:
+                self.db.execute("update notes set guid = ? where id = ? ", guid64(), nid)
+                nids.append((nid,lastNid))
+                self.problems.append(f"The guid of note %d has been changed because it used to be the guid of note %d.", nid, lastNid)
+            lastGuid = guid
+            lastNid = nid
