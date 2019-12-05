@@ -346,6 +346,34 @@ class DeckManager:
         ancestorPath = self._path(ancestorDeckName)
         return ancestorPath == self._path(descendantDeckName)[0:len(ancestorPath)]
 
+    def addPrefix(self, sc, prefix):
+        for cid in sc:
+            card = self.col.getCard(cid)
+            did = card.odid or card.did
+            deckName = self.col.decks.name(did)
+            deck = self.col.decks.get(did, default=False)
+            assert deck
+            newDeckName = "%s::%s"% (prefix,deckName)
+            newDid = self.col.decks.id(newDeckName,type=deck)
+            card.did=newDid
+            card.flush()
+
+        # Reset collection and main window
+        self.col.decks.flush()
+        self.col.reset()
+
+    def removePrefix(self, sc):
+        for cid in self.selectedCards():
+            card = self.col.getCard(cid)
+            did = card.odid or card.did
+            deckName = self.col.decks.name(did)
+            deck = self.col.decks.get(did, default=False)
+            assert deck
+            newDeckName = '::'.join(self.col.decks._path(deckName)[1:])
+            newDid = self.col.decks.id(newDeckName,type=deck)
+            card.did=newDid
+            card.flush()
+
     @staticmethod
     def _path(name):
         """The list of decks and subdecks of name"""

@@ -717,6 +717,13 @@ class Browser(QMainWindow):
         self.form.actionShow_Advanced_Columns.triggered.connect(self.toggleAdvancedColumns)
         self.form.actionShow_Advanced_Columns.setCheckable(True)
         self.form.actionShow_Advanced_Columns.setChecked(self.model.advancedColumns)
+        # decks
+        self.form.addPrefix.triggered.connect(self.addPrefix)
+        self.addPrefixShortcut = QShortcut(QKeySequence("Ctrl+Alt+P"), self)
+        self.addPrefixShortcut.activated.connect(self.addPrefix)
+        self.removePrefixShortcut = QShortcut(QKeySequence("Ctrl+Alt+Shift+P"), self)
+        self.removePrefixShortcut.activated.connect(self.removePrefix)
+        self.form.removePrefix.triggered.connect(self.removePrefix)
         # help
         self.form.actionGuide.triggered.connect(self.onHelp)
         self.form.actionShowNotesCards.triggered.connect(lambda:self.dealWithShowNotes(not self.showNotes))
@@ -1921,6 +1928,38 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
                             usn, mod, did)
         self.model.endReset()
         self.mw.requireReset()
+
+    def addPrefix(self):
+        self.applyToSelectedCard(self._addPrefix)
+
+    def _addPrefix(self, cids):
+        self.mw.checkpoint("Add prefix")
+        self.mw.progress.start()
+        prefix, returnValue = getText(_("Prefix to add:"), default="prefix")
+        if not returnValue or not text:
+            return
+        self.mw.col.decks.addPrefix(cids, prefix)
+        # Reset collection and main window
+        self.mw.progress.finish()
+        self.mw.reset()
+        tooltip(_("""Prefix added."""))
+
+    def removePrefix(self):
+        self.applyToSelectedCard(self._addPrefix)
+
+    def _removePrefix(self, cids):
+        self.mw.checkpoint("Remove prefix")
+        self.mw.progress.start()
+
+        self.mw.col.decks.removePrefix(cids)
+
+        # Reset collection and main window
+        self.col.decks.flush()
+        self.col.reset()
+        self.mw.reset()
+        self.mw.progress.finish()
+        tooltip(_("""Prefix removed."""))
+
 
     # Tags
     ######################################################################
