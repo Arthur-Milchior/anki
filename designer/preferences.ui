@@ -404,6 +404,16 @@
         </layout>
        </item>
        <item>
+        <widget class="QCheckBox" name="longTermBackUp">
+         <property name="text">
+          <string>Also keep some long term back-ups</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QLabel" name="openBackupFolder">
          <property name="text">
           <string>You can restore backups via File&gt;Switch Profile.</string>

@@ -458,31 +458,79 @@ from the profile screen."))
             zip.close()
 
     def backup(self):
-        nbacks = self.pm.profile['numBackups']
-        if not nbacks or devMode:
+        if not self.pm.profile['numBackups'] or devMode:
             return
-        dir = self.pm.backupFolder()
-        path = self.pm.collectionPath()
+        currentTime = time.localtime(time.time())
+        # Saving currentTime so that there is no change between successive
+        # files if by acciddent a backup occurs before and after
+        # midnightp
+        self.year = int(time.strftime("%Y",currentTime))
+        self.month = int(time.strftime("%m",currentTime))
+        self.day = int(time.strftime("%d",currentTime))
+        self.doBackup()
+        self.cleanBackup()
 
+    def doBackup(self):
         # do backup
-        fname = time.strftime("backup-%Y-%m-%d-%H.%M.%S.colpkg", time.localtime(time.time()))
-        newpath = os.path.join(dir, fname)
-        with open(path, "rb") as file:
+        patternsToCreate = {"backup-%Y-%m-%d-%H.%M.%S.colpkg"}
+        if self.pm.profile.get('longTermBackup', True):
+            patternsToCreate.update({f"backup-yearly-{self.year:02d}.colpkg",
+                                     f"backup-monthly-{self.year:02d}-{self.month:02d}.colpkg",
+                                     f"backup-daily-{self.year:02d}-{self.month:02d}-{self.day:02d}.colpkg",})
+        filesToCreate = {time.strftime(pattern, time.localtime(time.time()))
+                         for pattern in patternsToCreate}
+        with open(self.pm.collectionPath(), "rb") as file:
             data = file.read()
-        self.BackupThread(newpath, data).start()
+        for fname in filesToCreate:
+            newpath = os.path.join(self.pm.backupFolder(), fname)
+            if not os.path.exists(newpath):
+                self.BackupThread(newpath, data).start()
 
+    def cleanBackup(self):
+        self.cleanRecentBackup()
+        self.cleanLongTermBackup()
+
+    def cleanRecentBackup(self):
         # find existing backups
         backups = [file
-                   for file in os.listdir(dir)
+                   for file in os.listdir(self.pm.backupFolder())
                    # only look for new-style format
                    if not re.match(r"backup-\d{4}-\d{2}-.+.colpkg", file)]
         backups.sort()
 
         # remove old ones
-        while len(backups) > nbacks:
+        while len(backups) > self.pm.profile['numBackups']:
             fname = backups.pop(0)
-            path = os.path.join(dir, fname)
+            path = os.path.join(self.pm.backupFolder(), fname)
             os.unlink(path)
+
+    def cleanLongTermBackup(self):
+        nbDayInMonth = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+        monthsToKeep = []
+        for nbMonth in range(12):
+            if nbMonth<self.month:
+                monthsToKeep.append((self.year, self.month-nbMonth))
+            else:
+                monthsToKeep.append((self.year-1, self.month-nbMonth+12))
+
+        nbDayThisMonth = nbDayInMonth[self.month-1]
+        nbDayPreviousMonth = nbDayInMonth[(self.month-2) % 12]
+
+        daysToKeep = []
+        for nbDay in range(nbDayThisMonth):
+            if nbDay<self.day:
+                daysToKeep.append((self.year, self.month, self.day-nbDay))
+            else:
+                if self.month == 1:
+                    daysToKeep.append((self.year-1, 12, self.day-nbDay+nbDayPreviousMonth))
+                else:
+                    daysToKeep.append((self.year, self.month-1, self.day-nbDay+nbDayPreviousMonth))
+        filesToKeep = ([f"backup-monthly-{yearToHave:02d}-{monthToHave:02d}.colpkg" for yearToHave, monthToHave in monthsToKeep]+
+                       [f"backup-daily-{yearToHave:02d}-{monthToHave:02d}-{dayToHave:02d}.colpkg" for yearToHave, monthToHave, dayToHave in daysToKeep])
+        for file in os.listdir(self.pm.backupFolder()):
+            if (file.startswith("backup-monthy-") or file.startswith("backup-daily-")) and file not in filesToKeep:
+                oldpath = os.path.join(self.pm.backupFolder(), file)
+                os.unlink(oldpath)
 
     def maybeOptimize(self):
         # have two weeks passed?
