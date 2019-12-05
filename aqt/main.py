@@ -1277,7 +1277,7 @@ will be lost. Continue?"""))
         """Method called by Tools>Empty Cards..."""
 
         self.progress.start(immediate=True)
-        cids = self.col.emptyCids()
+        cids = set(self.col.emptyCids())
         if not cids:
             self.progress.finish()
             tooltip(_("No empty cards."))
@@ -1290,15 +1290,64 @@ will be lost. Continue?"""))
                 geomKey="emptyCards")
         box.addButton(_("Delete Cards"), QDialogButtonBox.AcceptRole)
         box.button(QDialogButtonBox.Close).setDefault(True)
-        def onDelete():
-            saveGeom(diag, "emptyCards")
-            QDialog.accept(diag)
-            self.checkpoint(_("Delete Empty"))
-            self.col.remCards(cids)
-            tooltip(ngettext("%d card deleted.", "%d cards deleted.", len(cids)) % len(cids))
-            self.reset()
-        box.accepted.connect(onDelete)
+        box.accepted.connect(lambda: this.onDelete(cids, diag))
         diag.show()
+
+    def _delete(self, cids):
+        self.col.remCards(cids)
+        tooltip(ngettext("%d card deleted.", "%d cards deleted.", len(cids)) % len(cids))
+        self.reset()
+
+    def onDelete(self, cids, diag):
+        """
+        Delete cards with ids in cids. Close diag.
+
+        If a note has no more card, either delete it or warn, depending on preferences.
+        """
+        saveGeom(diag, "emptyCards")
+        QDialog.accept(diag)
+        self.checkpoint(_("Delete Empty"))
+        if not self.col.conf.get("keepEmptyNote", True):
+            self._delete(cids)
+
+        # Create a dic associating to each nid the cids to delete.
+        nidToCidsToDelete = dict()
+        for cid in cids:
+            card = self.col.getCard(cid)
+            note = card.note()
+            nid = note.id
+            if nid not in nidToCidsToDelete:
+                nidToCidsToDelete[nid] = set()
+            nidToCidsToDelete[nid].add(cid)
+
+        # Compute the set of empty notes. Keep their cards
+        emptyNids = set()
+        for nid, cidsToDeleteOfNote in nidToCidsToDelete.items():
+            note = self.col.getNote(nid)
+            cidsOfNids = set([card.id for card in note.cards()])
+            if cidsOfNids == cidsToDeleteOfNote:
+                emptyNids.add(note.id)
+                cids -= cidsOfNids
+
+        # Deal with tags
+        nidsWithTag = set(self.col.findNotes("tag:NoteWithNoCard"))
+        for nid in emptyNids - nidsWithTag:
+            note = self.col.getNote(nid)
+            note.addTag("NoteWithNoCard")
+            note.flush()
+        for nid in nidsWithTag - emptyNids:
+            note = self.col.getNote(nid)
+            note.delTag("NoteWithNoCard")
+            note.flush()
+
+        # Warn about notes without cards.
+        if emptyNids:
+            showWarning(f"""{len(emptyNids)} note(s) should have been deleted because they had no more cards. They now have the tag "NoteWithNoCard". Please go check them. Then either edit them to save their content, or delete them from the browser.""")
+            browser = aqt.dialogs.open("Browser", self)
+            browser.form.searchEdit.lineEdit().setText("tag:NoteWithNoCard")
+            browser.onSearchActivated()
+
+        self._delete(cids)
 
     # Debugging
     ######################################################################

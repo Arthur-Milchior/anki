@@ -101,6 +101,15 @@ If checked, the option "Delete empty cards only if they are new" set
 back «Empty cards» to its original meaning; it'll delete even the seen
 cards.
 
+## Keeping note which have no cards (2018640062)
+If you do «Empty cards», and a note has no more card, then you see a
+warning, and the browser open to show you what notes have this
+problem. You can thus correct them and avoid loosing the content of
+their fields.
+
+If you want to remove this feature, and have anki's default, uncheck
+«Keep note without any card and warn» in the preferences.
+
 ## Refresh browser (1347728560, 832679841)
 Add the short-cut CTRL-F5 in browser to update the search
 

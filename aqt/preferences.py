@@ -258,6 +258,7 @@ Not currently enabled; click the sync button in the main window to enable."""))
         "minutesInBrowser",
         "newLineInBatchEdit",
         ("copyLog", True),
+        ("keepEmptyNote", True),
         ("keepSeenCard", True),
         ("preserveCreation", True),
         ("preserveReviewInfo", True),
