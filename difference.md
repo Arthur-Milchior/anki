@@ -30,6 +30,9 @@ exported cards. The problem being, of course, that you may export
 cards in decks you did not select. Thus, importing those cards may
 potentially create more decks than expected.
 
+## Refresh browser (1347728560, 832679841)
+Add the short-cut CTRL-F5 in browser to update the search
+
 ## Usable card report (25425599)
 Add more informations in the «empty card» report.
 
