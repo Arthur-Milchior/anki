@@ -11,6 +11,8 @@ created today.
 This add-on adds many features. In particular, for devs, it adds a
 class for browser's column, in order to add more columns easily
 
+## Allow to keep first field empty (46741504)
+
 ## Explain errors
 You obtain more detailled error message if a sync fail, and if you try
 do do a «Check database».

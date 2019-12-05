@@ -230,6 +230,7 @@ Not currently enabled; click the sync button in the main window to enable."""))
         # advanced option
         "exportSiblings",
         {"name":"pastePNG", "sync":False},
+        "allowEmptyFirstField",
         "minutesInBrowser",
         {"name":"syncAddons", "sync":False},
     ]

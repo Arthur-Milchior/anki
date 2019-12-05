@@ -189,10 +189,12 @@ class AddCards(QDialog):
         note.model()['did'] = self.deckChooser.selectedId()
         ret = note.dupeOrEmpty()
         if ret == 1:
-            showWarning(_(
-                "The first field is empty."),
-                help="AddItems#AddError")
-            return
+            if self.mw.col.conf.get("allowEmptyFirstField", False):
+                tooltip(_("The first field is empty."))
+            else:
+                showWarning(_("The first field is empty."),
+                            help="AddItems#AddError")
+                return
         if '{{cloze:' in note.model().getTemplate()['qfmt']:
             if not note.model()._availClozeOrds(note.joinedFields(), False, onlyFirst=True):
                 if not askUser(_("You have a cloze deletion note type "

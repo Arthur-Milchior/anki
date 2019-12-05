@@ -98,7 +98,7 @@ class NoteImporter(Importer):
 
     def mappingOk(self):
         """Whether something is mapped to the first field"""
-        return self.model['flds'][0].getName() in self.mapping
+        return self.model['flds'][0].getName() in self.mapping or (self.col.conf.get("allowEmptyFirstField", False))
 
     def foreignNotes(self):
         "Return a list of foreign notes for importing."
@@ -125,7 +125,8 @@ class NoteImporter(Importer):
             else:
                 csums[csum] = [id]
         firsts = {}#mapping sending first field of added note to true
-        fld0idx = self.mapping.index(self.model['flds'][0].getName())
+        fld0name = self.model['flds'][0].getName()
+        fld0idx = self.mapping.index(fld0name) if fld0name in self.mapping else None
         self._fmap = self.model.fieldMap()
         self._nextID = timestampID(self.col.db, "notes")
         # loop through the notes
@@ -164,6 +165,8 @@ class NoteImporter(Importer):
                 continue
             firsts[fld0] = True
             # already exists?
+            if self.col.conf.get("allowEmptyFirstField", False) and fld0idx is None:
+                continue
             found = False#Whether a note with a similar first field was found
             if csum in csums:
                 # csum is not a guarantee; have to check
