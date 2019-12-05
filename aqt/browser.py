@@ -681,6 +681,7 @@ class Browser(QMainWindow):
         self.form.actionBatchEdit.triggered.connect(self.onBatchEdit)
         self.form.actionManage_Note_Types.triggered.connect(self.mw.onNoteTypes)
         self.form.actionDelete.triggered.connect(self.deleteNotes)
+        self.form.actionCopy.triggered.connect(self.actionCopy)
         # cards
         self.form.actionChange_Deck.triggered.connect(self.setDeck)
         self.form.action_Info.triggered.connect(self.showCardInfo)
@@ -1839,6 +1840,25 @@ where id in %s""" % ids2str(sn))
         note = card.note()
         note.load()
         return (self._previewState, card.id, note.mod)
+
+    # Card Copy
+    ######################################################################
+
+    def actionCopy(self):
+        nids = self.selectedNotes()
+        self.mw.checkpoint("Copy Notes")
+        copy_review = self.col.conf.get("preserveReviewInfo", True)
+        copy_creation = self.col.conf.get("preserveCreation", True)
+        copy_log = self.col.conf.get("copyLog", True)
+        #self.mw.progress.start()
+        for nid in nids:
+            note = self.col.getNote(nid)
+            note.copy(copy_review, copy_creation, copy_log)
+        # Reset collection and main window
+        self.mw.progress.finish()
+        self.mw.col.reset()
+        self.mw.reset()
+        tooltip(_("""Cards copied."""))
 
     # Card deletion
     ######################################################################

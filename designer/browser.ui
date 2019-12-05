@@ -319,6 +319,7 @@
     <addaction name="separator"/>
     <addaction name="actionDelete"/>
     <addaction name="separator"/>
+    <addaction name="actionCopy"/>
    </widget>
    <widget class="QMenu" name="menuColumns">
     <property name="title">
@@ -687,6 +688,14 @@
   <action name="removePrefix">
    <property name="text">
     <string>Remove prefix</string>
+   </property>
+  </action>
+  <action name="actionCopy">
+   <property name="text">
+    <string>&amp;Copy Note</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Alt+C</string>
    </property>
   </action>
  </widget>

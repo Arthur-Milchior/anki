@@ -2,6 +2,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from copy import copy
+
 from anki.lang import _
 from anki.utils import (fieldChecksum, guid64, intTime, joinFields,
                         splitFields, stripHTMLMedia, timestampID)
@@ -244,6 +246,26 @@ space, with an initial and a final white space."""
                 splitFields(flds)[0]) == stripHTMLMedia(self.fields[0]):
                 return 2
         return False
+
+    # Copy note
+    ##################################################
+    def copy(self, copy_review, copy_creation, copy_log):
+        """A copy of the note.
+
+        Save it in the db.
+        copy_review -- if False, it's similar to a new card. Otherwise, keep every current properties
+        copy_creation -- whether to keep original creation date.
+        copy_log -- whether to copy the logs of the cards of this note
+        """
+        note = copy(self)
+        cards= note.cards()
+        note_date = note.id if copy_creation else None
+        note.id = timestampID(note.col.db, "notes", t=note_date)
+        note.guid = guid64()
+        for card in cards:
+            card.copy(note.id, copy_creation, copy_review, copy_log)
+        note.flush()
+        return note
 
     # Flushing cloze notes
     ##################################################
