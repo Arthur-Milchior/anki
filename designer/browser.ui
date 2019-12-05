@@ -313,6 +313,7 @@
     <addaction name="separator"/>
     <addaction name="actionFindDuplicates"/>
     <addaction name="actionFindReplace"/>
+    <addaction name="actionBatchEdit"/>
     <addaction name="separator"/>
     <addaction name="actionManage_Note_Types"/>
     <addaction name="separator"/>
@@ -656,6 +657,14 @@
    </property>
    <property name="text">
     <string>Show Advanced Columns</string>
+   </property>
+  </action>
+  <action name="actionBatchEdit">
+   <property name="text">
+    <string>Batch &amp;Edit Notes</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Alt+B</string>
    </property>
   </action>
  </widget>
