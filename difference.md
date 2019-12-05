@@ -186,6 +186,12 @@ thus remove it.
 Most of the time, I don't care for overview; so going directly to
 review is fine for me.
 
+## Sort new cards (1665261045)
+In the browser, and in the gear near the deck, you can change the
+order in which you see new cards. You'll need to read
+https://github.com/Arthur-Milchior/anki_sort_cards to learn how this
+new order can be parametrized.
+
 ## Tag missing media (2027876532)
 If a note is supposed to have media (image or audio), it will have the
 tag "MissingMedia", when you «check media».

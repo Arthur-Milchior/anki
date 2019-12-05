@@ -11,8 +11,8 @@ from anki.sound import clearAudioQueue
 from anki.utils import fmtTimeSpan, ids2str
 from aqt.deckcolumns import *
 from aqt.qt import *
-from aqt.utils import (askUser, getOnlyText, openHelp, openLink, shortcut,
-                       showWarning)
+from aqt.utils import (askUser, getOnlyText, getText, openHelp, openLink,
+                       shortcut, showWarning)
 
 
 class DeckBrowser:

@@ -21,6 +21,7 @@ incorporatedAddonsSet = {
     Addon("Batch Editing", 291119185, 1560116344, "https://github.com/glutanimate/batch-editing", "41149dbec543b019a9eb01d06d2a3c5d13b8d830"),
     Addon("CTRL+F5 to Refresh the Browser", 1347728560, 1564463100, "056a2cf4b0096c42e077876578778b1cfe3cc90c", "https://github.com/Arthur-Milchior/anki-addons-misc/tree/refreshBrowser/src/browser_refresh"),
     Addon("Change cards decks prefix", 1262882834, 1550534152, "f9843693dafb4aeb2248de5faf44cf5b5fdc69ec", "https://github.com/Arthur-Milchior/anki-deck-prefix-edit"),
+    Addon("Choose in which order you see new cards", 1665261045, 1573183001, "1f51fe62b67771bef9889a99e4907c3d2973fcde", "https://github.com/Arthur-Milchior/anki_sort_cards"), 
     Addon("Compile latex during addedition and warn in case of error", 769835008, 1542763850, "afd052471c7e9406e7a8dbe3b08c09cb3ed20e77", "https://github.com/Arthur-Milchior/anki-compile-latex-early/"),
     Addon("Copy notes", 1566928056, 1563556640, "b9ad0a66f36db8a7b74c7da3cf967690623cd50c", "https://github.com/Arthur-Milchior/anki-copy-note"),
     Addon("Delete empty NEW cards", 1402327111, 1550534154, "6c45b4117e5d6cc4802ed4382d8b5d05ee80ac81", "https://github.com/Arthur-Milchior/anki-empty-new-cards"),
