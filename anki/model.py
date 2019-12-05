@@ -42,6 +42,7 @@ class Model(DictAugmentedIdUsn):
         super().load(manager, dict)
         self['tmpls'] = list(map(lambda tmpl: Template(self, tmpl), self['tmpls']))
         self['flds'] = list(map(lambda fld: Field(self, fld), self['flds']))
+        self['ls'] = 0
         self._addTmp()
 
     def _addTmp(self):
@@ -61,6 +62,7 @@ class Model(DictAugmentedIdUsn):
         model['tags'] = []
         model['id'] = None
         self.load(manager, model)
+        model['ls'] = self.manager.col.ls
 
     def save(self, template=False, recomputeReq=True):
         """
@@ -99,7 +101,7 @@ class Model(DictAugmentedIdUsn):
 
     def rem(self):
         "Delete model, and all its cards/notes."
-        self.manager.col.modSchema(check=True)
+        self._modSchemaIfRequired()
         current = self.manager.current().getId() == self.getId()
         # delete notes/cards
         self.manager.col.remCards(self.manager.col.db.list("""
@@ -503,3 +505,11 @@ select id from cards where nid in (select id from notes where mid = ?)""",
             return field
         except:
             pass
+
+    def removeLS(self):
+        if "ls" in self:
+            del self["ls"]
+
+    def _modSchemaIfRequired(self):
+        if self.getId() and self.get('ls', 0) != self.manager.col.ls:
+            self.manager.col.modSchema(check=True)

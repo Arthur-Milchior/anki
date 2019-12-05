@@ -34,7 +34,7 @@ class Field(DictAugmentedInModel):
         """
         # only mod schema if model isn't new
         if self.model['id']:
-            self.model.manager.col.modSchema(check=True)
+            self.model._modSchemaIfRequired()
         self.model['flds'].append(self)
         self.model._updateFieldOrds()
         self.model.save()#recompute req, because the field may already be used in a template
@@ -49,7 +49,7 @@ class Field(DictAugmentedInModel):
         field -- the field dictionnary
         newName -- either a name. Or None if the field is deleted.
         """
-        self.model.manager.col.modSchema(check=True)
+        self.model._modSchemaIfRequired()
         #Regexp associating to a mustache the name of its field
         pat = r'{{([^{}]*)([:#^/]|[^:#/^}][^:}]*?:|)%s}}'
         def wrap(txt):
@@ -72,7 +72,7 @@ class Field(DictAugmentedInModel):
         idx -- new position, integer
         field -- a field object
         """
-        self.model.manager.col.modSchema(check=True)
+        self.model._modSchemaIfRequired()
         oldidx = self.model['flds'].index(self)
         if oldidx == idx:
             return
@@ -99,7 +99,7 @@ class Field(DictAugmentedInModel):
         Modify the template
         model -- the model
         field -- the field object"""
-        self.model.manager.col.modSchema(check=True)
+        self.model._modSchemaIfRequired()
         # save old sort field
         sortFldName = self.model['flds'][self.model['sortf']].getName()
         idx = self.model['flds'].index(self)

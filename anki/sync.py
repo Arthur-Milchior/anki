@@ -433,6 +433,7 @@ from notes where %s""" % (self.maxUsn, lim))
         Their usn is then changed no maxUsn.
         """
         mods = [model for model in self.col.models.all() if model['usn'] == -1]
+        self.col.models.removeLS()
         for model in mods:
             model['usn'] = self.maxUsn
         self.col.models.save()

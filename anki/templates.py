@@ -34,7 +34,7 @@ class Template(DictAugmentedInModel):
 
         """
         if self.model.getId():
-            self.model.manager.col.modSchema(check=True)
+            self.model._modSchemaIfRequired()
         self.model['tmpls'].append(self)
         self.model._updateTemplOrds()
         self.model.save()
@@ -60,7 +60,7 @@ having count() < 2
 limit 1""" % ids2str(cids)):
             return False
         # ok to proceed; remove cards
-        self.model.manager.col.modSchema(check=True)
+        self.model._modSchemaIfRequired()
         self.model.manager.col.remCards(cids)
         # shift ordinals
         self.model.manager.col.db.execute("""
