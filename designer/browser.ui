@@ -326,6 +326,7 @@
     <addaction name="actionRefresh"/>
     <addaction name="actionShowNotesCards"/>
     <addaction name="actionShow_Hours_and_Minutes"/>
+    <addaction name="actionShow_Advanced_Columns"/>
    </widget>
    <widget class="QMenu" name="menu_Decks">
     <property name="title">
@@ -647,6 +648,14 @@
    </property>
    <property name="text">
     <string>Show &amp;Hours and Minutes</string>
+   </property>
+  </action>
+  <action name="actionShow_Advanced_Columns">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Advanced Columns</string>
    </property>
   </action>
  </widget>
