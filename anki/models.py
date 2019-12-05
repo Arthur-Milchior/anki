@@ -199,6 +199,21 @@ class ModelManager:
 
         Used to sort models in browse"""
         model = self.get(mid).nameByOrd(ord)
+
+    def valueForField(self, mid, flds, fieldName):
+        """Function called from SQLite to get the value of a field,
+        given a field name and the model id for the note.
+
+        mid is the model id. The model contains the definition of a note,
+        including the names of all fields.
+
+        flds contains the text of all fields, delimited by the character
+        "x1f". We split this and index into it according to a precomputed
+        index for the model (mid) and field name (fieldName).
+
+        fieldName is the name of the field we are after."""
+        self.get(mid).valueForField(flds, fieldName)
+
     # Sync handling
     ##########################################################################
 

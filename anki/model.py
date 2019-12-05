@@ -7,7 +7,7 @@ from anki.fields import Field
 from anki.lang import _
 from anki.templates import Template, defaultTemplate
 from anki.utils import (DictAugmentedIdUsn, checksum, ids2str, intTime,
-                        joinFields, splitFields)
+                        joinFields, splitFields, stripHTMLMedia)
 
 defaultModel = {
     'sortf': 0,
@@ -42,6 +42,14 @@ class Model(DictAugmentedIdUsn):
         super().load(manager, dict)
         self['tmpls'] = list(map(lambda tmpl: Template(self, tmpl), self['tmpls']))
         self['flds'] = list(map(lambda fld: Field(self, fld), self['flds']))
+        self._addTmp()
+
+    def _addTmp(self):
+        self.fieldNameToOrd = {}
+        for field in self['flds']:
+            name = field['name']
+            ord = field['ord']
+            self.fieldNameToOrd[name] = ord
 
     def new(self, manager, name):
         assert(isinstance(name, str))
@@ -65,6 +73,7 @@ class Model(DictAugmentedIdUsn):
         if self.getId():
             if recomputeReq:
                 self._updateRequired()
+                self._addTmp()
                 if template:
                     self._syncTemplates()
         super().save()
@@ -471,3 +480,26 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         l = list(ords)
         l.sort()
         return l
+
+    def valueForField(self, flds, fieldName):
+        """Function called from SQLite to get the value of a field,
+        given a field name and the model id for the note.
+
+        mid is the model id. The model contains the definition of a note,
+        including the names of all fields.
+
+        flds contains the text of all fields, delimited by the character
+        "x1f". We split this and index into it according to a precomputed
+        index for the model (mid) and field name (fieldName).
+
+        fieldName is the name of the field we are after."""
+
+        try:
+            index = self.fieldNameToOrd.get(fieldName)
+            if index is None:
+                return
+            fieldsList = flds.split("\x1f", index+1)
+            field = stripHTMLMedia(fieldsList[index])
+            return field
+        except:
+            pass

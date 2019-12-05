@@ -22,7 +22,7 @@ from anki.sound import allSounds, clearAudioQueue, play
 from anki.utils import (bodyClass, fmtTimeSpan, htmlToTextLine, ids2str,
                         intTime, isMac, isWin)
 from aqt.browserColumn import (BrowserColumn, ColumnList, advancedColumns,
-                               basicColumns, internalColumns, unknownColumn)
+                               basicColumns, fieldColumn, internalColumns, unknownColumn)
 from aqt.exporting import ExportDialog
 from aqt.qt import *
 from aqt.utils import (MenuList, SubMenu, askUser, getOnlyText, getTag,
@@ -108,6 +108,7 @@ class DataModel(QAbstractTableModel):
         if not activeColsNames:
             self.col.conf["advbrowse_activeCols"] = activeStandardColsNames
             activeColsNames = activeStandardColsNames
+        self.fieldsTogether = self.col.conf.get("fieldsTogether", False)
         self.activeCols = [self.getColumnByType(type) for type in activeColsNames]
         self.advancedColumns = self.col.conf.get("advancedColumnsInBrowser", False)
         self.cards = []
@@ -524,10 +525,18 @@ class DataModel(QAbstractTableModel):
         """List of column header. Potentially with repetition if they appear
         in multiple place in the menu"""
         basicList = basicColumns.copy()
+        fieldList = []
+        for model in self.col.models.all():
+            for field in model['flds']:
+                fieldName = field['name']
+                column = fieldColumn(fieldName, model, self)
+                fieldList.append(column)
+
         lists = [
             basicList,
             advancedColumns,
             internalColumns,
+            fieldList,
         ]
         columns = [column for list in lists for column in list]
         return columns
@@ -722,6 +731,14 @@ class Browser(QMainWindow):
         # context menu
         self.form.tableView.setContextMenuPolicy(Qt.CustomContextMenu)
         self.form.tableView.customContextMenuRequested.connect(self.onContextMenu)
+
+    def dealWithFieldsTogether(self, fieldsTogether):
+        self.editor.saveNow(lambda:self._dealWithFieldsTogether(fieldsTogether))
+
+    def _dealWithFieldsTogether(self, fieldsTogether):
+        self.mw.col.conf["advbrowse_uniqueNote"] = fieldsTogether
+        self.model.fieldsTogether = fieldsTogether
+        self.search()
 
     def onContextMenu(self, _point):
         """Open, where mouse is, the context menu, with the content of menu
@@ -1068,7 +1085,12 @@ by clicking on one on the left."""))
         a.setChecked(self.col.conf.get("advancedColumnsInBrowser", False))
         a.toggled.connect(self.toggleAdvancedColumns)
 
-        #
+        # Fieds together
+        a = topMenu.addAction(_("All Fields Together"))
+        a.setCheckable(True)
+        a.setChecked(self.model.fieldsTogether)
+        a.toggled.connect(lambda:self.dealWithFieldsTogether(not self.model.fieldsTogether))
+
         topMenu.exec_(gpos)
 
     def toggleHoursAndMinutes(self):

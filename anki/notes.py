@@ -148,6 +148,11 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
         except:
             raise KeyError(key)
 
+    def get(self, key, default=None):
+        if key not in self._fmap:
+            return default
+        return self[key]
+
     def __getitem__(self, key):
         """The value of the field key."""
         return self.fields[self._fieldOrd(key)]
