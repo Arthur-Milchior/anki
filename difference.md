@@ -182,6 +182,10 @@ Add the short-cut CTRL-F5 in browser to update the search
 Because of this text, the keyboard can't be used to search a field. I
 thus remove it.
 
+## See review instead of overview.
+Most of the time, I don't care for overview; so going directly to
+review is fine for me.
+
 ## Tag missing media (2027876532)
 If a note is supposed to have media (image or audio), it will have the
 tag "MissingMedia", when you «check media».

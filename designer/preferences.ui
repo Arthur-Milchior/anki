@@ -756,6 +756,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="deckOverview">
+         <property name="text">
+          <string>See overview before reviewing.</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QLabel" name="label_5">
          <property name="text">
           <string>Files to keep in add-on folder, space separated:</string>

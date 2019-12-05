@@ -255,6 +255,7 @@ Not currently enabled; click the sync button in the main window to enable."""))
         "allowDuplicateFirstField",
         "allowEmptyFirstField",
         "compileLaTeX",
+        "deckOverview",
         "minutesInBrowser",
         "newLineInBatchEdit",
         ("browserOnMissingMedia", True),

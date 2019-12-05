@@ -51,6 +51,10 @@ class Deck(anki.deck.Deck):
 
     def _selDeck(self):
         self.select()
+        self.manager.mw.onReviewOrOverview()
+
+    def _overviewDeck(self):
+        self.select()
         self.manager.mw.onOverview()
 
     def _showOptions(self):
@@ -65,6 +69,9 @@ class Deck(anki.deck.Deck):
         action.triggered.connect(lambda button, deck=self: deck._delete())
         action = menu.addAction(_("Adding delay"))
         action.triggered.connect(lambda button, deck=self: deck._onAddDelay())
+        if not self.mw.col.conf.get("overview", False):
+            action = menu.addAction(_("Overview"))
+            action.triggered.connect(lambda button, deck=self: deck._overviewDeck())
         runHook("showDeckOptions", menu, self.getId())
         # still passing did, as add-ons have not updated to my fork.
         menu.exec_(QCursor.pos())
