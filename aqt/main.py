@@ -765,6 +765,8 @@ title="%s" %s>%s</button>''' % (
         self.state = "sync"
         self.syncer = SyncManager(self, self.pm)
         self.syncer.sync()
+        if self.pm.profile.get("syncAddons", True):
+            self.addonManager.onCheckForUpdates(False)
 
     # Tools
     ##########################################################################

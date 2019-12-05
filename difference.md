@@ -49,6 +49,11 @@ potentially create more decks than expected.
 ## Refresh browser (1347728560, 832679841)
 Add the short-cut CTRL-F5 in browser to update the search
 
+## Update add-ons (1847544206)
+
+While syncing collection, add-ons will be updated. Updates are exactly
+the same process as when you click on the update button in the add-on manager.
+
 ## Usable card report (25425599)
 Add more informations in the «empty card» report.
 ### Minutes in the browser

@@ -79,6 +79,34 @@ When loading '%(name)s':
         """The list of add-ons not up to date. Compared to the server's information."""
         self.mw.executeInProgress(super().checkForUpdates)
 
+    def onCheckForUpdates(self, stateNoUpdateAvailable=True):
+        """Whether an update did occur"""
+        try:
+            updated = self.checkForUpdates()
+        except Exception as e:
+            showWarning(_("Please check your internet connection.") + "\n\n" + str(e),
+                        textFormat="plain")
+            return
+
+        if not updated:
+            if stateNoUpdateAvailable:
+                tooltip(_("No updates available."))
+        else:
+            names = [self.addonName(d) for d in updated]
+            if askUser(_("Update the following add-ons?") +
+                               "\n" + "\n".join(names)):
+                log, errs = self.downloadIds(updated)
+                if log:
+                    log_html = "<br>".join(log)
+                    if len(log) == 1:
+                        tooltip(log_html, parent=self)
+                    else:
+                        showInfo(log_html, parent=self, textFormat="rich")
+                if errs:
+                    showWarning("\n\n".join(errs), parent=self, textFormat="plain")
+
+                return True
+
 # Add-ons Dialog
 ######################################################################
 
@@ -236,31 +264,8 @@ class AddonsDialog(QDialog):
         self.redrawAddons()
 
     def onCheckForUpdates(self):
-        try:
-            updated = self.mgr.checkForUpdates()
-        except Exception as e:
-            showWarning(_("Please check your internet connection.") + "\n\n" + str(e),
-                        textFormat="plain")
-            print(traceback.format_exc(), sys.stderr)
-            return
-
-        if not updated:
-            tooltip(_("No updates available."))
-        else:
-            names = [self.mgr.addonName(addon) for addon in updated]
-            if askUser(_("Update the following add-ons?") +
-                               "\n" + "\n".join(names)):
-                log, errs = self.mgr.downloadIds(updated)
-                if log:
-                    log_html = "<br>".join(log)
-                    if len(log) == 1:
-                        tooltip(log_html, parent=self)
-                    else:
-                        showInfo(log_html, parent=self, textFormat="rich")
-                if errs:
-                    showWarning("\n\n".join(errs), parent=self, textFormat="plain")
-
-                self.redrawAddons()
+        if self.mgr.onCheckForUpdates():
+            self.redrawAddons()
 
     def onConfig(self):
         """Assuming a single addon is selected, either:
