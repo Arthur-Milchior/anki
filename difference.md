@@ -14,3 +14,6 @@ instead of deleting the note» chage the behavior of anki when he finds
 a note which has no more card. This allow to lose the content of the
 note, and let you correct the note instead to generate cards.
 
+## Usable card report (25425599)
+Add more informations in the «empty card» report.
+

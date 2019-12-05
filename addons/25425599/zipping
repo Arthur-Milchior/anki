@@ -1,0 +1,2 @@
+rm betterEmptyCardReport.zip
+zip betterEmptyCardReport.zip *py README.md LICENSE config* zipping
