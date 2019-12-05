@@ -1258,6 +1258,10 @@ will be lost. Continue?"""))
     def onCheckMediaDB(self):
         self.progress.start(immediate=True)
         (nohave, unused, warnings) = self.col.media.check()
+        if nohave and self.col.conf.get("browserOnMissingMedia", True): # open browser with missing medias
+            browser = aqt.dialogs.open("Browser", self)
+            browser.form.searchEdit.lineEdit().setText("tag:MissingMedia")
+            browser.onSearchActivated()
         self.progress.finish()
         # generate report
         report = ""

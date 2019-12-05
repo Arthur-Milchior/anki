@@ -346,6 +346,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         mdir = self.dir()
         # gather all media references in NFC form
         allRefs = set()
+        refsToNid = dict() # this dic is new
         for nid, mid, flds in self.col.db.execute("select id, mid, flds from notes"):
             noteRefs = self.filesInStr(mid, flds)
             # check the refs are in NFC
@@ -355,6 +356,11 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
                     self._normalizeNoteRefs(nid)
                     noteRefs = self.filesInStr(mid, flds)
                     break
+            # Compute the list of notes with missing media
+            for f in noteRefs:
+                if f not in refsToNid:
+                    refsToNid[f] = set()
+                refsToNid[f].add(nid)
             allRefs.update(noteRefs)
         # loop through media folder
         unused = []
@@ -404,6 +410,26 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         if renamedFiles:
             return self.check(local=local)
         nohave = [ref for ref in allRefs if not ref.startswith("_")]
+
+        # Deal with tag
+        alreadyMissingNids = self.col.findNotes("tag:MissingMedia")
+        nidsOfMissingRefs = set()
+        for ref in allRefs:
+            nidsOfMissingRefs.update(refsToNid[ref])
+
+        # remove tags when a note has no missing media anymore
+        for nid in nidsOfMissingRefs:
+            if nid not in alreadyMissingNids:
+                note = self.col.getNote(nid)
+                note.addTag("MissingMedia")
+                note.flush()
+
+        # Add tags to notes with missing media
+        for nid in alreadyMissingNids:
+            if nid not in nidsOfMissingRefs:
+                note = self.col.getNote(nid)
+                note.delTag("MissingMedia")
+                note.flush()
         # make sure the media DB is valid
         try:
             self.findChanges()
@@ -413,7 +439,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         if dirFound:
             warnings.append(
                 _("Anki does not support files in subfolders of the collection.media folder."))
-        return (nohave, unused, warnings)
+        return (allRefs, unused, warnings)
 
     def _normalizeNoteRefs(self, nid):
         note = self.col.getNote(nid)
