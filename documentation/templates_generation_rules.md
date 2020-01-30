@@ -1,5 +1,10 @@
 # How to decide whether a card should be generated/deleted
 
+The algorithm change in 2.1.20. I'll update this document when 2.1.20
+won't be in beta anymore.
+
+## Context
+
 Anki's official
 [documentation](https://apps.ankiweb.net/docs/manual.html#conditional-replacement)
 is not really clear about the rules governing the generation of
