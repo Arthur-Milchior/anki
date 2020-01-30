@@ -84,3 +84,58 @@ the list of sufficient field. Note that the list may be empty.
 
 In this case, cards are generated for this template if and only if all
 of those "mandatory" fields are filled.
+
+# Examples
+
+Let's now consider some examples which were counter-intuitive for me.
+
+Anki is changing the way it decides which card are generated. Which makes me look at the generating algorithm to find examples where there actually are differences. I'm realizing fun things with the old algorithm.
+
+Take
+```
+{{#Conditional}}{{Field1}} {{Field 2}}  {{/Conditional}}
+```
+This card is generated as soon as "Conditional" is filled. Because Anki computed that Field1 is not mandatory. Field2 is not mandatory. So the only mandatory field is "Conditional".
+
+Take
+```
+{{#Conditional}}
+{{Field1}}
+{{/Conditional}}{{Field2}}
+```
+If only "Field2" is filled, the card is generated. This is to be expcted. What's more surprising is that if "Conditional" is filled, then the card is generated. This is because the card is different when "Conditional" is filled or not. Indeed, there are two more space returns when the field id filled.
+
+If you remove the line breaks, e.g. ```
+{{#Conditional}}{{Field1}}{{/Conditional}}{{Field2}}
+```
+then the card is generated only when Field2 is filled. Field1 and Conditional are not considered anymore for generation. Which becomes even funnier when you realize that if you remove the "field2", ```
+{{#Conditional}}{{Field1}}{{/Conditional}}
+```
+generates a card as soon as both field1 and conditional are filled. The reason for this difference is that now, some fields are mandatory; while in the previous case no fields were mandatory and so anki applied a different rule to check for card generation.
+
+Now take ```
+{{^Conditional}}{{Field1}}{{/Conditional}}
+```
+Power user of Anki knows that this card will never be generated. That's even what I wrote above.
+
+But have you considered:
+```
+{{^Conditional}}{{Field1}} {{/Conditional}}
+```
+or
+```
+{{^Conditional}}{{Field1}}{{/Conditional}}{{#Conditional}} {{/Conditional}}
+```
+? Those cards are generated if and only if all fields are filled, except for conditional. And I really mean, "all fields". Even the fields which are not in this template. If the note type has a field "Field2", it should be filled, othewise the card won't be generated. The reason behind this is quite silly. Anki realize that when all fields are filled, the result is different than when all fields are empty (there is a space, after all !). Anki then checks whether any field is mandatory by filling all fields and then checking if it sees a field's value in the result. And actually, when it does not fill "Conditional", it sees some value, which means that "Conditional" is "not mandatory" (indeed, it's actually forbidden). Furthermore, when "Field1" or "Field2" is not filled but "Conditional" is filled, it sees no value in the card's question. So it believes that "Field1" is mandatory and that "Field2" is mandatory.
+
+Let's make another small twist. Take
+```
+{{^Conditional2}}{{^Conditional}}{{Field1}}{{/Conditional}}{{/Conditional2}}
+```
+This card can't be generated (this kind of makes sens)
+But if you add a space
+```
+{{^Conditional2}}{{^Conditional}}{{Field1}} {{/Conditional}}{{/Conditional2}}
+```
+then this card is generated if and only if all fields are filled (in which case, card is empty, but we don't care). Because, following the explanation above, anki incorectly believes that all fields are mandatory !
+
