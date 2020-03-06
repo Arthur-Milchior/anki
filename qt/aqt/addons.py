@@ -702,7 +702,9 @@ class AddonsDialog(QDialog):
         f.delete_2.clicked.connect(self.onDelete)
         f.config.clicked.connect(self.onConfig)
         self.form.addonList.itemDoubleClicked.connect(self.onConfig)
-        self.form.addonList.currentRowChanged.connect(self._onAddonItemSelected)
+        self.form.addonList.itemSelectionChanged.connect(
+            self._on_item_selection_changed
+        )
         self.setAcceptDrops(True)
         self.redrawAddons()
         restoreGeom(self, "addons")
@@ -771,10 +773,20 @@ class AddonsDialog(QDialog):
 
         addonList.reset()
 
-    def _onAddonItemSelected(self, row_int: int) -> None:
+    def _deactivate_single_addon_button(self):
+        self.form.config.setDisabled(True)
+        self.form.viewPage.setDisabled(True)
+
+    def _on_item_selection_changed(self) -> None:
+        selected = self.selectedAddons()
+        if len(selected) != 1:
+            self._deactivate_single_addon_button()
+            return
+        row_int: int = self.form.addonList.selectedIndexes()[0].row()
         try:
             addon = self.addons[row_int]
         except IndexError:
+            self._deactivate_single_addon_button()
             return
         self.form.viewPage.setEnabled(addon.ankiweb_id() is not None)
         self.form.config.setEnabled(
