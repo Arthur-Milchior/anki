@@ -66,7 +66,7 @@ fn write_order(sql: &mut String, kind: &SortKind, reverse: bool) -> Result<()> {
         SortKind::NoteField => "n.sfld collate nocase asc, c.ord asc",
         SortKind::CardMod => "c.mod asc",
         SortKind::CardReps => "c.reps asc",
-        SortKind::CardDue => "c.type asc, c.due asc",
+        SortKind::CardDue => "c.type asc, c.due asc, c.ord asc",
         SortKind::CardEase => {
             tmp_str = format!("c.type = {} asc, c.factor asc", CardType::New as i8);
             &tmp_str
