@@ -127,7 +127,7 @@ class DeckManager:
             # child of an existing deck then it needs to be renamed
             deck = self.get(did)
             if "::" in deck["name"]:
-                base = deck["name"].split("::")[-1]
+                base = self._basename(deck["name"])
                 suffix = ""
                 while True:
                     # find an unused name
@@ -295,8 +295,9 @@ class DeckManager:
     def _path(name: str) -> Any:
         return name.split("::")
 
-    def _basename(self, name: str) -> Any:
-        return self._path(name)[-1]
+    @classmethod
+    def _basename(cls, name: str) -> Any:
+        return cls._path(name)[-1]
 
     def _ensureParents(self, name: str) -> Any:
         "Ensure parents exist, and return name with case matching parents."
