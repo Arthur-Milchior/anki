@@ -454,7 +454,7 @@ class DeckManager:
 
     def _checkDeckTree(self) -> None:
         decks = self.col.decks.all()
-        decks.sort(key=operator.itemgetter("name"))
+        decks.sort(key=lambda deck: self._path(deck["name"]))
         names: Set[str] = set()
 
         for deck in decks:
