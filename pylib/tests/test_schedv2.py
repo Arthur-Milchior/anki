@@ -36,14 +36,14 @@ def test_basics():
 def test_new():
     d = getEmptyCol()
     d.reset()
-    assert d.sched.newCount == 0
+    assert d.sched.counts()[0] == 0
     # add a note
     f = d.newNote()
     f["Front"] = "one"
     f["Back"] = "two"
     d.addNote(f)
     d.reset()
-    assert d.sched.newCount == 1
+    assert d.sched.counts()[0] == 1
     # fetch it
     c = d.sched.getCard()
     assert c
@@ -94,7 +94,7 @@ def test_newLimits():
     d.decks.setConf(d.decks.get(g2), c2)
     d.reset()
     # both confs have defaulted to a limit of 20
-    assert d.sched.newCount == 20
+    assert d.sched.counts()[0] == 20
     # first card we get comes from parent
     c = d.sched.getCard()
     assert c.did == 1
@@ -103,13 +103,13 @@ def test_newLimits():
     conf1["new"]["perDay"] = 10
     d.decks.save(conf1)
     d.reset()
-    assert d.sched.newCount == 10
+    assert d.sched.counts()[0] == 10
     # if we limit child to 4, we should get 9
     conf2 = d.decks.confForDid(g2)
     conf2["new"]["perDay"] = 4
     d.decks.save(conf2)
     d.reset()
-    assert d.sched.newCount == 9
+    assert d.sched.counts()[0] == 9
 
 
 def test_newBoxes():

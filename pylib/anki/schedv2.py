@@ -35,6 +35,8 @@ class Scheduler:
     haveCustomStudy = True
     _burySiblingsOnAnswer = True
     revCount: int
+    """Whether reset should be done before accessing values"""
+    _haveQueues: bool
 
     def __init__(self, col: anki.storage._Collection) -> None:
         self.col = col.weakref()
@@ -61,6 +63,9 @@ class Scheduler:
             card.startTimer()
             return card
         return None
+
+    def planifyReset(self):
+        self._haveQueues = False
 
     def reset(self) -> None:
         self._updateCutoff()
@@ -129,6 +134,8 @@ class Scheduler:
             self._removeFromFiltered(card)
 
     def counts(self, card: Optional[Card] = None) -> Tuple[int, int, int]:
+        if not self._haveQueues:
+            self.reset()
         counts = [self.newCount, self.lrnCount, self.revCount]
         if card:
             idx = self.countIdx(card)

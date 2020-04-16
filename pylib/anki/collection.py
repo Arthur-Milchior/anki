@@ -299,7 +299,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?""",
 
     def reset(self) -> None:
         "Rebuild the queue and reload data after DB modified."
-        self.sched.reset()
+        self.sched.planifyReset()
 
     # Deletion logging
     ##########################################################################

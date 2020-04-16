@@ -982,7 +982,7 @@ title="%s" %s>%s</button>""" % (
         cid = self.col.undo()
         if cid and self.state == "review":
             card = self.col.getCard(cid)
-            self.col.sched.reset()
+            self.col.reset()
             self.reviewer.cardQueue.append(card)
             self.reviewer.nextCard()
             gui_hooks.review_did_undo(cid)

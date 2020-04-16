@@ -84,6 +84,8 @@ class Scheduler(V2):
         card.flush()
 
     def counts(self, card: Optional[Card] = None) -> Tuple[int, int, int]:
+        if not self._haveQueues:
+            self.reset()
         counts = [self.newCount, self.lrnCount, self.revCount]
         if card:
             idx = self.countIdx(card)
