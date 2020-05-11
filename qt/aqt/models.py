@@ -48,19 +48,19 @@ class Models(QDialog):
         self.model = None
         box = self.form.buttonBox
         t = QDialogButtonBox.ActionRole
-        b = box.addButton(_("Add"), t)
-        qconnect(b.clicked, self.onAdd)
-        b = box.addButton(_("Rename"), t)
-        qconnect(b.clicked, self.onRename)
-        b = box.addButton(_("Delete"), t)
-        qconnect(b.clicked, self.onDelete)
+        addButton = box.addButton(_("Add"), t)
+        qconnect(addButton.clicked, self.onAdd)
+        renameButton = box.addButton(_("Rename"), t)
+        qconnect(renameButton.clicked, self.onRename)
+        deleteButton = box.addButton(_("Delete"), t)
+        qconnect(deleteButton.clicked, self.onDelete)
         if self.fromMain:
-            b = box.addButton(_("Fields..."), t)
-            qconnect(b.clicked, self.onFields)
-            b = box.addButton(_("Cards..."), t)
-            qconnect(b.clicked, self.onCards)
-        b = box.addButton(_("Options..."), t)
-        qconnect(b.clicked, self.onAdvanced)
+            button = box.addButton(_("Fields..."), t)
+            qconnect(button.clicked, self.onFields)
+            button = box.addButton(_("Cards..."), t)
+            qconnect(button.clicked, self.onCards)
+        button = box.addButton(_("Options..."), t)
+        qconnect(button.clicked, self.onAdvanced)
         qconnect(self.form.modelsList.itemDoubleClicked, self.onRename)
 
         def on_done(fut):

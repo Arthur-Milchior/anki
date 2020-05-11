@@ -41,13 +41,13 @@ def intTime(scale: int = 1) -> int:
 
 def fmtPercentage(float_value, point=1) -> str:
     "Return float with percentage sign"
-    fmt = "%" + "0.%(b)df" % {"b": point}
+    fmt = "%" + "0.%(point)df" % {"point": point}
     return locale.format_string(fmt, float_value) + "%"
 
 
 def fmtFloat(float_value, point=1) -> str:
     "Return a string with decimal separator according to current locale"
-    fmt = "%" + "0.%(b)df" % {"b": point}
+    fmt = "%" + "0.%(point)df" % {"point": point}
     return locale.format_string(fmt, float_value)
 
 

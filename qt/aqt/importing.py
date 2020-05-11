@@ -99,8 +99,8 @@ class ImportDialog(QDialog):
         self.frm.tagModified.setText(self.mw.pm.profile.get("tagModified", ""))
         self.frm.tagModified.setCol(self.mw.col)
         # import button
-        b = QPushButton(_("Import"))
-        self.frm.buttonBox.addButton(b, QDialogButtonBox.AcceptRole)
+        importButton = QPushButton(_("Import"))
+        self.frm.buttonBox.addButton(importButton, QDialogButtonBox.AcceptRole)
         self.exec_()
 
     def setupOptions(self):

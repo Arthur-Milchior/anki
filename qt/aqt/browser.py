@@ -970,7 +970,7 @@ QTableView {{ gridline-color: {grid} }}
             a = menu.addAction(name)
             a.setCheckable(True)
             a.setChecked(type in self.model.activeCols)
-            qconnect(a.toggled, lambda b, type=type: self.toggleField(type))
+            qconnect(a.toggled, lambda button, type=type: self.toggleField(type))
         gui_hooks.browser_header_will_show_context_menu(self, menu)
         menu.exec_(gpos)
 
@@ -1988,16 +1988,16 @@ update cards set usn=?, mod=?, did=? where id in """
         self.mw.progress.start()
         res = self.mw.col.findDupes(fname, search)
         if not self._dupesButton:
-            self._dupesButton = b = frm.buttonBox.addButton(
+            self._dupesButton = frm.buttonBox.addButton(
                 _("Tag Duplicates"), QDialogButtonBox.ActionRole
             )
-            qconnect(b.clicked, lambda: self._onTagDupes(res))
+            qconnect(self._dupesButton.clicked, lambda: self._onTagDupes(res))
         report_html = ""
         groups = len(res)
         notes = sum(len(r[1]) for r in res)
         part1 = ngettext("%d group", "%d groups", groups) % groups
         part2 = ngettext("%d note", "%d notes", notes) % notes
-        report_html += _("Found %(a)s across %(b)s.") % dict(a=part1, b=part2)
+        report_html += _("Found %(a)s across %(part2)s.") % dict(a=part1, part2=part2)
         report_html += "<p><ol>"
         for val, nids in res:
             report_html += (

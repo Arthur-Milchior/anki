@@ -40,14 +40,14 @@ class StudyDeck(QDialog):
                 self.form.buttonBox.button(QDialogButtonBox.Cancel)
             )
         if buttons:
-            for b in buttons:
-                self.form.buttonBox.addButton(b, QDialogButtonBox.ActionRole)
+            for button in buttons:
+                self.form.buttonBox.addButton(button, QDialogButtonBox.ActionRole)
         else:
-            b = QPushButton(_("Add"))
-            b.setShortcut(QKeySequence("Ctrl+N"))
-            b.setToolTip(shortcut(_("Add New Deck (Ctrl+N)")))
-            self.form.buttonBox.addButton(b, QDialogButtonBox.ActionRole)
-            qconnect(b.clicked, self.onAddDeck)
+            button = QPushButton(_("Add"))
+            button.setShortcut(QKeySequence("Ctrl+N"))
+            button.setToolTip(shortcut(_("Add New Deck (Ctrl+N)")))
+            self.form.buttonBox.addButton(button, QDialogButtonBox.ActionRole)
+            qconnect(button.clicked, self.onAddDeck)
         if title:
             self.setWindowTitle(title)
         if not names:
