@@ -563,12 +563,12 @@ class CardLayout(QDialog):
         self.redraw_everything()
 
     def _newCardName(self):
-        n = len(self.templates) + 1
+        cardUserIndex = len(self.templates) + 1
         while 1:
-            name = _("Card %d") % n
+            name = _("Card %d") % cardUserIndex
             if name not in [t["name"] for t in self.templates]:
                 break
-            n += 1
+            cardUserIndex += 1
         return name
 
     def onAddCard(self):
