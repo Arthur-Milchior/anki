@@ -273,16 +273,16 @@ details have been forgotten."""
         self.db.commit()
 
     def remove(self, name):
-        p = self.profileFolder()
-        if os.path.exists(p):
-            send2trash(p)
+        profileFolder = self.profileFolder()
+        if os.path.exists(profileFolder):
+            send2trash(profileFolder)
         self.db.execute("delete from profiles where name = ?", name)
         self.db.commit()
 
     def trashCollection(self):
-        p = self.collectionPath()
-        if os.path.exists(p):
-            send2trash(p)
+        collectionPath = self.collectionPath()
+        if os.path.exists(collectionPath):
+            send2trash(collectionPath)
 
     def rename(self, name):
         oldName = self.name
