@@ -506,11 +506,11 @@ create table if not exists profiles
         # find index
         idx = None
         en = None
-        for c, (name, code) in enumerate(anki.lang.langs):
+        for index, (name, code) in enumerate(anki.lang.langs):
             if code == "en_US":
-                en = c
+                en = index
             if code == lang:
-                idx = c
+                idx = index
         # if the system language isn't available, revert to english
         if idx is None:
             idx = en

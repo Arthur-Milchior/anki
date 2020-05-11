@@ -1490,8 +1490,8 @@ will be lost. Continue?"""
             self._output += traceback.format_exc()
         self._captureOutput(False)
         buf = ""
-        for c, line in enumerate(text.strip().split("\n")):
-            if c == 0:
+        for index, line in enumerate(text.strip().split("\n")):
+            if index == 0:
                 buf += ">>> %s\n" % line
             else:
                 buf += "... %s\n" % line

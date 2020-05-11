@@ -1652,10 +1652,10 @@ usn=?,mod=?,factor=? where id=?""",
         due = {}
         if shuffle:
             random.shuffle(nids)
-        for c, nid in enumerate(nids):
-            due[nid] = start + c * step
+        for index, nid in enumerate(nids):
+            due[nid] = start + index * step
         # pylint: disable=undefined-loop-variable
-        high = start + c * step
+        high = start + index * step
         # shift?
         if shift:
             low = self.col.db.scalar(

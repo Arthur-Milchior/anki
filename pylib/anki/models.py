@@ -429,8 +429,8 @@ and notes.mid = ? and cards.ord = ?""",
             for old, new in list(map.items()):
                 newflds[new] = flds[old]
             flds = []
-            for c in range(nfields):
-                flds.append(newflds.get(c, ""))
+            for index in range(nfields):
+                flds.append(newflds.get(index, ""))
             flds = joinFields(flds)
             d.append((flds, newModel["id"], intTime(), self.col.usn(), nid,))
         self.col.db.executemany(
