@@ -100,7 +100,9 @@ class DialogManager:
         self._dialogs[name] = [self._dialogs[name][0], None]
 
     def allClosed(self):
-        return not any(x[1] for x in self._dialogs.values())
+        return not any(
+            windowInstance for (windowClass, windowInstance) in self._dialogs.values()
+        )
 
     def closeAll(self, onsuccess: Callable[[], None]) -> Optional[bool]:
         # can we close immediately?
