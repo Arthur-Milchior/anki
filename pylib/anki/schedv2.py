@@ -1601,9 +1601,16 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
         today = self.today
         mod = intTime()
         for id in ids:
-            r = random.randint(imin, imax)
+            randValue = random.randint(imin, imax)
             cardData.append(
-                (max(1, r), r + today, self.col.usn(), mod, STARTING_FACTOR, id,)
+                (
+                    max(1, randValue),
+                    randValue + today,
+                    self.col.usn(),
+                    mod,
+                    STARTING_FACTOR,
+                    id,
+                )
             )
         self.remFromDyn(ids)
         self.col.db.executemany(
