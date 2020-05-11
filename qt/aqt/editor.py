@@ -921,7 +921,7 @@ to a cloze type first, via 'Notes>Change Note Type'"""
     ######################################################################
 
     def onAdvanced(self):
-        m = QMenu(self.mw)
+        menu = QMenu(self.mw)
 
         for text, handler, shortcut in (
             (_("MathJax inline"), self.insertMathjaxInline, "Ctrl+M, M"),
@@ -932,13 +932,13 @@ to a cloze type first, via 'Notes>Change Note Type'"""
             (_("LaTeX math env."), self.insertLatexMathEnv, "Ctrl+T, M"),
             (_("Edit HTML"), self.onHtmlEdit, "Ctrl+Shift+X"),
         ):
-            a = m.addAction(text)
+            a = menu.addAction(text)
             qconnect(a.triggered, handler)
             a.setShortcut(QKeySequence(shortcut))
 
-        qtMenuShortcutWorkaround(m)
+        qtMenuShortcutWorkaround(menu)
 
-        m.exec_(QCursor.pos())
+        menu.exec_(QCursor.pos())
 
     # LaTeX
     ######################################################################
@@ -1166,15 +1166,15 @@ class EditorWebView(AnkiWebView):
         clip.setMimeData(mime)
 
     def contextMenuEvent(self, evt: QContextMenuEvent) -> None:
-        m = QMenu(self)
-        a = m.addAction(_("Cut"))
+        menu = QMenu(self)
+        a = menu.addAction(_("Cut"))
         qconnect(a.triggered, self.onCut)
-        a = m.addAction(_("Copy"))
+        a = menu.addAction(_("Copy"))
         qconnect(a.triggered, self.onCopy)
-        a = m.addAction(_("Paste"))
+        a = menu.addAction(_("Paste"))
         qconnect(a.triggered, self.onPaste)
-        gui_hooks.editor_will_show_context_menu(self, m)
-        m.popup(QCursor.pos())
+        gui_hooks.editor_will_show_context_menu(self, menu)
+        menu.popup(QCursor.pos())
 
 
 # QFont returns "Kozuka Gothic Pro L" but WebEngine expects "Kozuka Gothic Pro Light"

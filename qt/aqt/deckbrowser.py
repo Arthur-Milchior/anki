@@ -232,17 +232,17 @@ where id > ?""",
     ##########################################################################
 
     def _showOptions(self, did: str) -> None:
-        m = QMenu(self.mw)
-        a = m.addAction(_("Rename"))
+        menu = QMenu(self.mw)
+        a = menu.addAction(_("Rename"))
         qconnect(a.triggered, lambda b, did=did: self._rename(int(did)))
-        a = m.addAction(_("Options"))
+        a = menu.addAction(_("Options"))
         qconnect(a.triggered, lambda b, did=did: self._options(did))
-        a = m.addAction(_("Export"))
+        a = menu.addAction(_("Export"))
         qconnect(a.triggered, lambda b, did=did: self._export(did))
-        a = m.addAction(_("Delete"))
+        a = menu.addAction(_("Delete"))
         qconnect(a.triggered, lambda b, did=did: self._delete(int(did)))
-        gui_hooks.deck_browser_will_show_options_menu(m, int(did))
-        m.exec_(QCursor.pos())
+        gui_hooks.deck_browser_will_show_options_menu(menu, int(did))
+        menu.exec_(QCursor.pos())
 
     def _export(self, did):
         self.mw.onExport(did=did)

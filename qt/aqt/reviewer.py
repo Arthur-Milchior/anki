@@ -722,20 +722,20 @@ time = %(time)d;
 
     def showContextMenu(self) -> None:
         opts = self._contextMenu()
-        m = QMenu(self.mw)
-        self._addMenuItems(m, opts)
+        menu = QMenu(self.mw)
+        self._addMenuItems(menu, opts)
 
-        gui_hooks.reviewer_will_show_context_menu(self, m)
-        qtMenuShortcutWorkaround(m)
-        m.exec_(QCursor.pos())
+        gui_hooks.reviewer_will_show_context_menu(self, menu)
+        qtMenuShortcutWorkaround(menu)
+        menu.exec_(QCursor.pos())
 
-    def _addMenuItems(self, m, rows) -> None:
+    def _addMenuItems(self, menu, rows) -> None:
         for row in rows:
             if not row:
-                m.addSeparator()
+                menu.addSeparator()
                 continue
             if len(row) == 2:
-                subm = m.addMenu(row[0])
+                subm = menu.addMenu(row[0])
                 self._addMenuItems(subm, row[1])
                 qtMenuShortcutWorkaround(subm)
                 continue
@@ -744,7 +744,7 @@ time = %(time)d;
             else:
                 label, scut, func = row
                 opts = {}
-            a = m.addAction(label)
+            a = menu.addAction(label)
             if scut:
                 a.setShortcut(QKeySequence(scut))
             if opts.get("checked"):
