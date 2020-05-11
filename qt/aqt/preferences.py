@@ -49,7 +49,7 @@ class Preferences(QDialog):
     ######################################################################
 
     def setupLang(self):
-        self.form.lang.addItems([x[0] for x in anki.lang.langs])
+        self.form.lang.addItems([lang for (lang, lang_shorcut) in anki.lang.langs])
         self.form.lang.setCurrentIndex(self.langIdx())
         qconnect(self.form.lang.currentIndexChanged, self.onLangIdxChanged)
 
