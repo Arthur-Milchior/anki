@@ -649,26 +649,26 @@ adjust the template manually to switch the question and answer."""
 
     def onBrowserDisplay(self):
         d = QDialog()
-        f = aqt.forms.browserdisp.Ui_Dialog()
-        f.setupUi(d)
+        dialog = aqt.forms.browserdisp.Ui_Dialog()
+        dialog.setupUi(d)
         t = self.current_template()
-        f.qfmt.setText(t.get("bqfmt", ""))
-        f.afmt.setText(t.get("bafmt", ""))
+        dialog.qfmt.setText(t.get("bqfmt", ""))
+        dialog.afmt.setText(t.get("bafmt", ""))
         if t.get("bfont"):
-            f.overrideFont.setChecked(True)
-        f.font.setCurrentFont(QFont(t.get("bfont", "Arial")))
-        f.fontSize.setValue(t.get("bsize", 12))
-        qconnect(f.buttonBox.accepted, lambda: self.onBrowserDisplayOk(f))
+            dialog.overrideFont.setChecked(True)
+        dialog.font.setCurrentFont(QFont(t.get("bfont", "Arial")))
+        dialog.fontSize.setValue(t.get("bsize", 12))
+        qconnect(dialog.buttonBox.accepted, lambda: self.onBrowserDisplayOk(dialog))
         d.exec_()
 
-    def onBrowserDisplayOk(self, f):
+    def onBrowserDisplayOk(self, dialog):
         t = self.current_template()
         self.change_tracker.mark_basic()
-        t["bqfmt"] = f.qfmt.text().strip()
-        t["bafmt"] = f.afmt.text().strip()
-        if f.overrideFont.isChecked():
-            t["bfont"] = f.font.currentFont().family()
-            t["bsize"] = f.fontSize.value()
+        t["bqfmt"] = dialog.qfmt.text().strip()
+        t["bafmt"] = dialog.afmt.text().strip()
+        if dialog.overrideFont.isChecked():
+            t["bfont"] = dialog.font.currentFont().family()
+            t["bsize"] = dialog.fontSize.value()
         else:
             for key in ("bfont", "bsize"):
                 if key in t:
