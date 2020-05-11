@@ -249,11 +249,11 @@ class GetTextDialog(QDialog):
         v.addWidget(self.qlabel)
         if not edit:
             edit = QLineEdit()
-        self.l = edit
+        self.edit = edit
         if default:
-            self.l.setText(default)
-            self.l.selectAll()
-        v.addWidget(self.l)
+            self.edit.setText(default)
+            self.edit.selectAll()
+        v.addWidget(self.edit)
         buts = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
         if help:
             buts |= QDialogButtonBox.Help
