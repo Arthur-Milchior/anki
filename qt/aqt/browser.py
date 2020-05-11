@@ -2274,12 +2274,12 @@ class ChangeModel(QDialog):
             # set to 'nothing'
             return
         # find another combo with same index
-        for c in combos:
-            if c == cb:
+        for combo in combos:
+            if combo == cb:
                 continue
-            if c.currentIndex() == i:
+            if combo.currentIndex() == i:
                 self.pauseUpdate = True
-                c.setCurrentIndex(indices[cb])
+                combo.setCurrentIndex(indices[cb])
                 self.pauseUpdate = False
                 break
         indices[cb] = i
