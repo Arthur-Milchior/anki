@@ -1379,18 +1379,16 @@ will be lost. Continue?"""
         font.setPointSize(frm.text.font().pointSize() + 1)
         frm.text.setFont(font)
         frm.log.setFont(font)
-        s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+return"), self.debugDiag)
-        qconnect(s.activated, lambda: self.onDebugRet(frm))
-        s = self.debugDiagShort = QShortcut(
+        self.debugDiagShort = QShortcut(QKeySequence("ctrl+return"), self.debugDiag)
+        qconnect(self.debugDiagShort.activated, lambda: self.onDebugRet(frm))
+        self.debugDiagShort = QShortcut(
             QKeySequence("ctrl+shift+return"), self.debugDiag
         )
-        qconnect(s.activated, lambda: self.onDebugPrint(frm))
-        s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+l"), self.debugDiag)
-        qconnect(s.activated, frm.log.clear)
-        s = self.debugDiagShort = QShortcut(
-            QKeySequence("ctrl+shift+l"), self.debugDiag
-        )
-        qconnect(s.activated, frm.text.clear)
+        qconnect(self.debugDiagShort.activated, lambda: self.onDebugPrint(frm))
+        self.debugDiagShort = QShortcut(QKeySequence("ctrl+l"), self.debugDiag)
+        qconnect(self.debugDiagShort.activated, frm.log.clear)
+        self.debugDiagShort = QShortcut(QKeySequence("ctrl+shift+l"), self.debugDiag)
+        qconnect(self.debugDiagShort.activated, frm.text.clear)
 
         def addContextMenu(ev: QCloseEvent, name: str) -> None:
             ev.accept()
