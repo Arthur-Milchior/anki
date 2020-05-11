@@ -125,12 +125,12 @@ class DataModel(QAbstractTableModel):
                 return
             row = index.row()
             card = self.getCard(index)
-            t = card.template()
-            if not t.get("bfont"):
+            template = card.template()
+            if not template.get("bfont"):
                 return
             font = QFont()
-            font.setFamily(t.get("bfont", "arial"))
-            font.setPixelSize(t.get("bsize", 12))
+            font.setFamily(template.get("bfont", "arial"))
+            font.setPixelSize(template.get("bsize", 12))
             return font
 
         elif role == Qt.TextAlignmentRole:
@@ -685,8 +685,8 @@ class Browser(QMainWindow):
         # to pick a line height big enough for any card template
         curmax = 16
         for model in self.col.models.all():
-            for t in model["tmpls"]:
-                bsize = t.get("bsize", 0)
+            for template in model["tmpls"]:
+                bsize = template.get("bsize", 0)
                 if bsize > curmax:
                     curmax = bsize
         self.form.tableView.verticalHeader().setDefaultSectionSize(curmax + 6)

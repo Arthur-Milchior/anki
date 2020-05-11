@@ -371,13 +371,13 @@ class CardLayout(QDialog):
         return self.templates[self.ord]
 
     def fill_fields_from_template(self):
-        t = self.current_template()
+        template = self.current_template()
         self.ignore_change_signals = True
 
         if self.current_editor_index == 0:
-            text = t["qfmt"]
+            textemplate = template["qfmt"]
         elif self.current_editor_index == 1:
-            text = t["afmt"]
+            text = template["afmt"]
         else:
             text = self.model["css"]
 
@@ -587,11 +587,11 @@ class CardLayout(QDialog):
         if not self.change_tracker.mark_schema():
             return
         name = self._newCardName()
-        t = self.mm.newTemplate(name)
+        template = self.mm.newTemplate(name)
         old = self.current_template()
-        t["qfmt"] = old["qfmt"]
-        t["afmt"] = old["afmt"]
-        self.mm.add_template(self.model, t)
+        template["qfmt"] = old["qfmt"]
+        template["afmt"] = old["afmt"]
+        self.mm.add_template(self.model, template)
         self.ord = len(self.templates) - 1
         self.redraw_everything()
 
@@ -634,8 +634,8 @@ adjust the template manually to switch the question and answer."""
 
             menu.addSeparator()
 
-            t = self.current_template()
-            if t["did"]:
+            template = self.current_template()
+            if template["did"]:
                 s = _(" (on)")
             else:
                 s = _(" (off)")
@@ -651,33 +651,33 @@ adjust the template manually to switch the question and answer."""
         d = QDialog()
         dialog = aqt.forms.browserdisp.Ui_Dialog()
         dialog.setupUi(d)
-        t = self.current_template()
-        dialog.qfmt.setText(t.get("bqfmt", ""))
-        dialog.afmt.setText(t.get("bafmt", ""))
-        if t.get("bfont"):
+        template = self.current_template()
+        dialog.qfmt.setText(template.get("bqfmt", ""))
+        dialog.afmt.setText(template.get("bafmt", ""))
+        if template.get("bfont"):
             dialog.overrideFont.setChecked(True)
-        dialog.font.setCurrentFont(QFont(t.get("bfont", "Arial")))
-        dialog.fontSize.setValue(t.get("bsize", 12))
+        dialog.font.setCurrentFont(QFont(template.get("bfont", "Arial")))
+        dialog.fontSize.setValue(template.get("bsize", 12))
         qconnect(dialog.buttonBox.accepted, lambda: self.onBrowserDisplayOk(dialog))
         d.exec_()
 
     def onBrowserDisplayOk(self, dialog):
-        t = self.current_template()
+        template = self.current_template()
         self.change_tracker.mark_basic()
-        t["bqfmt"] = dialog.qfmt.text().strip()
-        t["bafmt"] = dialog.afmt.text().strip()
+        template["bqfmt"] = dialog.qfmt.text().strip()
+        template["bafmt"] = dialog.afmt.text().strip()
         if dialog.overrideFont.isChecked():
-            t["bfont"] = dialog.font.currentFont().family()
-            t["bsize"] = dialog.fontSize.value()
+            template["bfont"] = dialog.font.currentFont().family()
+            template["bsize"] = dialog.fontSize.value()
         else:
             for key in ("bfont", "bsize"):
-                if key in t:
-                    del t[key]
+                if key in template:
+                    del template[key]
 
     def onTargetDeck(self):
         from aqt.tagedit import TagEdit
 
-        t = self.current_template()
+        template = self.current_template()
         d = QDialog(self)
         d.setWindowTitle("Anki")
         d.setMinimumWidth(400)
@@ -694,8 +694,8 @@ Enter deck to place new %s cards in, or leave blank:"""
         te = TagEdit(d, type=1)
         te.setCol(self.col)
         l.addWidget(te)
-        if t["did"]:
-            te.setText(self.col.decks.get(t["did"])["name"])
+        if template["did"]:
+            te.setText(self.col.decks.get(template["did"])["name"])
             te.selectAll()
         bb = QDialogButtonBox(QDialogButtonBox.Close)
         qconnect(bb.rejected, d.close)
@@ -704,9 +704,9 @@ Enter deck to place new %s cards in, or leave blank:"""
         d.exec_()
         self.change_tracker.mark_basic()
         if not te.text().strip():
-            t["did"] = None
+            template["did"] = None
         else:
-            t["did"] = self.col.decks.id(te.text())
+            template["did"] = self.col.decks.id(te.text())
 
     def onAddField(self):
         diag = QDialog(self)

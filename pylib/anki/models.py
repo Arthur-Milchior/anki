@@ -483,8 +483,8 @@ and notes.mid = ? and cards.ord = ?""",
         s = ""
         for fieldType in model["flds"]:
             s += fieldType["name"]
-        for t in model["tmpls"]:
-            s += t["name"]
+        for template in model["tmpls"]:
+            s += template["name"]
         return checksum(s)
 
     # Cloze
