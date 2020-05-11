@@ -455,8 +455,8 @@ and due <= ? limit ?)""",
     def _deckRevLimitSingle(self, d: Dict[str, Any]) -> int:  # type: ignore[override]
         if d["dyn"]:
             return self.reportLimit
-        c = self.col.decks.confForDid(d["id"])
-        limit = max(0, c["rev"]["perDay"] - self.counts_for_deck_today(d["id"]).review)
+        conf = self.col.decks.confForDid(d["id"])
+        limit = max(0, conf["rev"]["perDay"] - self.counts_for_deck_today(d["id"]).review)
         return hooks.scheduler_review_limit_for_single_deck(limit, d)
 
     def _revForDeck(self, did: int, lim: int) -> int:  # type: ignore[override]

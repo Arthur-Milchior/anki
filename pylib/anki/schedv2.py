@@ -389,8 +389,8 @@ select count() from
         "Limit for deck without parent limits."
         if deck["dyn"]:
             return self.dynReportLimit
-        c = self.col.decks.confForDid(deck["id"])
-        limit = max(0, c["new"]["perDay"] - self.counts_for_deck_today(deck["id"]).new)
+        conf = self.col.decks.confForDid(deck["id"])
+        limit = max(0, conf["new"]["perDay"] - self.counts_for_deck_today(deck["id"]).new)
         return hooks.scheduler_new_limit_for_single_deck(limit, deck)
 
     def totalNewForCurrentDeck(self) -> int:
@@ -782,8 +782,8 @@ and due <= ? limit ?)""",
         if d["dyn"]:
             return self.dynReportLimit
 
-        c = self.col.decks.confForDid(d["id"])
-        lim = max(0, c["rev"]["perDay"] - self.counts_for_deck_today(d["id"]).review)
+        conf = self.col.decks.confForDid(d["id"])
+        lim = max(0, conf["rev"]["perDay"] - self.counts_for_deck_today(d["id"]).review)
 
         if parentLimit is not None:
             lim = min(parentLimit, lim)
