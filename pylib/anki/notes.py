@@ -134,12 +134,12 @@ class Note:
         self.tags = self.col.tags.split(tags)
 
     def delTag(self, tag: str) -> None:
-        rem = []
+        rems = []
         for tag in self.tags:
             if tag.lower() == tag.lower():
-                rem.append(tag)
-        for r in rem:
-            self.tags.remove(r)
+                rems.append(tag)
+        for rem in rems:
+            self.tags.remove(rem)
 
     def addTag(self, tag: str) -> None:
         # duplicates will be stripped on save
