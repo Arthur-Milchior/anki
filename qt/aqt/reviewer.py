@@ -626,20 +626,20 @@ time = %(time)d;
     def _answerButtons(self) -> str:
         default = self._defaultEase()
 
-        def but(i, label):
-            if i == default:
+        def but(ease, label):
+            if ease == default:
                 extra = "id=defease"
             else:
                 extra = ""
-            due = self._buttonTime(i)
+            due = self._buttonTime(ease)
             return """
 <td align=center>%s<button %s title="%s" data-ease="%s" onclick='pycmd("ease%d");'>\
 %s</button></td>""" % (
                 due,
                 extra,
-                _("Shortcut key: %s") % i,
-                i,
-                i,
+                _("Shortcut key: %s") % ease,
+                ease,
+                ease,
                 label,
             )
 
@@ -651,10 +651,10 @@ time = %(time)d;
 <script>$(function () { $("#defease").focus(); });</script>"""
         return buf + script
 
-    def _buttonTime(self, i: int) -> str:
+    def _buttonTime(self, ease: int) -> str:
         if not self.mw.col.conf["estTimes"]:
             return "<div class=spacer></div>"
-        txt = self.mw.col.sched.nextIvlStr(self.card, i, True) or "&nbsp;"
+        txt = self.mw.col.sched.nextIvlStr(self.card, ease, True) or "&nbsp;"
         return "<span class=nobold>%s</span><br>" % txt
 
     # Leeches
