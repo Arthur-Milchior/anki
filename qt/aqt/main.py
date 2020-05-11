@@ -432,13 +432,13 @@ close the profile or restart Anki."""
         self._checkForUnclosedWidgets()
 
     def _checkForUnclosedWidgets(self) -> None:
-        for w in self.app.topLevelWidgets():
-            if w.isVisible():
+        for topLevelWidget in self.app.topLevelWidgets():
+            if topLevelWidget.isVisible():
                 # windows with this property are safe to close immediately
-                if getattr(w, "silentlyClose", None):
-                    w.close()
+                if getattr(topLevelWidget, "silentlyClose", None):
+                    topLevelWidget.close()
                 else:
-                    print("Window should have been closed: {}".format(w))
+                    print("Window should have been closed: {}".format(topLevelWidget))
 
     def unloadProfileAndExit(self) -> None:
         self.unloadProfile(self.cleanupAndExit)
