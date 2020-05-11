@@ -98,8 +98,8 @@ class AddCards(QDialog):
         if oldNote:
             oldFields = list(oldNote.keys())
             newFields = list(note.keys())
-            for index, f in enumerate(note.model()["flds"]):
-                fieldName = f["name"]
+            for index, fldType in enumerate(note.model()["flds"]):
+                fieldName = fldType["name"]
                 # copy identical fields
                 if fieldName in oldFields:
                     note[fieldName] = oldNote[fieldName]
