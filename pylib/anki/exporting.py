@@ -62,13 +62,12 @@ class Exporter:
 
     def stripHTML(self, text: str) -> str:
         # very basic conversion to text
-        s = text
-        s = re.sub(r"(?i)<(br ?/?|div|p)>", " ", s)
-        s = re.sub(r"\[sound:[^]]+\]", "", s)
-        s = stripHTML(s)
-        s = re.sub(r"[ \n\t]+", " ", s)
-        s = s.strip()
-        return s
+        text = re.sub(r"(?i)<(br ?/?|div|p)>", " ", text)
+        text = re.sub(r"\[sound:[^]]+\]", "", text)
+        text = stripHTML(text)
+        text = re.sub(r"[ \n\t]+", " ", text)
+        text = text.strip()
+        return text
 
     def cardIds(self) -> Any:
         if self.cids is not None:
