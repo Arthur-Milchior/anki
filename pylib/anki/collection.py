@@ -328,7 +328,7 @@ class Collection:
     def _logRem(self, ids: List[int], type: int) -> None:
         self.db.executemany(
             "insert into graves values (%d, ?, %d)" % (self.usn(), type),
-            ([x] for x in ids),
+            ([id] for id in ids),
         )
 
     # Notes
