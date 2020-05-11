@@ -178,10 +178,10 @@ order by due"""
                 self.today + days - 1,
             )
         )
-        for d in range(days):
-            d = self.today + d
-            if d not in daysd:
-                daysd[d] = 0
+        for day in range(days):
+            day = self.today + day
+            if day not in daysd:
+                daysd[day] = 0
         # return in sorted order
         ret = [x[1] for x in sorted(daysd.items())]
         return ret
