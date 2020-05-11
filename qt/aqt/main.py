@@ -246,11 +246,11 @@ class AnkiQt(QMainWindow):
             idx = 0
         f.profiles.setCurrentRow(idx)
 
-    def onProfileRowChange(self, n: int) -> None:
-        if n < 0:
+    def onProfileRowChange(self, profileIndex: int) -> None:
+        if profileIndex < 0:
             # called on .clear()
             return
-        name = self.pm.profiles()[n]
+        name = self.pm.profiles()[profileIndex]
         f = self.profileForm
         self.pm.load(name)
 
