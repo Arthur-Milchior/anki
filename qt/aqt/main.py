@@ -705,7 +705,7 @@ from the profile screen."
             return
         web_context = ResetRequired(self)
         self.web.set_bridge_command(lambda url: self.delayedMaybeReset(), web_context)
-        i = _("Waiting for editing to finish.")
+        waitEditMessage = _("Waiting for editing to finish.")
         refreshButton = self.button("refresh", _("Resume Now"), id="resume")
         self.web.stdHtml(
             """
@@ -715,7 +715,7 @@ from the profile screen."
 %s</div></div></center>
 <script>$('#resume').focus()</script>
 """
-            % (i, refreshButton),
+            % (waitEditMessage, refreshButton),
             context=web_context,
         )
         self.bottomWeb.hide()
