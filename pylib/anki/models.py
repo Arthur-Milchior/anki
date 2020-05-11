@@ -426,7 +426,7 @@ and notes.mid = ? and cards.ord = ?""",
     def _changeNotes(
         self, nids: List[int], newModel: NoteType, map: Dict[int, Union[None, int]]
     ) -> None:
-        d = []
+        noteData = []
         nfields = len(newModel["flds"])
         for (nid, flds) in self.col.db.execute(
             "select id, flds from notes where id in " + ids2str(nids)
@@ -439,9 +439,9 @@ and notes.mid = ? and cards.ord = ?""",
             for index in range(nfields):
                 flds.append(newflds.get(index, ""))
             flds = joinFields(flds)
-            d.append((flds, newModel["id"], intTime(), self.col.usn(), nid,))
+            noteData.append((flds, newModel["id"], intTime(), self.col.usn(), nid,))
         self.col.db.executemany(
-            "update notes set flds=?,mid=?,mod=?,usn=? where id = ?", d
+            "update notes set flds=?,mid=?,mod=?,usn=? where id = ?", noteData
         )
 
     def _changeCards(
