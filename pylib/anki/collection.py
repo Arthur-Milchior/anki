@@ -545,18 +545,18 @@ class Collection:
     def _undoReview(self) -> Any:
         data = self._undo[2]
         wasLeech = self._undo[3]
-        c = data.pop()  # pytype: disable=attribute-error
+        card = data.pop()  # pytype: disable=attribute-error
         if not data:
             self.clearUndo()
         # remove leech tag if it didn't have it before
-        if not wasLeech and c.note().hasTag("leech"):
-            c.note().delTag("leech")
-            c.note().flush()
+        if not wasLeech and card.note().hasTag("leech"):
+            card.note().delTag("leech")
+            card.note().flush()
         # write old data
-        c.flush()
+        card.flush()
         # and delete revlog entry
         last = self.db.scalar(
-            "select id from revlog where cid = ? " "order by id desc limit 1", c.id
+            "select id from revlog where cid = ? " "order by id desc limit 1", card.id
         )
         self.db.execute("delete from revlog where id = ?", last)
         # restore any siblings
@@ -564,14 +564,14 @@ class Collection:
             "update cards set queue=type,mod=?,usn=? where queue=-2 and nid=?",
             intTime(),
             self.usn(),
-            c.nid,
+            card.nid,
         )
         # and finally, update daily counts
-        n = 1 if c.queue in (3, 4) else c.queue
+        n = 1 if card.queue in (3, 4) else card.queue
         type = ("new", "lrn", "rev")[n]
-        self.sched._updateStats(c, type, -1)
+        self.sched._updateStats(card, type, -1)
         self.sched.reps -= 1
-        return c.id
+        return card.id
 
     def _markOp(self, name: Optional[str]) -> None:
         "Call via .save()"

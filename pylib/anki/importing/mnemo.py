@@ -75,23 +75,23 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""
             if row[3] == -1:
                 continue
             # add the card
-            c = ForeignCard()
-            c.factor = int(row[5] * 1000)
-            c.reps = row[6]
-            c.lapses = row[7]
+            card = ForeignCard()
+            card.factor = int(row[5] * 1000)
+            card.reps = row[6]
+            card.lapses = row[7]
             # ivl is inferred in mnemosyne
             next, prev = row[3:5]
-            c.ivl = max(1, (next - prev) // 86400)
+            card.ivl = max(1, (next - prev) // 86400)
             # work out how long we've got left
             rem = int((next - time.time()) / 86400)
-            c.due = self.col.sched.today + rem
+            card.due = self.col.sched.today + rem
             # get ord
             m = re.search(r".(\d+)$", row[1])
             assert m
             ord = int(m.group(1)) - 1
             if "cards" not in note:
                 note["cards"] = {}
-            note["cards"][ord] = c
+            note["cards"][ord] = card
         self._addFronts(front)
         total = self.total
         self._addFrontBacks(frontback)
