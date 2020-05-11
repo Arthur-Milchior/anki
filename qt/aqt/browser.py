@@ -1804,7 +1804,7 @@ update cards set usn=?, mod=?, did=? where id in """
     def _selectNotes(self):
         nids = self.selectedNotes()
         # bypass search history
-        self._lastSearchTxt = "nid:" + ",".join([str(x) for x in nids])
+        self._lastSearchTxt = "nid:" + ",".join([str(nid) for nid in nids])
         self.form.searchEdit.lineEdit().setText(self._lastSearchTxt)
         # clear the selection so we don't waste energy preserving it
         tv = self.form.tableView
