@@ -359,14 +359,14 @@ class Reviewer:
             clozeIdx = self.card.ord + 1
             fld = fld.split(":")[1]
         # loop through fields for a match
-        for f in self.card.model()["flds"]:
-            if f["name"] == fld:
-                self.typeCorrect = self.card.note()[f["name"]]
+        for fldType in self.card.model()["flds"]:
+            if fldType["name"] == fld:
+                self.typeCorrect = self.card.note()[fldType["name"]]
                 if clozeIdx:
                     # narrow to cloze
                     self.typeCorrect = self._contentForCloze(self.typeCorrect, clozeIdx)
-                self.typeFont = f["font"]
-                self.typeSize = f["size"]
+                self.typeFont = fldType["font"]
+                self.typeSize = fldType["size"]
                 break
         if not self.typeCorrect:
             if self.typeCorrect is None:
