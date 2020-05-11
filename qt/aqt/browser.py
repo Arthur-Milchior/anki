@@ -2021,7 +2021,8 @@ update cards set usn=?, mod=?, did=? where id in """
         searchHistory = restore_combo_history(frm.search, "findDupesFind")
 
         fields = sorted(
-            anki.find.fieldNames(self.col, downcase=False), key=lambda x: x.lower()
+            anki.find.fieldNames(self.col, downcase=False),
+            key=lambda fieldName: fieldName.lower(),
         )
         frm.fields.addItems(fields)
         restore_combo_index_for_session(frm.fields, fields, "findDupesFields")
