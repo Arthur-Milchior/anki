@@ -470,8 +470,8 @@ create table if not exists profiles
     def _ensureProfile(self):
         "Create a new profile if none exists."
         self.create(_("User 1"))
-        p = os.path.join(self.base, "README.txt")
-        with open(p, "w", encoding="utf8") as file:
+        ReadmePath = os.path.join(self.base, "README.txt")
+        with open(ReadmePath, "w", encoding="utf8") as file:
             file.write(
                 without_unicode_isolation(
                     tr(TR.PROFILES_FOLDER_README, link=appHelpSite + "#startupopts")
