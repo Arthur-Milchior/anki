@@ -345,12 +345,12 @@ def onImport(mw):
 def importFile(mw, file):
     importerClass = None
     done = False
-    for i in importing.Importers:
+    for importer in importing.Importers:
         if done:
             break
-        for mext in re.findall(r"[( ]?\*\.(.+?)[) ]", i[0]):
+        for mext in re.findall(r"[( ]?\*\.(.+?)[) ]", importer[0]):
             if file.endswith("." + mext):
-                importerClass = i[1]
+                importerClass = importer[1]
                 done = True
                 break
     if not importerClass:
