@@ -1212,11 +1212,11 @@ QTableView {{ gridline-color: {grid} }}
         else:
             txt = ""
             items = []
-            for index, a in enumerate(args):
+            for index, arg in enumerate(args):
                 if index % 2 == 0:
-                    txt += a + ":"
+                    txt += arg + ":"
                 else:
-                    txt += a
+                    txt += arg
                     for chr in " 　()":
                         if chr in txt:
                             txt = '"%s"' % txt
