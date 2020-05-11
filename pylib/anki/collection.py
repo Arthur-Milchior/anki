@@ -629,16 +629,16 @@ or mid not in %s limit 1"""
         ):
             return False
         # invalid ords
-        for m in self.models.all():
+        for model in self.models.all():
             # ignore clozes
-            if m["type"] != MODEL_STD:
+            if model["type"] != MODEL_STD:
                 continue
             if self.db.scalar(
                 """
 select 1 from cards where ord not in %s and nid in (
 select id from notes where mid = ?) limit 1"""
-                % ids2str([t["ord"] for t in m["tmpls"]]),
-                m["id"],
+                % ids2str([t["ord"] for t in model["tmpls"]]),
+                model["id"],
             ):
                 return False
         return True

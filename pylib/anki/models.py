@@ -74,17 +74,17 @@ class ModelManager:
 
     def save(
         self,
-        m: NoteType = None,
+        model: NoteType = None,
         # no longer used
         templates: bool = False,
         updateReqs: bool = True,
     ) -> None:
         "Save changes made to provided note type."
-        if not m:
+        if not model:
             print("col.models.save() should be passed the changed notetype")
             return
 
-        self.update(m, preserve_usn=False)
+        self.update(model, preserve_usn=False)
 
     # legacy
     def flush(self) -> None:
@@ -140,15 +140,15 @@ class ModelManager:
 
     def current(self, forDeck: bool = True) -> Any:
         "Get current model."
-        m = self.get(self.col.decks.current().get("mid"))
-        if not forDeck or not m:
-            m = self.get(self.col.conf["curModel"])
-        if m:
-            return m
+        model = self.get(self.col.decks.current().get("mid"))
+        if not forDeck or not model:
+            model = self.get(self.col.conf["curModel"])
+        if model:
+            return model
         return self.get(self.all_names_and_ids()[0].id)
 
-    def setCurrent(self, m: NoteType) -> None:
-        self.col.conf["curModel"] = m["id"]
+    def setCurrent(self, model: NoteType) -> None:
+        self.col.conf["curModel"] = model["id"]
         self.col.setMod()
 
     # Retrieving and creating models
@@ -202,9 +202,9 @@ class ModelManager:
         nt["name"] = name
         return nt
 
-    def rem(self, m: NoteType) -> None:
+    def rem(self, model: NoteType) -> None:
         "Delete model, and all its cards/notes."
-        self.remove(m["id"])
+        self.remove(model["id"])
 
     def remove_all_notetypes(self):
         for nt in self.all_names_and_ids():
@@ -216,23 +216,23 @@ class ModelManager:
         self._remove_from_cache(id)
         self.col.backend.remove_notetype(id)
 
-    def add(self, m: NoteType) -> None:
-        self.save(m)
+    def add(self, model: NoteType) -> None:
+        self.save(model)
 
-    def ensureNameUnique(self, m: NoteType) -> None:
-        existing_id = self.id_for_name(m["name"])
-        if existing_id is not None and existing_id != m["id"]:
-            m["name"] += "-" + checksum(str(time.time()))[:5]
+    def ensureNameUnique(self, model: NoteType) -> None:
+        existing_id = self.id_for_name(model["name"])
+        if existing_id is not None and existing_id != model["id"]:
+            model["name"] += "-" + checksum(str(time.time()))[:5]
 
-    def update(self, m: NoteType, preserve_usn=True) -> None:
+    def update(self, model: NoteType, preserve_usn=True) -> None:
         "Add or update an existing model. Use .save() instead."
-        self._remove_from_cache(m["id"])
-        self.ensureNameUnique(m)
-        m["id"] = self.col.backend.add_or_update_notetype(
-            json=to_json_bytes(m), preserve_usn_and_mtime=preserve_usn
+        self._remove_from_cache(model["id"])
+        self.ensureNameUnique(model)
+        model["id"] = self.col.backend.add_or_update_notetype(
+            json=to_json_bytes(model), preserve_usn_and_mtime=preserve_usn
         )
-        self.setCurrent(m)
-        self._mutate_after_write(m)
+        self.setCurrent(model)
+        self._mutate_after_write(model)
 
     def _mutate_after_write(self, nt: NoteType) -> None:
         # existing code expects the note type to be mutated to reflect
@@ -244,22 +244,24 @@ class ModelManager:
     ##################################################
 
     def nids(self, ntid: int) -> Any:
-        "Note ids for M."
+        "Note ids for MODEL."
         if isinstance(ntid, dict):
             # legacy callers passed in note type
             ntid = ntid["id"]
         return self.col.db.list("select id from notes where mid = ?", ntid)
 
-    def useCount(self, m: NoteType) -> Any:
-        "Number of note using M."
-        return self.col.db.scalar("select count() from notes where mid = ?", m["id"])
+    def useCount(self, model: NoteType) -> Any:
+        "Number of note using MODEL."
+        return self.col.db.scalar(
+            "select count() from notes where mid = ?", model["id"]
+        )
 
     # Copying
     ##################################################
 
-    def copy(self, m: NoteType) -> Any:
+    def copy(self, model: NoteType) -> Any:
         "Copy, save and return."
-        m2 = copy.deepcopy(m)
+        m2 = copy.deepcopy(model)
         m2["name"] = _("%s copy") % m2["name"]
         m2["id"] = 0
         self.add(m2)
@@ -268,15 +270,15 @@ class ModelManager:
     # Fields
     ##################################################
 
-    def fieldMap(self, m: NoteType) -> Dict[str, Tuple[int, Field]]:
+    def fieldMap(self, model: NoteType) -> Dict[str, Tuple[int, Field]]:
         "Mapping of field name -> (ord, field)."
-        return dict((f["name"], (f["ord"], f)) for f in m["flds"])
+        return dict((f["name"], (f["ord"], f)) for f in model["flds"])
 
-    def fieldNames(self, m: NoteType) -> List[str]:
-        return [f["name"] for f in m["flds"]]
+    def fieldNames(self, model: NoteType) -> List[str]:
+        return [f["name"] for f in model["flds"]]
 
-    def sortIdx(self, m: NoteType) -> Any:
-        return m["sortf"]
+    def sortIdx(self, model: NoteType) -> Any:
+        return model["sortf"]
 
     # Adding & changing fields
     ##################################################
@@ -293,22 +295,22 @@ class ModelManager:
         field["ord"] = None
         return field
 
-    def add_field(self, m: NoteType, field: Field) -> None:
+    def add_field(self, model: NoteType, field: Field) -> None:
         "Modifies schema."
-        m["flds"].append(field)
+        model["flds"].append(field)
 
-    def remove_field(self, m: NoteType, field: Field) -> None:
+    def remove_field(self, model: NoteType, field: Field) -> None:
         "Modifies schema."
-        m["flds"].remove(field)
+        model["flds"].remove(field)
 
-    def reposition_field(self, m: NoteType, field: Field, idx: int) -> None:
+    def reposition_field(self, model: NoteType, field: Field, idx: int) -> None:
         "Modifies schema."
-        oldidx = m["flds"].index(field)
+        oldidx = model["flds"].index(field)
         if oldidx == idx:
             return
 
-        m["flds"].remove(field)
-        m["flds"].insert(idx, field)
+        model["flds"].remove(field)
+        model["flds"].insert(idx, field)
 
     def rename_field(self, m: NoteType, field: Field, new_name: str) -> None:
         assert field in m["flds"]
@@ -328,17 +330,17 @@ class ModelManager:
         if m["id"]:
             self.save(m)
 
-    def remField(self, m: NoteType, field: Field) -> None:
-        self.remove_field(m, field)
-        self.save(m)
+    def remField(self, model: NoteType, field: Field) -> None:
+        self.remove_field(model, field)
+        self.save(model)
 
-    def moveField(self, m: NoteType, field: Field, idx: int) -> None:
-        self.reposition_field(m, field, idx)
-        self.save(m)
+    def moveField(self, model: NoteType, field: Field, idx: int) -> None:
+        self.reposition_field(model, field, idx)
+        self.save(model)
 
-    def renameField(self, m: NoteType, field: Field, newName: str) -> None:
-        self.rename_field(m, field, newName)
-        self.save(m)
+    def renameField(self, model: NoteType, field: Field, newName: str) -> None:
+        self.rename_field(model, field, newName)
+        self.save(model)
 
     # Adding & changing templates
     ##################################################
@@ -356,40 +358,42 @@ class ModelManager:
         template["ord"] = None
         return template
 
-    def add_template(self, m: NoteType, template: Template) -> None:
+    def add_template(self, model: NoteType, template: Template) -> None:
         "Modifies schema."
-        m["tmpls"].append(template)
+        model["tmpls"].append(template)
 
-    def remove_template(self, m: NoteType, template: Template) -> None:
+    def remove_template(self, model: NoteType, template: Template) -> None:
         "Modifies schema."
-        assert len(m["tmpls"]) > 1
-        m["tmpls"].remove(template)
+        assert len(model["tmpls"]) > 1
+        model["tmpls"].remove(template)
 
-    def reposition_template(self, m: NoteType, template: Template, idx: int) -> None:
+    def reposition_template(
+        self, model: NoteType, template: Template, idx: int
+    ) -> None:
         "Modifies schema."
-        oldidx = m["tmpls"].index(template)
+        oldidx = model["tmpls"].index(template)
         if oldidx == idx:
             return
 
-        m["tmpls"].remove(template)
-        m["tmpls"].insert(idx, template)
+        model["tmpls"].remove(template)
+        model["tmpls"].insert(idx, template)
 
     # legacy
 
     newTemplate = new_template
 
-    def addTemplate(self, m: NoteType, template: Template) -> None:
-        self.add_template(m, template)
-        if m["id"]:
-            self.save(m)
+    def addTemplate(self, model: NoteType, template: Template) -> None:
+        self.add_template(model, template)
+        if model["id"]:
+            self.save(model)
 
-    def remTemplate(self, m: NoteType, template: Template) -> None:
-        self.remove_template(m, template)
-        self.save(m)
+    def remTemplate(self, model: NoteType, template: Template) -> None:
+        self.remove_template(model, template)
+        self.save(model)
 
-    def moveTemplate(self, m: NoteType, template: Template, idx: int) -> None:
-        self.reposition_template(m, template, idx)
-        self.save(m)
+    def moveTemplate(self, model: NoteType, template: Template, idx: int) -> None:
+        self.reposition_template(model, template, idx)
+        self.save(model)
 
     def template_use_count(self, ntid: int, ord: int) -> int:
         return self.col.db.scalar(
@@ -406,14 +410,14 @@ and notes.mid = ? and cards.ord = ?""",
     # - newModel should be self if model is not changing
 
     def change(
-        self, m: NoteType, nids: List[int], newModel: NoteType, fmap: Any, cmap: Any
+        self, model: NoteType, nids: List[int], newModel: NoteType, fmap: Any, cmap: Any
     ) -> None:
         self.col.modSchema(check=True)
-        assert newModel["id"] == m["id"] or (fmap and cmap)
+        assert newModel["id"] == model["id"] or (fmap and cmap)
         if fmap:
             self._changeNotes(nids, newModel, fmap)
         if cmap:
-            self._changeCards(nids, m, newModel, cmap)
+            self._changeCards(nids, model, newModel, cmap)
         self.col.after_note_updates(nids, mark_modified=True)
 
     def _changeNotes(
@@ -471,19 +475,21 @@ and notes.mid = ? and cards.ord = ?""",
     # Schema hash
     ##########################################################################
 
-    def scmhash(self, m: NoteType) -> str:
+    def scmhash(self, model: NoteType) -> str:
         "Return a hash of the schema, to see if models are compatible."
         s = ""
-        for f in m["flds"]:
+        for f in model["flds"]:
             s += f["name"]
-        for t in m["tmpls"]:
+        for t in model["tmpls"]:
             s += t["name"]
         return checksum(s)
 
     # Cloze
     ##########################################################################
 
-    def _availClozeOrds(self, m: NoteType, flds: str, allowEmpty: bool = True) -> List:
+    def _availClozeOrds(
+        self, model: NoteType, flds: str, allowEmpty: bool = True
+    ) -> List:
         print("_availClozeOrds() is deprecated; use note.cloze_numbers_in_fields()")
         note = anki.rsbackend.BackendNote(fields=[flds])
         return list(self.col.backend.cloze_numbers_in_note(note))

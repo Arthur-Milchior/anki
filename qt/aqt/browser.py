@@ -672,22 +672,22 @@ class Browser(QMainWindow):
         qconnect(self.form.tableView.customContextMenuRequested, self.onContextMenu)
 
     def onContextMenu(self, _point) -> None:
-        m = QMenu()
+        menu = QMenu()
         for act in self.form.menu_Cards.actions():
-            m.addAction(act)
-        m.addSeparator()
+            menu.addAction(act)
+        menu.addSeparator()
         for act in self.form.menu_Notes.actions():
-            m.addAction(act)
-        gui_hooks.browser_will_show_context_menu(self, m)
-        qtMenuShortcutWorkaround(m)
-        m.exec_(QCursor.pos())
+            menu.addAction(act)
+        gui_hooks.browser_will_show_context_menu(self, menu)
+        qtMenuShortcutWorkaround(menu)
+        menu.exec_(QCursor.pos())
 
     def updateFont(self):
         # we can't choose different line heights efficiently, so we need
         # to pick a line height big enough for any card template
         curmax = 16
-        for m in self.col.models.all():
-            for t in m["tmpls"]:
+        for model in self.col.models.all():
+            for t in model["tmpls"]:
                 bsize = t.get("bsize", 0)
                 if bsize > curmax:
                     curmax = bsize
@@ -1176,11 +1176,11 @@ QTableView {{ gridline-color: {grid} }}
 
     def _modelTree(self, root) -> None:
         assert self.col
-        for m in self.col.models.all_names_and_ids():
+        for model in self.col.models.all_names_and_ids():
             item = SidebarItem(
-                m.name,
+                model.name,
                 ":/icons/notetype.svg",
-                lambda m=m: self.setFilter("note", m.name),  # type: ignore
+                lambda model=model: self.setFilter("note", model.name),  # type: ignore
             )
             root.addChild(item)
 

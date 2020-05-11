@@ -499,11 +499,11 @@ class Editor:
     def fieldsAreBlank(self, previousNote=None):
         if not self.note:
             return True
-        m = self.note.model()
+        model = self.note.model()
         for index, f in enumerate(self.note.fields):
             f = f.replace("<br>", "").strip()
             notChangedvalues = {"", "<br>"}
-            if previousNote and m["flds"][index]["sticky"]:
+            if previousNote and model["flds"][index]["sticky"]:
                 notChangedvalues.add(
                     previousNote.fields[index].replace("<br>", "").strip()
                 )
@@ -588,9 +588,9 @@ class Editor:
     def saveAddModeVars(self):
         if self.addMode:
             # save tags to model
-            m = self.note.model()
-            m["tags"] = self.note.tags
-            self.mw.col.models.save(m, updateReqs=False)
+            model = self.note.model()
+            model["tags"] = self.note.tags
+            self.mw.col.models.save(model, updateReqs=False)
 
     def hideCompleters(self):
         self.tags.hideCompleter()
