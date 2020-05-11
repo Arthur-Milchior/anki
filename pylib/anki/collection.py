@@ -566,8 +566,8 @@ class Collection:
             card.nid,
         )
         # and finally, update daily counts
-        n = 1 if card.queue in (3, 4) else card.queue
-        type = ("new", "lrn", "rev")[n]
+        index = 1 if card.queue in (3, 4) else card.queue
+        type = ("new", "lrn", "rev")[index]
         self.sched._updateStats(card, type, -1)
         self.sched.reps -= 1
         return card.id

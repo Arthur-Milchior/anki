@@ -1123,14 +1123,14 @@ title="%s" %s>%s</button>""" % (
     def onCram(self, search=""):
         import aqt.dyndeckconf
 
-        n = 1
+        index = 1
         deck = self.col.decks.current()
         if not search:
             if not deck["dyn"]:
                 search = 'deck:"%s" ' % deck["name"]
-        while self.col.decks.id_for_name(_("Filtered Deck %d") % n):
-            n += 1
-        name = _("Filtered Deck %d") % n
+        while self.col.decks.id_for_name(_("Filtered Deck %d") % index):
+            index += 1
+        name = _("Filtered Deck %d") % index
         did = self.col.decks.newDyn(name)
         diag = aqt.dyndeckconf.DeckConf(self, first=True, search=search)
         if not diag.ok:
