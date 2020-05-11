@@ -26,8 +26,8 @@ def chunked_list(l: Iterable[T], n: int) -> Iterable[List[T]]:
 
 
 def check_media_db(mw: aqt.AnkiQt) -> None:
-    c = MediaChecker(mw)
-    c.check()
+    checker = MediaChecker(mw)
+    checker.check()
 
 
 class MediaChecker:
