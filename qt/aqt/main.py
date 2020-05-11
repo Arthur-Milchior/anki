@@ -1410,9 +1410,9 @@ will be lost. Continue?"""
             self._output = ""
             self._oldStderr = sys.stderr
             self._oldStdout = sys.stdout
-            s = Stream()
-            sys.stderr = s
-            sys.stdout = s
+            stream = Stream()
+            sys.stderr = stream
+            sys.stdout = stream
         else:
             sys.stderr = self._oldStderr
             sys.stdout = self._oldStdout
