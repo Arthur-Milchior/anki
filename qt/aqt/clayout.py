@@ -425,9 +425,11 @@ class CardLayout(QDialog):
         bodyclass = theme_manager.body_classes_for_card_ord(card.ord)
 
         if self.pform.preview_front.isChecked():
-            q = ti(self.mw.prepare_card_text_for_display(card.q()))
-            q = gui_hooks.card_will_show(q, card, "clayoutQuestion")
-            text = q
+            questionHtmlPreview = ti(self.mw.prepare_card_text_for_display(card.q()))
+            questionHtmlPreview = gui_hooks.card_will_show(
+                questionHtmlPreview, card, "clayoutQuestion"
+            )
+            text = questionHtmlPreview
         else:
             a = ti(self.mw.prepare_card_text_for_display(card.a()), type="a")
             a = gui_hooks.card_will_show(a, card, "clayoutAnswer")

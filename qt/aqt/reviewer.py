@@ -180,7 +180,7 @@ class Reviewer:
         self.typedAnswer: str = None
         card = self.card
         # grab the question and play audio
-        q = card.q()
+        questionHtml = card.q()
         # play audio?
         if card.autoplay():
             av_player.play_tags(card.question_av_tags())
@@ -188,12 +188,12 @@ class Reviewer:
             av_player.clear_queue_and_maybe_interrupt()
 
         # render & update bottom
-        q = self._mungeQA(q)
-        q = gui_hooks.card_will_show(q, card, "reviewQuestion")
+        questionHtml = self._mungeQA(questionHtml)
+        questionHtml = gui_hooks.card_will_show(questionHtml, card, "reviewQuestion")
 
         bodyclass = theme_manager.body_classes_for_card_ord(card.ord)
 
-        self.web.eval("_showQuestion(%s,'%s');" % (json.dumps(q), bodyclass))
+        self.web.eval("_showQuestion(%s,'%s');" % (json.dumps(questionHtml), bodyclass))
         self._drawFlag()
         self._drawMark()
         self._showAnswerButton()
