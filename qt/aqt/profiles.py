@@ -492,11 +492,11 @@ create table if not exists profiles
             def reject(self):
                 pass
 
-        d = self.langDiag = NoCloseDiag()
+        self.langDiag = NoCloseDiag()
         self.langForm = aqt.forms.setlang.Ui_Dialog()
-        self.langForm.setupUi(d)
-        qconnect(d.accepted, self._onLangSelected)
-        qconnect(d.rejected, lambda: True)
+        self.langForm.setupUi(self.langDiag)
+        qconnect(self.langDiag.accepted, self._onLangSelected)
+        qconnect(self.langDiag.rejected, lambda: True)
         # default to the system language
         try:
             (lang, enc) = locale.getdefaultlocale()
@@ -517,7 +517,7 @@ create table if not exists profiles
         # update list
         self.langForm.lang.addItems([x[0] for x in anki.lang.langs])
         self.langForm.lang.setCurrentRow(idx)
-        d.exec_()
+        self.langDiag.exec_()
 
     def _onLangSelected(self):
         obj = anki.lang.langs[self.langForm.lang.currentRow()]
