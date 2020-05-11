@@ -1149,26 +1149,26 @@ title="%s" %s>%s</button>""" % (
     ##########################################################################
 
     def setupMenus(self) -> None:
-        m = self.form
         qconnect(
-            m.actionSwitchProfile.triggered, self.unloadProfileAndShowProfileManager
+            self.form.actionSwitchProfile.triggered,
+            self.unloadProfileAndShowProfileManager,
         )
-        qconnect(m.actionImport.triggered, self.onImport)
-        qconnect(m.actionExport.triggered, self.onExport)
-        qconnect(m.actionExit.triggered, self.close)
-        qconnect(m.actionPreferences.triggered, self.onPrefs)
-        qconnect(m.actionAbout.triggered, self.onAbout)
-        qconnect(m.actionUndo.triggered, self.onUndo)
+        qconnect(self.form.actionImport.triggered, self.onImport)
+        qconnect(self.form.actionExport.triggered, self.onExport)
+        qconnect(self.form.actionExit.triggered, self.close)
+        qconnect(self.form.actionPreferences.triggered, self.onPrefs)
+        qconnect(self.form.actionAbout.triggered, self.onAbout)
+        qconnect(self.form.actionUndo.triggered, self.onUndo)
         if qtminor < 11:
-            m.actionUndo.setShortcut(QKeySequence("Ctrl+Alt+Z"))
-        qconnect(m.actionFullDatabaseCheck.triggered, self.onCheckDB)
-        qconnect(m.actionCheckMediaDatabase.triggered, self.on_check_media_db)
-        qconnect(m.actionDocumentation.triggered, self.onDocumentation)
-        qconnect(m.actionDonate.triggered, self.onDonate)
-        qconnect(m.actionStudyDeck.triggered, self.onStudyDeck)
-        qconnect(m.actionCreateFiltered.triggered, self.onCram)
-        qconnect(m.actionEmptyCards.triggered, self.onEmptyCards)
-        qconnect(m.actionNoteTypes.triggered, self.onNoteTypes)
+            self.form.actionUndo.setShortcut(QKeySequence("Ctrl+Alt+Z"))
+        qconnect(self.form.actionFullDatabaseCheck.triggered, self.onCheckDB)
+        qconnect(self.form.actionCheckMediaDatabase.triggered, self.on_check_media_db)
+        qconnect(self.form.actionDocumentation.triggered, self.onDocumentation)
+        qconnect(self.form.actionDonate.triggered, self.onDonate)
+        qconnect(self.form.actionStudyDeck.triggered, self.onStudyDeck)
+        qconnect(self.form.actionCreateFiltered.triggered, self.onCram)
+        qconnect(self.form.actionEmptyCards.triggered, self.onEmptyCards)
+        qconnect(self.form.actionNoteTypes.triggered, self.onNoteTypes)
 
     def updateTitleBar(self) -> None:
         self.setWindowTitle("Anki")
