@@ -161,13 +161,12 @@ class FieldDialog(QDialog):
 
     def loadField(self, idx):
         self.currentIdx = idx
-        fld = self.model["flds"][idx]
-        f = self.form
-        f.fontFamily.setCurrentFont(QFont(fld["font"]))
-        f.fontSize.setValue(fld["size"])
-        f.sticky.setChecked(fld["sticky"])
-        f.sortField.setChecked(self.model["sortf"] == fld["ord"])
-        f.rtl.setChecked(fld["rtl"])
+        fldType = self.model["flds"][idx]
+        self.form.fontFamily.setCurrentFont(QFont(fldType["font"]))
+        self.form.fontSize.setValue(fldType["size"])
+        self.form.sticky.setChecked(fldType["sticky"])
+        self.form.sortField.setChecked(self.model["sortf"] == fldType["ord"])
+        self.form.rtl.setChecked(fldType["rtl"])
 
     def saveField(self):
         # not initialized yet?
@@ -175,20 +174,19 @@ class FieldDialog(QDialog):
             return
         idx = self.currentIdx
         fld = self.model["flds"][idx]
-        f = self.form
-        font = f.fontFamily.currentFont().family()
+        font = self.form.fontFamily.currentFont().family()
         if fld["font"] != font:
             fld["font"] = font
             self.change_tracker.mark_basic()
-        size = f.fontSize.value()
+        size = self.form.fontSize.value()
         if fld["size"] != size:
             fld["size"] = size
             self.change_tracker.mark_basic()
-        sticky = f.sticky.isChecked()
+        sticky = self.form.sticky.isChecked()
         if fld["sticky"] != sticky:
             fld["sticky"] = sticky
             self.change_tracker.mark_basic()
-        rtl = f.rtl.isChecked()
+        rtl = self.form.rtl.isChecked()
         if fld["rtl"] != rtl:
             fld["rtl"] = rtl
             self.change_tracker.mark_basic()

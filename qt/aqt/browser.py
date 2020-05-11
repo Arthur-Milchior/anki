@@ -610,54 +610,53 @@ class Browser(QMainWindow):
     def setupMenus(self) -> None:
         # pylint: disable=unnecessary-lambda
         # actions
-        f = self.form
-        qconnect(f.previewButton.clicked, self.onTogglePreview)
-        f.previewButton.setToolTip(
+        qconnect(self.form.previewButton.clicked, self.onTogglePreview)
+        self.form.previewButton.setToolTip(
             _("Preview Selected Card (%s)") % shortcut("Ctrl+Shift+P")
         )
-        f.previewButton.setShortcut("Ctrl+Shift+P")
+        self.form.previewButton.setShortcut("Ctrl+Shift+P")
 
-        qconnect(f.filter.clicked, self.onFilterButton)
+        qconnect(self.form.filter.clicked, self.onFilterButton)
         # edit
-        qconnect(f.actionUndo.triggered, self.mw.onUndo)
-        qconnect(f.actionInvertSelection.triggered, self.invertSelection)
-        qconnect(f.actionSelectNotes.triggered, self.selectNotes)
+        qconnect(self.form.actionUndo.triggered, self.mw.onUndo)
+        qconnect(self.form.actionInvertSelection.triggered, self.invertSelection)
+        qconnect(self.form.actionSelectNotes.triggered, self.selectNotes)
         if not isMac:
-            f.actionClose.setVisible(False)
+            self.form.actionClose.setVisible(False)
         # notes
-        qconnect(f.actionAdd.triggered, self.mw.onAddCard)
-        qconnect(f.actionAdd_Tags.triggered, lambda: self.addTags())
-        qconnect(f.actionRemove_Tags.triggered, lambda: self.deleteTags())
-        qconnect(f.actionClear_Unused_Tags.triggered, self.clearUnusedTags)
-        qconnect(f.actionToggle_Mark.triggered, lambda: self.onMark())
-        qconnect(f.actionChangeModel.triggered, self.onChangeModel)
-        qconnect(f.actionFindDuplicates.triggered, self.onFindDupes)
-        qconnect(f.actionFindReplace.triggered, self.onFindReplace)
-        qconnect(f.actionManage_Note_Types.triggered, self.mw.onNoteTypes)
-        qconnect(f.actionDelete.triggered, self.deleteNotes)
+        qconnect(self.form.actionAdd.triggered, self.mw.onAddCard)
+        qconnect(self.form.actionAdd_Tags.triggered, lambda: self.addTags())
+        qconnect(self.form.actionRemove_Tags.triggered, lambda: self.deleteTags())
+        qconnect(self.form.actionClear_Unused_Tags.triggered, self.clearUnusedTags)
+        qconnect(self.form.actionToggle_Mark.triggered, lambda: self.onMark())
+        qconnect(self.form.actionChangeModel.triggered, self.onChangeModel)
+        qconnect(self.form.actionFindDuplicates.triggered, self.onFindDupes)
+        qconnect(self.form.actionFindReplace.triggered, self.onFindReplace)
+        qconnect(self.form.actionManage_Note_Types.triggered, self.mw.onNoteTypes)
+        qconnect(self.form.actionDelete.triggered, self.deleteNotes)
         # cards
-        qconnect(f.actionChange_Deck.triggered, self.setDeck)
-        qconnect(f.action_Info.triggered, self.showCardInfo)
-        qconnect(f.actionReposition.triggered, self.reposition)
-        qconnect(f.actionReschedule.triggered, self.reschedule)
-        qconnect(f.actionToggle_Suspend.triggered, self.onSuspend)
-        qconnect(f.actionRed_Flag.triggered, lambda: self.onSetFlag(1))
-        qconnect(f.actionOrange_Flag.triggered, lambda: self.onSetFlag(2))
-        qconnect(f.actionGreen_Flag.triggered, lambda: self.onSetFlag(3))
-        qconnect(f.actionBlue_Flag.triggered, lambda: self.onSetFlag(4))
-        qconnect(f.actionExport.triggered, lambda: self._on_export_notes())
+        qconnect(self.form.actionChange_Deck.triggered, self.setDeck)
+        qconnect(self.form.action_Info.triggered, self.showCardInfo)
+        qconnect(self.form.actionReposition.triggered, self.reposition)
+        qconnect(self.form.actionReschedule.triggered, self.reschedule)
+        qconnect(self.form.actionToggle_Suspend.triggered, self.onSuspend)
+        qconnect(self.form.actionRed_Flag.triggered, lambda: self.onSetFlag(1))
+        qconnect(self.form.actionOrange_Flag.triggered, lambda: self.onSetFlag(2))
+        qconnect(self.form.actionGreen_Flag.triggered, lambda: self.onSetFlag(3))
+        qconnect(self.form.actionBlue_Flag.triggered, lambda: self.onSetFlag(4))
+        qconnect(self.form.actionExport.triggered, lambda: self._on_export_notes())
         # jumps
-        qconnect(f.actionPreviousCard.triggered, self.onPreviousCard)
-        qconnect(f.actionNextCard.triggered, self.onNextCard)
-        qconnect(f.actionFirstCard.triggered, self.onFirstCard)
-        qconnect(f.actionLastCard.triggered, self.onLastCard)
-        qconnect(f.actionFind.triggered, self.onFind)
-        qconnect(f.actionNote.triggered, self.onNote)
-        qconnect(f.actionTags.triggered, self.onFilterButton)
-        qconnect(f.actionSidebar.triggered, self.focusSidebar)
-        qconnect(f.actionCardList.triggered, self.onCardList)
+        qconnect(self.form.actionPreviousCard.triggered, self.onPreviousCard)
+        qconnect(self.form.actionNextCard.triggered, self.onNextCard)
+        qconnect(self.form.actionFirstCard.triggered, self.onFirstCard)
+        qconnect(self.form.actionLastCard.triggered, self.onLastCard)
+        qconnect(self.form.actionFind.triggered, self.onFind)
+        qconnect(self.form.actionNote.triggered, self.onNote)
+        qconnect(self.form.actionTags.triggered, self.onFilterButton)
+        qconnect(self.form.actionSidebar.triggered, self.focusSidebar)
+        qconnect(self.form.actionCardList.triggered, self.onCardList)
         # help
-        qconnect(f.actionGuide.triggered, self.onHelp)
+        qconnect(self.form.actionGuide.triggered, self.onHelp)
         # keyboard shortcut for shift+home/end
         self.pgUpCut = QShortcut(QKeySequence("Shift+Home"), self)
         qconnect(self.pgUpCut.activated, self.onFirstCard)
@@ -1703,12 +1702,11 @@ update cards set usn=?, mod=?, did=? where id in """
         flag = self.card and self.card.userFlag()
         flag = flag or 0
 
-        f = self.form
         flagActions = [
-            f.actionRed_Flag,
-            f.actionOrange_Flag,
-            f.actionGreen_Flag,
-            f.actionBlue_Flag,
+            self.form.actionRed_Flag,
+            self.form.actionOrange_Flag,
+            self.form.actionGreen_Flag,
+            self.form.actionBlue_Flag,
         ]
 
         for index, act in enumerate(flagActions):
