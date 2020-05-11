@@ -678,17 +678,17 @@ select id from notes where mid = ?) limit 1"""
         if not self._should_log:
             return
 
-        def customRepr(x):
-            if isinstance(x, str):
-                return x
-            return pprint.pformat(x)
+        def customRepr(arg):
+            if isinstance(arg, str):
+                return arg
+            return pprint.pformat(arg)
 
         path, num, fn, y = traceback.extract_stack(limit=2 + kwargs.get("stack", 0))[0]
         buf = "[%s] %s:%s(): %s" % (
             intTime(),
             os.path.basename(path),
             fn,
-            ", ".join([customRepr(x) for x in args]),
+            ", ".join([customRepr(arg) for arg in args]),
         )
         self._logHnd.write(buf + "\n")
         if devMode:
