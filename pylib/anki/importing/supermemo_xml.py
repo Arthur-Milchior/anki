@@ -137,9 +137,9 @@ class SupermemoXmlImporter(NoteImporter):
         "Remove diacritic punctuation from strings (titles)"
         return "".join(
             [
-                c
-                for c in unicodedata.normalize("NFKD", str)
-                if not unicodedata.combining(c)
+                char
+                for char in unicodedata.normalize("NFKD", str)
+                if not unicodedata.combining(char)
             ]
         )
 
