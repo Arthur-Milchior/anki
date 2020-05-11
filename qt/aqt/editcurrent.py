@@ -36,8 +36,8 @@ class EditCurrent(QDialog):
     def onReset(self) -> None:
         # lazy approach for now: throw away edits
         try:
-            n = self.editor.note
-            n.load()  # reload in case the model changed
+            note = self.editor.note
+            note.load()  # reload in case the model changed
         except:
             # card's been deleted
             gui_hooks.state_did_reset.remove(self.onReset)
@@ -46,7 +46,7 @@ class EditCurrent(QDialog):
             aqt.dialogs.markClosed("EditCurrent")
             self.close()
             return
-        self.editor.setNote(n)
+        self.editor.setNote(note)
 
     def reopen(self, mw):
         tooltip("Please finish editing the existing card first.")

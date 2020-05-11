@@ -170,8 +170,8 @@ class Models(QDialog):
     def onCards(self):
         from aqt.clayout import CardLayout
 
-        n = self._tmpNote()
-        CardLayout(self.mw, n, ord=0, parent=self, fill_empty=True)
+        note = self._tmpNote()
+        CardLayout(self.mw, note, ord=0, parent=self, fill_empty=True)
 
     # Cleanup
     ##########################################################################
