@@ -574,10 +574,10 @@ from the profile screen."
                 pass
 
         def run(self):
-            z = zipfile.ZipFile(self.path, "w", zipfile.ZIP_DEFLATED)
-            z.writestr("collection.anki2", self.data)
-            z.writestr("media", "{}")
-            z.close()
+            zip = zipfile.ZipFile(self.path, "w", zipfile.ZIP_DEFLATED)
+            zip.writestr("collection.anki2", self.data)
+            zip.writestr("media", "{}")
+            zip.close()
 
     def backup(self) -> None:
         nbacks = self.pm.profile["numBackups"]

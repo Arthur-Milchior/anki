@@ -385,8 +385,8 @@ def importFile(mw, file):
         # if it's an apkg/zip, first test it's a valid file
         if importer.__class__.__name__ == "AnkiPackageImporter":
             try:
-                z = zipfile.ZipFile(importer.file)
-                z.getinfo("collection.anki2")
+                zip = zipfile.ZipFile(importer.file)
+                zip.getinfo("collection.anki2")
             except:
                 showWarning(invalidZipMsg())
                 return
@@ -480,21 +480,21 @@ def _replaceWithApkg(mw, filename, backup):
     mw.progress.start(immediate=True)
 
     def do_import():
-        z = zipfile.ZipFile(filename)
+        zip = zipfile.ZipFile(filename)
 
         # v2 scheduler?
         colname = "collection.anki21"
         try:
-            z.getinfo(colname)
+            zip.getinfo(colname)
         except KeyError:
             colname = "collection.anki2"
 
-        with z.open(colname) as source, open(mw.pm.collectionPath(), "wb") as target:
+        with zip.open(colname) as source, open(mw.pm.collectionPath(), "wb") as target:
             shutil.copyfileobj(source, target)
 
         mediaFolder = os.path.join(mw.pm.profileFolder(), "collection.media")
         for index, (cStr, file) in enumerate(
-            json.loads(z.read("media").decode("utf8")).items()
+            json.loads(zip.read("media").decode("utf8")).items()
         ):
             mw.taskman.run_on_main(
                 lambda index=index: mw.progress.update(
@@ -504,16 +504,16 @@ def _replaceWithApkg(mw, filename, backup):
                     % index
                 )
             )
-            size = z.getinfo(cStr).file_size
+            size = zip.getinfo(cStr).file_size
             dest = os.path.join(mediaFolder, unicodedata.normalize("NFC", file))
             # if we have a matching file size
             if os.path.exists(dest) and size == os.stat(dest).st_size:
                 continue
-            data = z.read(cStr)
+            data = zip.read(cStr)
             with open(dest, "wb") as file:
                 file.write(data)
 
-        z.close()
+        zip.close()
 
     def on_done(future: Future):
         mw.progress.finish()
