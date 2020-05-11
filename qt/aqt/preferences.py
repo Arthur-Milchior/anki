@@ -104,7 +104,6 @@ class Preferences(QDialog):
             self.form.new_timezone.setChecked(s.new_timezone)
 
     def updateCollection(self):
-        d = self.mw.col
 
         if not isMac:
             wasAccel = self.mw.pm.glMode() != "software"
@@ -116,7 +115,7 @@ class Preferences(QDialog):
                     self.mw.pm.setGlMode("software")
                 showInfo(_("Changes will take effect when you restart Anki."))
 
-        qc = d.conf
+        qc = self.mw.col.conf
         qc["addToCur"] = not self.form.useCurrent.currentIndex()
 
         s = self.prefs
@@ -134,7 +133,7 @@ class Preferences(QDialog):
         self.mw.col.backend.set_preferences(self.prefs)
 
         self._updateSchedVer(self.form.newSched.isChecked())
-        d.setMod()
+        self.mw.col.setMod()
 
     # Scheduler version
     ######################################################################
