@@ -1096,27 +1096,27 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
 
     def _dynOrder(self, o: int, l: int) -> str:
         if o == DYN_OLDEST:
-            t = "(select max(id) from revlog where cid=c.id)"
+            sort = "(select max(id) from revlog where cid=c.id)"
         elif o == DYN_RANDOM:
-            t = "random()"
+            sort = "random()"
         elif o == DYN_SMALLINT:
-            t = "ivl"
+            sort = "ivl"
         elif o == DYN_BIGINT:
-            t = "ivl desc"
+            sort = "ivl desc"
         elif o == DYN_LAPSES:
-            t = "lapses desc"
+            sort = "lapses desc"
         elif o == DYN_ADDED:
             t = "n.id"
         elif o == DYN_REVADDED:
             t = "n.id desc"
         elif o == DYN_DUEPRIORITY:
-            t = (
+            sort = (
                 f"(case when queue={QUEUE_TYPE_REV} and due <= %d then (ivl / cast(%d-due+0.001 as real)) else 100000+due end)"
                 % (self.today, self.today)
             )
         else:  # DYN_DUE or unknown
-            t = "c.due, c.ord"
-        return t + " limit %d" % l
+            sort = "c.due, c.ord"
+        return sort + " limit %d" % l
 
     def _moveToDyn(self, did: int, ids: Sequence[int], start: int = -100000) -> None:
         deck = self.col.decks.get(did)
