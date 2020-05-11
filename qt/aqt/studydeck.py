@@ -148,10 +148,10 @@ class StudyDeck(QDialog):
             default = self.form.filter.text()
         else:
             default = self.names[self.form.list.currentRow()]
-        n = getOnlyText(_("New deck name:"), default=default)
-        n = n.strip()
-        if n:
-            did = self.mw.col.decks.id(n)
+        name = getOnlyText(_("New deck name:"), default=default)
+        name = name.strip()
+        if name:
+            did = self.mw.col.decks.id(name)
             # deck name may not be the same as user input. ex: ", ::
             self.name = self.mw.col.decks.name(did)
             # make sure we clean up reset hook when manually exiting

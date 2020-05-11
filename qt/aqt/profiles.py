@@ -202,12 +202,12 @@ class ProfileManager:
         def names():
             return self.db.list("select name from profiles where name != '_global'")
 
-        n = names()
-        if not n:
+        name = names()
+        if not name:
             self._ensureProfile()
-            n = names()
+            name = names()
 
-        return n
+        return name
 
     def _unpickle(self, data):
         class Unpickler(pickle.Unpickler):
