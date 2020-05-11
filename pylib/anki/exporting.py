@@ -372,12 +372,12 @@ class AnkiPackageExporter(AnkiExporter):
     # data they don't understand
     def _addDummyCollection(self, zip) -> None:
         path = namedtmp("dummy.anki2")
-        c = Collection(path)
-        n = c.newNote()
+        col = Collection(path)
+        n = col.newNote()
         n[_("Front")] = "This file requires a newer version of Anki."
-        c.addNote(n)
-        c.save()
-        c.close(downgrade=True)
+        col.addNote(n)
+        col.save()
+        col.close(downgrade=True)
 
         zip.write(path, "collection.anki2")
         os.unlink(path)
