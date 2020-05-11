@@ -59,8 +59,8 @@ def fieldNamesForNotes(col: Collection, nids: List[int]) -> List[str]:
 def fieldNames(col, downcase=True) -> List:
     fields: Set[str] = set()
     for model in col.models.all():
-        for f in model["flds"]:
-            name = f["name"].lower() if downcase else f["name"]
+        for fieldType in model["flds"]:
+            name = fieldType["name"].lower() if downcase else fieldType["name"]
             if name not in fields:  # slower w/o
                 fields.add(name)
     return list(fields)
@@ -82,8 +82,8 @@ def findDupes(
     def ordForMid(mid):
         if mid not in fields:
             model = col.models.get(mid)
-            for fieldIndex, f in enumerate(model["flds"]):
-                if f["name"].lower() == fieldName.lower():
+            for fieldIndex, fieldType in enumerate(model["flds"]):
+                if fieldType["name"].lower() == fieldName.lower():
                     fields[mid] = fieldIndex
                     break
         return fields[mid]
