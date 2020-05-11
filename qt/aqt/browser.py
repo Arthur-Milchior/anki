@@ -1248,7 +1248,7 @@ QTableView {{ gridline-color: {grid} }}
         return ml
 
     def _filterFunc(self, *args):
-        return lambda *, f=args: self.setFilter(*f)
+        return lambda *, filter=args: self.setFilter(*filter)
 
     def _commonFilters(self):
         return self._simpleFilters(
