@@ -1690,13 +1690,13 @@ update cards set usn=?, mod=?, did=? where id in """
     # Flags & Marking
     ######################################################################
 
-    def onSetFlag(self, n):
+    def onSetFlag(self, flagNumber):
         if not self.card:
             return
         # flag needs toggling off?
-        if n == self.card.userFlag():
-            n = 0
-        self.col.setUserFlag(n, self.selectedCards())
+        if flagNumber == self.card.userFlag():
+            flagNumber = 0
+        self.col.setUserFlag(flagNumber, self.selectedCards())
         self.model.reset()
 
     def _updateFlagsMenu(self):
