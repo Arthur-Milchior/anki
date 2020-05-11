@@ -425,8 +425,8 @@ def restoreGeom(widget, key: str, offset=None, adjustSize=False):
         if isMac and offset:
             if qtminor > 6:
                 # bug in osx toolkit
-                s = widget.size()
-                widget.resize(s.width(), s.height() + offset * 2)
+                size = widget.size()
+                widget.resize(size.width(), size.height() + offset * 2)
         ensureWidgetInScreenBoundaries(widget)
     else:
         if adjustSize:
