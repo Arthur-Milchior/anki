@@ -128,10 +128,10 @@ class DataModel(QAbstractTableModel):
             t = card.template()
             if not t.get("bfont"):
                 return
-            f = QFont()
-            f.setFamily(t.get("bfont", "arial"))
-            f.setPixelSize(t.get("bsize", 12))
-            return f
+            font = QFont()
+            font.setFamily(t.get("bfont", "arial"))
+            font.setPixelSize(t.get("bsize", 12))
+            return font
 
         elif role == Qt.TextAlignmentRole:
             align = Qt.AlignVCenter
