@@ -82,9 +82,9 @@ def findDupes(
     def ordForMid(mid):
         if mid not in fields:
             model = col.models.get(mid)
-            for c, f in enumerate(model["flds"]):
+            for fieldIndex, f in enumerate(model["flds"]):
                 if f["name"].lower() == fieldName.lower():
-                    fields[mid] = c
+                    fields[mid] = fieldIndex
                     break
         return fields[mid]
 
