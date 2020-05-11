@@ -303,12 +303,12 @@ class DataModel(QAbstractTableModel):
         elif type == "cardDue":
             # catch invalid dates
             try:
-                t = self.nextDue(card, index)
+                dueString = self.nextDue(card, index)
             except:
-                t = ""
+                dueString = ""
             if card.queue < 0:
-                t = "(" + t + ")"
-            return t
+                dueString = "(" + dueString + ")"
+            return dueString
         elif type == "noteCrt":
             return time.strftime(
                 self.time_format(), time.localtime(card.note().id / 1000)
