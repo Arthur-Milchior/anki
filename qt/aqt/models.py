@@ -46,8 +46,7 @@ class Models(QDialog):
 
     def setupModels(self):
         self.model = None
-        f = self.form
-        box = f.buttonBox
+        box = self.form.buttonBox
         t = QDialogButtonBox.ActionRole
         b = box.addButton(_("Add"), t)
         qconnect(b.clicked, self.onAdd)
@@ -62,13 +61,13 @@ class Models(QDialog):
             qconnect(b.clicked, self.onCards)
         b = box.addButton(_("Options..."), t)
         qconnect(b.clicked, self.onAdvanced)
-        qconnect(f.modelsList.itemDoubleClicked, self.onRename)
+        qconnect(self.form.modelsList.itemDoubleClicked, self.onRename)
 
         def on_done(fut):
             self.updateModelsList(fut.result())
 
         self.mw.taskman.with_progress(self.col.models.all_use_counts, on_done, self)
-        f.modelsList.setCurrentRow(0)
+        self.form.modelsList.setCurrentRow(0)
         maybeHideClose(box)
 
     def onRename(self):

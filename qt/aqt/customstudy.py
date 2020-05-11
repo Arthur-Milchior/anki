@@ -27,26 +27,28 @@ class CustomStudy(QDialog):
         self.mw = mw
         self.deck = self.mw.col.decks.current()
         self.conf = self.mw.col.decks.get_config(self.deck["conf"])
-        self.form = f = aqt.forms.customstudy.Ui_Dialog()
+        self.form = aqt.forms.customstudy.Ui_Dialog()
         self.created_custom_study = False
-        f.setupUi(self)
+        self.form.setupUi(self)
         self.setWindowModality(Qt.WindowModal)
         self.setupSignals()
-        f.radioNew.click()
+        self.form.radioNew.click()
         self.exec_()
 
     def setupSignals(self):
-        f = self.form
-        qconnect(f.radioNew.clicked, lambda: self.onRadioChange(RADIO_NEW))
-        qconnect(f.radioRev.clicked, lambda: self.onRadioChange(RADIO_REV))
-        qconnect(f.radioForgot.clicked, lambda: self.onRadioChange(RADIO_FORGOT))
-        qconnect(f.radioAhead.clicked, lambda: self.onRadioChange(RADIO_AHEAD))
-        qconnect(f.radioPreview.clicked, lambda: self.onRadioChange(RADIO_PREVIEW))
-        qconnect(f.radioCram.clicked, lambda: self.onRadioChange(RADIO_CRAM))
+        qconnect(self.form.radioNew.clicked, lambda: self.onRadioChange(RADIO_NEW))
+        qconnect(self.form.radioRev.clicked, lambda: self.onRadioChange(RADIO_REV))
+        qconnect(
+            self.form.radioForgot.clicked, lambda: self.onRadioChange(RADIO_FORGOT)
+        )
+        qconnect(self.form.radioAhead.clicked, lambda: self.onRadioChange(RADIO_AHEAD))
+        qconnect(
+            self.form.radioPreview.clicked, lambda: self.onRadioChange(RADIO_PREVIEW)
+        )
+        qconnect(self.form.radioCram.clicked, lambda: self.onRadioChange(RADIO_CRAM))
 
     def onRadioChange(self, idx):
-        f = self.form
-        sp = f.spin
+        sp = self.form.spin
         smin = 1
         smax = DYN_MAX_SIZE
         sval = 1
@@ -104,25 +106,24 @@ class CustomStudy(QDialog):
             sval = 100
             typeShow = True
         sp.setVisible(spShow)
-        f.cardType.setVisible(typeShow)
-        f.title.setText(tit)
-        f.title.setVisible(not not tit)
-        f.spin.setMinimum(smin)
-        f.spin.setMaximum(smax)
+        self.form.cardType.setVisible(typeShow)
+        self.form.title.setText(tit)
+        self.form.title.setVisible(not not tit)
+        self.form.spin.setMinimum(smin)
+        self.form.spin.setMaximum(smax)
         if smax > 0:
-            f.spin.setEnabled(True)
+            self.form.spin.setEnabled(True)
         else:
-            f.spin.setEnabled(False)
-        f.spin.setValue(sval)
-        f.preSpin.setText(pre)
-        f.postSpin.setText(post)
-        f.buttonBox.button(QDialogButtonBox.Ok).setText(ok)
+            self.form.spin.setEnabled(False)
+        self.form.spin.setValue(sval)
+        self.form.preSpin.setText(pre)
+        self.form.postSpin.setText(post)
+        self.form.buttonBox.button(QDialogButtonBox.Ok).setText(ok)
         self.radioIdx = idx
 
     def accept(self):
-        f = self.form
         i = self.radioIdx
-        spin = f.spin.value()
+        spin = self.form.spin.value()
         if i == RADIO_NEW:
             self.deck["extendNew"] = spin
             self.mw.col.decks.save(self.deck)
@@ -163,7 +164,7 @@ class CustomStudy(QDialog):
             dyn["terms"][0] = ["is:new added:%s" % spin, DYN_MAX_SIZE, DYN_OLDEST]
             dyn["resched"] = False
         elif i == RADIO_CRAM:
-            type = f.cardType.currentRow()
+            type = self.form.cardType.currentRow()
             if type == TYPE_NEW:
                 terms = "is:new "
                 ord = DYN_ADDED

@@ -49,10 +49,9 @@ class Preferences(QDialog):
     ######################################################################
 
     def setupLang(self):
-        f = self.form
-        f.lang.addItems([x[0] for x in anki.lang.langs])
-        f.lang.setCurrentIndex(self.langIdx())
-        qconnect(f.lang.currentIndexChanged, self.onLangIdxChanged)
+        self.form.lang.addItems([x[0] for x in anki.lang.langs])
+        self.form.lang.setCurrentIndex(self.langIdx())
+        qconnect(self.form.lang.currentIndexChanged, self.onLangIdxChanged)
 
     def langIdx(self):
         codes = [x[1] for x in anki.lang.langs]
@@ -77,41 +76,39 @@ class Preferences(QDialog):
     def setupCollection(self):
         import anki.consts as c
 
-        f = self.form
         qc = self.mw.col.conf
 
         if isMac:
-            f.hwAccel.setVisible(False)
+            self.form.hwAccel.setVisible(False)
         else:
-            f.hwAccel.setChecked(self.mw.pm.glMode() != "software")
+            self.form.hwAccel.setChecked(self.mw.pm.glMode() != "software")
 
-        f.newSpread.addItems(list(c.newCardSchedulingLabels().values()))
+        self.form.newSpread.addItems(list(c.newCardSchedulingLabels().values()))
 
-        f.useCurrent.setCurrentIndex(int(not qc.get("addToCur", True)))
+        self.form.useCurrent.setCurrentIndex(int(not qc.get("addToCur", True)))
 
         s = self.prefs
-        f.lrnCutoff.setValue(s.learn_ahead_secs / 60.0)
-        f.timeLimit.setValue(s.time_limit_secs / 60.0)
-        f.showEstimates.setChecked(s.show_intervals_on_buttons)
-        f.showProgress.setChecked(s.show_remaining_due_counts)
-        f.newSpread.setCurrentIndex(s.new_review_mix)
-        f.dayLearnFirst.setChecked(s.day_learn_first)
-        f.dayOffset.setValue(s.rollover)
+        self.form.lrnCutoff.setValue(s.learn_ahead_secs / 60.0)
+        self.form.timeLimit.setValue(s.time_limit_secs / 60.0)
+        self.form.showEstimates.setChecked(s.show_intervals_on_buttons)
+        self.form.showProgress.setChecked(s.show_remaining_due_counts)
+        self.form.newSpread.setCurrentIndex(s.new_review_mix)
+        self.form.dayLearnFirst.setChecked(s.day_learn_first)
+        self.form.dayOffset.setValue(s.rollover)
 
         if s.scheduler_version < 2:
-            f.dayLearnFirst.setVisible(False)
-            f.new_timezone.setVisible(False)
+            self.form.dayLearnFirst.setVisible(False)
+            self.form.new_timezone.setVisible(False)
         else:
-            f.newSched.setChecked(True)
-            f.new_timezone.setChecked(s.new_timezone)
+            self.form.newSched.setChecked(True)
+            self.form.new_timezone.setChecked(s.new_timezone)
 
     def updateCollection(self):
-        f = self.form
         d = self.mw.col
 
         if not isMac:
             wasAccel = self.mw.pm.glMode() != "software"
-            wantAccel = f.hwAccel.isChecked()
+            wantAccel = self.form.hwAccel.isChecked()
             if wasAccel != wantAccel:
                 if wantAccel:
                     self.mw.pm.setGlMode("auto")
@@ -120,23 +117,23 @@ class Preferences(QDialog):
                 showInfo(_("Changes will take effect when you restart Anki."))
 
         qc = d.conf
-        qc["addToCur"] = not f.useCurrent.currentIndex()
+        qc["addToCur"] = not self.form.useCurrent.currentIndex()
 
         s = self.prefs
-        s.show_remaining_due_counts = f.showProgress.isChecked()
-        s.show_intervals_on_buttons = f.showEstimates.isChecked()
-        s.new_review_mix = f.newSpread.currentIndex()
-        s.time_limit_secs = f.timeLimit.value() * 60
-        s.learn_ahead_secs = f.lrnCutoff.value() * 60
-        s.day_learn_first = f.dayLearnFirst.isChecked()
-        s.rollover = f.dayOffset.value()
-        s.new_timezone = f.new_timezone.isChecked()
+        s.show_remaining_due_counts = self.form.showProgress.isChecked()
+        s.show_intervals_on_buttons = self.form.showEstimates.isChecked()
+        s.new_review_mix = self.form.newSpread.currentIndex()
+        s.time_limit_secs = self.form.timeLimit.value() * 60
+        s.learn_ahead_secs = self.form.lrnCutoff.value() * 60
+        s.day_learn_first = self.form.dayLearnFirst.isChecked()
+        s.rollover = self.form.dayOffset.value()
+        s.new_timezone = self.form.new_timezone.isChecked()
 
         # if moving this, make sure scheduler change is moved to Rust or
         # happens afterwards
         self.mw.col.backend.set_preferences(self.prefs)
 
-        self._updateSchedVer(f.newSched.isChecked())
+        self._updateSchedVer(self.form.newSched.isChecked())
         d.setMod()
 
     # Scheduler version
