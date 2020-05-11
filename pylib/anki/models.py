@@ -482,12 +482,12 @@ and notes.mid = ? and cards.ord = ?""",
 
     def scmhash(self, model: NoteType) -> str:
         "Return a hash of the schema, to see if models are compatible."
-        s = ""
+        scm = ""
         for fieldType in model["flds"]:
-            s += fieldType["name"]
+            scm += fieldType["name"]
         for template in model["tmpls"]:
-            s += template["name"]
-        return checksum(s)
+            scm += template["name"]
+        return checksum(scm)
 
     # Cloze
     ##########################################################################
