@@ -349,10 +349,10 @@ class Reviewer:
     def typeAnsQuestionFilter(self, buf: str) -> str:
         self.typeCorrect = None
         clozeIdx = None
-        m = re.search(self.typeAnsPat, buf)
-        if not m:
+        match = re.search(self.typeAnsPat, buf)
+        if not match:
             return buf
-        fld = m.group(1)
+        fld = match.group(1)
         # if it's a cloze, extract data
         if fld.startswith("cloze:"):
             # get field and cloze position

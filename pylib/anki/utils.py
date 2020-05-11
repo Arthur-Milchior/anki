@@ -103,8 +103,8 @@ def entsToTxt(html: str) -> str:
     # replace it first
     html = html.replace("&nbsp;", " ")
 
-    def fixup(m):
-        text = m.group(0)
+    def fixup(match):
+        text = match.group(0)
         if text[:2] == "&#":
             # character reference
             try:

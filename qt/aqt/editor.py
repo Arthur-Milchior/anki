@@ -644,9 +644,9 @@ to a cloze type first, via 'Notes>Change Note Type'"""
         # find the highest existing cloze
         highest = 0
         for name, val in list(self.note.items()):
-            m = re.findall(r"\{\{c(\d+)::", val)
-            if m:
-                highest = max(highest, sorted([int(x) for x in m])[-1])
+            match = re.findall(r"\{\{c(\d+)::", val)
+            if match:
+                highest = max(highest, sorted([int(x) for x in match])[-1])
         # reuse last?
         if not self.mw.app.keyboardModifiers() & Qt.AltModifier:
             highest += 1
@@ -889,9 +889,9 @@ to a cloze type first, via 'Notes>Change Note Type'"""
 
             # in internal pastes, rewrite mediasrv references to relative
             if internal:
-                m = re.match(r"http://127.0.0.1:\d+/(.*)$", src)
-                if m:
-                    tag["src"] = m.group(1)
+                match = re.match(r"http://127.0.0.1:\d+/(.*)$", src)
+                if match:
+                    tag["src"] = match.group(1)
             else:
                 # in external pastes, download remote media
                 if self.isURL(src):
