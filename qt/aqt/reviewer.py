@@ -415,7 +415,7 @@ Please run Tools>Empty Cards"""
         def repl(match):
             # can't pass a string in directly, and can't use re.escape as it
             # escapes too much
-            s = """
+            html = """
 <span style="font-family: '%s'; font-size: %spx">%s</span>""" % (
                 self.typeFont,
                 self.typeSize,
@@ -424,8 +424,8 @@ Please run Tools>Empty Cards"""
             if hadHR:
                 # a hack to ensure the q/a separator falls before the answer
                 # comparison when user is using {{FrontSide}}
-                s = "<hr id=answer>" + s
-            return s
+                html = "<hr id=answer>" + html
+            return html
 
         return re.sub(self.typeAnsPat, repl, buf)
 
@@ -489,14 +489,14 @@ Please run Tools>Empty Cards"""
         "Diff-corrects the typed-in answer."
         givenElems, correctElems = self.tokenizeComparison(given, correct)
 
-        def good(s: str) -> str:
-            return "<span class=typeGood>" + html.escape(s) + "</span>"
+        def good(diff_part: str) -> str:
+            return "<span class=typeGood>" + html.escape(diff_part) + "</span>"
 
-        def bad(s: str) -> str:
-            return "<span class=typeBad>" + html.escape(s) + "</span>"
+        def bad(diff_part: str) -> str:
+            return "<span class=typeBad>" + html.escape(diff_part) + "</span>"
 
-        def missed(s: str) -> str:
-            return "<span class=typeMissed>" + html.escape(s) + "</span>"
+        def missed(diff_part: str) -> str:
+            return "<span class=typeMissed>" + html.escape(diff_part) + "</span>"
 
         if given == correct:
             res = good(given)
