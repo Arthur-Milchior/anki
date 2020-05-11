@@ -614,14 +614,14 @@ time = %(time)d;
             return 2
 
     def _answerButtonList(self) -> Sequence[Tuple[int, str]]:
-        l = ((1, _("Again")),)
+        buttons = ((1, _("Again")),)
         cnt = self.mw.col.sched.answerButtons(self.card)
         if cnt == 2:
-            return l + ((2, _("Good")),)
+            return buttons + ((2, _("Good")),)
         elif cnt == 3:
-            return l + ((2, _("Good")), (3, _("Easy")))
+            return buttons + ((2, _("Good")), (3, _("Easy")))
         else:
-            return l + ((2, _("Hard")), (3, _("Good")), (4, _("Easy")))
+            return buttons + ((2, _("Hard")), (3, _("Good")), (4, _("Easy")))
 
     def _answerButtons(self) -> str:
         default = self._defaultEase()
