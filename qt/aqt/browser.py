@@ -1134,7 +1134,7 @@ QTableView {{ gridline-color: {grid} }}
             item = SidebarItem(
                 name,
                 ":/icons/heart.svg",
-                lambda s=filt: self.setFilter(s),  # type: ignore
+                lambda filt=filt: self.setFilter(filt),  # type: ignore
             )
             root.addChild(item)
 
