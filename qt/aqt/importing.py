@@ -39,22 +39,22 @@ class ChangeMap(QDialog):
         self.model = model
         self.frm = aqt.forms.changemap.Ui_ChangeMap()
         self.frm.setupUi(self)
-        n = 0
+        count = 0
         setCurrent = False
         for field in self.model["flds"]:
             item = QListWidgetItem(_("Map to %s") % field["name"])
             self.frm.fields.addItem(item)
             if current == field["name"]:
                 setCurrent = True
-                self.frm.fields.setCurrentRow(n)
-            n += 1
+                self.frm.fields.setCurrentRow(count)
+            count += 1
         self.frm.fields.addItem(QListWidgetItem(_("Map to Tags")))
         self.frm.fields.addItem(QListWidgetItem(_("Ignore field")))
         if not setCurrent:
             if current == "_tags":
-                self.frm.fields.setCurrentRow(n)
+                self.frm.fields.setCurrentRow(count)
             else:
-                self.frm.fields.setCurrentRow(n + 1)
+                self.frm.fields.setCurrentRow(count + 1)
         self.field = None
 
     def getField(self):

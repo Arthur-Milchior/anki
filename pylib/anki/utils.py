@@ -342,10 +342,10 @@ def invalidFilename(str, dirsep=True) -> Optional[str]:
 
 def platDesc() -> str:
     # we may get an interrupted system call, so try this in a loop
-    n = 0
+    index = 0
     theos = "unknown"
-    while n < 100:
-        n += 1
+    while index < 100:
+        index += 1
         try:
             system = platform.system()
             if isMac:
