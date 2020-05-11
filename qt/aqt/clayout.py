@@ -648,9 +648,9 @@ adjust the template manually to switch the question and answer."""
         menu.exec_(self.topAreaForm.templateOptions.mapToGlobal(QPoint(0, 0)))
 
     def onBrowserDisplay(self):
-        d = QDialog()
+        dialog = QDialog()
         form = aqt.forms.browserdisp.Ui_Dialog()
-        form.setupUi(d)
+        form.setupUi(dialog)
         template = self.current_template()
         form.qfmt.setText(template.get("bqfmt", ""))
         form.afmt.setText(template.get("bafmt", ""))
@@ -659,7 +659,7 @@ adjust the template manually to switch the question and answer."""
         form.font.setCurrentFont(QFont(template.get("bfont", "Arial")))
         form.fontSize.setValue(template.get("bsize", 12))
         qconnect(form.buttonBox.accepted, lambda: self.onBrowserDisplayOk(form))
-        d.exec_()
+        dialog.exec_()
 
     def onBrowserDisplayOk(self, dialog):
         template = self.current_template()
@@ -678,9 +678,9 @@ adjust the template manually to switch the question and answer."""
         from aqt.tagedit import TagEdit
 
         template = self.current_template()
-        d = QDialog(self)
-        d.setWindowTitle("Anki")
-        d.setMinimumWidth(400)
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Anki")
+        dialog.setMinimumWidth(400)
         l = QVBoxLayout()
         lab = QLabel(
             _(
@@ -691,17 +691,17 @@ Enter deck to place new %s cards in, or leave blank:"""
         )
         lab.setWordWrap(True)
         l.addWidget(lab)
-        te = TagEdit(d, type=1)
+        te = TagEdit(dialog, type=1)
         te.setCol(self.col)
         l.addWidget(te)
         if template["did"]:
             te.setText(self.col.decks.get(template["did"])["name"])
             te.selectAll()
         bb = QDialogButtonBox(QDialogButtonBox.Close)
-        qconnect(bb.rejected, d.close)
+        qconnect(bb.rejected, dialog.close)
         l.addWidget(bb)
-        d.setLayout(l)
-        d.exec_()
+        dialog.setLayout(l)
+        dialog.exec_()
         self.change_tracker.mark_basic()
         if not te.text().strip():
             template["did"] = None

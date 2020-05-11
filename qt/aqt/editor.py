@@ -532,15 +532,15 @@ class Editor:
         self.saveNow(lambda: self._onHtmlEdit(field))
 
     def _onHtmlEdit(self, field):
-        d = QDialog(self.widget, Qt.Window)
+        dialog = QDialog(self.widget, Qt.Window)
         form = aqt.forms.edithtml.Ui_Dialog()
-        form.setupUi(d)
-        restoreGeom(d, "htmlEditor")
+        form.setupUi(dialog)
+        restoreGeom(dialog, "htmlEditor")
         qconnect(form.buttonBox.helpRequested, lambda: openHelp("editor"))
         form.textEdit.setPlainText(self.note.fields[field])
-        d.show()
+        dialog.show()
         form.textEdit.moveCursor(QTextCursor.End)
-        d.exec_()
+        dialog.exec_()
         html = form.textEdit.toPlainText()
         if html.find(">") > -1:
             # filter html through beautifulsoup so we can strip out things like a
