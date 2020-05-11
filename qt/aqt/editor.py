@@ -761,9 +761,9 @@ to a cloze type first, via 'Notes>Change Note Type'"""
             return "[sound:%s]" % fname
 
     def urlToFile(self, url: str) -> Optional[str]:
-        l = url.lower()
+        urlLower = url.lower()
         for suffix in pics + audio:
-            if l.endswith("." + suffix):
+            if urlLower.endswith("." + suffix):
                 return self._retrieveURL(url)
         # not a supported type
         return None
