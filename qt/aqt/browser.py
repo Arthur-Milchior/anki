@@ -2001,7 +2001,9 @@ update cards set usn=?, mod=?, did=? where id in """
         notes = sum(len(r[1]) for r in res)
         part1 = ngettext("%d group", "%d groups", groups) % groups
         part2 = ngettext("%d note", "%d notes", notes) % notes
-        report_html += _("Found %(a)s across %(part2)s.") % dict(a=part1, part2=part2)
+        report_html += _("Found %(part1)s across %(part2)s.") % dict(
+            part1=part1, part2=part2
+        )
         report_html += "<p><ol>"
         for val, nids in res:
             report_html += (
