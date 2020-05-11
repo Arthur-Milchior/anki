@@ -99,11 +99,11 @@ class Editor:
     ############################################################
 
     def setupOuter(self):
-        l = QVBoxLayout()
-        l.setContentsMargins(0, 0, 0, 0)
-        l.setSpacing(0)
-        self.widget.setLayout(l)
-        self.outerLayout = l
+        layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        self.widget.setLayout(layout)
+        self.outerLayout = layout
 
     def setupWeb(self) -> None:
         self.web = EditorWebView(self.widget, self)

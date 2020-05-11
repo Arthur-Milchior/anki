@@ -336,30 +336,30 @@ class CardLayout(QDialog):
     ##########################################################################
 
     def setupButtons(self):
-        l = self.buttons = QHBoxLayout()
+        layout = self.buttons = QHBoxLayout()
         help = QPushButton(_("Help"))
         help.setAutoDefault(False)
-        l.addWidget(help)
+        layout.addWidget(help)
         qconnect(help.clicked, self.onHelp)
-        l.addStretch()
+        layout.addStretch()
         self.add_field_button = QPushButton(_("Add Field"))
         self.add_field_button.setAutoDefault(False)
-        l.addWidget(self.add_field_button)
+        layout.addWidget(self.add_field_button)
         qconnect(self.add_field_button.clicked, self.onAddField)
         if not self._isCloze():
             flip = QPushButton(_("Flip"))
             flip.setAutoDefault(False)
-            l.addWidget(flip)
+            layout.addWidget(flip)
             qconnect(flip.clicked, self.onFlip)
-        l.addStretch()
+        layout.addStretch()
         save = QPushButton(_("Save"))
         save.setAutoDefault(False)
-        l.addWidget(save)
+        layout.addWidget(save)
         qconnect(save.clicked, self.accept)
 
         close = QPushButton(_("Cancel"))
         close.setAutoDefault(False)
-        l.addWidget(close)
+        layout.addWidget(close)
         qconnect(close.clicked, self.reject)
 
     # Reading/writing question/answer/css
@@ -681,7 +681,7 @@ adjust the template manually to switch the question and answer."""
         dialog = QDialog(self)
         dialog.setWindowTitle("Anki")
         dialog.setMinimumWidth(400)
-        l = QVBoxLayout()
+        layout = QVBoxLayout()
         lab = QLabel(
             _(
                 """\
@@ -690,17 +690,17 @@ Enter deck to place new %s cards in, or leave blank:"""
             % self.current_template()["name"]
         )
         lab.setWordWrap(True)
-        l.addWidget(lab)
+        layout.addWidget(lab)
         te = TagEdit(dialog, type=1)
         te.setCol(self.col)
-        l.addWidget(te)
+        layout.addWidget(te)
         if template["did"]:
             te.setText(self.col.decks.get(template["did"])["name"])
             te.selectAll()
         bb = QDialogButtonBox(QDialogButtonBox.Close)
         qconnect(bb.rejected, dialog.close)
-        l.addWidget(bb)
-        dialog.setLayout(l)
+        layout.addWidget(bb)
+        dialog.setLayout(layout)
         dialog.exec_()
         self.change_tracker.mark_basic()
         if not te.text().strip():

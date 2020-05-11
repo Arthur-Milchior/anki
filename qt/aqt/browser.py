@@ -1422,15 +1422,15 @@ QTableView {{ gridline-color: {grid} }}
         reps = self._revlogData(cs)
 
         card_info_dialog = CardInfoDialog(self)
-        l = QVBoxLayout()
-        l.setContentsMargins(0, 0, 0, 0)
+        layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
         w = AnkiWebView(title="browser card info")
-        l.addWidget(w)
+        layout.addWidget(w)
         w.stdHtml(info + "<p>" + reps, context=card_info_dialog)
         bb = QDialogButtonBox(QDialogButtonBox.Close)
-        l.addWidget(bb)
+        layout.addWidget(bb)
         qconnect(bb.rejected, card_info_dialog.reject)
-        card_info_dialog.setLayout(l)
+        card_info_dialog.setLayout(layout)
         card_info_dialog.setWindowModality(Qt.WindowModal)
         card_info_dialog.resize(500, 400)
         restoreGeom(card_info_dialog, "revlog")
@@ -2240,12 +2240,12 @@ class ChangeModel(QDialog):
             map.deleteLater()
             setattr(self, key + "MapWidget", None)
         map = QWidget()
-        l = QGridLayout()
+        layout = QGridLayout()
         combos = []
         targets = [x["name"] for x in dst] + [_("Nothing")]
         indices = {}
         for i, x in enumerate(src):
-            l.addWidget(QLabel(_("Change %s to:") % x["name"]), i, 0)
+            layout.addWidget(QLabel(_("Change %s to:") % x["name"]), i, 0)
             cb = QComboBox()
             cb.addItems(targets)
             idx = min(i, len(targets) - 1)
@@ -2256,8 +2256,8 @@ class ChangeModel(QDialog):
                 lambda i, cb=cb, key=key: self.onComboChanged(i, cb, key),
             )
             combos.append(cb)
-            l.addWidget(cb, i, 1)
-        map.setLayout(l)
+            layout.addWidget(cb, i, 1)
+        map.setLayout(layout)
         lay.addWidget(map)
         setattr(self, key + "widg", map)
         setattr(self, key + "layout", lay)
