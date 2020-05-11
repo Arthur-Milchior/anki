@@ -492,7 +492,7 @@ def _replaceWithApkg(mw, filename, backup):
         with z.open(colname) as source, open(mw.pm.collectionPath(), "wb") as target:
             shutil.copyfileobj(source, target)
 
-        d = os.path.join(mw.pm.profileFolder(), "collection.media")
+        mediaFolder = os.path.join(mw.pm.profileFolder(), "collection.media")
         for index, (cStr, file) in enumerate(
             json.loads(z.read("media").decode("utf8")).items()
         ):
@@ -505,7 +505,7 @@ def _replaceWithApkg(mw, filename, backup):
                 )
             )
             size = z.getinfo(cStr).file_size
-            dest = os.path.join(d, unicodedata.normalize("NFC", file))
+            dest = os.path.join(mediaFolder, unicodedata.normalize("NFC", file))
             # if we have a matching file size
             if os.path.exists(dest) and size == os.stat(dest).st_size:
                 continue
