@@ -118,9 +118,9 @@ class ProfileManager:
 
             return os.path.join(get_personal(), "Anki")
         else:
-            p = os.path.expanduser("~/Anki")
-            if os.path.isdir(p):
-                return p
+            oldAnkiPath = os.path.expanduser("~/Anki")
+            if os.path.isdir(oldAnkiPath):
+                return oldAnkiPath
             return os.path.expanduser("~/Documents/Anki")
 
     def maybeMigrateFolder(self):
