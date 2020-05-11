@@ -143,12 +143,14 @@ class NoteImporter(Importer):
         dupeCount = 0
         dupes: List[str] = []
         for n in notes:
-            for c in range(len(n.fields)):
+            for fieldIndex in range(len(n.fields)):
                 if not self.allowHTML:
-                    n.fields[c] = html.escape(n.fields[c], quote=False)
-                n.fields[c] = n.fields[c].strip()
+                    n.fields[fieldIndex] = html.escape(
+                        n.fields[fieldIndex], quote=False
+                    )
+                n.fields[fieldIndex] = n.fields[fieldIndex].strip()
                 if not self.allowHTML:
-                    n.fields[c] = n.fields[c].replace("\n", "<br>")
+                    n.fields[fieldIndex] = n.fields[fieldIndex].replace("\n", "<br>")
             fld0 = n.fields[fld0idx]
             csum = fieldChecksum(fld0)
             # first field must exist
