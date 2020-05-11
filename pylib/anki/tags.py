@@ -145,13 +145,13 @@ class TagManager:
         currentTags = self.split(tags)
         for tag in self.split(deltags):
             # find tags, ignoring case
-            remove = []
+            removes = []
             for tx in currentTags:
                 if (tag.lower() == tx.lower()) or wildcard(tag, tx):
-                    remove.append(tx)
-            # remove them
-            for r in remove:
-                currentTags.remove(r)
+                    removes.append(tx)
+            # removes them
+            for remove in removes:
+                currentTags.remove(remove)
         return self.join(currentTags)
 
     # List-based utilities
