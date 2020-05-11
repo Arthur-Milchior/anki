@@ -105,9 +105,9 @@ class TextCardExporter(Exporter):
 
         out = ""
         for cid in ids:
-            c = self.col.getCard(cid)
-            out += esc(c.q())
-            out += "\t" + esc(c.a()) + "\n"
+            card = self.col.getCard(cid)
+            out += esc(card.q())
+            out += "\t" + esc(card.a()) + "\n"
         file.write(out.encode("utf-8"))
 
 

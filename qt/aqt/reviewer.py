@@ -98,8 +98,8 @@ class Reviewer:
             self.mw.col.startTimebox()
         if self.cardQueue:
             # undone/edited cards to show
-            c = self.cardQueue.pop()
-            c.startTimer()
+            card = self.cardQueue.pop()
+            card.startTimer()
             self.hadCardQueue = True
         else:
             if self.hadCardQueue:
@@ -107,9 +107,9 @@ class Reviewer:
                 # need to reset
                 self.mw.col.reset()
                 self.hadCardQueue = False
-            c = self.mw.col.sched.getCard()
-        self.card = c
-        if not c:
+            card = self.mw.col.sched.getCard()
+        self.card = card
+        if not card:
             self.mw.moveToState("overview")
             return
         if self._reps is None or self._reps % 100 == 0:
@@ -178,20 +178,20 @@ class Reviewer:
         self._reps += 1
         self.state = "question"
         self.typedAnswer: str = None
-        c = self.card
+        card = self.card
         # grab the question and play audio
-        q = c.q()
+        q = card.q()
         # play audio?
-        if c.autoplay():
-            av_player.play_tags(c.question_av_tags())
+        if card.autoplay():
+            av_player.play_tags(card.question_av_tags())
         else:
             av_player.clear_queue_and_maybe_interrupt()
 
         # render & update bottom
         q = self._mungeQA(q)
-        q = gui_hooks.card_will_show(q, c, "reviewQuestion")
+        q = gui_hooks.card_will_show(q, card, "reviewQuestion")
 
-        bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
+        bodyclass = theme_manager.body_classes_for_card_ord(card.ord)
 
         self.web.eval("_showQuestion(%s,'%s');" % (json.dumps(q), bodyclass))
         self._drawFlag()
@@ -201,7 +201,7 @@ class Reviewer:
         if self.typeCorrect:
             self.mw.web.setFocus()
         # user hook
-        gui_hooks.reviewer_did_show_question(c)
+        gui_hooks.reviewer_did_show_question(card)
 
     def autoplay(self, card: Card) -> bool:
         print("use card.autoplay() instead of reviewer.autoplay(card)")
@@ -221,21 +221,21 @@ class Reviewer:
             # showing resetRequired screen; ignore space
             return
         self.state = "answer"
-        c = self.card
-        a = c.a()
+        card = self.card
+        a = card.a()
         # play audio?
-        if c.autoplay():
-            av_player.play_tags(c.answer_av_tags())
+        if card.autoplay():
+            av_player.play_tags(card.answer_av_tags())
         else:
             av_player.clear_queue_and_maybe_interrupt()
 
         a = self._mungeQA(a)
-        a = gui_hooks.card_will_show(a, c, "reviewAnswer")
+        a = gui_hooks.card_will_show(a, card, "reviewAnswer")
         # render and update bottom
         self.web.eval("_showAnswer(%s);" % json.dumps(a))
         self._showEaseButtons()
         # user hook
-        gui_hooks.reviewer_did_show_answer(c)
+        gui_hooks.reviewer_did_show_answer(card)
 
     # Answering a card
     ############################################################
@@ -774,7 +774,7 @@ time = %(time)d;
 
     def onSuspend(self) -> None:
         self.mw.checkpoint(_("Suspend"))
-        self.mw.col.sched.suspendCards([c.id for c in self.card.note().cards()])
+        self.mw.col.sched.suspendCards([card.id for card in self.card.note().cards()])
         tooltip(_("Note suspended."))
         self.mw.reset()
 

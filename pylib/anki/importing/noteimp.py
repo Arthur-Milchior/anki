@@ -78,8 +78,8 @@ class NoteImporter(Importer):
     def run(self) -> None:
         "Import."
         assert self.mapping
-        c = self.foreignNotes()
-        self.importNotes(c)
+        card = self.foreignNotes()
+        self.importNotes(card)
 
     def fields(self) -> int:
         "The number of fields."
@@ -233,8 +233,8 @@ class NoteImporter(Importer):
         self._ids.append(id)
         self.processFields(n)
         # note id for card updates later
-        for ord, c in list(n.cards.items()):
-            self._cards.append((id, ord, c))
+        for ord, card in list(n.cards.items()):
+            self._cards.append((id, ord, card))
         return [
             id,
             guid64(),
@@ -299,20 +299,22 @@ where id = ? and flds != ?""",
     ) -> None:
         if not fields:
             fields = [""] * len(self.model["flds"])
-        for c, f in enumerate(self.mapping):
+        for card, f in enumerate(self.mapping):
             if not f:
                 continue
             elif f == "_tags":
-                note.tags.extend(self.col.tags.split(note.fields[c]))
+                note.tags.extend(self.col.tags.split(note.fields[card]))
             else:
                 sidx = self._fmap[f][0]
-                fields[sidx] = note.fields[c]
+                fields[sidx] = note.fields[card]
         note.fieldsStr = joinFields(fields)
 
     def updateCards(self) -> None:
         data = []
-        for nid, ord, c in self._cards:
-            data.append((c.ivl, c.due, c.factor, c.reps, c.lapses, nid, ord))
+        for nid, ord, card in self._cards:
+            data.append(
+                (card.ivl, card.due, card.factor, card.reps, card.lapses, nid, ord)
+            )
         # we assume any updated cards are reviews
         self.col.db.executemany(
             """

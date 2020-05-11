@@ -419,19 +419,18 @@ class CardLayout(QDialog):
     def _renderPreview(self) -> None:
         self.cancelPreviewTimer()
 
-        c = self.rendered_card = self.ephemeral_card_for_rendering()
-
+        card = self.rendered_card = self.ephemeral_card_for_rendering()
         ti = self.maybeTextInput
 
-        bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
+        bodyclass = theme_manager.body_classes_for_card_ord(card.ord)
 
         if self.pform.preview_front.isChecked():
-            q = ti(self.mw.prepare_card_text_for_display(c.q()))
-            q = gui_hooks.card_will_show(q, c, "clayoutQuestion")
+            q = ti(self.mw.prepare_card_text_for_display(card.q()))
+            q = gui_hooks.card_will_show(q, card, "clayoutQuestion")
             text = q
         else:
-            a = ti(self.mw.prepare_card_text_for_display(c.a()), type="a")
-            a = gui_hooks.card_will_show(a, c, "clayoutAnswer")
+            a = ti(self.mw.prepare_card_text_for_display(card.a()), type="a")
+            a = gui_hooks.card_will_show(a, card, "clayoutAnswer")
             text = a
 
         # use _showAnswer to avoid the longer delay
@@ -440,11 +439,11 @@ class CardLayout(QDialog):
         if not self.have_autoplayed:
             self.have_autoplayed = True
 
-            if c.autoplay():
+            if card.autoplay():
                 if self.pform.preview_front.isChecked():
-                    audio = c.question_av_tags()
+                    audio = card.question_av_tags()
                 else:
-                    audio = c.answer_av_tags()
+                    audio = card.answer_av_tags()
                 av_player.play_tags(audio)
             else:
                 av_player.clear_queue_and_maybe_interrupt()

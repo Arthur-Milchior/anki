@@ -152,26 +152,26 @@ class Scheduler(V2):
     def _getCard(self) -> Optional[Card]:
         "Return the next due card id, or None."
         # learning card due?
-        c = self._getLrnCard()
-        if c:
-            return c
+        card = self._getLrnCard()
+        if card:
+            return card
         # new first, or time for one?
         if self._timeForNewCard():
-            c = self._getNewCard()
-            if c:
-                return c
+            card = self._getNewCard()
+            if card:
+                return card
         # card due for review?
-        c = self._getRevCard()
-        if c:
-            return c
+        card = self._getRevCard()
+        if card:
+            return card
         # day learning card due?
-        c = self._getLrnDayCard()
-        if c:
-            return c
+        card = self._getLrnDayCard()
+        if card:
+            return card
         # new cards left?
-        c = self._getNewCard()
-        if c:
-            return c
+        card = self._getNewCard()
+        if card:
+            return card
         # collapse or finish
         return self._getLrnCard(collapse=True)
 
