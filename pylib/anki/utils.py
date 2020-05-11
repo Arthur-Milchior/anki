@@ -61,41 +61,41 @@ reEnts = re.compile(r"&#?\w+;")
 reMedia = re.compile("(?i)<img[^>]+src=[\"']?([^\"'>]+)[\"']?[^>]*>")
 
 
-def stripHTML(s: str) -> str:
-    s = reComment.sub("", s)
-    s = reStyle.sub("", s)
-    s = reScript.sub("", s)
-    s = reTag.sub("", s)
-    s = entsToTxt(s)
-    return s
+def stripHTML(text: str) -> str:
+    text = reComment.sub("", text)
+    text = reStyle.sub("", text)
+    text = reScript.sub("", text)
+    text = reTag.sub("", text)
+    text = entsToTxt(text)
+    return text
 
 
-def stripHTMLMedia(s: str) -> str:
+def stripHTMLMedia(text: str) -> str:
     "Strip HTML but keep media filenames"
-    s = reMedia.sub(" \\1 ", s)
-    return stripHTML(s)
+    text = reMedia.sub(" \\1 ", text)
+    return stripHTML(text)
 
 
-def minimizeHTML(s: str) -> str:
-    "Correct Qt's verbose bold/underline/etc."
-    s = re.sub('<span style="font-weight:600;">(.*?)</span>', "<b>\\1</b>", s)
-    s = re.sub('<span style="font-style:italic;">(.*?)</span>', "<i>\\1</i>", s)
-    s = re.sub(
-        '<span style="text-decoration: underline;">(.*?)</span>', "<u>\\1</u>", s
+def minimizeHTML(text: str) -> str:
+    "Correct Qt'text verbose bold/underline/etc."
+    text = re.sub('<span style="font-weight:600;">(.*?)</span>', "<b>\\1</b>", text)
+    text = re.sub('<span style="font-style:italic;">(.*?)</span>', "<i>\\1</i>", text)
+    text = re.sub(
+        '<span style="text-decoration: underline;">(.*?)</span>', "<u>\\1</u>", text
     )
-    return s
+    return text
 
 
-def htmlToTextLine(s: str) -> str:
-    s = s.replace("<br>", " ")
-    s = s.replace("<br />", " ")
-    s = s.replace("<div>", " ")
-    s = s.replace("\n", " ")
-    s = re.sub(r"\[sound:[^]]+\]", "", s)
-    s = re.sub(r"\[\[type:[^]]+\]\]", "", s)
-    s = stripHTMLMedia(s)
-    s = s.strip()
-    return s
+def htmlToTextLine(text: str) -> str:
+    text = text.replace("<br>", " ")
+    text = text.replace("<br />", " ")
+    text = text.replace("<div>", " ")
+    text = text.replace("\n", " ")
+    text = re.sub(r"\[sound:[^]]+\]", "", text)
+    text = re.sub(r"\[\[type:[^]]+\]\]", "", text)
+    text = stripHTMLMedia(text)
+    text = text.strip()
+    return text
 
 
 def entsToTxt(html: str) -> str:
@@ -373,10 +373,10 @@ class TimedLog:
     def __init__(self) -> None:
         self._last = time.time()
 
-    def log(self, s) -> None:
+    def log(self, text) -> None:
         path, num, fn, y = traceback.extract_stack(limit=2)[0]
         sys.stderr.write(
-            "%5dms: %s(): %s\n" % ((time.time() - self._last) * 1000, fn, s)
+            "%5dms: %s(): %s\n" % ((time.time() - self._last) * 1000, fn, text)
         )
         self._last = time.time()
 

@@ -768,13 +768,13 @@ to a cloze type first, via 'Notes>Change Note Type'"""
         # not a supported type
         return None
 
-    def isURL(self, s):
-        s = s.lower()
+    def isURL(self, text):
+        text = text.lower()
         return (
-            s.startswith("http://")
-            or s.startswith("https://")
-            or s.startswith("ftp://")
-            or s.startswith("file://")
+            text.startswith("http://")
+            or text.startswith("https://")
+            or text.startswith("ftp://")
+            or text.startswith("file://")
         )
 
     def inlinedImageToFilename(self, txt: str) -> str:

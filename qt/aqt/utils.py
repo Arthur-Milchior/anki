@@ -300,9 +300,9 @@ def getText(
 
 
 def getOnlyText(*args, **kwargs):
-    (s, returnValue) = getText(*args, **kwargs)
+    (text, returnValue) = getText(*args, **kwargs)
     if returnValue:
-        return s
+        return text
     else:
         return ""
 

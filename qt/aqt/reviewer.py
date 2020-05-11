@@ -662,10 +662,10 @@ time = %(time)d;
 
     def onLeech(self, card: Card) -> None:
         # for now
-        s = _("Card was a leech.")
+        text = _("Card was a leech.")
         if card.queue < 0:
-            s += " " + _("It has been suspended.")
-        tooltip(s)
+            text += " " + _("It has been suspended.")
+        tooltip(text)
 
     # Context menu
     ##########################################################################
