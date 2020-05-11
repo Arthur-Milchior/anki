@@ -146,10 +146,10 @@ def timestampID(db: DBProxy, table: str) -> int:
     "Return a non-conflicting timestamp for table."
     # be careful not to create multiple objects without flushing them, or they
     # may share an ID.
-    t = intTime(1000)
-    while db.scalar("select id from %s where id = ?" % table, t):
-        t += 1
-    return t
+    time = intTime(1000)
+    while db.scalar("select id from %s where id = ?" % table, time):
+        time += 1
+    return time
 
 
 def maxID(db: DBProxy) -> int:
