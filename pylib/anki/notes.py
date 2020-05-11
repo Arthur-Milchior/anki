@@ -135,9 +135,9 @@ class Note:
 
     def delTag(self, tag: str) -> None:
         rem = []
-        for t in self.tags:
-            if t.lower() == tag.lower():
-                rem.append(t)
+        for tag in self.tags:
+            if tag.lower() == tag.lower():
+                rem.append(tag)
         for r in rem:
             self.tags.remove(r)
 

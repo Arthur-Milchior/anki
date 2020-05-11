@@ -1139,9 +1139,9 @@ QTableView {{ gridline-color: {grid} }}
 
     def _userTagTree(self, root) -> None:
         assert self.col
-        for t in self.col.tags.all():
+        for tag in self.col.tags.all():
             item = SidebarItem(
-                t, ":/icons/tag.svg", lambda t=t: self.setFilter("tag", t)  # type: ignore
+                tag, ":/icons/tag.svg", lambda tag=tag: self.setFilter("tag", tag)  # type: ignore
             )
             root.addChild(item)
 
@@ -1298,8 +1298,8 @@ QTableView {{ gridline-color: {grid} }}
         menu.addSeparator()
 
         tagList = MenuList()
-        for t in sorted(self.col.tags.all(), key=lambda s: s.lower()):
-            tagList.addItem(t, self._filterFunc("tag", t))
+        for tag in sorted(self.col.tags.all(), key=lambda s: s.lower()):
+            tagList.addItem(tag, self._filterFunc("tag", tag))
 
         menu.addChild(tagList.chunked())
         return menu
