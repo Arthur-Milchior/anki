@@ -77,10 +77,10 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
     mw: Optional[Collection] = None
 
     def do_GET(self):
-        f = self.send_head()
-        if f:
+        head = self.send_head()
+        if head:
             try:
-                self.copyfile(f, self.wfile)
+                self.copyfile(head, self.wfile)
             except Exception as e:
                 if devMode:
                     print("http server caught exception:", e)
@@ -90,7 +90,7 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
                     # downloading
                     pass
             finally:
-                f.close()
+                head.close()
 
     def send_head(self):
         path = self.translate_path(self.path)
