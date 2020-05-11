@@ -142,11 +142,13 @@ class AddCards(QDialog):
                     txt = txt[:30] + "..."
                 line = _('Edit "%s"') % txt
                 line = gui_hooks.addcards_will_add_history_entry(line, note)
-                a = menu.addAction(line)
-                qconnect(a.triggered, lambda button, nid=nid: self.editHistory(nid))
+                action = menu.addAction(line)
+                qconnect(
+                    action.triggered, lambda button, nid=nid: self.editHistory(nid)
+                )
             else:
-                a = menu.addAction(_("(Note deleted)"))
-                a.setEnabled(False)
+                action = menu.addAction(_("(Note deleted)"))
+                action.setEnabled(False)
         gui_hooks.add_cards_will_show_history_menu(self, menu)
         menu.exec_(self.historyButton.mapToGlobal(QPoint(0, 0)))
 

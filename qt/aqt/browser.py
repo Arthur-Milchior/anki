@@ -966,10 +966,10 @@ QTableView {{ gridline-color: {grid} }}
         gpos = self.form.tableView.mapToGlobal(pos)
         menu = QMenu()
         for type, name in self.columns:
-            a = menu.addAction(name)
-            a.setCheckable(True)
-            a.setChecked(type in self.model.activeCols)
-            qconnect(a.toggled, lambda button, type=type: self.toggleField(type))
+            action = menu.addAction(name)
+            action.setCheckable(True)
+            action.setChecked(type in self.model.activeCols)
+            qconnect(action.toggled, lambda button, type=type: self.toggleField(type))
         gui_hooks.browser_header_will_show_context_menu(self, menu)
         menu.exec_(gpos)
 

@@ -736,8 +736,8 @@ class MenuItem:
         self.func = func
 
     def renderTo(self, qmenu):
-        a = qmenu.addAction(self.title)
-        qconnect(a.triggered, self.func)
+        action = qmenu.addAction(self.title)
+        qconnect(action.triggered, self.func)
 
 
 def qtMenuShortcutWorkaround(qmenu):
