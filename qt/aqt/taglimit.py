@@ -34,8 +34,8 @@ class TagLimit(QDialog):
         noHash = {}
         for y in yes:
             yesHash[y] = True
-        for n in noes:
-            noHash[n] = True
+        for no in noes:
+            noHash[no] = True
         groupedTags = []
         usertags.sort()
         groupedTags.append(usertags)
