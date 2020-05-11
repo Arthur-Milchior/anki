@@ -222,17 +222,17 @@ class Reviewer:
             return
         self.state = "answer"
         card = self.card
-        a = card.a()
+        answerHtml = card.a()
         # play audio?
         if card.autoplay():
             av_player.play_tags(card.answer_av_tags())
         else:
             av_player.clear_queue_and_maybe_interrupt()
 
-        a = self._mungeQA(a)
-        a = gui_hooks.card_will_show(a, card, "reviewAnswer")
+        answerHtml = self._mungeQA(answerHtml)
+        answerHtml = gui_hooks.card_will_show(answerHtml, card, "reviewAnswer")
         # render and update bottom
-        self.web.eval("_showAnswer(%s);" % json.dumps(a))
+        self.web.eval("_showAnswer(%s);" % json.dumps(answerHtml))
         self._showEaseButtons()
         # user hook
         gui_hooks.reviewer_did_show_answer(card)

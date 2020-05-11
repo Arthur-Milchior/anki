@@ -431,9 +431,12 @@ class CardLayout(QDialog):
             )
             text = questionHtmlPreview
         else:
-            a = ti(self.mw.prepare_card_text_for_display(card.a()), type="a")
-            a = gui_hooks.card_will_show(a, card, "clayoutAnswer")
-            text = a
+            answerHtml = ti(
+                self.mw.prepare_card_text_for_display(card.a()),
+                type="answerHtml",
+            )
+            answerHtml = gui_hooks.card_will_show(answerHtml, card, "clayoutAnswer")
+            text = answerHtml
 
         # use _showAnswer to avoid the longer delay
         self.preview_web.eval("_showAnswer(%s,'%s');" % (json.dumps(text), bodyclass))
