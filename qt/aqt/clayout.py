@@ -725,12 +725,12 @@ Enter deck to place new %s cards in, or leave blank:"""
                 fields[row], form.font.currentFont().family(), form.size.value(),
             )
 
-    def _addField(self, field, font, size):
+    def _addField(self, fldName, font, size):
         text = self.tform.edit_area.toPlainText()
         text += "\n<div style='font-family: %s; font-size: %spx;'>{{%s}}</div>\n" % (
             font,
             size,
-            field,
+            fldName,
         )
         self.tform.edit_area.setPlainText(text)
         self.change_tracker.mark_basic()
