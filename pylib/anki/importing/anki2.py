@@ -301,8 +301,8 @@ class Anki2Importer(Importer):
         self._cards: Dict[Tuple[str, int], int] = {}
         existing = {}
         for guid, ord, cid in self.dst.db.execute(
-            "select f.guid, card.ord, card.id from cards card, notes f "
-            "where card.nid = f.id"
+            "select note.guid, card.ord, card.id from cards card, notes note "
+            "where card.nid = note.id"
         ):
             existing[cid] = True
             self._cards[(guid, ord)] = cid
@@ -313,8 +313,8 @@ class Anki2Importer(Importer):
         usn = self.dst.usn()
         aheadBy = self.src.sched.today - self.dst.sched.today
         for card in self.src.db.execute(
-            "select f.guid, f.mid, card.* from cards card, notes f "
-            "where card.nid = f.id"
+            "select note.guid, note.mid, card.* from cards card, notes note "
+            "where card.nid = note.id"
         ):
             guid = card[0]
             if guid in self._changedGuids:

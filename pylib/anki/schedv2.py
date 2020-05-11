@@ -1175,9 +1175,9 @@ where id = ?
         # if over threshold or every half threshold reps after that
         if card.lapses >= lf and (card.lapses - lf) % (max(lf // 2, 1)) == 0:
             # add a leech tag
-            f = card.note()
-            f.addTag("leech")
-            f.flush()
+            note = card.note()
+            note.addTag("leech")
+            note.flush()
             # handle
             a = conf["leechAction"]
             if a == LEECH_SUSPEND:

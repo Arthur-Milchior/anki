@@ -294,8 +294,8 @@ class DataModel(QAbstractTableModel):
         elif type == "answer":
             return self.answer(card)
         elif type == "noteFld":
-            f = card.note()
-            return htmlToTextLine(f.fields[self.col.models.sortIdx(f.model())])
+            note = card.note()
+            return htmlToTextLine(note.fields[self.col.models.sortIdx(note.model())])
         elif type == "template":
             t = card.template()["name"]
             if card.model()["type"] == MODEL_CLOZE:
