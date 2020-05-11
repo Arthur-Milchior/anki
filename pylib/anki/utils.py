@@ -166,8 +166,8 @@ def base62(num: int, extra: str = "") -> str:
     table = s.ascii_letters + s.digits + extra
     buf = ""
     while num:
-        num, i = divmod(num, len(table))
-        buf = table[i] + buf
+        num, mod = divmod(num, len(table))
+        buf = table[mod] + buf
     return buf
 
 
