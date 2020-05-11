@@ -87,8 +87,8 @@ class AnkiWebPage(QWebEnginePage):
             level = "warning"
         elif level == QWebEnginePage.ErrorMessageLevel:
             level = "error"
-        buf = "JS %(t)s %(f)s:%(a)d %(b)s" % dict(
-            t=level, a=line, f=srcID, b=msg + "\n"
+        buf = "JS %(t)s %(f)s:%(a)d %(msg)s" % dict(
+            t=level, a=line, f=srcID, msg=msg + "\n"
         )
         # ensure we don't try to write characters the terminal can't handle
         buf = buf.encode(sys.stdout.encoding, "backslashreplace").decode(
