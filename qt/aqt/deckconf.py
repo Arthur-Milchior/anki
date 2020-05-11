@@ -172,14 +172,14 @@ class DeckConf(QDialog):
     # Loading
     ##################################################
 
-    def listToUser(self, l):
+    def listToUser(self, delays):
         def num_to_user(n: Union[int, float]):
             if n == round(n):
                 return str(int(n))
             else:
                 return str(n)
 
-        return " ".join(map(num_to_user, l))
+        return " ".join(map(num_to_user, delays))
 
     def parentLimText(self, type="new"):
         # top level?
