@@ -465,8 +465,12 @@ class Editor:
 
     def fonts(self) -> List[Tuple[str, int, bool]]:
         return [
-            (gui_hooks.editor_will_use_font_for_field(f["font"]), f["size"], f["rtl"])
-            for f in self.note.model()["flds"]
+            (
+                gui_hooks.editor_will_use_font_for_field(fldType["font"]),
+                fldType["size"],
+                fldType["rtl"],
+            )
+            for fldType in self.note.model()["flds"]
         ]
 
     def saveNow(self, callback, keepFocus=False):
@@ -500,14 +504,18 @@ class Editor:
         if not self.note:
             return True
         model = self.note.model()
-        for index, f in enumerate(self.note.fields):
-            f = f.replace("<br>", "").strip()
+        for index, fldValue in enumerate(self.note.fields):
+            fldValue = fldValue.replace("<br>", "").strip()
             notChangedvalues = {"", "<br>"}
             if previousNote and model["flds"][index]["sticky"]:
                 notChangedvalues.add(
                     previousNote.fields[index].replace("<br>", "").strip()
                 )
-            if f not in notChangedvalues:
+            if previousNote and model["flds"][index]["sticky"]:
+                notChangedvalues.add(
+                    previousNote.fields[index].replace("<br>", "").strip()
+                )
+            if fldValue not in notChangedvalues:
                 return False
         return True
 

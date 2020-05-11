@@ -764,12 +764,12 @@ time = %(time)d;
         self._drawFlag()
 
     def onMark(self) -> None:
-        f = self.card.note()
-        if f.hasTag("marked"):
-            f.delTag("marked")
+        note = self.card.note()
+        if note.hasTag("marked"):
+            note.delTag("marked")
         else:
-            f.addTag("marked")
-        f.flush()
+            note.addTag("marked")
+        note.flush()
         self._drawMark()
 
     def onSuspend(self) -> None:
