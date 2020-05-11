@@ -539,11 +539,12 @@ class CardLayout(QDialog):
         self.redraw_everything()
 
     def onReorder(self):
-        n = len(self.templates)
+        numberOfCard = len(self.templates)
         template = self.current_template()
         current_pos = self.templates.index(template) + 1
         pos = getOnlyText(
-            _("Enter new card position (1...%s):") % n, default=str(current_pos)
+            _("Enter new card position (1...%s):") % numberOfCard,
+            default=str(current_pos),
         )
         if not pos:
             return
@@ -551,7 +552,7 @@ class CardLayout(QDialog):
             pos = int(pos)
         except ValueError:
             return
-        if pos < 1 or pos > n:
+        if pos < 1 or pos > numberOfCard:
             return
         if pos == current_pos:
             return
