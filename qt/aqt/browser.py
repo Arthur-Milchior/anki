@@ -1351,7 +1351,9 @@ QTableView {{ gridline-color: {grid} }}
                 for index, tmpl in enumerate(nt["tmpls"]):
                     # T: name is a card type name. n it's order in the list of card type.
                     # T: this is shown in browser's filter, when seeing the list of card type of a note type.
-                    name = _("%(n)d: %(name)s") % dict(n=index + 1, name=tmpl["name"])
+                    name = _("%(cardNumber)d: %(name)s") % dict(
+                        cardNumber=index + 1, name=tmpl["name"]
+                    )
                     subm.addItem(
                         name,
                         self._filterFunc("note", nt["name"], "card", str(index + 1)),
