@@ -593,8 +593,7 @@ from the profile screen."
         newpath = os.path.join(dir, fname)
         with open(path, "rb") as file_object:
             data = file_object.read()
-        b = self.BackupThread(newpath, data)
-        b.start()
+        self.BackupThread(newpath, data).start()
 
         # find existing backups
         backups = []
