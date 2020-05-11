@@ -354,10 +354,10 @@ class DataModel(QAbstractTableModel):
             card.q(browser=True)
             return htmlToTextLine(card.a())
         # need to strip question from answer
-        q = self.question(card)
+        questionHtml = self.question(card)
         a = htmlToTextLine(card.a())
-        if a.startswith(q):
-            return a[len(q) :].strip()
+        if a.startswith(questionHtml):
+            return a[len(questionHtml) :].strip()
         return a
 
     def nextDue(self, card, index):
