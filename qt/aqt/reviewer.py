@@ -453,7 +453,7 @@ Please run Tools>Empty Cards"""
         # compare in NFC form so accents appear correct
         given = ucd.normalize("NFC", given)
         correct = ucd.normalize("NFC", correct)
-        s = difflib.SequenceMatcher(None, given, correct, autojunk=False)
+        matcher = difflib.SequenceMatcher(None, given, correct, autojunk=False)
         givenElems: List[Tuple[bool, str]] = []
         correctElems: List[Tuple[bool, str]] = []
         givenPoint = 0
@@ -470,7 +470,7 @@ Please run Tools>Empty Cards"""
             if cnt:
                 array.append((True, s[start : start + cnt]))
 
-        for x, y, cnt in s.get_matching_blocks():
+        for x, y, cnt in matcher.get_matching_blocks():
             # if anything was missed in correct, pad given
             if cnt and y - offby > x:
                 givenElems.append((False, "-" * (y - x - offby)))
