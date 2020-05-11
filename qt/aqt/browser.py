@@ -1299,7 +1299,7 @@ QTableView {{ gridline-color: {grid} }}
         menu.addSeparator()
 
         tagList = MenuList()
-        for tag in sorted(self.col.tags.all(), key=lambda s: s.lower()):
+        for tag in sorted(self.col.tags.all(), key=lambda tag: tag.lower()):
             tagList.addItem(tag, self._filterFunc("tag", tag))
 
         menu.addChild(tagList.chunked())
