@@ -27,7 +27,9 @@ class DeckConf(QDialog):
         QDialog.__init__(self, mw)
         self.mw = mw
         self.deck = deck
-        self.childDids = [d[1] for d in self.mw.col.decks.children(self.deck["id"])]
+        self.childDids = [
+            deck[1] for deck in self.mw.col.decks.children(self.deck["id"])
+        ]
         self._origNewOrder = None
         self.form = aqt.forms.dconf.Ui_Dialog()
         self.form.setupUi(self)
@@ -184,8 +186,8 @@ class DeckConf(QDialog):
         if "::" not in self.deck["name"]:
             return ""
         lim = -1
-        for d in self.mw.col.decks.parents(self.deck["id"]):
-            conf = self.mw.col.decks.confForDid(d["id"])
+        for deck in self.mw.col.decks.parents(self.deck["id"]):
+            conf = self.mw.col.decks.confForDid(deck["id"])
             x = conf[type]["perDay"]
             if lim == -1:
                 lim = x
