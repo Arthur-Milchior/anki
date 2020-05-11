@@ -1407,9 +1407,9 @@ QTableView {{ gridline-color: {grid} }}
     # returns name if found
     def _currentFilterIsSaved(self):
         filt = self.form.searchEdit.lineEdit().text()
-        for k, v in self.col.get_config("savedFilters").items():
+        for filterName, v in self.col.get_config("savedFilters").items():
             if filt == v:
-                return k
+                return filterName
         return None
 
     # Info
