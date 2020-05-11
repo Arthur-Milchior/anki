@@ -2319,7 +2319,7 @@ class ChangeModel(QDialog):
         # check maps
         fmap = self.getFieldMap()
         cmap = self.getTemplateMap()
-        if any(True for c in list(cmap.values()) if c is None):
+        if any(True for cardType in list(cmap.values()) if cardType is None):
             if not askUser(
                 _(
                     """\
