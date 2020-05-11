@@ -674,7 +674,7 @@ due = odue, odue = 0, odid = 0, usn = ? where %s"""
     def _moveToDyn(self, did: int, ids: Sequence[int]) -> None:  # type: ignore[override]
         deck = self.col.decks.get(did)
         data = []
-        t = intTime()
+        time = intTime()
         u = self.col.usn()
         for index, id in enumerate(ids):
             # start at -100000 so that reviews are all due
