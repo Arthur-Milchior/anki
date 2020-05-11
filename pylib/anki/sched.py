@@ -677,10 +677,10 @@ due = odue, odue = 0, odid = 0, usn = ? where %s"""
         deck = self.col.decks.get(did)
         data = []
         time = intTime()
-        u = self.col.usn()
+        usn = self.col.usn()
         for index, id in enumerate(ids):
             # start at -100000 so that reviews are all due
-            data.append((did, -100000 + index, u, id))
+            data.append((did, -100000 + index, usn, id))
         # due reviews stay in the review queue. careful: can't use
         # "odid or did", as sqlite converts to boolean
         queue = f"""
