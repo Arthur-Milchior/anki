@@ -86,7 +86,7 @@ class NoteImporter(Importer):
         return 0
 
     def initMapping(self) -> None:
-        flds = [f["name"] for f in self.model["flds"]]
+        flds = [fieldType["name"] for fieldType in self.model["flds"]]
         # truncate to provided count
         flds = flds[0 : self.fields()]
         # if there's room left, add tags

@@ -272,10 +272,13 @@ class ModelManager:
 
     def fieldMap(self, model: NoteType) -> Dict[str, Tuple[int, Field]]:
         "Mapping of field name -> (ord, field)."
-        return dict((f["name"], (f["ord"], f)) for f in model["flds"])
+        return dict(
+            (fieldType["name"], (fieldType["ord"], fieldType))
+            for fieldType in model["flds"]
+        )
 
     def fieldNames(self, model: NoteType) -> List[str]:
-        return [f["name"] for f in model["flds"]]
+        return [fieldType["name"] for fieldType in model["flds"]]
 
     def sortIdx(self, model: NoteType) -> Any:
         return model["sortf"]
@@ -478,8 +481,8 @@ and notes.mid = ? and cards.ord = ?""",
     def scmhash(self, model: NoteType) -> str:
         "Return a hash of the schema, to see if models are compatible."
         s = ""
-        for f in model["flds"]:
-            s += f["name"]
+        for fieldType in model["flds"]:
+            s += fieldType["name"]
         for t in model["tmpls"]:
             s += t["name"]
         return checksum(s)
