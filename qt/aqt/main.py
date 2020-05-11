@@ -235,23 +235,21 @@ class AnkiQt(QMainWindow):
         d.activateWindow()
         d.raise_()
 
-    def refreshProfilesList(self) -> None:
-        f = self.profileForm
-        f.profiles.clear()
+    def refreshProfilesList(self):
+        self.profileForm.profiles.clear()
         profs = self.pm.profiles()
-        f.profiles.addItems(profs)
+        self.profileForm.profiles.addItems(profs)
         try:
             idx = profs.index(self.pm.name)
         except:
             idx = 0
-        f.profiles.setCurrentRow(idx)
+        self.profileForm.profiles.setCurrentRow(idx)
 
     def onProfileRowChange(self, profileIndex: int) -> None:
         if profileIndex < 0:
             # called on .clear()
             return
         name = self.pm.profiles()[profileIndex]
-        f = self.profileForm
         self.pm.load(name)
 
     def openProfile(self):
