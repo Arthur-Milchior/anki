@@ -116,8 +116,8 @@ class NoteImporter(Importer):
         assert self.mappingOk()
         # note whether tags are mapped
         self._tagsMapped = False
-        for f in self.mapping:
-            if f == "_tags":
+        for fact in self.mapping:
+            if fact == "_tags":
                 self._tagsMapped = True
         # gather checks for duplicate comparison
         csums: Dict[str, List[int]] = {}
@@ -313,13 +313,13 @@ where id = ? and flds != ?""",
     ) -> None:
         if not fields:
             fields = [""] * len(self.model["flds"])
-        for card, f in enumerate(self.mapping):
-            if not f:
+        for card, fact in enumerate(self.mapping):
+            if not fact:
                 continue
-            elif f == "_tags":
+            elif fact == "_tags":
                 note.tags.extend(self.col.tags.split(note.fields[card]))
             else:
-                sidx = self._fmap[f][0]
+                sidx = self._fmap[fact][0]
                 fields[sidx] = note.fields[card]
         note.fieldsStr = joinFields(fields)
 

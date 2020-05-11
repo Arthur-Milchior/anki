@@ -27,8 +27,8 @@ class MnemosyneImporter(NoteImporter):
         note = None
         for _id, id, k, v in db.execute(
             """
-select _id, id, key, value from facts f, data_for_fact d where
-f._id=d._fact_id"""
+select _id, id, key, value from facts fact, data_for_fact d where
+fact._id=d._fact_id"""
         ):
             if id != curid:
                 if note:
