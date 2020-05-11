@@ -179,13 +179,13 @@ def askUser(text, parent=None, help="", defaultno=False, msgfunc=None, title="An
             default = QMessageBox.No
         else:
             default = QMessageBox.Yes
-        r = msgfunc(parent, title, text, sb, default)
-        if r == QMessageBox.Help:
+        returnValue = msgfunc(parent, title, text, sb, default)
+        if returnValue == QMessageBox.Help:
 
             openHelp(help)
         else:
             break
-    return r == QMessageBox.Yes
+    return returnValue == QMessageBox.Yes
 
 
 class ButtonedDialog(QMessageBox):
@@ -300,8 +300,8 @@ def getText(
 
 
 def getOnlyText(*args, **kwargs):
-    (s, r) = getText(*args, **kwargs)
-    if r:
+    (s, returnValue) = getText(*args, **kwargs)
+    if returnValue:
         return s
     else:
         return ""
