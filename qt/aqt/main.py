@@ -1266,10 +1266,14 @@ and if the problem comes up again, please ask on the support site."""
 
     def on_av_player_did_end_playing(self, player: Any) -> None:
         "Restore window focus after a video was played."
-        w = self._activeWindowOnPlay
-        if not self.app.activeWindow() and w and not sip.isdeleted(w) and w.isVisible():
-            w.activateWindow()
-            w.raise_()
+        if (
+            not self.app.activeWindow()
+            and self._activeWindowOnPlay
+            and not sip.isdeleted(self._activeWindowOnPlay)
+            and self._activeWindowOnPlay.isVisible()
+        ):
+            self._activeWindowOnPlay.activateWindow()
+            self._activeWindowOnPlay.raise_()
         self._activeWindowOnPlay = None
 
     # Log note deletion
