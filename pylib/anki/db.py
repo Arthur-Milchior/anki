@@ -32,7 +32,7 @@ class DB:
         del d["_db"]
         return f"{super().__repr__()} {pprint.pformat(d, width=300)}"
 
-    def execute(self, sql: str, *a, **ka) -> Cursor:
+    def execute(self, sql: str, *args, **ka) -> Cursor:
         normalizedSql = sql.strip().lower()
         # mark modified?
         for stmt in "insert", "update", "delete":
@@ -44,12 +44,12 @@ class DB:
             res = self._db.execute(sql, ka)
         else:
             # execute("...where id = ?", 5)
-            res = self._db.execute(sql, a)
+            res = self._db.execute(sql, args)
         if self.echo:
-            # print a, ka
+            # print args, ka
             print(sql, "%0.3fms" % ((time.time() - startTime) * 1000))
             if self.echo == "2":
-                print(a, ka)
+                print(args, ka)
         return res
 
     def executemany(self, sql: str, queryParams: Any) -> None:
@@ -77,23 +77,23 @@ class DB:
     def rollback(self) -> None:
         self._db.rollback()
 
-    def scalar(self, *a, **kw) -> Any:
-        res = self.execute(*a, **kw).fetchone()
+    def scalar(self, *args, **kw) -> Any:
+        res = self.execute(*args, **kw).fetchone()
         if res:
             return res[0]
         return None
 
-    def all(self, *a, **kw) -> List:
-        return self.execute(*a, **kw).fetchall()
+    def all(self, *args, **kw):
+        return self.execute(*args, **kw).fetchall()
 
-    def first(self, *a, **kw) -> Any:
-        cursor = self.execute(*a, **kw)
+    def first(self, *args, **kw):
+        cursor = self.execute(*args, **kw)
         res = cursor.fetchone()
         cursor.close()
         return res
 
-    def list(self, *a, **kw) -> List:
-        return [returnedVector[0] for returnedVector in self.execute(*a, **kw)]
+    def list(self, *args, **kw) -> List:
+        return [returnedVector[0] for returnedVector in self.execute(*args, **kw)]
 
     def close(self) -> None:
         self._db.text_factory = None
