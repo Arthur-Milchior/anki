@@ -96,7 +96,7 @@ class StudyDeck(QDialog):
     def redraw(self, filt, focus=None):
         self.filt = filt
         self.focus = focus
-        self.names = [n for n in self.origNames if self._matches(n, filt)]
+        self.names = [name for name in self.origNames if self._matches(name, filt)]
         l = self.form.list
         l.clear()
         l.addItems(self.names)
