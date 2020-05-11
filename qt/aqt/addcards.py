@@ -77,16 +77,16 @@ class AddCards(QDialog):
         self.helpButton.setAutoDefault(False)
         bb.addButton(self.helpButton, QDialogButtonBox.HelpRole)
         # history
-        b = bb.addButton(_("History") + " " + downArrow(), ar)
+        button = bb.addButton(_("History") + " " + downArrow(), ar)
         if isMac:
             sc = "Ctrl+Shift+H"
         else:
             sc = "Ctrl+H"
-        b.setShortcut(QKeySequence(sc))
-        b.setToolTip(_("Shortcut: %s") % shortcut(sc))
-        qconnect(b.clicked, self.onHistory)
-        b.setEnabled(False)
-        self.historyButton = b
+        button.setShortcut(QKeySequence(sc))
+        button.setToolTip(_("Shortcut: %s") % shortcut(sc))
+        qconnect(button.clicked, self.onHistory)
+        button.setEnabled(False)
+        self.historyButton = button
 
     def setAndFocusNote(self, note: Note) -> None:
         self.editor.setNote(note, focusTo=0)
@@ -143,7 +143,7 @@ class AddCards(QDialog):
                 line = _('Edit "%s"') % txt
                 line = gui_hooks.addcards_will_add_history_entry(line, note)
                 a = menu.addAction(line)
-                qconnect(a.triggered, lambda b, nid=nid: self.editHistory(nid))
+                qconnect(a.triggered, lambda button, nid=nid: self.editHistory(nid))
             else:
                 a = menu.addAction(_("(Note deleted)"))
                 a.setEnabled(False)

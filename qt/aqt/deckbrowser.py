@@ -234,13 +234,13 @@ where id > ?""",
     def _showOptions(self, did: str) -> None:
         menu = QMenu(self.mw)
         a = menu.addAction(_("Rename"))
-        qconnect(a.triggered, lambda b, did=did: self._rename(int(did)))
+        qconnect(a.triggered, lambda button, did=did: self._rename(int(did)))
         a = menu.addAction(_("Options"))
-        qconnect(a.triggered, lambda b, did=did: self._options(did))
+        qconnect(a.triggered, lambda button, did=did: self._options(did))
         a = menu.addAction(_("Export"))
-        qconnect(a.triggered, lambda b, did=did: self._export(did))
+        qconnect(a.triggered, lambda button, did=did: self._export(did))
         a = menu.addAction(_("Delete"))
-        qconnect(a.triggered, lambda b, did=did: self._delete(int(did)))
+        qconnect(a.triggered, lambda button, did=did: self._delete(int(did)))
         gui_hooks.deck_browser_will_show_options_menu(menu, int(did))
         menu.exec_(QCursor.pos())
 

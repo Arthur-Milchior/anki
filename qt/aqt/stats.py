@@ -40,9 +40,11 @@ class DeckStats(QDialog):
             self.setStyleSheet("QGroupBox { border: 0; }")
         self.form.setupUi(self)
         restoreGeom(self, self.name)
-        b = self.form.buttonBox.addButton(_("Save PDF"), QDialogButtonBox.ActionRole)
-        qconnect(b.clicked, self.saveImage)
-        b.setAutoDefault(False)
+        saveButton = self.form.buttonBox.addButton(
+            _("Save PDF"), QDialogButtonBox.ActionRole
+        )
+        qconnect(saveButton.clicked, self.saveImage)
+        saveButton.setAutoDefault(False)
         qconnect(self.form.groups.clicked, lambda: self.changeScope("deck"))
         self.form.groups.setShortcut("g")
         qconnect(self.form.all.clicked, lambda: self.changeScope("collection"))
