@@ -712,7 +712,7 @@ Enter deck to place new %s cards in, or leave blank:"""
         diag = QDialog(self)
         form = aqt.forms.addfield.Ui_Dialog()
         form.setupUi(diag)
-        fields = [f["name"] for f in self.model["flds"]]
+        fields = [fldType["name"] for fldType in self.model["flds"]]
         form.fields.addItems(fields)
         form.fields.setCurrentRow(0)
         form.font.setCurrentFont(QFont("Arial"))

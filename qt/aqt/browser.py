@@ -2292,14 +2292,14 @@ class ChangeModel(QDialog):
             combos = self.tcombos
             new = self.targetModel["tmpls"]
         map = {}
-        for i, f in enumerate(old):
+        for i, fldType in enumerate(old):
             idx = combos[i].currentIndex()
             if idx == len(new):
                 # ignore
-                map[f["ord"]] = None
+                map[fldType["ord"]] = None
             else:
                 f2 = new[idx]
-                map[f["ord"]] = f2["ord"]
+                map[fldType["ord"]] = f2["ord"]
         return map
 
     def getFieldMap(self):

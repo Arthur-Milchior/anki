@@ -42,18 +42,17 @@ class FieldDialog(QDialog):
     def fillFields(self):
         self.currentIdx = None
         self.form.fieldList.clear()
-        for index, f in enumerate(self.model["flds"]):
-            self.form.fieldList.addItem("{}: {}".format(index + 1, f["name"]))
+        for index, fldType in enumerate(self.model["flds"]):
+            self.form.fieldList.addItem("{}: {}".format(index + 1, fldType["name"]))
 
     def setupSignals(self):
-        f = self.form
-        qconnect(f.fieldList.currentRowChanged, self.onRowChange)
-        qconnect(f.fieldAdd.clicked, self.onAdd)
-        qconnect(f.fieldDelete.clicked, self.onDelete)
-        qconnect(f.fieldRename.clicked, self.onRename)
-        qconnect(f.fieldPosition.clicked, self.onPosition)
-        qconnect(f.sortField.clicked, self.onSortField)
-        qconnect(f.buttonBox.helpRequested, self.onHelp)
+        qconnect(self.form.fieldList.currentRowChanged, self.onRowChange)
+        qconnect(self.form.fieldAdd.clicked, self.onAdd)
+        qconnect(self.form.fieldDelete.clicked, self.onDelete)
+        qconnect(self.form.fieldRename.clicked, self.onRename)
+        qconnect(self.form.fieldPosition.clicked, self.onPosition)
+        qconnect(self.form.sortField.clicked, self.onSortField)
+        qconnect(self.form.buttonBox.helpRequested, self.onHelp)
 
     def onDrop(self, ev):
         fieldList = self.form.fieldList
@@ -83,23 +82,23 @@ class FieldDialog(QDialog):
         txt = getOnlyText(prompt, default=old)
         if not txt:
             return
-        for f in self.model["flds"]:
-            if ignoreOrd is not None and f["ord"] == ignoreOrd:
+        for fldType in self.model["flds"]:
+            if ignoreOrd is not None and fldType["ord"] == ignoreOrd:
                 continue
-            if f["name"] == txt:
+            if fldType["name"] == txt:
                 showWarning(_("That field name is already used."))
                 return
         return txt
 
     def onRename(self):
         idx = self.currentIdx
-        f = self.model["flds"][idx]
-        name = self._uniqueName(_("New name:"), self.currentIdx, f["name"])
+        fldType = self.model["flds"][idx]
+        name = self._uniqueName(_("New name:"), self.currentIdx, fldType["name"])
         if not name:
             return
 
         self.change_tracker.mark_basic()
-        self.mm.rename_field(self.model, f, name)
+        self.mm.rename_field(self.model, fldType, name)
         self.saveField()
         self.fillFields()
         self.form.fieldList.setCurrentRow(idx)
@@ -111,8 +110,8 @@ class FieldDialog(QDialog):
         if not self.change_tracker.mark_schema():
             return
         self.saveField()
-        f = self.mm.newField(name)
-        self.mm.add_field(self.model, f)
+        fldType = self.mm.newField(name)
+        self.mm.add_field(self.model, fldType)
         self.fillFields()
         self.form.fieldList.setCurrentRow(len(self.model["flds"]) - 1)
 
@@ -125,8 +124,8 @@ class FieldDialog(QDialog):
             return
         if not self.change_tracker.mark_schema():
             return
-        f = self.model["flds"][self.form.fieldList.currentRow()]
-        self.mm.remove_field(self.model, f)
+        fldType = self.model["flds"][self.form.fieldList.currentRow()]
+        self.mm.remove_field(self.model, fldType)
         self.fillFields()
         self.form.fieldList.setCurrentRow(0)
 
@@ -155,8 +154,8 @@ class FieldDialog(QDialog):
         if not self.change_tracker.mark_schema():
             return False
         self.saveField()
-        f = self.model["flds"][self.currentIdx]
-        self.mm.reposition_field(self.model, f, pos - 1)
+        fldType = self.model["flds"][self.currentIdx]
+        self.mm.reposition_field(self.model, fldType, pos - 1)
         self.fillFields()
         self.form.fieldList.setCurrentRow(pos - 1)
 

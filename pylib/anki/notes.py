@@ -101,7 +101,10 @@ class Note:
         return self.fields
 
     def items(self) -> List[Tuple[Any, Any]]:
-        return [(f["name"], self.fields[ord]) for ord, f in sorted(self._fmap.values())]
+        return [
+            (fldType["name"], self.fields[ord])
+            for ord, fldType in sorted(self._fmap.values())
+        ]
 
     def _fieldOrd(self, key: str) -> Any:
         try:
