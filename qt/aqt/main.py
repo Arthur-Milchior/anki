@@ -1007,8 +1007,8 @@ title="%s" %s>%s</button>""" % (
             gui_hooks.review_did_undo(cid)
         else:
             self.reset()
-            tooltip(_("Reverted to state prior to '%s'.") % n.lower())
-            gui_hooks.state_did_revert(n)
+            tooltip(_("Reverted to state prior to '%s'.") % name.lower())
+            gui_hooks.state_did_revert(name)
         self.maybeEnableUndo()
 
     def maybeEnableUndo(self) -> None:
