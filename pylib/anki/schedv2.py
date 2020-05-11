@@ -507,9 +507,9 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
             )
             if self._lrnDayQueue:
                 # order
-                r = random.Random()
-                r.seed(self.today)
-                r.shuffle(self._lrnDayQueue)
+                rand = random.Random()
+                rand.seed(self.today)
+                rand.shuffle(self._lrnDayQueue)
                 # is the current did empty?
                 if len(self._lrnDayQueue) < self.queueLimit:
                     self._lrnDids.pop(0)

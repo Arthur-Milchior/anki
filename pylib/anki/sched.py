@@ -503,9 +503,9 @@ did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit ?""",
                         self._revQueue.reverse()
                     else:
                         # random order for regular reviews
-                        r = random.Random()
-                        r.seed(self.today)
-                        r.shuffle(self._revQueue)
+                        rand = random.Random()
+                        rand.seed(self.today)
+                        rand.shuffle(self._revQueue)
                     # is the current did empty?
                     if len(self._revQueue) < lim:
                         self._revDids.pop(0)
