@@ -1992,15 +1992,15 @@ update cards set usn=?, mod=?, did=? where id in """
                 _("Tag Duplicates"), QDialogButtonBox.ActionRole
             )
             qconnect(b.clicked, lambda: self._onTagDupes(res))
-        t = ""
+        report_html = ""
         groups = len(res)
         notes = sum(len(r[1]) for r in res)
         part1 = ngettext("%d group", "%d groups", groups) % groups
         part2 = ngettext("%d note", "%d notes", notes) % notes
-        t += _("Found %(a)s across %(b)s.") % dict(a=part1, b=part2)
-        t += "<p><ol>"
+        report_html += _("Found %(a)s across %(b)s.") % dict(a=part1, b=part2)
+        report_html += "<p><ol>"
         for val, nids in res:
-            t += (
+            report_html += (
                 """<li><a href=# onclick="pycmd('%s');return false;">%s</a>: %s</a>"""
                 % (
                     "nid:" + ",".join(str(id) for id in nids),
@@ -2008,8 +2008,8 @@ update cards set usn=?, mod=?, did=? where id in """
                     html.escape(val),
                 )
             )
-        t += "</ol>"
-        web.stdHtml(t, context=web_context)
+        report_html += "</ol>"
+        web.stdHtml(report_html, context=web_context)
         self.mw.progress.finish()
 
     def _onTagDupes(self, res):
