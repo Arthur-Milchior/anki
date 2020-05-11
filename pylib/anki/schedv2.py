@@ -1594,11 +1594,11 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
     def reschedCards(self, ids: List[int], imin: int, imax: int) -> None:
         "Put cards in review queue with a new interval in days (min, max)."
         d = []
-        t = self.today
+        today = self.today
         mod = intTime()
         for id in ids:
             r = random.randint(imin, imax)
-            d.append((max(1, r), r + t, self.col.usn(), mod, STARTING_FACTOR, id,))
+            d.append((max(1, r), r + today, self.col.usn(), mod, STARTING_FACTOR, id,))
         self.remFromDyn(ids)
         self.col.db.executemany(
             f"""
