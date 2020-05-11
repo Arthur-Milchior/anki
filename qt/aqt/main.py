@@ -1370,22 +1370,26 @@ will be lost. Continue?"""
                 saveSplitter(frm.splitter, "DebugConsoleWindow")
                 saveGeom(self, "DebugConsoleWindow")
 
-        d = self.debugDiag = DebugDialog()
-        d.silentlyClose = True
-        frm.setupUi(d)
-        restoreGeom(d, "DebugConsoleWindow")
+        self.debugDiag = DebugDialog()
+        self.debugDiag.silentlyClose = True
+        frm.setupUi(self.debugDiag)
+        restoreGeom(self.debugDiag, "DebugConsoleWindow")
         restoreSplitter(frm.splitter, "DebugConsoleWindow")
         font = QFontDatabase.systemFont(QFontDatabase.FixedFont)
         font.setPointSize(frm.text.font().pointSize() + 1)
         frm.text.setFont(font)
         frm.log.setFont(font)
-        s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+return"), d)
+        s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+return"), self.debugDiag)
         qconnect(s.activated, lambda: self.onDebugRet(frm))
-        s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+shift+return"), d)
+        s = self.debugDiagShort = QShortcut(
+            QKeySequence("ctrl+shift+return"), self.debugDiag
+        )
         qconnect(s.activated, lambda: self.onDebugPrint(frm))
-        s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+l"), d)
+        s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+l"), self.debugDiag)
         qconnect(s.activated, frm.log.clear)
-        s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+shift+l"), d)
+        s = self.debugDiagShort = QShortcut(
+            QKeySequence("ctrl+shift+l"), self.debugDiag
+        )
         qconnect(s.activated, frm.text.clear)
 
         def addContextMenu(ev: QCloseEvent, name: str) -> None:
@@ -1404,8 +1408,8 @@ will be lost. Continue?"""
 
         frm.log.contextMenuEvent = lambda ev: addContextMenu(ev, "log")
         frm.text.contextMenuEvent = lambda ev: addContextMenu(ev, "text")
-        gui_hooks.debug_console_will_show(d)
-        d.show()
+        gui_hooks.debug_console_will_show(self.debugDiag)
+        self.debugDiag.show()
 
     def _captureOutput(self, on):
         mw = self
