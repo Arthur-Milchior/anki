@@ -537,7 +537,7 @@ def getAudio(parent: QWidget, encode: bool = True) -> Optional[str]:
         showWarning("Please install pyaudio.")
         return None
     # record first
-    r = Recorder()
+    recorder = Recorder()
     mb = QMessageBox(parent)
     restoreGeom(mb, "audioRecorder")
     mb.setWindowTitle("Anki")
@@ -549,8 +549,8 @@ def getAudio(parent: QWidget, encode: bool = True) -> Optional[str]:
     mb.addButton(but, QMessageBox.RejectRole)
     mb.setEscapeButton(but)
     t = time.time()
-    r.start()
-    time.sleep(r.startupDelay)
+    recorder.start()
+    time.sleep(recorder.startupDelay)
     QApplication.instance().processEvents()  # type: ignore
     while not mb.clickedButton():
         txt = _("Recording...<br>Time: %0.1f")
@@ -558,17 +558,17 @@ def getAudio(parent: QWidget, encode: bool = True) -> Optional[str]:
         mb.show()
         QApplication.instance().processEvents()  # type: ignore
     if mb.clickedButton() == mb.escapeButton():
-        r.stop()
-        r.cleanup()
+        recorder.stop()
+        recorder.cleanup()
         return None
     saveGeom(mb, "audioRecorder")
     # ensure at least a second captured
     while time.time() - t < 1:
         time.sleep(0.1)
-    r.stop()
+    recorder.stop()
     # process
-    r.postprocess(encode)
-    return r.file()
+    recorder.postprocess(encode)
+    return recorder.file()
 
 
 # Legacy audio interface
