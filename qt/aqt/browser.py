@@ -2243,10 +2243,10 @@ class ChangeModel(QDialog):
         map = QWidget()
         layout = QGridLayout()
         combos = []
-        targets = [x["name"] for x in dst] + [_("Nothing")]
+        targets = [entry["name"] for entry in dst] + [_("Nothing")]
         indices = {}
-        for i, x in enumerate(src):
-            layout.addWidget(QLabel(_("Change %s to:") % x["name"]), i, 0)
+        for i, entry in enumerate(src):
+            layout.addWidget(QLabel(_("Change %s to:") % entry["name"]), i, 0)
             cb = QComboBox()
             cb.addItems(targets)
             idx = min(i, len(targets) - 1)
