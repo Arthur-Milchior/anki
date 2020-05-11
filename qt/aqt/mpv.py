@@ -232,8 +232,8 @@ class MPVBase:
         while not self._stop_event.is_set():
             if isWin:
                 try:
-                    b = win32file.ReadFile(self._sock, 4096)[1]
-                    buf += b
+                    bits = win32file.ReadFile(self._sock, 4096)[1]
+                    buf += bits
                 except pywintypes.error as err:
                     if err.args[0] == winerror.ERROR_NO_DATA:
                         time.sleep(0.1)
@@ -246,10 +246,10 @@ class MPVBase:
                 r, w, e = select.select([self._sock], [], [], 1)
                 if r:
                     try:
-                        b = self._sock.recv(1024)
-                        if not b:
+                        bits = self._sock.recv(1024)
+                        if not bits:
                             break
-                        buf += b
+                        buf += bits
                     except ConnectionResetError:
                         return
 
