@@ -296,7 +296,7 @@ def getText(
     ret = dialog.exec_()
     if geomKey and ret:
         saveGeom(dialog, geomKey)
-    return (str(dialog.l.text()), ret)
+    return (str(dialog.edit.text()), ret)
 
 
 def getOnlyText(*args, **kwargs):
