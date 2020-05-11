@@ -38,7 +38,7 @@ class DB:
         for stmt in "insert", "update", "delete":
             if s.startswith(stmt):
                 self.mod = True
-        t = time.time()
+        startTime = time.time()
         if ka:
             # execute("...where id = :id", id=5)
             res = self._db.execute(sql, ka)
@@ -47,25 +47,26 @@ class DB:
             res = self._db.execute(sql, a)
         if self.echo:
             # print a, ka
-            print(sql, "%0.3fms" % ((time.time() - t) * 1000))
+            print(sql, "%0.3fms" % ((time.time() - startTime) * 1000))
             if self.echo == "2":
                 print(a, ka)
         return res
 
     def executemany(self, sql: str, l: Any) -> None:
         self.mod = True
-        t = time.time()
+        startTime = time.time()
         self._db.executemany(sql, l)
         if self.echo:
-            print(sql, "%0.3fms" % ((time.time() - t) * 1000))
+
+            print(sql, "%0.3fms" % ((time.time() - startTime) * 1000))
             if self.echo == "2":
                 print(l)
 
     def commit(self) -> None:
-        t = time.time()
+        startTime = time.time()
         self._db.commit()
         if self.echo:
-            print("commit %0.3fms" % ((time.time() - t) * 1000))
+            print("commit %0.3fms" % ((time.time() - startTime) * 1000))
 
     def executescript(self, sql: str) -> None:
         self.mod = True
