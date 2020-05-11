@@ -188,11 +188,11 @@ class DeckConf(QDialog):
         lim = -1
         for deck in self.mw.col.decks.parents(self.deck["id"]):
             conf = self.mw.col.decks.confForDid(deck["id"])
-            x = conf[type]["perDay"]
+            perDay = conf[type]["perDay"]
             if lim == -1:
-                lim = x
+                lim = perDay
             else:
-                lim = min(x, lim)
+                lim = min(perDay, lim)
         return _("(parent limit: %d)") % lim
 
     def loadConf(self):
