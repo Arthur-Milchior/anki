@@ -162,8 +162,7 @@ def maxID(db: DBProxy) -> int:
 
 # used in ankiweb
 def base62(num: int, extra: str = "") -> str:
-    s = string
-    table = s.ascii_letters + s.digits + extra
+    table = string.ascii_letters + string.digits + extra
     buf = ""
     while num:
         num, mod = divmod(num, len(table))
@@ -190,8 +189,7 @@ def incGuid(guid) -> str:
 
 
 def _incGuid(guid) -> str:
-    s = string
-    table = s.ascii_letters + s.digits + _base91_extra_chars
+    table = string.ascii_letters + string.digits + _base91_extra_chars
     idx = table.index(guid[0])
     if idx + 1 == len(table):
         # overflow
