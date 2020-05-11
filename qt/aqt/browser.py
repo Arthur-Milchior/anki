@@ -1535,7 +1535,7 @@ where id in %s"""
     def selectedNotesAsCards(self):
         return self.col.db.list(
             "select id from cards where nid in (%s)"
-            % ",".join([str(s) for s in self.selectedNotes()])
+            % ",".join([str(nid) for nid in self.selectedNotes()])
         )
 
     def oneModelNotes(self):
