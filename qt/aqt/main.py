@@ -1630,8 +1630,8 @@ Please ensure a profile is open and Anki is not busy, then try again."""
     ##########################################################################
 
     def setupCrashLog(self) -> None:
-        p = os.path.join(self.pm.base, "crash.log")
-        self._crashLog = open(p, "ab", 0)
+        crashPath = os.path.join(self.pm.base, "crash.log")
+        self._crashLog = open(crashPath, "ab", 0)
         faulthandler.enable(self._crashLog)
 
     # Media server
