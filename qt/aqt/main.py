@@ -233,12 +233,12 @@ class AnkiQt(QMainWindow):
         self.profileForm.statusbar.setVisible(False)
         qconnect(self.profileForm.downgrade_button.clicked, self._on_downgrade)
         # enter key opens profile
-        QShortcut(QKeySequence("Return"), d, activated=self.onOpenProfile)  # type: ignore
+        QShortcut(QKeySequence("Return"), self.profilDiag, activated=self.onOpenProfile)  # type: ignore
         self.refreshProfilesList()
         # raise first, for osx testing
-        d.show()
-        d.activateWindow()
-        d.raise_()
+        self.profileDiag.show()
+        self.profileDiag.activateWindow()
+        self.profileDiag.raise_()
 
     def refreshProfilesList(self):
         self.profileForm.profiles.clear()
