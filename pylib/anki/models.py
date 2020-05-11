@@ -451,7 +451,7 @@ and notes.mid = ? and cards.ord = ?""",
         newModel: NoteType,
         map: Dict[int, Union[None, int]],
     ) -> None:
-        d = []
+        cardData = []
         deleted = []
         for (cid, ord) in self.col.db.execute(
             "select id, ord from cards where nid in " + ids2str(nids)
@@ -469,10 +469,12 @@ and notes.mid = ? and cards.ord = ?""",
                 # mapping from a regular note, so the map should be valid
                 new = map[ord]
             if new is not None:
-                d.append((new, self.col.usn(), intTime(), cid))
+                cardData.append((new, self.col.usn(), intTime(), cid))
             else:
                 deleted.append(cid)
-        self.col.db.executemany("update cards set ord=?,usn=?,mod=? where id=?", d)
+        self.col.db.executemany(
+            "update cards set ord=?,usn=?,mod=? where id=?", cardData
+        )
         self.col.remove_cards_and_orphaned_notes(deleted)
 
     # Schema hash

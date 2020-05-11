@@ -1597,18 +1597,20 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
 
     def reschedCards(self, ids: List[int], imin: int, imax: int) -> None:
         "Put cards in review queue with a new interval in days (min, max)."
-        d = []
+        cardData = []
         today = self.today
         mod = intTime()
         for id in ids:
             r = random.randint(imin, imax)
-            d.append((max(1, r), r + today, self.col.usn(), mod, STARTING_FACTOR, id,))
+            cardData.append(
+                (max(1, r), r + today, self.col.usn(), mod, STARTING_FACTOR, id,)
+            )
         self.remFromDyn(ids)
         self.col.db.executemany(
             f"""
 update cards set type={CARD_TYPE_REV},queue={QUEUE_TYPE_REV},ivl=?,due=?,odue=0,
 usn=?,mod=?,factor=? where id=?""",
-            d,
+            cardData,
         )
         self.col.log(ids)
 
@@ -1680,12 +1682,14 @@ and due >= ? and queue = {QUEUE_TYPE_NEW}"""
                     low,
                 )
         # reorder cards
-        d = []
+        cardData = []
         for id, nid in self.col.db.execute(
             f"select id, nid from cards where type = {CARD_TYPE_NEW} and id in " + scids
         ):
-            d.append((due[nid], now, self.col.usn(), id))
-        self.col.db.executemany("update cards set due=?,mod=?,usn=? where id = ?", d)
+            cardData.append((due[nid], now, self.col.usn(), id))
+        self.col.db.executemany(
+            "update cards set due=?,mod=?,usn=? where id = ?", cardData
+        )
 
     def randomizeCards(self, did: int) -> None:
         cids = self.col.db.list("select id from cards where did = ?", did)
