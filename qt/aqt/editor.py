@@ -949,9 +949,9 @@ to a cloze type first, via 'Notes>Change Note Type'"""
             (_("LaTeX math env."), self.insertLatexMathEnv, "Ctrl+T, M"),
             (_("Edit HTML"), self.onHtmlEdit, "Ctrl+Shift+X"),
         ):
-            a = menu.addAction(text)
-            qconnect(a.triggered, handler)
-            a.setShortcut(QKeySequence(shortcut))
+            action = menu.addAction(text)
+            qconnect(action.triggered, handler)
+            action.setShortcut(QKeySequence(shortcut))
 
         qtMenuShortcutWorkaround(menu)
 
@@ -1184,12 +1184,12 @@ class EditorWebView(AnkiWebView):
 
     def contextMenuEvent(self, evt: QContextMenuEvent) -> None:
         menu = QMenu(self)
-        a = menu.addAction(_("Cut"))
-        qconnect(a.triggered, self.onCut)
-        a = menu.addAction(_("Copy"))
-        qconnect(a.triggered, self.onCopy)
-        a = menu.addAction(_("Paste"))
-        qconnect(a.triggered, self.onPaste)
+        action = menu.addAction(_("Cut"))
+        qconnect(action.triggered, self.onCut)
+        action = menu.addAction(_("Copy"))
+        qconnect(action.triggered, self.onCopy)
+        action = menu.addAction(_("Paste"))
+        qconnect(action.triggered, self.onPaste)
         gui_hooks.editor_will_show_context_menu(self, menu)
         menu.popup(QCursor.pos())
 

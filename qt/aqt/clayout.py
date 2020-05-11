@@ -624,17 +624,17 @@ adjust the template manually to switch the question and answer."""
         menu = QMenu(self)
 
         if not self._isCloze():
-            a = menu.addAction(_("Add Card Type..."))
-            qconnect(a.triggered, self.onAddCard)
+            action = menu.addAction(_("Add Card Type..."))
+            qconnect(action.triggered, self.onAddCard)
 
-            a = menu.addAction(_("Remove Card Type..."))
-            qconnect(a.triggered, self.onRemove)
+            action = menu.addAction(_("Remove Card Type..."))
+            qconnect(action.triggered, self.onRemove)
 
-            a = menu.addAction(_("Rename Card Type..."))
-            qconnect(a.triggered, self.onRename)
+            action = menu.addAction(_("Rename Card Type..."))
+            qconnect(action.triggered, self.onRename)
 
-            a = menu.addAction(_("Reposition Card Type..."))
-            qconnect(a.triggered, self.onReorder)
+            action = menu.addAction(_("Reposition Card Type..."))
+            qconnect(action.triggered, self.onReorder)
 
             menu.addSeparator()
 
@@ -643,11 +643,11 @@ adjust the template manually to switch the question and answer."""
                 toggle = _(" (on)")
             else:
                 toggle = _(" (off)")
-            a = menu.addAction(_("Deck Override...") + toggle)
-            qconnect(a.triggered, self.onTargetDeck)
+            action = menu.addAction(_("Deck Override...") + toggle)
+            qconnect(action.triggered, self.onTargetDeck)
 
-        a = menu.addAction(_("Browser Appearance..."))
-        qconnect(a.triggered, self.onBrowserDisplay)
+        action = menu.addAction(_("Browser Appearance..."))
+        qconnect(action.triggered, self.onBrowserDisplay)
 
         menu.exec_(self.topAreaForm.templateOptions.mapToGlobal(QPoint(0, 0)))
 
