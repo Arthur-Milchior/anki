@@ -97,10 +97,10 @@ class TextCardExporter(Exporter):
         ids = sorted(self.cardIds())
         strids = ids2str(ids)
 
-        def esc(s):
+        def esc(cardContent):
             # strip off the repeated question in answer if exists
-            s = re.sub("(?si)^.*<hr id=answer>\n*", "", s)
-            return self.processText(s)
+            cardContent = re.sub("(?si)^.*<hr id=answer>\n*", "", cardContent)
+            return self.processText(cardContent)
 
         out = ""
         for cid in ids:
