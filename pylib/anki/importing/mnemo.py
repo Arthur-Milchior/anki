@@ -145,10 +145,10 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""
         model = addBasicModel(self.col)
         model["name"] = "Mnemosyne-FrontBack"
         mm = self.col.models
-        t = mm.newTemplate("Back")
-        t["qfmt"] = "{{Back}}"
-        t["afmt"] = t["qfmt"] + "\n\n<hr id=answer>\n\n{{Front}}"  # type: ignore
-        mm.addTemplate(model, t)
+        template = mm.newTemplate("Back")
+        template["qfmt"] = "{{Back}}"
+        template["afmt"] = template["qfmt"] + "\n\n<hr id=answer>\n\n{{Front}}"  # type: ignore
+        mm.addTemplate(model, template)
         self._addFronts(notes, model)
 
     def _addVocabulary(self, notes):
@@ -157,22 +157,22 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""
         for fieldName in "Expression", "Pronunciation", "Meaning", "Notes":
             fm = mm.newField(fieldName)
             mm.addField(model, fm)
-        t = mm.newTemplate("Recognition")
-        t["qfmt"] = "{{Expression}}"
-        t["afmt"] = (
-            t["qfmt"]
+        template = mm.newTemplate("Recognition")
+        template["qfmt"] = "{{Expression}}"
+        template["afmt"] = (
+            template["qfmt"]
             + """\n\n<hr id=answer>\n\n\
 {{Pronunciation}}<br>\n{{Meaning}}<br>\n{{Notes}}"""  # type: ignore
         )
-        mm.addTemplate(model, t)
-        t = mm.newTemplate("Production")
-        t["qfmt"] = "{{Meaning}}"
-        t["afmt"] = (
-            t["qfmt"]
+        mm.addTemplate(model, template)
+        template = mm.newTemplate("Production")
+        template["qfmt"] = "{{Meaning}}"
+        template["afmt"] = (
+            template["qfmt"]
             + """\n\n<hr id=answer>\n\n\
 {{Expression}}<br>\n{{Pronunciation}}<br>\n{{Notes}}"""  # type: ignore
         )
-        mm.addTemplate(model, t)
+        mm.addTemplate(model, template)
         mm.add(model)
         self._addFronts(notes, model, fields=("f", "p_1", "m_1", "n"))
 

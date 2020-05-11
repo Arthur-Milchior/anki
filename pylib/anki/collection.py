@@ -637,7 +637,7 @@ or mid not in %s limit 1"""
                 """
 select 1 from cards where ord not in %s and nid in (
 select id from notes where mid = ?) limit 1"""
-                % ids2str([t["ord"] for t in model["tmpls"]]),
+                % ids2str([template["ord"] for template in model["tmpls"]]),
                 model["id"],
             ):
                 return False
