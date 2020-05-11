@@ -142,20 +142,22 @@ class NoteImporter(Importer):
         self._cards: List[Tuple] = []
         dupeCount = 0
         dupes: List[str] = []
-        for n in notes:
-            for fieldIndex in range(len(n.fields)):
+        for note in notes:
+            for fieldIndex in range(len(note.fields)):
                 if not self.allowHTML:
-                    n.fields[fieldIndex] = html.escape(
-                        n.fields[fieldIndex], quote=False
+                    note.fields[fieldIndex] = html.escape(
+                        note.fields[fieldIndex], quote=False
                     )
-                n.fields[fieldIndex] = n.fields[fieldIndex].strip()
+                note.fields[fieldIndex] = note.fields[fieldIndex].strip()
                 if not self.allowHTML:
-                    n.fields[fieldIndex] = n.fields[fieldIndex].replace("\n", "<br>")
-            fld0 = n.fields[fld0idx]
+                    note.fields[fieldIndex] = note.fields[fieldIndex].replace(
+                        "\note", "<br>"
+                    )
+            fld0 = note.fields[fld0idx]
             csum = fieldChecksum(fld0)
             # first field must exist
             if not fld0:
-                self.log.append(_("Empty first field: %s") % " ".join(n.fields))
+                self.log.append(_("Empty first field: %s") % " ".join(note.fields))
                 continue
             # earlier in import?
             if fld0 in firsts and self.importMode != ADD_MODE:
@@ -174,7 +176,7 @@ class NoteImporter(Importer):
                         # duplicate
                         found = True
                         if self.importMode == UPDATE_MODE:
-                            data = self.updateData(n, id, sflds)
+                            data = self.updateData(note, id, sflds)
                             if data:
                                 updates.append(data)
                                 updateLog.append(updateLogTxt % fld0)
@@ -192,7 +194,7 @@ class NoteImporter(Importer):
                             found = False
             # newly add
             if not found:
-                data = self.newData(n)
+                data = self.newData(note)
                 if data:
                     new.append(data)
                     # note that we've seen this note once already
@@ -229,13 +231,13 @@ class NoteImporter(Importer):
         self.log.extend(updateLog)
         self.total = len(self._ids)
 
-    def newData(self, n: ForeignNote) -> Optional[list]:
+    def newData(self, note: ForeignNote) -> Optional[list]:
         id = self._nextID
         self._nextID += 1
         self._ids.append(id)
-        self.processFields(n)
+        self.processFields(note)
         # note id for card updates later
-        for ord, card in list(n.cards.items()):
+        for ord, card in list(note.cards.items()):
             self._cards.append((id, ord, card))
         return [
             id,
@@ -243,8 +245,8 @@ class NoteImporter(Importer):
             self.model["id"],
             intTime(),
             self.col.usn(),
-            self.col.tags.join(n.tags),
-            n.fieldsStr,
+            self.col.tags.join(note.tags),
+            note.fieldsStr,
             "",
             "",
             0,
@@ -256,19 +258,29 @@ class NoteImporter(Importer):
             "insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)", rows
         )
 
-    def updateData(self, n: ForeignNote, id: int, sflds: List[str]) -> Optional[list]:
+    def updateData(
+        self, note: ForeignNote, id: int, sflds: List[str]
+    ) -> Optional[list]:
         self._ids.append(id)
-        self.processFields(n, sflds)
+        self.processFields(note, sflds)
         if self._tagsMapped:
-            tags = self.col.tags.join(n.tags)
-            return [intTime(), self.col.usn(), n.fieldsStr, tags, id, n.fieldsStr, tags]
+            tags = self.col.tags.join(note.tags)
+            return [
+                intTime(),
+                self.col.usn(),
+                note.fieldsStr,
+                tags,
+                id,
+                note.fieldsStr,
+                tags,
+            ]
         elif self.tagModified:
             tags = self.col.db.scalar("select tags from notes where id = ?", id)
             tagList = self.col.tags.split(tags) + self.tagModified.split()
             tags = self.col.tags.join(tagList)
-            return [intTime(), self.col.usn(), n.fieldsStr, tags, id, n.fieldsStr]
+            return [intTime(), self.col.usn(), note.fieldsStr, tags, id, note.fieldsStr]
         else:
-            return [intTime(), self.col.usn(), n.fieldsStr, id, n.fieldsStr]
+            return [intTime(), self.col.usn(), note.fieldsStr, id, note.fieldsStr]
 
     def addUpdates(self, rows: List[List[Union[int, str]]]) -> None:
         changes = self.col.db.scalar("select total_changes()")

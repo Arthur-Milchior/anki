@@ -72,7 +72,9 @@ class TagManager:
         )
 
     def byDeck(self, did, children=False) -> List[str]:
-        basequery = "select n.tags from cards card, notes n WHERE card.nid = n.id"
+        basequery = (
+            "select note.tags from cards card, notes note WHERE card.nid = note.id"
+        )
         if not children:
             query = basequery + " AND card.did=?"
             res = self.col.db.list(query, did)
