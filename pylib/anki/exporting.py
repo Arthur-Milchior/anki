@@ -236,19 +236,19 @@ class AnkiExporter(Exporter):
         # decks
         dids = self.deckIds()
         dconfs = {}
-        for d in self.src.decks.all():
-            if str(d["id"]) == "1":
+        for deck in self.src.decks.all():
+            if str(deck["id"]) == "1":
                 continue
-            if dids and d["id"] not in dids:
+            if dids and deck["id"] not in dids:
                 continue
-            if not d["dyn"] and d["conf"] != 1:
+            if not deck["dyn"] and deck["conf"] != 1:
                 if self.includeSched:
-                    dconfs[d["conf"]] = True
+                    dconfs[deck["conf"]] = True
             if not self.includeSched:
                 # scheduling not included, so reset deck settings to default
-                d = dict(d)
-                d["conf"] = 1
-            self.dst.decks.update(d)
+                deck = dict(deck)
+                deck["conf"] = 1
+            self.dst.decks.update(deck)
         # copy used deck confs
         for dc in self.src.decks.allConf():
             if dc["id"] in dconfs:

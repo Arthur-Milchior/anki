@@ -524,7 +524,7 @@ class DeckManager:
         return parents
 
     def nameMap(self) -> dict:
-        return dict((d["name"], d) for d in self.all())
+        return dict((deck["name"], deck) for deck in self.all())
 
     # Dynamic decks
     ##########################################################################

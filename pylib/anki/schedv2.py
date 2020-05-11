@@ -390,7 +390,9 @@ select count() from
         if deck["dyn"]:
             return self.dynReportLimit
         conf = self.col.decks.confForDid(deck["id"])
-        limit = max(0, conf["new"]["perDay"] - self.counts_for_deck_today(deck["id"]).new)
+        limit = max(
+            0, conf["new"]["perDay"] - self.counts_for_deck_today(deck["id"]).new
+        )
         return hooks.scheduler_new_limit_for_single_deck(limit, deck)
 
     def totalNewForCurrentDeck(self) -> int:
@@ -769,29 +771,31 @@ and due <= ? limit ?)""",
     ##########################################################################
 
     def _currentRevLimit(self) -> int:
-        d = self.col.decks.get(self.col.decks.selected(), default=False)
-        return self._deckRevLimitSingle(d)
+        deck = self.col.decks.get(self.col.decks.selected(), default=False)
+        return self._deckRevLimitSingle(deck)
 
     def _deckRevLimitSingle(
-        self, d: Dict[str, Any], parentLimit: Optional[int] = None
+        self, deck: Dict[str, Any], parentLimit: Optional[int] = None
     ) -> int:
         # invalid deck selected?
-        if not d:
+        if not deck:
             return 0
 
-        if d["dyn"]:
+        if deck["dyn"]:
             return self.dynReportLimit
 
-        conf = self.col.decks.confForDid(d["id"])
-        lim = max(0, conf["rev"]["perDay"] - self.counts_for_deck_today(d["id"]).review)
+        conf = self.col.decks.confForDid(deck["id"])
+        lim = max(
+            0, conf["rev"]["perDay"] - self.counts_for_deck_today(deck["id"]).review
+        )
 
         if parentLimit is not None:
             lim = min(parentLimit, lim)
-        elif "::" in d["name"]:
-            for parent in self.col.decks.parents(d["id"]):
+        elif "::" in deck["name"]:
+            for parent in self.col.decks.parents(deck["id"]):
                 # pass in dummy parentLimit so we don't do parent lookup again
                 lim = min(lim, self._deckRevLimitSingle(parent, parentLimit=lim))
-        return hooks.scheduler_review_limit_for_single_deck(lim, d)
+        return hooks.scheduler_review_limit_for_single_deck(lim, deck)
 
     def _revForDeck(self, did: int, lim: int, childMap: Dict[int, Any]) -> Any:
         dids = [did] + self.col.decks.childDids(did, childMap)
