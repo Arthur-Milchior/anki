@@ -568,8 +568,8 @@ class Editor:
         tb.setSpacing(12)
         tb.setContentsMargins(2, 6, 2, 6)
         # tags
-        l = QLabel(_("Tags"))
-        tb.addWidget(l, 1, 0)
+        label = QLabel(_("Tags"))
+        tb.addWidget(label, 1, 0)
         self.tags = aqt.tagedit.TagEdit(self.widget)
         qconnect(self.tags.lostFocus, self.saveTags)
         self.tags.setToolTip(shortcut(_("Jump to tags with Ctrl+Shift+T")))
