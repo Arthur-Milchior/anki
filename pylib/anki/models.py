@@ -319,10 +319,10 @@ class ModelManager:
         assert field in m["flds"]
         field["name"] = new_name
 
-    def set_sort_index(self, nt: NoteType, idx: int) -> None:
+    def set_sort_index(self, nt: NoteType, newIdx: int) -> None:
         "Modifies schema."
-        assert 0 <= idx < len(nt["flds"])
-        nt["sortf"] = idx
+        assert 0 <= newIdx < len(nt["flds"])
+        nt["sortf"] = newIdx
 
     # legacy
 
@@ -375,11 +375,11 @@ class ModelManager:
     ) -> None:
         "Modifies schema."
         oldidx = model["tmpls"].index(template)
-        if oldidx == idx:
+        if oldidx == newIdx:
             return
 
         model["tmpls"].remove(template)
-        model["tmpls"].insert(idx, template)
+        model["tmpls"].insert(newIdx, template)
 
     # legacy
 
@@ -394,8 +394,8 @@ class ModelManager:
         self.remove_template(model, template)
         self.save(model)
 
-    def moveTemplate(self, model: NoteType, template: Template, idx: int) -> None:
-        self.reposition_template(model, template, idx)
+    def moveTemplate(self, model: NoteType, template: Template, newIdx: int) -> None:
+        self.reposition_template(model, template, newIdx)
         self.save(model)
 
     def template_use_count(self, ntid: int, ord: int) -> int:
