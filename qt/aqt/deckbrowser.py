@@ -321,12 +321,12 @@ where id > ?""",
     def _drawButtons(self):
         buf = ""
         drawLinks = deepcopy(self.drawLinks)
-        for b in drawLinks:
-            if b[0]:
-                b[0] = _("Shortcut key: %s") % shortcut(b[0])
+        for drawLink in drawLinks:
+            if drawLink[0]:
+                drawLink[0] = _("Shortcut key: %s") % shortcut(drawLink[0])
             buf += """
 <button title='%s' onclick='pycmd(\"%s\");'>%s</button>""" % tuple(
-                b
+                drawLinks
             )
         self.bottom.draw(
             buf=buf,
