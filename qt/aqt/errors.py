@@ -120,7 +120,8 @@ your system's temporary folder may be incorrect."""
             return ""
         # reverse to list most likely suspect first, dict to deduplicate:
         addons = [
-            mw.addonManager.addonName(i) for i in dict.fromkeys(reversed(matches))
+            mw.addonManager.addonName(addonName)
+            for addonName in dict.fromkeys(reversed(matches))
         ]
         # highlight importance of first add-on:
         addons[0] = "<b>{}</b>".format(addons[0])
