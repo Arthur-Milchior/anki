@@ -155,8 +155,8 @@ class AnkiQt(QMainWindow):
         self.setupReviewer()
 
     def setupProfileAfterWebviewsLoaded(self):
-        for w in (self.web, self.bottomWeb):
-            if not w._domDone:
+        for webWidget in (self.web, self.bottomWeb):
+            if not webWidget._domDone:
                 self.progress.timer(
                     10,
                     self.setupProfileAfterWebviewsLoaded,
@@ -165,7 +165,7 @@ class AnkiQt(QMainWindow):
                 )
                 return
             else:
-                w.requiresCol = True
+                webWidget.requiresCol = True
 
         self.setupProfile()
 
