@@ -296,10 +296,10 @@ class DataModel(QAbstractTableModel):
             note = card.note()
             return htmlToTextLine(note.fields[self.col.models.sortIdx(note.model())])
         elif type == "template":
-            t = card.template()["name"]
+            templateName = card.template()["name"]
             if card.model()["type"] == MODEL_CLOZE:
-                t += " %d" % (card.ord + 1)
-            return t
+                templateName += " %d" % (card.ord + 1)
+            return templateName
         elif type == "cardDue":
             # catch invalid dates
             try:
