@@ -966,14 +966,14 @@ QTableView {{ gridline-color: {grid} }}
 
     def onHeaderContext(self, pos):
         gpos = self.form.tableView.mapToGlobal(pos)
-        m = QMenu()
+        menu = QMenu()
         for type, name in self.columns:
-            a = m.addAction(name)
+            a = menu.addAction(name)
             a.setCheckable(True)
             a.setChecked(type in self.model.activeCols)
             qconnect(a.toggled, lambda b, t=type: self.toggleField(t))
-        gui_hooks.browser_header_will_show_context_menu(self, m)
-        m.exec_(gpos)
+        gui_hooks.browser_header_will_show_context_menu(self, menu)
+        menu.exec_(gpos)
 
     def toggleField(self, type):
         self.editor.saveNow(lambda: self._toggleField(type))
@@ -1294,17 +1294,17 @@ QTableView {{ gridline-color: {grid} }}
         return subm
 
     def _tagFilters(self):
-        m = SubMenu(_("Tags"))
+        menu = SubMenu(_("Tags"))
 
-        m.addItem(_("Clear Unused"), self.clearUnusedTags)
-        m.addSeparator()
+        menu.addItem(_("Clear Unused"), self.clearUnusedTags)
+        menu.addSeparator()
 
         tagList = MenuList()
         for t in sorted(self.col.tags.all(), key=lambda s: s.lower()):
             tagList.addItem(t, self._filterFunc("tag", t))
 
-        m.addChild(tagList.chunked())
-        return m
+        menu.addChild(tagList.chunked())
+        return menu
 
     def _deckFilters(self):
         def addDecks(parent, decks, parent_prefix):
@@ -1331,10 +1331,10 @@ QTableView {{ gridline-color: {grid} }}
         return root
 
     def _noteTypeFilters(self):
-        m = SubMenu(_("Note Types"))
+        menu = SubMenu(_("Note Types"))
 
-        m.addItem(_("Manage..."), self.mw.onNoteTypes)
-        m.addSeparator()
+        menu.addItem(_("Manage..."), self.mw.onNoteTypes)
+        menu.addSeparator()
 
         noteTypes = MenuList()
         for nt in sorted(self.col.models.all(), key=lambda nt: nt["name"].lower()):
@@ -1359,8 +1359,8 @@ QTableView {{ gridline-color: {grid} }}
                         self._filterFunc("note", nt["name"], "card", str(index + 1)),
                     )
 
-        m.addChild(noteTypes.chunked())
-        return m
+        menu.addChild(noteTypes.chunked())
+        return menu
 
     # Favourites
     ######################################################################
