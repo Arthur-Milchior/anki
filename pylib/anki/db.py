@@ -86,9 +86,9 @@ class DB:
         return self.execute(*a, **kw).fetchall()
 
     def first(self, *a, **kw) -> Any:
-        c = self.execute(*a, **kw)
-        res = c.fetchone()
-        c.close()
+        cursor = self.execute(*a, **kw)
+        res = cursor.fetchone()
+        cursor.close()
         return res
 
     def list(self, *a, **kw) -> List:
