@@ -19,9 +19,9 @@ models: List[Tuple] = []
 
 
 def add_stock_notetype(col: Collection, kind: StockNoteTypeValue) -> NoteType:
-    m = from_json_bytes(col.backend.get_stock_notetype_legacy(kind))
-    col.models.add(m)
-    return m
+    model = from_json_bytes(col.backend.get_stock_notetype_legacy(kind))
+    col.models.add(model)
+    return model
 
 
 def addBasicModel(col: Collection) -> NoteType:

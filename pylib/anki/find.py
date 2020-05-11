@@ -58,8 +58,8 @@ def fieldNamesForNotes(col: Collection, nids: List[int]) -> List[str]:
 
 def fieldNames(col, downcase=True) -> List:
     fields: Set[str] = set()
-    for m in col.models.all():
-        for f in m["flds"]:
+    for model in col.models.all():
+        for f in model["flds"]:
             name = f["name"].lower() if downcase else f["name"]
             if name not in fields:  # slower w/o
                 fields.add(name)

@@ -79,10 +79,10 @@ class ModelChooser(QHBoxLayout):
         )
         if not ret.name:
             return
-        m = self.deck.models.byName(ret.name)
-        self.deck.conf["curModel"] = m["id"]
+        model = self.deck.models.byName(ret.name)
+        self.deck.conf["curModel"] = model["id"]
         cdeck = self.deck.decks.current()
-        cdeck["mid"] = m["id"]
+        cdeck["mid"] = model["id"]
         self.deck.decks.save(cdeck)
         gui_hooks.current_note_type_did_change(current)
         self.mw.reset()
