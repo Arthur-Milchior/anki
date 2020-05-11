@@ -1458,15 +1458,15 @@ border: 1px solid #000; padding: 3px; '>%s</div>"""
         )
         if not entries:
             return ""
-        s = "<table width=100%%><tr><th align=left>%s</th>" % _("Date")
-        s += "<th align=right>%s</th>" % _("Type")
-        s += "<th align=center>%s</th>" % _("Rating")
-        s += "<th align=left>%s</th>" % _("Interval")
-        s += ("<th align=right>%s</th>" * 2) % (_("Ease"), _("Time"),)
+        html = "<table width=100%%><tr><th align=left>%s</th>" % _("Date")
+        html += "<th align=right>%s</th>" % _("Type")
+        html += "<th align=center>%s</th>" % _("Rating")
+        html += "<th align=left>%s</th>" % _("Interval")
+        html += ("<th align=right>%s</th>" * 2) % (_("Ease"), _("Time"),)
         cnt = 0
         for (date, ease, ivl, factor, taken, type) in reversed(entries):
             cnt += 1
-            s += "<tr><td>%s</td>" % time.strftime(
+            html += "<tr><td>%s</td>" % time.strftime(
                 _("<b>%Y-%m-%d</b> @ %H:%M"), time.localtime(date)
             )
             tstr = [_("Learn"), _("Review"), _("Relearn"), _("Filtered"), _("Resched")][
@@ -1493,22 +1493,22 @@ border: 1px solid #000; padding: 3px; '>%s</div>"""
                 if ivl > 0:
                     ivl *= 86_400
                 ivl = cs.time(abs(ivl))
-            s += "<td align=right>%s</td>" % tstr
-            s += "<td align=center>%s</td>" % ease
-            s += "<td align=left>%s</td>" % ivl
+            html += "<td align=right>%s</td>" % tstr
+            html += "<td align=center>%s</td>" % ease
+            html += "<td align=left>%s</td>" % ivl
 
-            s += ("<td align=right>%s</td>" * 2) % (
+            html += ("<td align=right>%s</td>" * 2) % (
                 "%d%%" % (factor / 10) if factor else "",
                 self.col.format_timespan(taken),
             ) + "</tr>"
-        s += "</table>"
+        html += "</table>"
         if cnt < self.card.reps:
-            s += _(
+            html += _(
                 """\
 Note: Some of the history is missing. For more information, \
 please see the browser documentation."""
             )
-        return s
+        return html
 
     # Menu helpers
     ######################################################################
