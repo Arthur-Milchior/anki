@@ -11,10 +11,10 @@ class AnkiError(Exception):
         self.data = data
 
     def __str__(self) -> Any:
-        m = self.type
+        type = self.type
         if self.data:
-            m += ": %s" % repr(self.data)
-        return m
+            type += ": %s" % repr(self.data)
+        return type
 
 
 class DeckRenameError(Exception):
