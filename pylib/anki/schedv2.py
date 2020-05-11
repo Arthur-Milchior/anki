@@ -1400,10 +1400,12 @@ To study outside of the normal schedule, click the Custom Study button below."""
         ivl_secs = self.nextIvl(card, ease)
         if not ivl_secs:
             return _("(end)")
-        s = self.col.format_timespan(ivl_secs, FormatTimeSpanContext.ANSWER_BUTTONS)
+        ivlStr = self.col.format_timespan(
+            ivl_secs, FormatTimeSpanContext.ANSWER_BUTTONS
+        )
         if ivl_secs < self.col.conf["collapseTime"]:
-            s = "<" + s
-        return s
+            ivlStr = "<" + ivlStr
+        return ivlStr
 
     def nextIvl(self, card: Card, ease: int) -> Any:
         "Return the next interval for CARD, in seconds."
