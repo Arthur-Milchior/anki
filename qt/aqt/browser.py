@@ -1212,8 +1212,8 @@ QTableView {{ gridline-color: {grid} }}
         else:
             txt = ""
             items = []
-            for c, a in enumerate(args):
-                if c % 2 == 0:
+            for index, a in enumerate(args):
+                if index % 2 == 0:
                     txt += a + ":"
                 else:
                     txt += a
@@ -1770,8 +1770,8 @@ update cards set usn=?, mod=?, did=? where id in """
             f.actionBlue_Flag,
         ]
 
-        for c, act in enumerate(flagActions):
-            act.setChecked(flag == c + 1)
+        for index, act in enumerate(flagActions):
+            act.setChecked(flag == index + 1)
 
         qtMenuShortcutWorkaround(self.form.menuFlag)
 
