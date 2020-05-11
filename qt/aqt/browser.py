@@ -1739,10 +1739,10 @@ update cards set usn=?, mod=?, did=? where id in """
         )
         if not cids2:
             return showInfo(_("Only new cards can be repositioned."))
-        d = QDialog(self)
-        d.setWindowModality(Qt.WindowModal)
+        dialog = QDialog(self)
+        dialog.setWindowModality(Qt.WindowModal)
         frm = aqt.forms.reposition.Ui_Dialog()
-        frm.setupUi(d)
+        frm.setupUi(dialog)
         (pmin, pmax) = self.col.db.first(
             f"select min(due), max(due) from cards where type={CARD_TYPE_NEW} and odid=0"
         )
@@ -1751,7 +1751,7 @@ update cards set usn=?, mod=?, did=? where id in """
         txt = _("Queue top: %d") % pmin
         txt += "\n" + _("Queue bottom: %d") % pmax
         frm.label.setText(txt)
-        if not d.exec_():
+        if not dialog.exec_():
             return
         self.model.beginReset()
         self.mw.checkpoint(_("Reposition"))
@@ -1773,11 +1773,11 @@ update cards set usn=?, mod=?, did=? where id in """
         self.editor.saveNow(self._reschedule)
 
     def _reschedule(self):
-        d = QDialog(self)
-        d.setWindowModality(Qt.WindowModal)
+        dialog = QDialog(self)
+        dialog.setWindowModality(Qt.WindowModal)
         frm = aqt.forms.reschedule.Ui_Dialog()
-        frm.setupUi(d)
-        if not d.exec_():
+        frm.setupUi(dialog)
+        if not dialog.exec_():
             return
         self.model.beginReset()
         self.mw.checkpoint(_("Reschedule"))
@@ -1872,10 +1872,10 @@ update cards set usn=?, mod=?, did=? where id in """
         self.mw.taskman.with_progress(find, on_done, self)
 
     def _on_find_replace_diag(self, fields: List[str], nids: List[int]) -> None:
-        d = QDialog(self)
+        dialog = QDialog(self)
         frm = aqt.forms.findreplace.Ui_Dialog()
-        frm.setupUi(d)
-        d.setWindowModality(Qt.WindowModal)
+        frm.setupUi(dialog)
+        dialog.setWindowModality(Qt.WindowModal)
 
         combo = "BrowserFindAndReplace"
         findhistory = restore_combo_history(frm.find, combo + "Find")
@@ -1889,9 +1889,9 @@ update cards set usn=?, mod=?, did=? where id in """
         frm.field.addItems(allfields)
         restore_combo_index_for_session(frm.field, allfields, combo + "Field")
         qconnect(frm.buttonBox.helpRequested, self.onFindReplaceHelp)
-        restoreGeom(d, "findreplace")
-        r = d.exec_()
-        saveGeom(d, "findreplace")
+        restoreGeom(dialog, "findreplace")
+        r = dialog.exec_()
+        saveGeom(dialog, "findreplace")
         if not r:
             return
 
@@ -1949,11 +1949,11 @@ update cards set usn=?, mod=?, did=? where id in """
         self.editor.saveNow(self._onFindDupes)
 
     def _onFindDupes(self):
-        d = QDialog(self)
-        self.mw.setupDialogGC(d)
+        dialog = QDialog(self)
+        self.mw.setupDialogGC(dialog)
         frm = aqt.forms.finddupes.Ui_Dialog()
-        frm.setupUi(d)
-        restoreGeom(d, "findDupes")
+        frm.setupUi(dialog)
+        restoreGeom(dialog, "findDupes")
         searchHistory = restore_combo_history(frm.search, "findDupesFind")
 
         fields = sorted(
@@ -1965,14 +1965,14 @@ update cards set usn=?, mod=?, did=? where id in """
 
         # links
         frm.webView.title = "find duplicates"
-        web_context = FindDupesDialog(dialog=d, browser=self)
+        web_context = FindDupesDialog(dialog=dialog, browser=self)
         frm.webView.set_bridge_command(self.dupeLinkClicked, web_context)
         frm.webView.stdHtml("", context=web_context)
 
         def onFin(code):
-            saveGeom(d, "findDupes")
+            saveGeom(dialog, "findDupes")
 
-        qconnect(d.finished, onFin)
+        qconnect(dialog.finished, onFin)
 
         def onClick():
             search_text = save_combo_history(frm.search, searchHistory, "findDupesFind")
@@ -1982,7 +1982,7 @@ update cards set usn=?, mod=?, did=? where id in """
 
         search = frm.buttonBox.addButton(_("Search"), QDialogButtonBox.ActionRole)
         qconnect(search.clicked, onClick)
-        d.show()
+        dialog.show()
 
     def duplicatesReport(self, web, fname, search, frm, web_context):
         self.mw.progress.start()

@@ -287,16 +287,16 @@ def getText(
 ):
     if not parent:
         parent = aqt.mw.app.activeWindow() or aqt.mw
-    d = GetTextDialog(
+    dialog = GetTextDialog(
         parent, prompt, help=help, edit=edit, default=default, title=title, **kwargs
     )
-    d.setWindowModality(Qt.WindowModal)
+    dialog.setWindowModality(Qt.WindowModal)
     if geomKey:
-        restoreGeom(d, geomKey)
-    ret = d.exec_()
+        restoreGeom(dialog, geomKey)
+    ret = dialog.exec_()
     if geomKey and ret:
-        saveGeom(d, geomKey)
-    return (str(d.l.text()), ret)
+        saveGeom(dialog, geomKey)
+    return (str(dialog.l.text()), ret)
 
 
 def getOnlyText(*args, **kwargs):
@@ -311,10 +311,10 @@ def getOnlyText(*args, **kwargs):
 def chooseList(prompt, choices, startrow=0, parent=None):
     if not parent:
         parent = aqt.mw.app.activeWindow()
-    d = QDialog(parent)
-    d.setWindowModality(Qt.WindowModal)
+    dialog = QDialog(parent)
+    dialog.setWindowModality(Qt.WindowModal)
     l = QVBoxLayout()
-    d.setLayout(l)
+    dialog.setLayout(l)
     label = QLabel(prompt)
     l.addWidget(label)
     widget = QListWidget()
@@ -322,9 +322,9 @@ def chooseList(prompt, choices, startrow=0, parent=None):
     widget.setCurrentRow(startrow)
     l.addWidget(widget)
     bb = QDialogButtonBox(QDialogButtonBox.Ok)
-    qconnect(bb.accepted, d.accept)
+    qconnect(bb.accepted, dialog.accept)
     l.addWidget(bb)
-    d.exec_()
+    dialog.exec_()
     return widget.currentRow()
 
 
@@ -350,17 +350,17 @@ def getFile(parent, title, cb, filter="*.*", dir=None, key=None, multi=False):
         dir = aqt.mw.pm.profile.get(dirkey, "")
     else:
         dirkey = None
-    d = QFileDialog(parent)
+    dialog = QFileDialog(parent)
     mode = QFileDialog.ExistingFiles if multi else QFileDialog.ExistingFile
-    d.setFileMode(mode)
+    dialog.setFileMode(mode)
     if os.path.exists(dir):
-        d.setDirectory(dir)
-    d.setWindowTitle(title)
-    d.setNameFilter(filter)
+        dialog.setDirectory(dir)
+    dialog.setWindowTitle(title)
+    dialog.setNameFilter(filter)
     ret = []
 
     def accept():
-        files = list(d.selectedFiles())
+        files = list(dialog.selectedFiles())
         if dirkey:
             dir = os.path.dirname(files[0])
             aqt.mw.pm.profile[dirkey] = dir
@@ -369,12 +369,12 @@ def getFile(parent, title, cb, filter="*.*", dir=None, key=None, multi=False):
             cb(result)
         ret.append(result)
 
-    qconnect(d.accepted, accept)
+    qconnect(dialog.accepted, accept)
     if key:
-        restoreState(d, key)
-    d.exec_()
+        restoreState(dialog, key)
+    dialog.exec_()
     if key:
-        saveState(d, key)
+        saveState(dialog, key)
     return ret and ret[0]
 
 
