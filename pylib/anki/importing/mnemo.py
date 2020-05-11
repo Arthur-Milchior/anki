@@ -86,9 +86,9 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""
             rem = int((next - time.time()) / 86400)
             card.due = self.col.sched.today + rem
             # get ord
-            m = re.search(r".(\d+)$", row[1])
-            assert m
-            ord = int(m.group(1)) - 1
+            match = re.search(r".(\d+)$", row[1])
+            assert match
+            ord = int(match.group(1)) - 1
             if "cards" not in note:
                 note["cards"] = {}
             note["cards"][ord] = card

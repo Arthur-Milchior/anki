@@ -602,8 +602,8 @@ from the profile screen."
         backups = []
         for file in os.listdir(dir):
             # only look for new-style format
-            m = re.match(r"backup-\d{4}-\d{2}-.+.colpkg", file)
-            if not m:
+            match = re.match(r"backup-\d{4}-\d{2}-.+.colpkg", file)
+            if not match:
                 continue
             backups.append(file)
         backups.sort()
@@ -1525,9 +1525,9 @@ will be lost. Continue?"""
         tgt = tgt or self
         for action in tgt.findChildren(QAction):
             txt = str(action.text())
-            m = re.match(r"^(.+)\(&.+\)(.+)?", txt)
-            if m:
-                action.setText(m.group(1) + (m.group(2) or ""))
+            match = re.match(r"^(.+)\(&.+\)(.+)?", txt)
+            if match:
+                action.setText(match.group(1) + (match.group(2) or ""))
 
     def hideStatusTips(self) -> None:
         for action in self.findChildren(QAction):
