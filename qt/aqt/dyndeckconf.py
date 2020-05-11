@@ -54,17 +54,15 @@ class DeckConf(QDialog):
         )
 
     def loadConf(self):
-        d = self.deck
-
-        self.form.resched.setChecked(d["resched"])
+        self.form.resched.setChecked(self.deck["resched"])
         self._onReschedToggled(0)
 
-        search, limit, order = d["terms"][0]
+        search, limit, order = self.deck["terms"][0]
         self.form.search.setText(search)
 
         if self.mw.col.schedVer() == 1:
-            if d["delays"]:
-                self.form.steps.setText(self.listToUser(d["delays"]))
+            if self.deck["delays"]:
+                self.form.steps.setText(self.listToUser(self.deck["delays"]))
                 self.form.stepsOn.setChecked(True)
         else:
             self.form.steps.setVisible(False)
@@ -72,10 +70,10 @@ class DeckConf(QDialog):
 
         self.form.order.setCurrentIndex(order)
         self.form.limit.setValue(limit)
-        self.form.previewDelay.setValue(d.get("previewDelay", 10))
+        self.form.previewDelay.setValue(self.deck.get("previewDelay", 10))
 
-        if len(d["terms"]) > 1:
-            search, limit, order = d["terms"][1]
+        if len(self.deck["terms"]) > 1:
+            search, limit, order = self.deck["terms"][1]
             self.form.search_2.setText(search)
             self.form.order_2.setCurrentIndex(order)
             self.form.limit_2.setValue(limit)
@@ -88,16 +86,15 @@ class DeckConf(QDialog):
             self.form.filter2group.setVisible(False)
 
     def saveConf(self):
-        d = self.deck
-        d["resched"] = self.form.resched.isChecked()
-        d["delays"] = None
+        self.deck["resched"] = self.form.resched.isChecked()
+        self.deck["delays"] = None
 
         if self.mw.col.schedVer() == 1 and self.form.stepsOn.isChecked():
             steps = self.userToList(self.form.steps)
             if steps:
-                d["delays"] = steps
+                self.deck["delays"] = steps
             else:
-                d["delays"] = None
+                self.deck["delays"] = None
 
         terms = [
             [
@@ -116,10 +113,10 @@ class DeckConf(QDialog):
                 ]
             )
 
-        d["terms"] = terms
-        d["previewDelay"] = self.form.previewDelay.value()
+        self.deck["terms"] = terms
+        self.deck["previewDelay"] = self.form.previewDelay.value()
 
-        self.mw.col.decks.save(d)
+        self.mw.col.decks.save(self.deck)
         return True
 
     def reject(self):
