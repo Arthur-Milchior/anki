@@ -144,11 +144,10 @@ class StudyDeck(QDialog):
             default = self.form.filter.text()
         else:
             default = self.names[self.form.list.currentRow()]
-        n = getOnlyText(_("New deck name:"), default=default)
-        if n:
-            did = self.mw.col.decks.id(n)
-            # deck name may not be the same as user input. ex: ", ::
-            self.name = self.mw.col.decks.name(did)
+        name = getOnlyText(_("New deck name:"), default=default)
+        if name:
+            self.mw.col.decks.id(name)
+            self.name = name
             # make sure we clean up reset hook when manually exiting
             gui_hooks.state_did_reset.remove(self.onReset)
             if self.mw.state == "deckBrowser":

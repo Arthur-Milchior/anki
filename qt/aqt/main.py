@@ -992,8 +992,8 @@ title="%s" %s>%s</button>""" % (
     ##########################################################################
 
     def onUndo(self) -> None:
-        n = self.col.undoName()
-        if not n:
+        name = self.col.undoName()
+        if not name:
             return
         cid = self.col.undo()
         if cid and self.state == "review":
