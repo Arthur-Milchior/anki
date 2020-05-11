@@ -266,17 +266,17 @@ you can enter it here. Use \\t to represent tab."""
             self.grid.addWidget(QLabel(text), num, 1)
             button = QPushButton(_("Change"))
             self.grid.addWidget(button, num, 2)
-            qconnect(button.clicked, lambda _, s=self, n=num: s.changeMappingNum(n))
+            qconnect(button.clicked, lambda _, s=self, num=num: s.changeMappingNum(num))
 
-    def changeMappingNum(self, n):
-        f = ChangeMap(self.mw, self.importer.model, self.mapping[n]).getField()
+    def changeMappingNum(self, num):
+        f = ChangeMap(self.mw, self.importer.model, self.mapping[num]).getField()
         try:
             # make sure we don't have it twice
             index = self.mapping.index(f)
             self.mapping[index] = None
         except ValueError:
             pass
-        self.mapping[n] = f
+        self.mapping[num] = f
         if getattr(self.importer, "delimiter", False):
             self.savedDelimiter = self.importer.delimiter
 
