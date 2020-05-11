@@ -154,8 +154,8 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""
     def _addVocabulary(self, notes):
         mm = self.col.models
         model = mm.new("Mnemosyne-Vocabulary")
-        for f in "Expression", "Pronunciation", "Meaning", "Notes":
-            fm = mm.newField(f)
+        for fieldName in "Expression", "Pronunciation", "Meaning", "Notes":
+            fm = mm.newField(fieldName)
             mm.addField(model, fm)
         t = mm.newTemplate("Recognition")
         t["qfmt"] = "{{Expression}}"
