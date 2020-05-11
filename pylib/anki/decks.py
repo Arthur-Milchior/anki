@@ -497,12 +497,12 @@ class DeckManager:
             else:
                 parents.append(parents[-1] + "::" + part)
         # convert to objects
-        for c, p in enumerate(parents):
+        for index, p in enumerate(parents):
             if nameMap:
                 deck = nameMap[p]
             else:
                 deck = self.get(self.id(p))
-            parents[c] = deck
+            parents[index] = deck
         return parents
 
     def parentsByName(self, name: str) -> List:

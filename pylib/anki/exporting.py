@@ -348,8 +348,8 @@ class AnkiPackageExporter(AnkiExporter):
 
     def _exportMedia(self, z: ZipFile, files: List[str], fdir: str) -> Dict[str, str]:
         media = {}
-        for c, file in enumerate(files):
-            cStr = str(c)
+        for index, file in enumerate(files):
+            cStr = str(index)
             mpath = os.path.join(fdir, file)
             if os.path.isdir(mpath):
                 continue
@@ -359,7 +359,7 @@ class AnkiPackageExporter(AnkiExporter):
                 else:
                     z.write(mpath, cStr, zipfile.ZIP_STORED)
                 media[cStr] = unicodedata.normalize("NFC", file)
-                hooks.media_files_did_export(c)
+                hooks.media_files_did_export(index)
 
         return media
 
