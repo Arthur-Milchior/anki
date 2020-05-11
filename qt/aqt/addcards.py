@@ -98,16 +98,16 @@ class AddCards(QDialog):
         if oldNote:
             oldFields = list(oldNote.keys())
             newFields = list(note.keys())
-            for n, f in enumerate(note.model()["flds"]):
+            for index, f in enumerate(note.model()["flds"]):
                 fieldName = f["name"]
                 # copy identical fields
                 if fieldName in oldFields:
                     note[fieldName] = oldNote[fieldName]
-                elif n < len(oldNote.model()["flds"]):
+                elif index < len(oldNote.model()["flds"]):
                     # set non-identical fields by field index
-                    oldFieldName = oldNote.model()["flds"][n]["name"]
+                    oldFieldName = oldNote.model()["flds"][index]["name"]
                     if oldFieldName not in newFields:
-                        note.fields[n] = oldNote.fields[n]
+                        note.fields[index] = oldNote.fields[index]
         self.editor.note = note
         # When on model change is called, reset is necessarily called.
         # Reset load note, so it is not required to load it here.
@@ -118,9 +118,9 @@ class AddCards(QDialog):
         flds = note.model()["flds"]
         # copy fields from old note
         if oldNote:
-            for n in range(min(len(note.fields), len(oldNote.fields))):
-                if not keep or flds[n]["sticky"]:
-                    note.fields[n] = oldNote.fields[n]
+            for index in range(min(len(note.fields), len(oldNote.fields))):
+                if not keep or flds[index]["sticky"]:
+                    note.fields[index] = oldNote.fields[index]
         self.setAndFocusNote(note)
 
     def removeTempNote(self, note: Note) -> None:

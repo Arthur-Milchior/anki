@@ -491,13 +491,15 @@ def _replaceWithApkg(mw, filename, backup):
             shutil.copyfileobj(source, target)
 
         d = os.path.join(mw.pm.profileFolder(), "collection.media")
-        for n, (cStr, file) in enumerate(
+        for index, (cStr, file) in enumerate(
             json.loads(z.read("media").decode("utf8")).items()
         ):
             mw.taskman.run_on_main(
-                lambda n=n: mw.progress.update(
-                    ngettext("Processed %d media file", "Processed %d media files", n)
-                    % n
+                lambda index=index: mw.progress.update(
+                    ngettext(
+                        "Processed %d media file", "Processed %d media files", index
+                    )
+                    % index
                 )
             )
             size = z.getinfo(cStr).file_size
