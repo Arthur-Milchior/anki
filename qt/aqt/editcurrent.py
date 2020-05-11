@@ -60,9 +60,8 @@ class EditCurrent(QDialog):
 
     def _saveAndClose(self) -> None:
         gui_hooks.state_did_reset.remove(self.onReset)
-        r = self.mw.reviewer
         try:
-            r.card.load()
+            self.mw.reviewer.card.load()
         except:
             # card was removed by clayout
             pass
