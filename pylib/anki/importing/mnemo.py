@@ -45,22 +45,21 @@ fact._id=d._fact_id"""
         frontback = []
         vocabulary = []
         cloze = {}
-        for row in db.execute(
+        for (
+            _fact_id,
+            fact_view_id,
+            rawTags,
+            next,
+            prev,
+            easiness,
+            acq_reps_plus_ret_reps,
+            lapses,
+            card_type_id,
+        ) in db.execute(
             """
 select _fact_id, fact_view_id, tags, next_rep, last_rep, easiness,
 acq_reps+ret_reps, lapses, card_type_id from cards"""
         ):
-            (
-                _fact_id,
-                fact_view_id,
-                rawTags,
-                next,
-                prev,
-                easiness,
-                acq_reps_plus_ret_reps,
-                lapses,
-                card_type_id,
-            ) = row
             # categorize note
             note = notes[_fact_id]
             if fact_view_id.endswith(".1"):
