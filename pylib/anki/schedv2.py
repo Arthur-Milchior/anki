@@ -364,8 +364,8 @@ order by due"""
         sel = self.col.decks.get(did)
         lim = -1
         # for the deck and each of its parents
-        for g in [sel] + self.col.decks.parents(did):
-            rem = fn(g)
+        for deck in [sel] + self.col.decks.parents(did):
+            rem = fn(deck)
             if lim == -1:
                 lim = rem
             else:
@@ -385,13 +385,13 @@ select count() from
             lim,
         )
 
-    def _deckNewLimitSingle(self, g: Dict[str, Any]) -> int:
+    def _deckNewLimitSingle(self, deck: Dict[str, Any]) -> int:
         "Limit for deck without parent limits."
-        if g["dyn"]:
+        if deck["dyn"]:
             return self.dynReportLimit
-        c = self.col.decks.confForDid(g["id"])
-        limit = max(0, c["new"]["perDay"] - self.counts_for_deck_today(g["id"]).new)
-        return hooks.scheduler_new_limit_for_single_deck(limit, g)
+        c = self.col.decks.confForDid(deck["id"])
+        limit = max(0, c["new"]["perDay"] - self.counts_for_deck_today(deck["id"]).new)
+        return hooks.scheduler_new_limit_for_single_deck(limit, deck)
 
     def totalNewForCurrentDeck(self) -> int:
         return self.col.db.scalar(
