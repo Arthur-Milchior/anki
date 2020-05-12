@@ -562,8 +562,8 @@ class Editor:
     def setupTags(self):
         import aqt.tagedit
 
-        g = QGroupBox(self.widget)
-        g.setStyleSheet("border: 0")
+        group = QGroupBox(self.widget)
+        group.setStyleSheet("border: 0")
         tb = QGridLayout()
         tb.setSpacing(12)
         tb.setContentsMargins(2, 6, 2, 6)
@@ -576,8 +576,8 @@ class Editor:
         border = theme_manager.str_color("border")
         self.tags.setStyleSheet(f"border: 1px solid {border}")
         tb.addWidget(self.tags, 1, 1)
-        g.setLayout(tb)
-        self.outerLayout.addWidget(g)
+        group.setLayout(tb)
+        self.outerLayout.addWidget(group)
 
     def updateTags(self):
         if self.tags.col != self.mw.col:
