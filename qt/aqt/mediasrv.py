@@ -108,21 +108,21 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
 
         ctype = self.guess_type(path)
         try:
-            f = open(path, "rb")
+            file_object = open(path, "rb")
         except OSError:
             self.send_error(HTTPStatus.NOT_FOUND, "File not found")
             return None
         try:
             self.send_response(HTTPStatus.OK)
             self.send_header("Content-type", ctype)
-            fs = os.fstat(f.fileno())
+            fs = os.fstat(file_object.fileno())
             self.send_header("Content-Length", str(fs[6]))
             self.send_header("Last-Modified", self.date_time_string(fs.st_mtime))
             self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
-            return f
+            return file_object
         except:
-            f.close()
+            file_object.close()
             raise
 
     def log_message(self, format, *args):

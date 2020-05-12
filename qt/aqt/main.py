@@ -593,8 +593,8 @@ from the profile screen."
             "backup-%Y-%m-%d-%H.%M.%S.colpkg", time.localtime(time.time())
         )
         newpath = os.path.join(dir, fname)
-        with open(path, "rb") as f:
-            data = f.read()
+        with open(path, "rb") as file_object:
+            data = file_object.read()
         b = self.BackupThread(newpath, data)
         b.start()
 
@@ -1281,15 +1281,17 @@ and if the problem comes up again, please ask on the support site."""
     def onRemNotes(self, col: Collection, nids: Sequence[int]) -> None:
         path = os.path.join(self.pm.profileFolder(), "deleted.txt")
         existed = os.path.exists(path)
-        with open(path, "ab") as f:
+        with open(path, "ab") as file_object:
             if not existed:
-                f.write(b"nid\tmid\tfields\n")
+                file_object.write(b"nid\tmid\tfields\n")
             for id, mid, flds in col.db.execute(
                 "select id, mid, flds from notes where id in %s" % ids2str(nids)
             ):
                 fields = splitFields(flds)
-                f.write(("\t".join([str(id), str(mid)] + fields)).encode("utf8"))
-                f.write(b"\n")
+                file_object.write(
+                    ("\t".join([str(id), str(mid)] + fields)).encode("utf8")
+                )
+                file_object.write(b"\n")
 
     # Schema modifications
     ##########################################################################
