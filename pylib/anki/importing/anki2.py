@@ -252,8 +252,8 @@ class Anki2Importer(Importer):
         if did in self._decks:
             return self._decks[did]
         # get the name in src
-        g = self.src.decks.get(did)
-        name = g["name"]
+        importedDeck = self.src.decks.get(did)
+        name = importedDeck["name"]
         # if there's a prefix, replace the top level deck
         if self.deckPrefix:
             tmpname = "::".join(DeckManager.path(name)[1:])
@@ -275,16 +275,16 @@ class Anki2Importer(Importer):
         # create in local
         newid = self.dst.decks.id(name)
         # pull conf over
-        if "conf" in g and g["conf"] != 1:
-            conf = self.src.decks.get_config(g["conf"])
+        if "conf" in importedDeck and importedDeck["conf"] != 1:
+            conf = self.src.decks.get_config(importedDeck["conf"])
             self.dst.decks.save(conf)
             self.dst.decks.update_config(conf)
             g2 = self.dst.decks.get(newid)
-            g2["conf"] = g["conf"]
+            g2["conf"] = importedDeck["conf"]
             self.dst.decks.save(g2)
         # save desc
         deck = self.dst.decks.get(newid)
-        deck["desc"] = g["desc"]
+        deck["desc"] = importedDeck["desc"]
         self.dst.decks.save(deck)
         # add to deck map and return
         self._decks[did] = newid
