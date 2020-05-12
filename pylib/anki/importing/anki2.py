@@ -269,8 +269,8 @@ class Anki2Importer(Importer):
             idInSrc = self.src.decks.id(head)
             self._did(idInSrc)
         # if target is a filtered deck, we'll need a new deck name
-        deck = self.dst.decks.byName(name)
-        if deck and deck["dyn"]:
+        localDeck = self.dst.decks.byName(name)
+        if localDeck and localDeck["dyn"]:
             name = "%s %d" % (name, intTime())
         # create in local
         newid = self.dst.decks.id(name)
@@ -283,10 +283,10 @@ class Anki2Importer(Importer):
             g2["conf"] = importedDeck["conf"]
             self.dst.decks.save(g2)
         # save desc
-        deck = self.dst.decks.get(newid)
-        deck["desc"] = importedDeck["desc"]
-        self.dst.decks.save(deck)
-        # add to deck map and return
+        localDeck = self.dst.decks.get(newid)
+        localDeck["desc"] = importedDeck["desc"]
+        self.dst.decks.save(localDeck)
+        # add to localDeck map and return
         self._decks[did] = newid
         return newid
 
