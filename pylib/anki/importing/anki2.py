@@ -165,8 +165,8 @@ class Anki2Importer(Importer):
             for add_ in add:
                 self._logNoteRow(_("Added"), add_)
         if dupesIdentical:
-            for row in dupesIdentical:
-                self._logNoteRow(_("Identical"), row)
+            for dupeIdentical in dupesIdentical:
+                self._logNoteRow(_("Identical"), dupeIdentical)
 
         # export info for calling code
         self.dupes = len(dupesIdentical)
