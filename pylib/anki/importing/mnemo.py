@@ -50,19 +50,29 @@ fact._id=d._fact_id"""
 select _fact_id, fact_view_id, tags, next_rep, last_rep, easiness,
 acq_reps+ret_reps, lapses, card_type_id from cards"""
         ):
+            (
+                _fact_id,
+                fact_view_id,
+                rawTags,
+                next,
+                prev,
+                easiness,
+                acq_reps_plus_ret_reps,
+                lapses,
+                card_type_id,
+            ) = row
             # categorize note
-            note = notes[row[0]]
-            if row[1].endswith(".1"):
-                if row[1].startswith("1.") or row[1].startswith("1::"):
+            note = notes[_fact_id]
+            if fact_view_id.endswith(".1"):
+                if fact_view_id.startswith("1.") or fact_view_id.startswith("1::"):
                     front.append(note)
-                elif row[1].startswith("2.") or row[1].startswith("2::"):
+                elif fact_view_id.startswith("2.") or fact_view_id.startswith("2::"):
                     frontback.append(note)
-                elif row[1].startswith("3.") or row[1].startswith("3::"):
+                elif fact_view_id.startswith("3.") or fact_view_id.startswith("3::"):
                     vocabulary.append(note)
-                elif row[1].startswith("5.1"):
-                    cloze[row[0]] = note
+                elif fact_view_id.startswith("5.1"):
+                    cloze[_fact_id] = note
             # check for None to fix issue where import can error out
-            rawTags = row[2]
             if rawTags is None:
                 rawTags = ""
             # merge tags into note
@@ -72,21 +82,20 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""
                 note["tags"] = []
             note["tags"] += self.col.tags.split(tags)
             # if it's a new card we can go with the defaults
-            if row[3] == -1:
+            if next == -1:
                 continue
             # add the card
             card = ForeignCard()
-            card.factor = int(row[5] * 1000)
-            card.reps = row[6]
-            card.lapses = row[7]
+            card.factor = int(easiness * 1000)
+            card.reps = acq_reps_plus_ret_reps
+            card.lapses = lapses
             # ivl is inferred in mnemosyne
-            next, prev = row[3:5]
             card.ivl = max(1, (next - prev) // 86400)
             # work out how long we've got left
             rem = int((next - time.time()) / 86400)
             card.due = self.col.sched.today + rem
             # get ord
-            match = re.search(r".(\d+)$", row[1])
+            match = re.search(r".(\d+)$", fact_view_id)
             assert match
             ord = int(match.group(1)) - 1
             if "cards" not in note:
