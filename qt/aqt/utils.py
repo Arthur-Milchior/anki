@@ -166,7 +166,15 @@ def showText(
 
 
 def askUser(text, parent=None, help="", defaultno=False, msgfunc=None, title="Anki"):
-    "Show a yes/no question. Return true if yes."
+    """Show a yes/no question. Return true if yes.
+
+    Text -- the text displayed to the user
+    parent -- Add this window as parent to the question
+    help -- An help message, occuring if the user click on the help button
+    defaultno -- whether the default answer is no
+    msgfunc -- The kind of QMessageBox. By default, a question
+    title -- title of the question window
+    """
     if not parent:
         parent = aqt.mw.app.activeWindow()
     if not msgfunc:
@@ -190,6 +198,13 @@ def askUser(text, parent=None, help="", defaultno=False, msgfunc=None, title="An
 
 class ButtonedDialog(QMessageBox):
     def __init__(self, text, buttons, parent=None, help="", title="Anki"):
+        """
+        text -- Question to explain the user what they can answer
+        buttons -- A list of message to show on each buttons
+        parent -- The window from which this is opens
+        help -- A message to show if user click on «help»
+        title -- Title of the window
+        """
         QMessageBox.__init__(self, parent)
         self.buttons = []
         self.setWindowTitle(title)
@@ -222,6 +237,16 @@ class ButtonedDialog(QMessageBox):
 
 
 def askUserDialog(text, buttons, parent=None, help="", title="Anki"):
+    """
+    Return a window asking the user to click on one of the buttons of Buttons.
+    You should use .run to open it, and it returns the text of the button pressed or None.
+
+    text -- Question to explain the user what they can answer
+    buttons -- A list of message to show on each buttons
+    parent -- The window from which this is opens
+    help -- A message to show if user click on «help»
+    title -- Title of the window
+    """
     if not parent:
         parent = aqt.mw
     diag = ButtonedDialog(text, buttons, parent, help, title=title)
@@ -285,6 +310,18 @@ def getText(
     geomKey=None,
     **kwargs,
 ):
+    """
+    A pair, with:
+    * a text, entered by the user (or empty string)
+    * value returned by the window. It's falsy if the window was closed and not validated.
+
+    text -- Text to explain the user what they can answer
+    parent -- The window from which this is opens. By default, aqt.mw
+    help -- A message to show if user click on «help»
+    edit -- Which editor to use. By default QLineEdit. No other is used in anki's code.
+    default -- Default value of the text
+    title -- Title of the window
+    """
     if not parent:
         parent = aqt.mw.app.activeWindow() or aqt.mw
     dialog = GetTextDialog(
@@ -300,6 +337,7 @@ def getText(
 
 
 def getOnlyText(*args, **kwargs):
+    """A text asked to the user, or the empty string."""
     (text, returnValue) = getText(*args, **kwargs)
     if returnValue:
         return text
@@ -410,6 +448,7 @@ def getSaveFile(parent, title, dir_description, key, ext, fname=None):
 
 
 def saveGeom(widget, key: str):
+    """Associate to the key the geometry of the widget"""
     key += "Geom"
     if isMac and widget.windowState() & Qt.WindowFullScreen:
         geom = None
@@ -419,6 +458,11 @@ def saveGeom(widget, key: str):
 
 
 def restoreGeom(widget, key: str, offset=None, adjustSize=False):
+    """Gets from the collection profil the geometry associated to the widget named key.
+
+    keywords parameter:
+    offset -- whether a mac window must be resized, assuming qtminor >6 ???
+    adjustSize -- Whether to call widget.adjustSize if the key does not belongs in the database """
     key += "Geom"
     if aqt.mw.pm.profile.get(key):
         widget.restoreGeometry(aqt.mw.pm.profile[key])
@@ -547,6 +591,10 @@ def restore_combo_history(comboBox: QComboBox, name: str):
 
 
 def mungeQA(col, txt):
+    """txt, without its sound, and Replace local image url by replacing
+        special character by the escape %xx
+
+    """
     print("mungeQA() deprecated; use mw.prepare_card_text_for_display()")
     txt = col.media.escapeImages(txt)
     return txt
@@ -561,12 +609,14 @@ def openFolder(path):
 
 
 def shortcut(key):
+    """On mac: ctrl is replaced by command. Otherwise identity"""
     if isMac:
         return re.sub("(?i)ctrl", "Command", key)
     return key
 
 
 def maybeHideClose(bbox):
+    """On mac only, remove the bbox's close buton."""
     if isMac:
         button = bbox.button(QDialogButtonBox.Close)
         if button:
@@ -595,6 +645,10 @@ _tooltipLabel: Optional[QLabel] = None
 
 
 def tooltip(msg, period=3000, parent=None, x_offset=0, y_offset=100):
+    """Show a small yellow box for period milliseconds, containing the
+    text msg.
+
+    """
     global _tooltipTimer, _tooltipLabel
 
     class CustomLabel(QLabel):

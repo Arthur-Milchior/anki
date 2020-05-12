@@ -40,6 +40,7 @@ class FieldDialog(QDialog):
     ##########################################################################
 
     def fillFields(self):
+        """Write "ord:name" in each line"""
         self.currentIdx = None
         self.form.fieldList.clear()
         for index, fldType in enumerate(self.model["flds"]):
@@ -79,6 +80,9 @@ class FieldDialog(QDialog):
         self.loadField(idx)
 
     def _uniqueName(self, prompt, ignoreOrd=None, old=""):
+        """Ask for a new name using prompt, and default value old. Return it.
+
+        Unless this name is already used elsewhere, in this case, return None and show a warning. """
         txt = getOnlyText(prompt, default=old)
         if not txt:
             return
@@ -91,6 +95,10 @@ class FieldDialog(QDialog):
         return txt
 
     def onRename(self):
+        """Ask for a new name. If required, save in in the model, and reload the content.
+
+        Templates are edited to use the new name. requirements are also recomputed.
+        """
         idx = self.currentIdx
         fldType = self.model["flds"][idx]
         name = self._uniqueName(_("New name:"), self.currentIdx, fldType["name"])
@@ -169,6 +177,7 @@ class FieldDialog(QDialog):
         self.form.rtl.setChecked(fldType["rtl"])
 
     def saveField(self):
+        """Save all options in current field"""
         # not initialized yet?
         if self.currentIdx is None:
             return
@@ -192,6 +201,7 @@ class FieldDialog(QDialog):
             self.change_tracker.mark_basic()
 
     def reject(self):
+        """Close the window. If there were some change, recompute with updateFieldCache(todo)"""
         if self.change_tracker.changed():
             if not askUser("Discard changes?"):
                 return

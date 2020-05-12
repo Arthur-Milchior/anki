@@ -110,6 +110,7 @@ class DeckBrowser:
 """
 
     def _renderPage(self, reuse=False):
+        """Write the HTML of the deck browser. Move to the last vertical position."""
         if not reuse:
             self._dueTree = self.mw.col.sched.deck_due_tree()
             self.__renderPage(None)
@@ -149,6 +150,11 @@ where id > ?""",
         return buf
 
     def _renderDeckTree(self, top: DeckTreeNode) -> str:
+        """Html used to show the deck tree.
+
+        keyword arguments
+        depth -- the number of ancestors, excluding itself
+        nodes -- A list of nodes, to render, with the same parent. See top of this file for detail"""
         buf = """
   <tr>
     <th colspan=5 align=left>
@@ -177,7 +183,14 @@ where id > ?""",
         return buf
 
     def _render_deck_node(self, node: DeckTreeNode, ctx: RenderDeckNodeContext) -> str:
-        if node.collapsed:
+        """The HTML for a single deck (and its descendant)
+
+        Keyword arguments:
+        node -- see in the introduction of the file for a node description
+        depth -- indentation argument (number of ancestors)
+        cnt --  the number of sibling, counting itself
+        nameMap -- dictionnary, associating to a deck id its node
+        """        if node.collapsed:
             prefix = "+"
         else:
             prefix = "-"

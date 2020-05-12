@@ -42,6 +42,11 @@ class TagManager:
     def register(
         self, tags: Collection[str], usn: Optional[int] = None, clear=False
     ) -> None:
+        """Given a list/set of tags, add any tag missing in the registry to
+        the registry. If there is such a new tag, call the hook
+        newTag.
+
+        """
         if usn is None:
             preserve_usn = False
             usn_ = 0
@@ -105,7 +110,13 @@ class TagManager:
     # legacy routines
 
     def bulkAdd(self, ids: List[int], tags: str, add: bool = True) -> None:
-        "Add tags in bulk. TAGS is space-separated."
+        """Add tags in bulk. TAGS is space-separated.
+
+        keyword arguments
+        ids -- a list of id
+        tags -- a string of space-separated tag
+        add -- whether to add (True) or to remove (False)
+        """
         if add:
             self.bulk_add(ids, tags)
         else:

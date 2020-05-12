@@ -18,6 +18,11 @@ from anki.utils import ids2str, namedtmp, splitFields, stripHTML
 
 
 class Exporter:
+    """An abstract class. Inherited by class actually doing some kind of export.
+
+    count -- the number of cards to export.
+    """
+
     includeHTML: Union[bool, None] = None
 
     def __init__(
@@ -27,6 +32,7 @@ class Exporter:
         cids: Optional[List[int]] = None,
     ) -> None:
         self.col = col.weakref()
+        # Currently, did is never set during initialisation.
         self.did = did
         self.cids = cids
 
@@ -34,12 +40,21 @@ class Exporter:
         raise Exception("not implemented")
 
     def exportInto(self, path: str) -> None:
-        self._escapeCount = 0
+        """Export into path.
+
+        This is the method called from the GUI to actually export things.
+
+        Keyword arguments:
+        path -- a path of file in which to export"""
+        self._escapeCount = 0  # not used ANYWHERE in the code as of 25 november 2018
         file = open(path, "wb")
         self.doExport(file)
         file.close()
 
     def processText(self, text: str) -> str:
+        """remove HTML if not includeHTML, add quote if required, replace tab
+        by eight spaces, newline by a line, and escape quote."""
+
         if self.includeHTML is False:
             text = self.stripHTML(text)
 
@@ -70,6 +85,7 @@ class Exporter:
         return text
 
     def cardIds(self) -> Any:
+        """card ids of cards in deck self.did if it is set, all ids otherwise."""
         if self.cids is not None:
             cids = self.cids
         elif not self.did:
@@ -421,6 +437,8 @@ class AnkiCollectionPackageExporter(AnkiPackageExporter):
 
 
 def exporters() -> List[Tuple[str, Any]]:
+    """A list of pairs (description of an exporter class, the class)"""
+
     def id(obj):
         return ("%s (*%s)" % (obj.key, obj.ext), obj)
 

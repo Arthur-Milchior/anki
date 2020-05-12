@@ -16,3 +16,4 @@ Importers = (
     (_("Supermemo XML export (*.xml)"), SupermemoXmlImporter),
     (_("Pauker 1.8 Lesson (*.pau.gz)"), PaukerImporter),
 )
+"""Used by the file system window, to ensure that it knows which kind of file to search for. And then which importer to use to import the file."""

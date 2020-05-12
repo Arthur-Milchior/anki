@@ -62,6 +62,7 @@ reMedia = re.compile("(?i)<img[^>]+src=[\"']?([^\"'>]+)[\"']?[^>]*>")
 
 
 def stripHTML(text: str) -> str:
+    """Removes comment, style, script, and all tags. Replace entities by their unicode value"""
     text = reComment.sub("", text)
     text = reStyle.sub("", text)
     text = reScript.sub("", text)
@@ -71,7 +72,8 @@ def stripHTML(text: str) -> str:
 
 
 def stripHTMLMedia(text: str) -> str:
-    "Strip HTML but keep media filenames"
+    """Removes comment, style, script, and all tags. Replace images by
+their url. Replace entities by their unicode value"""
     text = reMedia.sub(" \\1 ", text)
     return stripHTML(text)
 
@@ -87,6 +89,7 @@ def minimizeHTML(text: str) -> str:
 
 
 def htmlToTextLine(text: str) -> str:
+    """Transform a field into a html value to show in the browser list of cards."""
     text = text.replace("<br>", " ")
     text = text.replace("<br />", " ")
     text = text.replace("<div>", " ")
@@ -99,6 +102,7 @@ def htmlToTextLine(text: str) -> str:
 
 
 def entsToTxt(html: str) -> str:
+    """html, where entities are replaced by their unicode character."""
     # entitydefs defines nbsp as \xa0 instead of a standard space, so we
     # replace it first
     html = html.replace("&nbsp;", " ")
@@ -208,6 +212,7 @@ def joinFields(list: List[str]) -> str:
 
 
 def splitFields(string: str) -> List[str]:
+    """Transform the fields as in the database in a list of field"""
     return string.split("\x1f")
 
 
@@ -282,7 +287,20 @@ def noBundledLibs() -> Iterator[None]:
 
 
 def call(argv: List[str], wait: bool = True, **kwargs) -> int:
-    "Execute a command. If WAIT, return exit code."
+    """Execute a command and return its return code.
+
+    If wait is set to False, don't wait and return immediatly 0
+    (i.e. correct exit number)
+    return -1 if executing the command raises OSErrors.
+
+    If the returned value is considered as a Boolean, it returns
+    whether the call returned an error.
+
+    Keyword arguments
+    argv -- the command to execute
+    wait -- whether to wait for the end of the call before returning
+    **kwargs -- arguments given to subprocess.Popen.
+    """
     # ensure we don't open a separate window for forking process on windows
     if isWin:
         si = subprocess.STARTUPINFO()  # type: ignore
@@ -339,6 +357,10 @@ def invalidFilename(str, dirsep=True) -> Optional[str]:
 
 
 def platDesc() -> str:
+    """{system}:{version}, where system is mac, win, or lin.
+
+    It is theoretically resistant to system call interuption.
+    """
     # we may get an interrupted system call, so try this in a loop
     index = 0
     theos = "unknown"

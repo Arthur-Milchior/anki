@@ -24,6 +24,22 @@ from aqt.utils import (
 
 
 class Models(QDialog):
+    """The window used to select a model. Either directly from note type manager in main. Or through a model chooser window.
+
+    An object of class Models contains:
+    mw -- The main window (?)
+    parent -- the window which opened the current window. By default
+    the main window
+    fromMain -- whether the window is opened from the main window. It
+    is used to check whether Fields... and Cards... buttons should be
+    added.
+    col -- the collection
+    mm -- the set of models of the colection
+    form -- TODO
+    models -- all models of the collection
+    model -- the selected model
+    """
+
     def __init__(self, mw: AnkiQt, parent=None, fromMain=False):
         self.mw = mw
         parent = parent or mw
@@ -71,6 +87,7 @@ class Models(QDialog):
         maybeHideClose(box)
 
     def onRename(self):
+        """Ask the user for a new name for the model. Save it"""
         nt = self.current_notetype()
         txt = getText(_("New name:"), default=nt["name"])
         if txt[1] and txt[0]:
@@ -167,6 +184,7 @@ class Models(QDialog):
         FieldDialog(self.mw, self.current_notetype(), parent=self)
 
     def onCards(self):
+        """Open the card preview(layout) window."""
         from aqt.clayout import CardLayout
 
         note = self._tmpNote()

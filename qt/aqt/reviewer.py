@@ -486,7 +486,11 @@ Please run Tools>Empty Cards"""
         return givenElems, correctElems
 
     def correct(self, given: str, correct: str, showBad: bool = True) -> str:
-        "Diff-corrects the typed-in answer."
+        """HTML code with a diff-corrects the typed-in answer.
+
+        given -- answer given by the user
+        correct -- correct answer
+        showBad -- unused."""
         givenElems, correctElems = self.tokenizeComparison(given, correct)
 
         def good(diff_part: str) -> str:

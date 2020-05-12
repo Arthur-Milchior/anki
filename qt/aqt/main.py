@@ -73,6 +73,23 @@ class ResetRequired:
 
 
 class AnkiQt(QMainWindow):
+    """
+    stateShortcuts -- the list of QShortcut elements due to the actual state of the main window (i.e. reviewer or overwiew).
+
+    col -- The collection
+    state -- It's states which kind of content main shows. Either:
+      -- startup
+      -- resetRequired: during review, when edit or browser is opened, the window show "waiting for editing to finish. Resume now
+      -- sync
+      -- overview
+      -- review
+      -- profileManager
+      -- deckBrowser
+    stateShortcuts -- shortcuts related to the kind of window currently in main.
+    bottomWeb -- a ankiwebview, with the bottom of the main window. Shown unless for reset required.
+    app -- an object of class AnkiApp.
+    """
+
     col: Collection
     pm: ProfileManagerType
     web: aqt.webview.AnkiWebView
@@ -626,6 +643,12 @@ from the profile screen."
     ##########################################################################
 
     def moveToState(self, state: str, *args) -> None:
+        """Call self._oldStateCleanup(state) if it exists for oldState. It seems it's the
+        case only for review.
+        remove shortcut related to this state
+        run hooks beforeStateChange and afterStateChange. By default they are empty.
+        show the bottom, unless its reset required.
+        """
         # print("-> move from", self.state, "to", state)
         oldState = self.state or "dummy"
         cleanup = getattr(self, "_" + oldState + "Cleanup", None)
@@ -660,6 +683,7 @@ from the profile screen."
         self.reviewer.show()
 
     def _reviewCleanup(self, newState):
+        """Run hook "reviewCleanup". Unless new state is resetRequired or review."""
         if newState != "resetRequired" and newState != "review":
             self.reviewer.cleanup()
 
@@ -667,7 +691,23 @@ from the profile screen."
     ##########################################################################
 
     def reset(self, guiOnly: bool = False) -> None:
-        "Called for non-trivial edits. Rebuilds queue and updates UI."
+        """Called for non-trivial edits. Rebuilds queue and updates UI.
+
+        set Edit>undo
+        change state (show the bottom bar, remove shortcut from last state)
+        run hooks beforeStateChange and afterStateChange. By default they are empty.
+        call cleanup of last state.
+        call the hook "reset". It contains at least the onReset method
+        from the current window if it is browser, (and its
+        changeModel), editCurrent, addCard, studyDeck,
+        modelChooser. Reset reinitialize those window without closing
+        them.
+
+        unless guiOnly:
+        Deal with the fact that it's potentially a new day.
+        Reset number of learning, review, new cards according to current decks
+        empty queues. Set haveQueues to true.
+        """
         if self.col:
             if not guiOnly:
                 self.col.reset()
@@ -946,6 +986,11 @@ title="%s" %s>%s</button>""" % (
     def applyShortcuts(
         self, shortcuts: Sequence[Tuple[str, Callable]]
     ) -> List[QShortcut]:
+        """A list of shortcuts.
+
+        Keyword arguments:
+        shortcuts -- a list of pair (shortcut key, function called by the shortcut)
+        """
         qshortcuts = []
         for key, fn in shortcuts:
             scut = QShortcut(QKeySequence(key), self, activated=fn)  # type: ignore
@@ -954,12 +999,17 @@ title="%s" %s>%s</button>""" % (
         return qshortcuts
 
     def setStateShortcuts(self, shortcuts: List[Tuple[str, Callable]]) -> None:
+        """set stateShortcuts to QShortcut from shortcuts
+
+        run hook CURRENTSTATEStateShorcuts
+        """
         gui_hooks.state_shortcuts_will_change(self.state, shortcuts)
         # legacy hook
         runHook(self.state + "StateShortcuts", shortcuts)
         self.stateShortcuts = self.applyShortcuts(shortcuts)
 
     def clearStateShortcuts(self) -> None:
+        """Delete the shortcut of current state, empty stateShortcuts"""
         for qs in self.stateShortcuts:
             sip.delete(qs)
         self.stateShortcuts = []
@@ -1006,6 +1056,9 @@ title="%s" %s>%s</button>""" % (
         self.maybeEnableUndo()
 
     def maybeEnableUndo(self) -> None:
+        """Enable undo in the GUI if something can be undone. Call the
+        hook undoState(somethingCanBeUndone)."""
+        # Whether something can be undone
         if self.col and self.col.undoName():
             self.form.actionUndo.setText(_("Undo %s") % self.col.undoName())
             self.form.actionUndo.setEnabled(True)
@@ -1029,15 +1082,23 @@ title="%s" %s>%s</button>""" % (
     ##########################################################################
 
     def onAddCard(self) -> None:
+        """Open the addCards window."""
         aqt.dialogs.open("AddCards", self)
 
     def onBrowse(self) -> None:
+        """Open the browser window."""
         aqt.dialogs.open("Browser", self)
 
     def onEditCurrent(self):
+        """Open the editing window."""
         aqt.dialogs.open("EditCurrent", self)
 
     def onDeckConf(self, deck=None):
+        """Open the deck editor.
+
+        According to whether the deck is dynamic or not, open distinct window
+        keyword arguments:
+        deck -- The deck to edit. If not give, current Deck"""
         if not deck:
             deck = self.col.decks.current()
         if deck["dyn"]:
@@ -1054,12 +1115,16 @@ title="%s" %s>%s</button>""" % (
         self.moveToState("overview")
 
     def onStats(self):
+        """Open stats for selected decks
+
+        If there are no selected deck, don't do anything."""
         deck = self._selectedDeck()
         if not deck:
             return
         aqt.dialogs.open("DeckStats", self)
 
     def onPrefs(self):
+        """Open preference window"""
         aqt.dialogs.open("Preferences", self)
 
     def onNoteTypes(self):
@@ -1068,12 +1133,15 @@ title="%s" %s>%s</button>""" % (
         aqt.models.Models(self, self, fromMain=True)
 
     def onAbout(self):
+        """Open the about window"""
         aqt.dialogs.open("About", self)
 
     def onDonate(self):
+        """Ask the OS to open the donate web page"""
         openLink(aqt.appDonate)
 
     def onDocumentation(self):
+        """Ask the OS to open the documentation web page"""
         openHelp("")
 
     # Importing & exporting
@@ -1095,6 +1163,7 @@ title="%s" %s>%s</button>""" % (
         aqt.importing.onImport(self)
 
     def onExport(self, did=None):
+        """Open exporting window, with did as in its argument."""
         import aqt.exporting
 
         aqt.exporting.ExportDialog(self, did=did)
@@ -1232,6 +1301,7 @@ Difference to correct time: %s."""
     ##########################################################################
 
     def setupHooks(self) -> None:
+        """Adds onSchemadMod, onRemNotes and onOdueInvalid to their hooks"""
         hooks.schema_will_change.append(self.onSchemaMod)
         hooks.notes_will_be_deleted.append(self.onRemNotes)
         hooks.card_odue_was_invalid.append(self.onOdueInvalid)
@@ -1280,6 +1350,11 @@ and if the problem comes up again, please ask on the support site."""
     ##########################################################################
 
     def onRemNotes(self, col: Collection, nids: Sequence[int]) -> None:
+        """Append (id, model id and fields) to the end of deleted.txt
+
+        This is done for each id of nids.
+        This method is added to the hook remNotes; and executed on note deletion.
+        """
         path = os.path.join(self.pm.profileFolder(), "deleted.txt")
         existed = os.path.exists(path)
         with open(path, "ab") as file_object:
@@ -1299,6 +1374,8 @@ and if the problem comes up again, please ask on the support site."""
 
     # this will gradually be phased out
     def onSchemaMod(self, arg):
+        """Ask the user whether they accept to do an action which will request a full reupload of
+                the db"""
         assert self.inMainThread()
         progress_shown = self.progress.busy()
         if progress_shown:
@@ -1350,6 +1427,7 @@ will be lost. Continue?"""
             self.moveToState("overview")
 
     def onEmptyCards(self) -> None:
+        """Method called by Tools>Empty Cards..."""
         show_empty_cards(self)
 
     # Debugging

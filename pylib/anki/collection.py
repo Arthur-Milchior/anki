@@ -37,6 +37,86 @@ if TYPE_CHECKING:
 
 
 class Collection:
+    """A collection is, basically, everything that composed an account in
+    Anki.
+
+    This object is usually denoted col
+
+    _lastSave -- time of the last save. Initially time of creation.
+    _undo -- An undo object. See below
+
+    The collection is an object composed of:
+    id -- arbitrary number since there is only one row
+    crt -- timestamp of the creation date. It's correct up to the day. For V1 scheduler, the hour corresponds to starting a newday.
+    mod -- last modified in milliseconds
+    scm -- schema mod time: time when "schema" was modified.
+        --  If server scm is different from the client scm a full-sync is required
+    ver -- version
+    dty -- dirty: unused, set to 0
+    usn -- update sequence number: used for finding diffs when syncing.
+        --   See usn in cards table for more details.
+    ls -- "last sync time"
+    conf -- json object containing configuration options that are synced
+
+
+    In the db, not in col objects: json array of json objects containing the models (aka Note types)
+    decks -- The deck manager
+          -- in the db  it is a json array of json objects containing the deck
+    dconf -- json array of json objects containing the deck options
+    tags -- a cache of tags used in the collection (probably for autocomplete etc)
+
+
+    conf -- ("conf" in the database.)
+    "curDeck": "The id (as int) of the last deck selectionned (review, adding card, changing the deck of a card)",
+    "activeDecks": "The list containing the current deck id and its descendent (as ints)",
+    "newSpread": "In which order to view to review the cards. This can be selected in Preferences>Basic. Possible values are:
+      0 -- NEW_CARDS_DISTRIBUTE (Mix new cards and reviews)
+      1 -- NEW_CARDS_LAST (see new cards after review)
+      2 -- NEW_CARDS_FIRST (See new card before review)",
+    "collapseTime": "'Preferences>Basic>Learn ahead limit'*60.
+    If there are no other card to review, then we can review cards in learning in advance if they are due in less than this number of seconds.",
+    "timeLim": "'Preferences>Basic>Timebox time limit'*60. Each time this number of second elapse, anki tell you how many card you reviewed.",
+    "estTimes": "'Preferences>Basic>Show next review time above answer buttons'. A Boolean."
+    "dueCounts": "'Preferences>Basic>Show remaining card count during review'. A Boolean."
+    "curModel": "Id (as string) of the last note type (a.k.a. model) used (i.e. either when creating a note, or changing the note type of a note).",
+    "nextPos": "This is the highest value of a due value of a new card. It allows to decide the due number to give to the next note created. (This is useful to ensure that cards are seen in order in which they are added.",
+    "sortType": "A string representing how the browser must be sorted. Its value should be one of the possible value of 'aqt.browsers.DataModel.activeCols' (or equivalently of 'activeCols'  but not any of ('question', 'answer', 'template', 'deck', 'note', 'noteTags')",
+    "sortBackwards": "A Boolean stating whether the browser sorting must be in increasing or decreasing order",
+    "addToCur": "A Boolean. True for 'When adding, default to current deck' in Preferences>Basic. False for 'Change deck depending on note type'.",
+    "dayLearnFirst": "A Boolean. It corresponds to the option 'Show learning cards with larger steps before reviews'. But this option does not seems to appear in the preference box",
+    "newBury": "A Boolean. Always set to true and not read anywhere in the code but at the place where it is set to True if it is not already true. Hence probably quite useful.",
+    "lastUnburied":"The date of the last time the scheduler was initialized or reset. If it's not today, then buried notes must be unburied. This is not in the json until scheduler is used once.",
+    "activeCols":"the list of name of columns to show in the browser. Possible values are listed in aqt.browser.Browser.setupColumns. They are:
+    'question' -- the browser column'Question',
+    'answer' -- the browser column'Answer',
+    'template' -- the browser column'Card',
+    'deck' -- the browser column'Deck',
+    'noteFld' -- the browser column'Sort Field',
+    'noteCrt' -- the browser column'Created',
+    'noteMod' -- the browser column'Edited',
+    'cardMod' -- the browser column'Changed',
+    'cardDue' -- the browser column'Due',
+    'cardIvl' -- the browser column'Interval',
+    'cardEase' -- the browser column'Ease',
+    'cardReps' -- the browser column'Reviews',
+    'cardLapses' -- the browser column'Lapses',
+    'noteTags' -- the browser column'Tags',
+    'note' -- the browser column'Note',
+    The default columns are: noteFld, template, cardDue and deck
+    This is not in the json at creaton. It's added when the browser is open.
+    "
+
+    An undo object is of the form
+    [type, undoName, data]
+    Here, type is 1 for review, 2 for checkpoint.
+    undoName is the name of the action to undo. Used in the edit menu,
+    and in tooltip stating that undo was done.
+
+    server -- Whether to pretend to be the server. Only set to true during anki.sync.Syncer.remove; i.e. while removing what the server says to remove. When set to true:
+    * the usn returned by self.usn is self._usn, otherwise -1.
+    * media manager does not connect nor close database connexion (I've no idea why)
+    """
+
     sched: Union[V1Scheduler, V2Scheduler]
     _undo: List[Any]
 
@@ -109,6 +189,7 @@ class Collection:
             raise Exception("Unsupported scheduler version")
 
     def _loadScheduler(self) -> None:
+        """Set self.sched to the chosen Scheduler"""
         ver = self.schedVer()
         if ver == 1:
             self.sched = V1Scheduler(self)
@@ -226,7 +307,9 @@ class Collection:
         return None
 
     def close(self, save: bool = True, downgrade: bool = False) -> None:
-        "Disconnect from DB."
+        """Save or rollback collection's db according to save.
+        Close collection's db, media's db and log.
+        """
         if self.db:
             if save:
                 self.save(trx=False)
@@ -276,9 +359,19 @@ class Collection:
         self._openLog()
 
     def modSchema(self, check: bool) -> None:
-        "Mark schema modified. Call this first so user can abort if necessary."
+        """Mark schema modified. Call this first so user can abort if necessary.
+
+        Raise AnkiError("abortSchemaMod") if the change is
+        rejected by the filter (e.g. if the user states to abort).
+
+        Once the change is accepted, the filter is not run until a
+        synchronization occurs.
+
+        Change the scm value
+        """
         if not self.schemaChanged():
             if check and not hooks.schema_will_change(proceed=True):
+                # default hook is added in aqt/main setupHooks. It is function onSchemaMod from class AnkiQt aqt/main
                 raise AnkiError("abortSchemaMod")
         self.scm = intTime(1000)
         self.setMod()
@@ -289,10 +382,25 @@ class Collection:
         return self.scm > self.ls
 
     def usn(self) -> Any:
+        """Return the synchronization number to use. Usually, -1, since
+        no actions are synchronized. The exception being actions
+        requested by synchronization itself, when self.server is
+        true. In which case _usn number.
+
+        """
         return self._usn if self.server else -1
 
     def beforeUpload(self) -> None:
-        "Called before a full upload."
+        """Called before a full upload.
+
+        * change usn -1 to 0 in notes, card and revlog, and all models, tags, decks, deck options.
+        * empty graves.
+        * Update usn
+        * set modSchema to true (no nead for new upload)
+        * update last sync time to current schema
+        * Save or rollback collection's db according to save.
+        * Close collection's db, media's db and log.
+        """
         self.save(trx=False)
         self.backend.before_upload()
         self.close(save=False, downgrade=True)
@@ -301,15 +409,20 @@ class Collection:
     ##########################################################################
 
     def getCard(self, id: int) -> Card:
+        """The card object whose id is id."""
         return Card(self, id)
 
     def getNote(self, id: int) -> Note:
+        """The note object whose id is id."""
         return Note(self, id=id)
 
     # Utils
     ##########################################################################
 
     def nextID(self, type: str, inc: bool = True) -> Any:
+        """Get the id next{Type} in the collection's configuration. Increment this id.
+
+        Use 1 instead if this id does not exists in the collection."""
         type = "next" + type.capitalize()
         id = self.conf.get(type, 1)
         if inc:
@@ -357,6 +470,8 @@ class Collection:
     # legacy
 
     def addNote(self, note: Note) -> int:
+        """Add a note to the collection unless it generates no card. Return
+        number of new cards."""
         self.add_note(note, note.model()["did"])
         return len(note.cards())
 
@@ -370,6 +485,7 @@ class Collection:
     ##########################################################################
 
     def isEmpty(self) -> bool:
+        """Is there no cards in this collection."""
         return not self.db.scalar("select 1 from cards limit 1")
 
     def cardCount(self) -> Any:
@@ -382,6 +498,10 @@ class Collection:
     # legacy
 
     def remCards(self, ids: List[int], notes: bool = True) -> None:
+        """Bulk delete cards by ID.
+
+        keyword arguments:
+        notes -- whether note without cards should be deleted."""
         self.remove_cards_and_orphaned_notes(ids)
 
     def emptyCids(self) -> List[int]:
@@ -401,6 +521,7 @@ class Collection:
     # legacy
 
     def updateFieldCache(self, nids: List[int]) -> None:
+        "Update field checksums and sort cache, after find&replace, changing model, etc."
         self.after_note_updates(nids, mark_modified=False, generate_cards=False)
 
     # this also updates field cache
@@ -514,19 +635,29 @@ class Collection:
 
     # Undo
     ##########################################################################
+    # [type, undoName, data]
+    # type 1 = review; type 2 = checkpoint
 
     def clearUndo(self) -> None:
+        """Erase all undo information from the collection."""
         # [type, undoName, data]
         # type 1 = review; type 2 = checkpoint
         self._undo = None
 
     def undoName(self) -> Any:
-        "Undo menu item name, or None if undo unavailable."
+        """The name of the action which could potentially be undone.
+
+        None if nothing can be undone. This let test whether something
+        can be undone.
+        """
         if not self._undo:
             return None
         return self._undo[1]
 
     def undo(self) -> Any:
+        """Undo the last operation.
+
+        Assuming an undo object exists."""
         if self._undo[0] == 1:
             return self._undoReview()
         else:
@@ -538,7 +669,7 @@ class Collection:
             if self._undo[0] == 1:
                 old = self._undo[2]
             self.clearUndo()
-        wasLeech = card.note().hasTag("leech") or False
+        wasLeech = card.note().hasTag("leech") or False  # The or is probably useless.
         self._undo = [1, _("Review"), old + [copy.copy(card)], wasLeech]
 
     def _undoReview(self) -> Any:
@@ -589,7 +720,16 @@ class Collection:
     ##########################################################################
 
     def basicCheck(self) -> bool:
-        "Basic integrity check for syncing. True if ok."
+        """True if basic integrity is meet.
+
+        Used before and after sync, or before a full upload.
+
+        Tests:
+        * whether each card belong to a note
+        * each note has a model
+        * each note has a card
+        * each card's ord is valid according to the note model.
+        """
         # cards without notes
         if self.db.scalar(
             """
@@ -642,6 +782,7 @@ select id from notes where mid = ?) limit 1"""
         return ("\n".join(problems), ok)
 
     def optimize(self) -> None:
+        """Tell sqlite to optimize the db"""
         self.save(trx=False)
         self.db.execute("vacuum")
         self.db.execute("analyze")
@@ -651,6 +792,15 @@ select id from notes where mid = ?) limit 1"""
     ##########################################################################
 
     def log(self, *args, **kwargs) -> None:
+        """Generate the string [time] path:fn(): args list
+
+        if args is not string, it is represented using pprint.pformat
+
+        if self._debugLog is True, it is hadded to _logHnd
+        if devMode is True, this string is printed
+
+        TODO look traceback/extract stack and fn
+        """
         if not self._should_log:
             return
 

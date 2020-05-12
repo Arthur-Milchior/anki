@@ -20,6 +20,7 @@ import queue
 import typing
 import uuid
 
+# included implicitly in the past, and relied upon by some add-ons
 import PyQt5.QtSvg
 import socks
 
@@ -27,6 +28,9 @@ import socks
 import anki.storage
 import anki.sync
 from anki.utils import isLin, isWin
+
+# included implicitly in the past, and relied upon by some add-ons
+
 
 # external module access in Windows
 if isWin:

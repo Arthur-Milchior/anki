@@ -1,6 +1,9 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+"""The window used to:
+* edit a note type
+* preview the different cards of a note."""
 import copy
 import json
 import re
@@ -38,6 +41,22 @@ from aqt.webview import AnkiWebView
 
 
 class CardLayout(QDialog):
+    """TODO
+
+    An object of class CardLayout contains:
+    nw -- the main window
+    parent -- the parent of the caller, by default the main window
+    note -- the note object considered
+    ord -- the order of the card considered
+    col -- the current collection
+    mm -- The model manager
+    model -- the model of the note
+    addMode -- if the card layout is called for a new card (in this case, it is temporary added to the db). True if its called from models.py, false if its called from edit.py
+    emptyFields -- the list of fields which are empty. Used only if addMode is true
+    redrawing -- is it currently redrawing (forbid savecard and onCardSelected)
+    cards -- the list of cards of the current note, each with their template.
+    """
+
     def __init__(
         self,
         mw: AnkiQt,
@@ -82,6 +101,9 @@ class CardLayout(QDialog):
         self.setFocus()
 
     def redraw_everything(self):
+        """TODO
+        update the list of card
+        """
         self.ignore_change_signals = True
         self.updateTopArea()
         self.ignore_change_signals = False
@@ -118,6 +140,8 @@ class CardLayout(QDialog):
         self.updateCardNames()
 
     def updateCardNames(self):
+        """ In the list of card name, change them according to
+        current's name"""
         self.ignore_change_signals = True
         combo = self.topAreaForm.templatesBox
         combo.clear()
@@ -129,6 +153,10 @@ class CardLayout(QDialog):
         self.ignore_change_signals = False
 
     def _summarizedName(self, idx: int, tmpl: Dict):
+        """Compute the text appearing in the list of templates, on top of the window
+
+        tmpl -- a template object
+        """
         return "{}: {}: {} -> {}".format(
             idx + 1,
             tmpl["name"],
@@ -137,6 +165,9 @@ class CardLayout(QDialog):
         )
 
     def _fieldsOnTemplate(self, fmt):
+        """List of tags found in fmt, separated by +, limited to 30 characters
+        (not counting the +), in lexicographic order, with +... if some are
+        missings."""
         matches = re.findall("{{[^#/}]+?}}", fmt)
         chars_allowed = 30
         field_names: List[str] = []
@@ -318,6 +349,10 @@ class CardLayout(QDialog):
             self.pform.cloze_number_combo.setHidden(True)
 
     def on_preview_toggled(self):
+        """Remove the current template, except if it would leave a note
+        without card.  Ask user for confirmation
+
+        """
         self.have_autoplayed = False
         self._renderPreview()
 
@@ -417,6 +452,10 @@ class CardLayout(QDialog):
             self._previewTimer = None
 
     def _renderPreview(self) -> None:
+        """
+        change the answer and question side of the preview
+        windows. Change the list of name of cards.
+        """
         self.cancelPreviewTimer()
 
         card = self.rendered_card = self.ephemeral_card_for_rendering()
@@ -424,6 +463,8 @@ class CardLayout(QDialog):
 
         bodyclass = theme_manager.body_classes_for_card_ord(card.ord)
 
+        # deal with [[type:, image and remove sound of the card's
+        # question and answer
         if self.pform.preview_front.isChecked():
             questionHtmlPreview = ti(self.mw.prepare_card_text_for_display(card.q()))
             questionHtmlPreview = gui_hooks.card_will_show(
@@ -456,6 +497,16 @@ class CardLayout(QDialog):
         self.updateCardNames()
 
     def maybeTextInput(self, txt, type="q"):
+        """HTML: A default example for [[type:, which is shown in the preview
+        window.
+
+        On the question side, it shows "exomple", on the answer side
+        it shows the correction, for when the right answer is "an
+        example".
+
+        txt -- the card type
+        type -- a side. 'q' for question, 'a' for answer
+        """
         if "[[type:" not in txt:
             return txt
         origLen = len(txt)
@@ -544,6 +595,7 @@ class CardLayout(QDialog):
         self.redraw_everything()
 
     def onReorder(self):
+        """Asks user for a new position for current template. Move to this position if it is a valid position."""
         numberOfCard = len(self.templates)
         template = self.current_template()
         current_pos = self.templates.index(template) + 1
@@ -578,6 +630,7 @@ class CardLayout(QDialog):
         return name
 
     def onAddCard(self):
+        """Ask for confirmation and create a copy of current card as the last template"""
         cnt = self.mw.col.models.useCount(self.model)
         txt = (
             ngettext(
@@ -763,6 +816,7 @@ Enter deck to place new %s cards in, or leave blank:"""
         self.mw.taskman.with_progress(save, on_done)
 
     def reject(self) -> None:
+        """ Close the window and save the current version of the model"""
         if self.change_tracker.changed():
             if not askUser("Discard changes?"):
                 return

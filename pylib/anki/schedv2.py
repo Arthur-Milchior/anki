@@ -192,6 +192,7 @@ order by due"""
         return card.queue
 
     def answerButtons(self, card: Card) -> int:
+        """Number of buttons to show for this card"""
         conf = self._cardConf(card)
         if card.odid and not conf["resched"]:
             return 2

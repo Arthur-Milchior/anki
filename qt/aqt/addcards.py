@@ -28,6 +28,8 @@ from aqt.utils import (
 
 
 class AddCards(QDialog):
+    """The window obtained from main by pressing A, or clicking on "Add"."""
+
     def __init__(self, mw: AnkiQt) -> None:
         QDialog.__init__(self, None, Qt.Window)
         mw.setupDialogGC(self)
@@ -89,6 +91,7 @@ class AddCards(QDialog):
         self.historyButton = button
 
     def setAndFocusNote(self, note: Note) -> None:
+        """Add note as the content of the editor. Focus in the first element."""
         self.editor.setNote(note, focusTo=0)
 
     def onModelChange(self, unused=None) -> None:
@@ -113,6 +116,17 @@ class AddCards(QDialog):
         # Reset load note, so it is not required to load it here.
 
     def onReset(self, model: None = None, keep: bool = False) -> None:
+        """Create a new note and set it with the current field values.
+
+        keyword arguments
+        model -- not used
+        keep -- Whether the old note was saved in the collection. In
+        this case, remove non sticky fields. Otherwise remove the last
+        temporary note (it is replaced by a new one).
+        """
+        # Called with keep set to True from  _addCards
+        # Called with default keep __init__, from hook "reset"
+        # Meaning of the word keep guessed. Not clear.
         oldNote = self.editor.note
         note = self.mw.col.newNote()
         flds = note.model()["flds"]
@@ -158,6 +172,9 @@ class AddCards(QDialog):
         browser.onSearchActivated()
 
     def addNote(self, note) -> Optional[Note]:
+        """check whether first field is not empty, that clozes appear in cloze
+        note, and that some card will be generated. In those case, save the
+        note and return it. Otherwise show a warning and return None"""
         note.model()["did"] = self.deckChooser.selectedId()
         ret = note.dupeOrEmpty()
         problem = None
@@ -185,9 +202,14 @@ class AddCards(QDialog):
         return note
 
     def addCards(self):
+        """Adding the content of the fields as a new note"""
+        # Save edits in the fields, and call _addCards
         self.editor.saveNow(self._addCards)
 
     def _addCards(self):
+        """Adding the content of the fields as a new note.
+
+        Assume that the content of the GUI saved in the model."""
         self.editor.saveAddModeVars()
         if not self.addNote(self.editor.note):
             return
@@ -204,9 +226,15 @@ class AddCards(QDialog):
         return QDialog.keyPressEvent(self, evt)
 
     def reject(self) -> None:
+        """Close the window.
+
+        If data would be lost, ask for confirmation"""
         self.ifCanClose(self._reject)
 
     def _reject(self) -> None:
+        """Close the window.
+
+        Don't check whether data will be lost"""
         gui_hooks.state_did_reset.remove(self.onReset)
         gui_hooks.current_note_type_did_change.remove(self.onModelChange)
         av_player.stop_and_clear_queue()

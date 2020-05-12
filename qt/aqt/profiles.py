@@ -336,15 +336,27 @@ and no other programs are accessing your profile folders, then try again."""
     ######################################################################
 
     def profileFolder(self, create=True):
+        """The path to the folder of this profile.
+
+        It is based on the base, and this profile name
+        This folder may not exists.
+        Create it only if does not exists and create is set to True"""
         path = os.path.join(self.base, self.name)
         if create:
             self._ensureExists(path)
         return path
 
     def addonFolder(self):
+        """The path to the add-on folder.
+
+        Guarenteed to exists.
+        It is in base, not in profile"""
         return self._ensureExists(os.path.join(self.base, "addons21"))
 
     def backupFolder(self):
+        """The path to the backup folder.
+
+        Guarenteed to exists"""
         return self._ensureExists(os.path.join(self.profileFolder(), "backups"))
 
     def collectionPath(self):
@@ -376,6 +388,7 @@ and no other programs are accessing your profile folders, then try again."""
     ######################################################################
 
     def _ensureExists(self, path):
+        """Create the path if it does not exists. Return the path"""
         if not os.path.exists(path):
             os.makedirs(path)
         return path
@@ -391,6 +404,7 @@ and no other programs are accessing your profile folders, then try again."""
         self.ensureBaseExists()
 
     def _defaultBase(self):
+        """The folder containing every file related to anki's configuration. """
         if isWin:
             from aqt.winpaths import get_appdata
 
@@ -406,6 +420,14 @@ and no other programs are accessing your profile folders, then try again."""
             return os.path.join(dataDir, "Anki2")
 
     def _loadMeta(self, retrying=False) -> LoadMetaResult:
+        """
+        Copy prefs to prefs21.db if prefs exists only for 2.0
+        Create a new profile and an error message if prefs21.db has a problem.
+        if no preference database exists, create it, and create a global profile in it using current meta.
+        put database of preferences in self.db
+        Put the _global preferences in self.meta
+        todo: explain call to _setDefaultLang
+        """
         result = LoadMetaResult()
         result.firstTime = False
         result.loadError = retrying

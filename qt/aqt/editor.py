@@ -80,7 +80,20 @@ html { background: %s; }
 
 # caller is responsible for resetting note on reset
 class Editor:
+    """The part of the window used to edit notes. It is used for adding
+    note, editing existing note, and as the lower part of the browser.
+
+    _links -- associate to each javascript command an action to do. ATTENTION: it is directly a function, and not a method from this class. Thus if you override the method, the function is not automatically modified.
+    addMode -- Whether editor is called from addcard.py
+    currentField -- The index of the field currently selected. Or None if no fiel is selected.
+    card -- the card selected in the browser/in the edit window
+
+    """
+
     def __init__(self, mw: AnkiQt, widget, parentWindow, addMode=False) -> None:
+        """TODO
+
+        addMode -- Whether editor is called from addcard.py"""
         self.mw = mw
         self.widget = widget
         self.parentWindow = parentWindow
@@ -111,6 +124,7 @@ class Editor:
         self.web.set_bridge_command(self.onBridgeCmd, self)
         self.outerLayout.addWidget(self.web, 1)
 
+        # List of buttons on top right of editor
         righttopbtns: List[str] = [
             self._addButton("text_bold", "bold", _("Bold text (Ctrl+B)"), id="bold"),
             self._addButton(
@@ -172,10 +186,20 @@ class Editor:
         gui_hooks.editor_did_init_buttons(righttopbtns, self)
         # legacy filter
         righttopbtns = runFilter("setupEditorButtons", righttopbtns, self)
-        topbuts = """
-            <div id="topbutsleft" style="float:left;">
+
+        # Fields... and Cards... button on top lefts, and
+        lefttopbtns = """
                 <button title='%(fldsTitle)s' onclick="pycmd('fields')">%(flds)s...</button>
                 <button title='%(cardsTitle)s' onclick="pycmd('cards')">%(cards)s...</button>
+        """ % dict(
+            flds=_("Fields"),
+            cards=_("Cards"),
+            fldsTitle=_("Customize Fields"),
+            cardsTitle=shortcut(_("Customize Card Templates (Ctrl+L)")),
+        )
+        topbuts = """
+            <div id="topbutsleft" style="float:left;">
+                %(lefttopbtns)s
             </div>
             <div id="topbutsright" style="float:right;">
                 %(rightbts)s
@@ -249,6 +273,17 @@ class Editor:
         toggleable: bool = False,
         disables: bool = True,
     ):
+        """Create a button, with the image icon, or the text of the label, or
+        of the cmd. It send the python command cmd.
+
+        icon -- url to the icon. Potentially falsy
+        cmd -- python command to call when the button is pressed
+        tip -- text to show when the mouse is on the button
+        id -- an identifier for the html button
+        toggleable -- whether pressing the button should call the js function toggleEditorButton
+        disables -- if true, add class "perm" to the btuton
+
+        """
         if icon:
             if icon.startswith("qrc:/"):
                 iconstr = icon
@@ -329,6 +364,9 @@ class Editor:
             QShortcut(QKeySequence(keys), self.widget, activated=fn)  # type: ignore
 
     def _addFocusCheck(self, fn):
+        """Function, calling fn if there is a currrent field, otherwise nothing.
+        """
+
         def checkFocus():
             if self.currentField is None:
                 return
@@ -337,17 +375,25 @@ class Editor:
         return checkFocus
 
     def onFields(self):
+        """Save the editor content, and open the field editor"""
         self.saveNow(self._onFields)
 
     def _onFields(self):
+        """Open the field editor"""
         from aqt.fields import FieldDialog
 
         FieldDialog(self.mw, self.note.model(), parent=self.parentWindow)
 
     def onCardLayout(self):
+        """Save the editor content, and open the editor of card type"""
         self.saveNow(self._onCardLayout)
 
     def _onCardLayout(self):
+        """open the editor of card type. On current card if there is one
+        (i.e. in browser, or from editor), or card 0 otherwise
+        (i.e. when creating notes)
+
+        """
         from aqt.clayout import CardLayout
 
         if self.card:
@@ -422,7 +468,18 @@ class Editor:
     ######################################################################
 
     def setNote(self, note, hide=True, focusTo=None):
-        "Make NOTE the current note."
+        """Make `note` the current note.
+        It's used when a new note should be set in place, or when the model change.
+
+        if note is Falsy:
+        Remove tags's line.
+
+
+        keyword arguments:
+        note -- the new note in the editor
+        hide -- whether to hide the current widget
+        focusTo -- in which field should the focus appear
+        """
         self.note = note
         self.currentField = None
         if self.note:
@@ -436,6 +493,9 @@ class Editor:
         self.loadNote(self.currentField)
 
     def loadNote(self, focusTo=None) -> None:
+        """Todo
+
+        focusTo -- Whether focus should be set to some field."""
         if not self.note:
             return
 
@@ -594,6 +654,7 @@ class Editor:
         gui_hooks.editor_did_update_tags(self.note)
 
     def saveAddModeVars(self):
+        """During creation of new notes, save tags to the note's model"""
         if self.addMode:
             # save tags to model
             model = self.note.model()
@@ -601,6 +662,7 @@ class Editor:
             self.mw.col.models.save(model, updateReqs=False)
 
     def hideCompleters(self):
+        "Remove tags's line"
         self.tags.hideCompleter()
 
     def onFocusTags(self):

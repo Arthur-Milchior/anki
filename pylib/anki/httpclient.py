@@ -18,6 +18,11 @@ ProgressCallback = Callable[[int, int], None]
 
 
 class HttpClient:
+    """
+    session -- A request session object
+    verify -- Whether to verify the certificate. By default true unless the os ANKI_NOVERIFYSSL is set to truthy.
+    timeout -- as for requests
+    """
 
     verify = True
     timeout = 60
@@ -43,6 +48,12 @@ class HttpClient:
         self.close()
 
     def post(self, url: str, data: Any, headers: Optional[Dict[str, str]]) -> Response:
+        """
+        Similar to a post request, where:
+        * User-Agent name is added
+        * hook httpSend is run
+        * stream is true, timeout and verify are as in the class.
+        """
         data = _MonitoringFile(
             data, hook=self.progress_hook
         )  # pytype: disable=wrong-arg-types
@@ -57,6 +68,11 @@ class HttpClient:
         )  # pytype: disable=wrong-arg-types
 
     def get(self, url, headers=None) -> Response:
+        """
+        Similar to a post request, where:
+        * User-Agent name is added to header
+        * stream is true, timeout and verify are as in the class.
+        """
         if headers is None:
             headers = {}
         headers["User-Agent"] = self._agentName()
@@ -65,6 +81,11 @@ class HttpClient:
         )
 
     def streamContent(self, resp) -> bytes:
+        """
+        Return a string containing the content of the entire response to a request.
+
+        If the response is not successful, raise requests.exceptions.HTTPError
+        """
         resp.raise_for_status()
 
         buf = io.BytesIO()
@@ -75,6 +96,7 @@ class HttpClient:
         return buf.getvalue()
 
     def _agentName(self) -> str:
+        """Anki versionNumber"""
         from anki import version
 
         return "Anki {}".format(version)
