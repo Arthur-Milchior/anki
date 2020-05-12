@@ -600,12 +600,12 @@ from the profile screen."
 
         # find existing backups
         backups = []
-        for file in os.listdir(dir):
+        for file_name in os.listdir(dir):
             # only look for new-style format
-            match = re.match(r"backup-\d{4}-\d{2}-.+.colpkg", file)
+            match = re.match(r"backup-\d{4}-\d{2}-.+.colpkg", file_name)
             if not match:
                 continue
-            backups.append(file)
+            backups.append(file_name)
         backups.sort()
 
         # remove old ones

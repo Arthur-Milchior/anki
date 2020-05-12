@@ -115,7 +115,7 @@ class ExportDialog(QDialog):
 
         filename = "{0}{1}".format(deck_name, self.exporter.ext)
         while 1:
-            file = getSaveFile(
+            file_name = getSaveFile(
                 self,
                 _("Export"),
                 "export",
@@ -123,24 +123,24 @@ class ExportDialog(QDialog):
                 self.exporter.ext,
                 fname=filename,
             )
-            if not file:
+            if not file_name:
                 return
-            if checkInvalidFilename(os.path.basename(file), dirsep=False):
+            if checkInvalidFilename(os.path.basename(file_name), dirsep=False):
                 continue
-            if os.path.commonprefix([self.mw.pm.base, file]) == self.mw.pm.base:
+            if os.path.commonprefix([self.mw.pm.base, file_name]) == self.mw.pm.base:
                 showWarning("Please choose a different export location.")
                 continue
             break
         self.hide()
-        if file:
-            # check we can write to file
+        if file_name:
+            # check we can write to file_name
             try:
-                f = open(file, "wb")
-                f.close()
+                file = open(file_name, "wb")
+                file.close()
             except (OSError, IOError) as e:
                 showWarning(_("Couldn't save file: %s") % str(e))
             else:
-                os.unlink(file)
+                os.unlink(file_name)
 
             # progress handler
             def exported_media(cnt):
@@ -154,7 +154,7 @@ class ExportDialog(QDialog):
                 )
 
             def do_export():
-                self.exporter.exportInto(file)
+                self.exporter.exportInto(file_name)
 
             def on_done(future: Future):
                 self.mw.progress.finish()
