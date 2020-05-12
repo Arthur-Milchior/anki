@@ -64,18 +64,18 @@ class DeckManager:
         self.col = col.weakref()
         self.decks = DecksDictProxy(col)
 
-    def save(self, g: Dict = None) -> None:
+    def save(self, deckOrOption: Dict = None) -> None:
         "Can be called with either a deck or a deck configuration."
-        if not g:
+        if not deckOrOption:
             print("col.decks.save() should be passed the changed deck")
             return
 
         # deck conf?
-        if "maxTaken" in g:
-            self.update_config(g)
+        if "maxTaken" in deckOrOption:
+            self.update_config(deckOrOption)
             return
         else:
-            self.update(g, preserve_usn=False)
+            self.update(deckOrOption, preserve_usn=False)
 
     # legacy
     def flush(self):
