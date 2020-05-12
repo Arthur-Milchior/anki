@@ -156,8 +156,8 @@ class Anki2Importer(Importer):
         self.log.append("")
 
         if dupesIgnored:
-            for row in dupesIgnored:
-                self._logNoteRow(_("Skipped"), row)
+            for dupeIgnored in dupesIgnored:
+                self._logNoteRow(_("Skipped"), dupeIgnored)
         if update:
             for row in update:
                 self._logNoteRow(_("Updated"), row)
