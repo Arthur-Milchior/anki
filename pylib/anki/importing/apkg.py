@@ -43,10 +43,10 @@ class AnkiPackageImporter(Anki2Importer):
         # run anki2 importer
         Anki2Importer.run(self)
         # import static media
-        for file, card in list(self.nameToNum.items()):
-            if not file.startswith("_") and not file.startswith("latex-"):
+        for file_name, card in list(self.nameToNum.items()):
+            if not file_name.startswith("_") and not file_name.startswith("latex-"):
                 continue
-            path = os.path.join(self.col.media.dir(), file)
+            path = os.path.join(self.col.media.dir(), file_name)
             if not os.path.exists(path):
                 with open(path, "wb") as f:
                     f.write(z.read(card))
