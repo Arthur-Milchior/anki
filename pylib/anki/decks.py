@@ -207,19 +207,19 @@ class DeckManager:
             return self.get_legacy(id)
         return None
 
-    def update(self, g: Dict[str, Any], preserve_usn=True) -> None:
+    def update(self, deck: Dict[str, Any], preserve_usn=True) -> None:
         "Add or update an existing deck. Used for syncing and merging."
         try:
-            g["id"] = self.col.backend.add_or_update_deck_legacy(
-                deck=to_json_bytes(g), preserve_usn_and_mtime=preserve_usn
+            deck["id"] = self.col.backend.add_or_update_deck_legacy(
+                deck=to_json_bytes(deck), preserve_usn_and_mtime=preserve_usn
             )
         except anki.rsbackend.DeckIsFilteredError:
             raise DeckRenameError("deck was filtered")
 
-    def rename(self, g: Dict[str, Any], newName: str) -> None:
+    def rename(self, deck: Dict[str, Any], newName: str) -> None:
         "Rename deck prefix to NAME if not exists. Updates children."
-        g["name"] = newName
-        self.update(g, preserve_usn=False)
+        deck["name"] = newName
+        self.update(deck, preserve_usn=False)
         return
 
     # Drag/drop
@@ -313,13 +313,13 @@ class DeckManager:
     def remove_config(self, id) -> None:
         "Remove a configuration and update all decks using it."
         self.col.modSchema(check=True)
-        for g in self.all():
+        for deck in self.all():
             # ignore cram decks
-            if "conf" not in g:
+            if "conf" not in deck:
                 continue
-            if str(g["conf"]) == str(id):
-                g["conf"] = 1
-                self.save(g)
+            if str(deck["conf"]) == str(id):
+                deck["conf"] = 1
+                self.save(deck)
         self.col.backend.remove_deck_config(id)
 
     def setConf(self, grp: Dict[str, Any], id: int) -> None:
@@ -445,9 +445,9 @@ class DeckManager:
         "All children of did, as (name, id)."
         name = self.get(did)["name"]
         actv = []
-        for g in self.all_names_and_ids():
-            if g.name.startswith(name + "::"):
-                actv.append((g.name, g.id))
+        for deck in self.all_names_and_ids():
+            if deck.name.startswith(name + "::"):
+                actv.append((deck.name, deck.id))
         return actv
 
     def child_ids(self, parent_name: str) -> Iterable[int]:
