@@ -405,8 +405,8 @@ insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)""",
             dir = self.src.media.dir()
         path = os.path.join(dir, fname)
         try:
-            with open(path, "rb") as f:
-                return f.read()
+            with open(path, "rb") as file_object:
+                return file_object.read()
         except (IOError, OSError):
             return b""
 
@@ -421,8 +421,8 @@ insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)""",
     def _writeDstMedia(self, fname: str, data: bytes) -> None:
         path = os.path.join(self.dst.media.dir(), unicodedata.normalize("NFC", fname))
         try:
-            with open(path, "wb") as f:
-                f.write(data)
+            with open(path, "wb") as file_object:
+                file_object.write(data)
         except (OSError, IOError):
             # the user likely used subdirectories
             pass
