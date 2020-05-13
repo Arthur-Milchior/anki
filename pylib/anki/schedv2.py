@@ -1096,22 +1096,22 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
     def remFromDyn(self, cids: List[int]) -> None:
         self.emptyDyn(None, "id in %s and odid" % ids2str(cids))
 
-    def _dynOrder(self, o: int, limit: int) -> str:
-        if o == DYN_OLDEST:
+    def _dynOrder(self, order: int, limit: int) -> str:
+        if order == DYN_OLDEST:
             sort = "(select max(id) from revlog where cid=c.id)"
-        elif o == DYN_RANDOM:
+        elif order == DYN_RANDOM:
             sort = "random()"
-        elif o == DYN_SMALLINT:
+        elif order == DYN_SMALLINT:
             sort = "ivl"
-        elif o == DYN_BIGINT:
+        elif order == DYN_BIGINT:
             sort = "ivl desc"
-        elif o == DYN_LAPSES:
+        elif order == DYN_LAPSES:
             sort = "lapses desc"
-        elif o == DYN_ADDED:
+        elif order == DYN_ADDED:
             t = "n.id"
-        elif o == DYN_REVADDED:
+        elif order == DYN_REVADDED:
             t = "n.id desc"
-        elif o == DYN_DUEPRIORITY:
+        elif order == DYN_DUEPRIORITY:
             sort = (
                 f"(case when queue={QUEUE_TYPE_REV} and due <= %d then (ivl / cast(%d-due+0.001 as real)) else 100000+due end)"
                 % (self.today, self.today)
