@@ -330,46 +330,46 @@ class Anki2Importer(Importer):
                 # fixme: in future, could update if newer mod time
                 continue
             # doesn't exist. strip off note info, and save src id for later
-            card = list(card[2:])
-            scid = card[0]
+            card = list(card)
+            scid = card[2 + 0]
             # ensure the card id is unique
-            while card[0] in existing:
-                card[0] += 999
-            existing[card[0]] = True
+            while card[2 + 0] in existing:
+                card[2 + 0] += 999
+            existing[card[2 + 0]] = True
             # update cid, nid, etc
-            card[1] = self._notes[guid][0]
-            card[2] = self._did(card[2])
-            card[4] = intTime()
-            card[5] = usn
+            card[2 + 1] = self._notes[guid][0]
+            card[2 + 2] = self._did(card[2 + 2])
+            card[2 + 4] = intTime()
+            card[2 + 5] = usn
             # review cards have a due date relative to collection
             if (
-                card[7] in (QUEUE_TYPE_REV, QUEUE_TYPE_DAY_LEARN_RELEARN)
-                or card[6] == CARD_TYPE_REV
+                card[2 + 7] in (QUEUE_TYPE_REV, QUEUE_TYPE_DAY_LEARN_RELEARN)
+                or card[2 + 6] == CARD_TYPE_REV
             ):
-                card[8] -= aheadBy
+                card[2 + 8] -= aheadBy
             # odue needs updating too
-            if card[14]:
-                card[14] -= aheadBy
+            if card[2 + 14]:
+                card[2 + 14] -= aheadBy
             # if odid true, convert card from filtered to normal
-            if card[15]:
+            if card[2 + 15]:
                 # odid
-                card[15] = 0
+                card[2 + 15] = 0
                 # odue
-                card[8] = card[14]
-                card[14] = 0
+                card[2 + 8] = card[2 + 14]
+                card[2 + 14] = 0
                 # queue
-                if card[6] == CARD_TYPE_LRN:  # type
-                    card[7] = QUEUE_TYPE_NEW
+                if card[2 + 6] == CARD_TYPE_LRN:  # type
+                    card[2 + 7] = QUEUE_TYPE_NEW
                 else:
-                    card[7] = card[6]
+                    card[2 + 7] = card[2 + 6]
                 # type
-                if card[6] == CARD_TYPE_LRN:
-                    card[6] = CARD_TYPE_NEW
-            cards.append(card)
+                if card[2 + 6] == CARD_TYPE_LRN:
+                    card[2 + 6] = CARD_TYPE_NEW
+            cards.append(card[2:])
             # we need to import revlog, rewriting card ids and bumping usn
             for rev in self.src.db.execute("select * from revlog where cid = ?", scid):
                 rev = list(rev)
-                rev[1] = card[0]
+                rev[1] = card[2 + 0]
                 rev[2] = self.dst.usn()
                 revlog.append(rev)
             cnt += 1
