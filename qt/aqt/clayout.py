@@ -649,16 +649,16 @@ adjust the template manually to switch the question and answer."""
 
     def onBrowserDisplay(self):
         d = QDialog()
-        dialog = aqt.forms.browserdisp.Ui_Dialog()
-        dialog.setupUi(d)
+        form = aqt.forms.browserdisp.Ui_Dialog()
+        form.setupUi(d)
         template = self.current_template()
-        dialog.qfmt.setText(template.get("bqfmt", ""))
-        dialog.afmt.setText(template.get("bafmt", ""))
+        form.qfmt.setText(template.get("bqfmt", ""))
+        form.afmt.setText(template.get("bafmt", ""))
         if template.get("bfont"):
-            dialog.overrideFont.setChecked(True)
-        dialog.font.setCurrentFont(QFont(template.get("bfont", "Arial")))
-        dialog.fontSize.setValue(template.get("bsize", 12))
-        qconnect(dialog.buttonBox.accepted, lambda: self.onBrowserDisplayOk(dialog))
+            form.overrideFont.setChecked(True)
+        form.font.setCurrentFont(QFont(template.get("bfont", "Arial")))
+        form.fontSize.setValue(template.get("bsize", 12))
+        qconnect(form.buttonBox.accepted, lambda: self.onBrowserDisplayOk(form))
         d.exec_()
 
     def onBrowserDisplayOk(self, dialog):
