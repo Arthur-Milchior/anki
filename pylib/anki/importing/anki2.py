@@ -312,11 +312,31 @@ class Anki2Importer(Importer):
         cnt = 0
         usn = self.dst.usn()
         aheadBy = self.src.sched.today - self.dst.sched.today
-        for card in self.src.db.execute(
+        for (
+            guid,
+            note_mid,
+            scid,
+            nid,
+            did,
+            ord,
+            old_mod,
+            old_usn,
+            type,
+            queue,
+            due,
+            ivl,
+            factor,
+            reps,
+            lapses,
+            left,
+            odue,
+            odid,
+            flags,
+            data,
+        ) in self.src.db.execute(
             "select note.guid, note.mid, card.* from cards card, notes note "
             "where card.nid = note.id"
         ):
-            guid = card[0]
             if guid in self._changedGuids:
                 guid = self._changedGuids[guid]
             if guid in self._ignoredGuids:
@@ -325,51 +345,68 @@ class Anki2Importer(Importer):
             if guid not in self._notes:
                 continue
             # does the card already exist in the dst col?
-            ord = card[5]
             if (guid, ord) in self._cards:
                 # fixme: in future, could update if newer mod time
                 continue
             # doesn't exist. strip off note info, and save src id for later
-            card = list(card)
-            scid = card[2]
             # ensure the card id is unique
-            while card[2] in existing:
-                card[2] += 999
-            existing[card[2]] = True
+            while scid in existing:
+                scid += 999
+            existing[scid] = True
             # update cid, nid, etc
-            card[3] = self._notes[guid][0]
-            card[4] = self._did(card[4])
-            card[6] = intTime()
-            card[7] = usn
+            nid = self._notes[guid][0]
+            did = self._did(did)
+            mod = intTime()
             # review cards have a due date relative to collection
             if (
-                card[9] in (QUEUE_TYPE_REV, QUEUE_TYPE_DAY_LEARN_RELEARN)
-                or card[8] == CARD_TYPE_REV
+                queue in (QUEUE_TYPE_REV, QUEUE_TYPE_DAY_LEARN_RELEARN)
+                or type == CARD_TYPE_REV
             ):
-                card[10] -= aheadBy
+                due -= aheadBy
             # odue needs updating too
-            if card[16]:
-                card[16] -= aheadBy
+            if odue:
+                odue -= aheadBy
             # if odid true, convert card from filtered to normal
-            if card[17]:
+            if odid:
                 # odid
-                card[17] = 0
+                odid = 0
                 # odue
-                card[10] = card[16]
-                card[16] = 0
+                due = odue
+                odue = 0
                 # queue
-                if card[8] == CARD_TYPE_LRN:  # type
-                    card[9] = QUEUE_TYPE_NEW
+                if type == CARD_TYPE_LRN:  # type
+                    queue = QUEUE_TYPE_NEW
                 else:
-                    card[9] = card[8]
+                    queue = type
                 # type
-                if card[8] == CARD_TYPE_LRN:
-                    card[8] = CARD_TYPE_NEW
-            cards.append(card[2:])
+                if type == CARD_TYPE_LRN:
+                    type = CARD_TYPE_NEW
+            cards.append(
+                (
+                    scid,
+                    nid,
+                    did,
+                    ord,
+                    old_mod,
+                    old_usn,
+                    type,
+                    queue,
+                    due,
+                    ivl,
+                    factor,
+                    reps,
+                    lapses,
+                    left,
+                    odue,
+                    odid,
+                    flags,
+                    data,
+                )
+            )
             # we need to import revlog, rewriting card ids and bumping usn
             for rev in self.src.db.execute("select * from revlog where cid = ?", scid):
                 rev = list(rev)
-                rev[1] = card[2]
+                rev[1] = scid
                 rev[2] = self.dst.usn()
                 revlog.append(rev)
             cnt += 1
