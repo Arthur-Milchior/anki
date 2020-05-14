@@ -42,12 +42,12 @@ class ProgressManager:
             else:
                 func()
 
-        t = QTimer(self.mw)
+        timer = QTimer(self.mw)
         if not repeat:
-            t.setSingleShot(True)
-        qconnect(t.timeout, handler)
-        t.start(ms)
-        return t
+            timer.setSingleShot(True)
+        qconnect(timer.timeout, handler)
+        timer.start(ms)
+        return timer
 
     # Creating progress dialogs
     ##########################################################################
