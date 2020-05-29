@@ -1475,6 +1475,32 @@ class _EmptyCardsWillShowHook:
 empty_cards_will_show = _EmptyCardsWillShowHook()
 
 
+class _MainWindowDidSetupHook:
+    """Allow to make change to main window when it is set-up."""
+
+    _hooks: List[Callable[["aqt.AnkiQt"], None]] = []
+
+    def append(self, cb: Callable[["aqt.AnkiQt"], None]) -> None:
+        """(mw: aqt.AnkiQt)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[["aqt.AnkiQt"], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, mw: aqt.AnkiQt) -> None:
+        for hook in self._hooks:
+            try:
+                hook(mw)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+main_window_did_setup = _MainWindowDidSetupHook()
+
+
 class _MediaSyncDidProgressHook:
     _hooks: List[Callable[["aqt.mediasync.LogEntryWithTime"], None]] = []
 

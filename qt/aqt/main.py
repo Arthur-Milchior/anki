@@ -780,6 +780,7 @@ title="%s" %s>%s</button>""" % (
                 o.requiresCol = False
                 o._domReady = False
                 o._page.setContent(bytes("", "ascii"))
+        gui_hooks.main_window_did_setup(self)
 
     def closeAllWindows(self, onsuccess: Callable) -> None:
         aqt.dialogs.closeAll(onsuccess)

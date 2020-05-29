@@ -441,6 +441,11 @@ hooks = [
         args=["diag: aqt.emptycards.EmptyCardsDialog"],
         doc="""Allows changing the list of cards to delete.""",
     ),
+    Hook(
+        name="main_window_did_setup",
+        args=["mw: aqt.AnkiQt"],
+        doc="Allow to make change to main window when it is set-up.",
+    ),
     # Adding cards
     ###################
     Hook(
