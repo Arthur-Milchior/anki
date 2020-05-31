@@ -896,10 +896,4 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
                     pass
         # then bury
         if toBury:
-            self.col.db.execute(
-                f"update cards set queue={QUEUE_TYPE_SIBLING_BURIED},mod=?,usn=? where id in "
-                + ids2str(toBury),
-                intTime(),
-                self.col.usn(),
-            )
-            self.col.log(toBury)
+            self.buryCards(toBury, manual=False)
