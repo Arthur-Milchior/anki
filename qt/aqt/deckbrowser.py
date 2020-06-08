@@ -190,7 +190,8 @@ where id > ?""",
         depth -- indentation argument (number of ancestors)
         cnt --  the number of sibling, counting itself
         nameMap -- dictionnary, associating to a deck id its node
-        """        if node.collapsed:
+        """
+        if node.collapsed:
             prefix = "+"
         else:
             prefix = "-"
