@@ -188,7 +188,7 @@ class AnkiWebView(QWebEngineView):
         self, parent: Optional[QWidget] = None, title: str = "default"
     ) -> None:
         QWebEngineView.__init__(self, parent=parent)
-        self.title = title  # type: ignore
+        self.title = title
         self._page = AnkiWebPage(self._onBridgeCmd)
         self._page.setBackgroundColor(self._getWindowColor())  # reduce flicker
 
@@ -278,7 +278,7 @@ class AnkiWebView(QWebEngineView):
     def dropEvent(self, evt):
         pass
 
-    def setHtml(self, html: str) -> None:  #  type: ignore
+    def setHtml(self, html: str) -> None:
         # discard any previous pending actions
         self._pendingActions = []
         self._domDone = True
