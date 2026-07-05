@@ -62,6 +62,6 @@ jobs:
                 owner,
                 repo,
                 issue_number: pr.number,
-                body: `This PR has been automatically closed because no linked issue was provided within 4 days. Feel free to reopen it after linking an issue, just edit the PR description and add a line like \`Closes #123\`.`,
+                body: `This PR has been automatically closed because no linked issue was provided within 4 days. Feel free to reopen it after linking an issue, just edit the PR description and add a line like \`Closes #123\` or \`Refs #123\`.`,
               });
             }
